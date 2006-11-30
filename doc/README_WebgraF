@@ -1,0 +1,105 @@
+ -------- WebgraF -------
+
+ (c) Ulf Andrae 2003-2006
+
+ -------- WebgraF -------
+
+ Download the latest WebgraF from : 
+
+    http://www.smhi.se/sgn0106/if/hirald/WebgraF/WebgraF.tar.gz
+
+
+ Install 
+ -------
+
+ - Unzip and untar WebgraF.tar.gz
+
+ - Set your WebgraF main directory in WebgraF/bin/WebgraF.pl where :
+
+ # Change you working directory here        
+ #############################################
+ $WEBGRAF_BASE = "$SOME_PATH/WebgraF" ;
+ #############################################
+
+ - Add $SOME_PATH/WebgraF/bin/WebgraF to you path
+
+
+ Open $SOME_PATH/WebgraF/index.html in you browser
+
+
+ Basic usage
+ -----------
+
+ WebgraF -h will print :
+
+ USAGE: WebgraF -p PROJECT -e ENTRY [ -f FILE ] [ -glrhxXInm]
+ -p PROJECT name 
+ -e ENTRY name 
+ -I Install a new WebgraF webhome, to be used with -b 
+ -i INFO html file linked to project or entry 
+ -f FILE Webpage definition file or directory 
+    can be FILE.js,FILE.tar or directory 
+ -r Remove ENTRY or PROJECT 
+ -m Message on PROJECT link 
+ -n Rename PROJECT/ENTRY  
+ -c CLEANAGE Remove all ( but .html,.js) files older than CLEANAGE days from PROJECT/ENTRY 
+ -l List all projects and entrys 
+ -g Get input.js from PROJECT/ENTRY 
+ -x Export an PROJECT/ENTRY 
+ -h Displays this help 
+ -b Work with a different base directory 
+
+
+ WebgraF -l will list current projects
+
+ WebgraF will print list + help
+
+ WebgraF -p PROJECT_1 -e ENTRY_1 -g will give you the file definition for PROJECT_1/ENTRY_1
+
+ WebgraF -p PROJECT_1 -i -g will give you the project description PROJECT_1
+
+ WebgraF -b $FULL_PATH/NEW_WEBGRAF -I "My WebgraF" will install a new WebgraF home directory with title "My WebgraF"
+ 
+
+                        Open $FULL_PATH/NEW_WEBGRAF/index.html in your browser
+
+
+ WebgraF -b $FULL_PATH/NEW_WEBGRAF -p PROJECT_1 -e ENTRY_1 -f PROJECT_1_ENTRY_1.js will create new project/entry PROJECT_1/ENTRY_1
+
+ WebgraF -b $FULL_PATH/NEW_WEBGRAF -p PROJECT_1 -i "http://www.smhi.se"  will add a new description on PROJECT_1
+
+ WebgraF -b $FULL_PATH/NEW_WEBGRAF -p PROJECT_1 -e ENTRY_1 -f fig.tar will new plots to PROJECT_1/ENTRY_1
+
+ WebgraF -b $FULL_PATH/NEW_WEBGRAF -p PROJECT_1 -e ENTRY_1 -x will create a tar file with your plots and definition for ENTRY_1
+
+ WebgraF -b $FULL_PATH/NEW_WEBGRAF -p PROJECT_1            -x will create a tar file with your plots and definition for PROJECT_1
+
+ WebgraF -b $FULL_PATH/NEW_WEBGRAF -p PROJECT_1 -e ENTRY_1 -c 0 will list all png/gif files in ENTRY_1
+
+ WebgraF -b $FULL_PATH/NEW_WEBGRAF -p PROJECT_1 -e ENTRY_1 -c 10 will remove alla png/gif older than 10 days
+
+ WebgraF -b $FULL_PATH/NEW_WEBGRAF -p PROJECT_1 -e ENTRY_1 -m "Some info" will add some text to the main page
+
+ WebgraF -b $FULL_PATH/NEW_WEBGRAF -p PROJECT_1 -e ENTRY_1 -n ENTRY_2  will rename PROJECT_1/ENTRY_1 to PROJECT_1/ENTRY_2
+
+ WebgraF -b $FULL_PATH/NEW_WEBGRAF -p PROJECT_1 -n PROJECT_2  will rename PROJECT_1 to PROJECT_2
+
+ WebgraF -b $FULL_PATH/NEW_WEBGRAF -p PROJECT_2 -e ENTRY_2 -r will remove entry ENTRY_2
+
+ WebgraF -b $FULL_PATH/NEW_WEBGRAF -p PROJECT_2 -r will remove project PROJECT_2
+
+
+ These are the most (un)useful commands in WebgraF
+
+
+ For a description of the options in the entry definition javascript file click INFO on the main page 
+ and then FILE.js in the description.
+
+
+
+ Good Luck!
+
+
+
+
+

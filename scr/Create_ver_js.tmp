@@ -1,0 +1,320 @@
+#!/bin/ksh
+
+set -ax
+
+. Env_exp
+
+[[ $WEBCALL == "" ]] && exit
+
+II="[0"
+I=1
+
+while [ $I -lt $NEXP ] ; do
+   II="${II},${I}"
+   I=$( expr $I + 1 )
+done
+II="${II}]"
+
+cat > input.js << EOF
+// Input file
+
+title = "Surface verification"
+
+framec="Goldenrod"
+
+v[6] = [5,6,7,8]
+t[6] = ['May','Jun','Jul','Aug']
+
+v[0] = ['PS_00000000','V_00000000','v_00000000','f_00000000']
+t[0] = ['Timeserie stat','Fc length ver','Dayvar','Freq dist.']
+
+v[1] = ['00000000']
+t[1] = v[1]
+
+v[2] =  [1] ;
+t[2] = v[2] ;
+
+v[3] = [0,1,2,3,4,5,6]
+t[3] = ['Wind speed','Wind dir','PMSL','T2m','Rh2m','q2m','Cloud cover']
+
+v[4] =  [0] ;
+t[4] = v[4] ;
+
+v[5] =  [0] ;
+t[5] = v[5] ;
+
+mname = ["Type","Station","dum","Parameter","Level","Exp"]
+help = "${HELP}"; hide_help = false ;
+
+pdir ="${MONTH}_Surface/"
+ext='png'
+do_send = true ;
+
+EOF
+
+
+
+$WEBCALL -e ${MONTH}_Surface -f input.js
+
+# Surface Scatter 
+cat > input.js << EOF
+// Input file
+
+title = "Surface stations"
+
+framec="lightcoral"
+
+
+
+v[0] = ['s_00000000','S_00000000']
+t[0] = ['Full scatter','Difference']
+   
+v[1] = ['00000000']
+t[1] = v[1] ;
+
+v[2] =[1] ;
+t[2] = v[2] ;
+
+v[3] = ['calc',0,7]
+t[3] = ['Wind speed','Wind dir','PMSL','T2m','Rh2m','q2m','Cloud cover','Precip']
+
+v[4] =[0] ;
+t[4] = v[4] ;
+v[5] =$II
+t[5] = [$MYEXP]
+mname = ["Type","Station","dum","Parameter","Level","Exp"]
+pdir ="${MONTH}_Surface/"
+ext='png'
+help = "${HELP}"; hide_help = false ;
+EOF
+$WEBCALL -e ${MONTH}_Surf_scat -f input.js
+
+
+# Surface bias map 
+
+cat > input.js << EOF
+// Input file
+
+title = "Bias maps of surface variables"
+
+framec="Teal"
+
+
+v[0] = ['m','M']
+t[0] = ['By time of day','By fc hour']
+v[1] = ['b','r']
+t[1] = ['Bias','Rmse']
+   
+v[2] = ['00000000_00000000']
+t[2] = v[2] ;
+
+v[3] =[1] ;
+t[3] = v[3] ;
+
+v[4] = ['calc',0,6]
+t[4] = ['Wind speed','Wind dir','PMSL','T2m','Rh2m','q2m','Cloud cover']
+
+v[5] =[0,1] ;
+t[5] = v[5] ;
+v[6] =$II
+t[6] = [$MYEXP]
+mname = ["Type","Error","Station","dum","Parameter","Step","Exp"]
+pdir ="${MONTH}_Surface/"
+ext='png'
+do_debug = false
+help = "${HELP}"; hide_help = false ;
+EOF
+
+$WEBCALL -e ${MONTH}_Bias_maps -f input.js
+
+# Precipitation statistics
+cat > input.js << EOF
+// Input file
+
+title = "Precipitation"
+
+framec="turquoise"
+
+v[0] = ['ps_00000000','f_00000000']
+t[0] = ['Timeserie stat','Freq dist.']
+
+v[1] = ['00000000']
+t[1] = v[1]
+
+v[2] =  [1] ;
+t[2] = v[2] ;
+
+v[3] =  [7] ;
+t[3] = v[3] ;
+
+v[4] =  [0] ;
+t[4] = v[4] ;
+
+v[5] =  [0] ;
+t[5] = v[5] ;
+
+mname = ["Type","Station","dum","Parameter","Level","Exp"]
+help = "${HELP}"; hide_help = false ;
+
+pdir ="${MONTH}_Surface/"
+ext='png'
+do_send = true ;
+
+EOF
+
+$WEBCALL -e ${MONTH}_Precip -f input.js
+
+# Precipitation bias map 
+
+cat > input.js << EOF
+// Input file
+
+title = "Bias maps of precipitation"
+
+framec="skyblue"
+
+
+v[0] = ['m'] ;
+t[0] = ['By time of day'] ; 
+v[1] = ['b','r']
+t[1] = ['Bias','Rmse']
+   
+v[2] = ['00000000_00000000']
+t[2] = v[2] ;
+
+v[3] =[1] ;
+t[3] = v[3] ;
+
+v[4] =  [7] ;
+t[4] = v[4] ;
+
+v[5] = [2] ;
+t[5] = v[5] ;
+v[6] =$II
+t[6] = [$MYEXP]
+mname = ["Type","Error","Station","dum","Parameter","Step","Exp"]
+pdir ="${MONTH}_Surface/"
+ext='png'
+do_debug = false
+help = "${HELP}"; hide_help = false ;
+EOF
+
+$WEBCALL -e ${MONTH}_Precip_maps -f input.js
+
+
+#
+# Vert
+#
+cat > input.js << EOF
+// Input file
+
+
+// Input file
+
+title = "Vertical temp"
+framec="Tomato"
+
+
+v[0] = ['l_00000000']
+t[0] = ['diff']
+   
+v[1] = ['00000000']
+t[1] = v[1] ;
+
+v[2] =[1] ;
+t[2] = v[2] ;
+
+v[3] = [0,1,2,3,4,5]
+t[3] = ['Wind speed','Wind dir','T','Rh','qq','Fi']
+
+v[4] =[0] ;
+t[4] = v[4] ;
+v[5] =[0] ;
+t[5] = [0] ;
+mname = ["Type","Station","dum","Parameter","Level","Exp"]
+
+pdir ="${MONTH}_Vert/"
+ext='png'
+help = "${HELP}"; hide_help = false ;
+EOF
+
+#$WEBCALL -e ${MONTH}_Vert -f input.js
+
+# Temp
+cat > input.js << EOF
+// Input file
+
+
+// Input file
+
+title = "Radiosonde verification"
+
+framec="Lightsalmon"
+
+v[0] = ['PS_00000000','ps_00000000','V_00000000']
+t[0] = ['Timeserie stat','Timeserie','Fc length ver']
+   
+v[1] = ['00000000']
+t[1] = v[1] ;
+
+v[2] =[1] ;
+t[2] = v[2] ;
+
+
+v[3] = ['calc',0,5]
+t[3] = ['Wind speed','Wind dir','T','Rh','qq','Fi']
+
+v[4] = ['calc',5,0]
+t[4] = [925,850,700,500,300,200]
+t[4] = t[4].reverse()
+
+v[5] =[0] ;
+t[5] = v[5] ;
+
+mname = ["Type","Station","dum","Parameter","Level (hPa)","Exp"]
+
+pdir ="${MONTH}_Temp/"
+ext='png'
+help = "${HELP}"; hide_help = false ;
+EOF
+#$WEBCALL -e ${MONTH}_Temp -f input.js
+
+# Temp Scatter 
+
+
+
+cat > input.js << EOF
+// Input file
+
+title = "Radiosonde scatter"
+
+framec="lightcoral"
+
+
+
+v[0] = ['s_00000000','S_00000000']
+t[0] = ['Full scatter','Difference']
+   
+v[1] = ['00000000']
+t[1] = v[1] ;
+
+v[2] =[1] ;
+t[2] = v[2] ;
+
+v[3] = [0,1,2,3,4,5]
+t[3] = ['Wind speed','Wind dir','T','Rh','q','Fi']
+
+v[4] = ['calc',5,0]
+t[4] = [925,850,700,500,300,200]
+t[4] = t[4].reverse()
+
+v[5] =$II
+t[5] = [$MYEXP]
+mname = ["Type","Station","dum","Parameter","Level","Exp"]
+pdir ="${MONTH}_Vert/"
+ext='png'
+help = "${HELP}"; hide_help = false ;
+EOF
+#$WEBCALL -e ${MONTH}_Temp_scat -f input.js
+
+rm input.js

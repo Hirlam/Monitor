@@ -1,0 +1,94 @@
+#!/bin/ksh
+
+set -ax
+
+rm -f *.png *.png.*
+
+# Input
+# 1 Number of parameters on ps file
+# 2 Number of levels on ps file
+# 3 Number of experiments on ps file
+# 4 Extra convert command e.g. "-rotate 90"
+if [ $# -eq 0 ] ; then
+	echo USAGE PAR LEV NEXP ADD
+	exit
+fi
+
+if [ $# -eq 1 ] ; then
+   PAR=$1 
+   LEV=1
+   NXP=1
+   ADD='-rotate 90'
+else
+   PAR=$1 
+   LEV=$2 
+   NXP=$3 
+   ADD=$4
+fi
+
+
+NLOOPS=$( expr $PAR \* $LEV    )
+
+ echo $( ls -1 *.ps )
+
+for F in $( ls -1 *.ps ) ; do
+
+ FF=$( basename $F .ps )
+FFF=$( basename $F .ps )
+
+FTYPE=`echo $FFF | cut -c1-1`
+
+
+gs -sPAPERSIZE=a4 -dSAFER -dBATCH -dNOPAUSE -sDEVICE=png16m -r90 -sOutputFile=$FF.png.%00d $FF.ps
+
+
+IEND=$NLOOPS
+MLEV=$LEV
+NXPO=$NXP
+
+[[ $FTYPE == "s" || $FTYPE == "S" ]] && IEND=$( expr $NLOOPS \* $NXP )
+
+if [[ $FTYPE == "M" ]] || [[ $FTYPE == "m" ]] ; then
+   FFTYPE=`echo $FFF | cut -c1-3`
+   if [[ $FFTYPE == "M_o" ]] || [[ $FFTYPE == "m_o" ]] ; then
+      IEND=`ls $FF.png* | wc `
+      IEND=`echo $IEND | cut -c1-2`
+      NXPO=$( expr $NXP + 1 )
+      NM=$( expr $PAR \* $NXPO )
+      MLEV=$( expr $IEND / $NM )
+   else
+      IEND=`ls $FF.png* | wc `
+      IEND=`echo $IEND | cut -c1-2`
+      NM=$( expr $PAR \* $NXP )
+      MLEV=$( expr $IEND / $NM )
+   fi
+fi
+
+I=1
+while [ $I -le $IEND ] ; do
+   J=0
+   while [ $J -lt $PAR ] ; do
+      K=0
+      while [ $K -lt $MLEV ] ; do
+         L=0
+         if [[ $FTYPE == "s" ]] || [[ $FTYPE == "S" ]] \
+        ||  [[ $FTYPE == "m" ]] || [[ $FTYPE == "M" ]] ; then
+           while [ $L -lt $NXPO ] ; do
+            [[ -s $FFF.png.$I ]] && convert $ADD $FFF.png.$I ${FFF}_${J}_${K}_${L}.png 
+            I=$( expr $I + 1 )
+            L=$( expr $L + 1 )
+           done
+         else
+            [[ -s $FFF.png.$I ]] && convert $ADD $FFF.png.$I ${FFF}_${J}_${K}_${L}.png 
+            I=$( expr $I + 1 )
+         fi
+         K=$( expr $K + 1 )
+      done
+      J=$( expr $J + 1 )
+   done
+done
+
+rm -f $FFF.png.* || true
+
+done
+

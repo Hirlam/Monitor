@@ -1,0 +1,175 @@
+#!/bin/ksh
+
+set -axk
+
+. Env_exp
+
+############ functions
+############ functions
+############ functions
+function experiments {
+
+F=1
+EXPNAME=""
+  echo '  MODPATH=' >> fort.10
+  while [ $F -le $NEXP ] ; do
+  echo    \'${MODPATH[$F]}\', >> fort.10
+  F=$( expr $F + 1 ) 
+done
+
+cat << EOF >> fort.10
+  NEXP=$NEXP
+  OBSPATH ='$OBSPATH',
+  PRINT_READ = 1,
+  EXPNAME =
+EOF
+F=1
+while [ $F -le $NEXP ] ; do
+  echo \'${EXP[$F]}\', >> fort.10
+  F=$( expr $F + 1 ) 
+done
+
+}
+############ functions
+############ functions
+############ functions
+function end_of_namelist {
+cat << EOF >> fort.10
+/
+EOF
+}
+############ functions
+############ functions
+############ functions
+function variables {
+
+cat << EOF >> fort.10
+ NPARVER =          36,
+ FF_IND  =          1,
+ DD_IND  =          2,
+ TT_IND  =          3,
+ RH_IND  =          4,
+ QQ_IND  =          5,
+ FI_IND  =          6,
+ LTEMP   = T,
+ LEV_LST = 925,850,700,500,300,200,
+EOF
+
+}
+############ functions
+############ functions
+############ functions
+
+cd $WRK || exit
+
+rm -f *.ps *.png  fort.* temp.tar
+
+#
+# Create verification against forecast length
+#
+
+cat << EOF > fort.10
+ &NAMVER
+ SDATE = $SDATE,
+ EDATE = $EDATE,
+ MAXSTN = 200,
+ STNLIST = 0,
+ STATNAME='Temp_LL.dat'
+ FCINT      = 24,
+ OBINT      = 12
+ NTIMVER    = 2
+ NFCLENGTHS = 2
+ FCLEN      = 12,24,
+ LFCVER     = T,
+ DATA_TO_VERIFY  = 2,
+ LPLOT_STAT      = T,
+ LPRINT_GROSS    = T,
+ LREJECT_GROSS   = F,
+EOF
+
+experiments
+variables
+end_of_namelist
+
+cp fort.10 namelist_temp_ll
+
+$BIN/verobs || exit
+
+#
+# Create verification against time of day 
+# and make vertical profile
+#
+
+cat << EOF > fort.10
+ &NAMVER
+ SDATE   = $SDATE,
+ EDATE   = $EDATE,
+ MAXSTN  = 200,
+ STNLIST = 0,
+ STATNAME='vert_temp_HH.dat'
+ NTIMVER    = 4
+ NFCLENGTHS = 2,
+ FCLEN      = 12,24,
+ FCINT      = 24,
+ OBINT      = 12
+ LFCVER          = F,
+ DATA_TO_VERIFY  = 2,
+ LPRINT_GROSS    = T,
+ LPLOT_VERT      = T,
+ LTIMESERIE_STAT = T
+ LDIFF           = T,
+ LREJECT_GROSS   = F,
+EOF
+
+experiments
+variables
+end_of_namelist
+
+cp fort.10 namelist_temp_hh
+
+$BIN/verobs || exit
+
+
+tar cvf temp_ps.tar *.ps
+
+[[ $WEBCALL == ""  ]] && exit
+
+
+# Make png
+
+mkdir vert
+mv l*.ps vert
+
+
+# Per level 
+#$SCR/ps2png  6 5 $NEXP '-resize 75% -rotate 90'
+$SCR/ps2png  6 6 $NEXP '-resize 75% -rotate 90'
+
+# Include the month information into file name
+for F in $( ls *.png ) ; do
+ newfile=`echo $F | sed 's/\.png$//'`_${MONTH}.png
+ mv $F ${newfile}
+done
+
+tar cvf temp.tar *.png
+
+rm *.ps
+mv vert/*.ps .
+rmdir vert
+
+#Vertical
+$SCR/ps2png  6 1 $NEXP '-resize 75%'
+
+# Include the month information into file name
+for F in $( ls *.png ) ; do
+ newfile=`echo $F | sed 's/\.png$//'`_${MONTH}.png
+ mv $F ${newfile}
+done
+
+tar cvf vert.tar *.png
+
+$WEBCALL -e Temp -f temp.tar
+$WEBCALL -e Vert -f vert.tar
+
+rm -f *.png *.ps
+

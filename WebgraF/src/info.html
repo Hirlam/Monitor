@@ -1,0 +1,41 @@
+
+<html>
+
+<head>
+<link REL="STYLESHEET" TYPE="text/css" HREF="style.css">
+<script type="text/javascript">
+document.write(parent.set_backgc())
+
+       txt = ""
+       txt += "<h1>"+parent.lang[parent.pre_lan].welc+"</h1>"
+       txt += "<ul>"
+       for ( i=1 ; i <= (parent.input_list.length-1) ; i++){
+
+          slut= parent.input_text[i].indexOf("---",0);
+
+          if (slut == -1 ) {
+		txt += "<li><a href='javascript:parent.change_input("+i+")'"
+		txt += "class='menuheading' >"+parent.input_text[i] + "</a></li>"
+          } else { txt += parent.input_text[i]  }
+      }
+
+      txt += "<br><a href='../index.html' onclick='breakout()' class='menuheading' >"
+      txt += "Back to main menu</a>"
+
+      txt = txt + "</ul>"
+function breakout()
+{
+	if (window.top != window.self) { window.top.location = "../index.html" }
+}
+</script>
+</head>
+<body>
+
+<script type="text/javascript">
+  if ( ! parent.hide_help ) { document.write("<p>"+parent.help+"</p>") }
+  document.write(txt)
+</script>
+
+</body>
+</html>
+

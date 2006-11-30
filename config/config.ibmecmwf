@@ -1,0 +1,54 @@
+ARCH=ibmecmwf
+
+
+# CPP
+MACHINECPP :=
+#CPP        := /lib/cpp -E -traditional
+CPP        := /lib/cpp
+
+# C
+CC      := gcc 
+CCFLAGS := -O2 -xP -g  $(MACHINECPP) 
+
+# Fortran
+FC    := xlf90
+FREE  := -qfree=f90 -qsuffix=f=f90 -qsuffix=cpp=F90
+FIXED := -qfixed
+
+MYFCFLAGS :=  -C -d -qnoextname -qarch=auto -qtune=auto -q32 -qmaxmem=-1 -g -O3 -qstrict
+
+# Modules
+MODNAME = $(shell echo $(*F) | tr "[:upper:]" "[:lower:]")
+MODEXT := mod
+
+# Link
+LD          := xlC
+LDFLAGS     := -g -bnoquiet -lxlf90
+
+# AR
+AR      := ar
+ARFLAGS := rv
+MV      := mv
+RM      := rm -f
+MKDIR   := mkdir
+RMDIR   := rmdir
+
+#
+# ALADIN libraries 
+# To compile without aladin functionality set ALADINFLAG empty
+#
+
+# Flags
+FCFLAGS := $(MYFCFLAGS) -I$(ROOTDIR)/inc -I$(ROOTDIR)/$(ARCH)/mod
+CPPFLAGS := -I$(ROOTDIR)/inc 
+
+# depf90mod.x search extensions ( -f is default )
+MODEXTS=-E F90 -E F -E f90 -E -f 
+
+# EMOSLIB
+EXTLIB := $(MAGLIB) $(EMOSLIB) $(ECLIB)
+
+
+
+
+

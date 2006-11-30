@@ -1,0 +1,16 @@
+# Instructions for verobs 
+
+In directory scr there are a file Env_exp where you define your experiments
+Edit to fit your needs
+
+Run_verobs_all will : 
+
+Create a WebgraF webpage for you verification ( Create_ver_js )
+Run a synop station verification              ( Run_verobs_surface )
+Run a temp  station verification              ( Run_verobs_temp )
+
+All scripts can be run alone
+
+For usage of the namelist variables read the definition in src/module_data.f
+
+

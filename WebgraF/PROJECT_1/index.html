@@ -1,0 +1,50 @@
+<html>
+
+<head>
+
+   <script src="fun.js"></script>
+   <script src="slide_fun.js"></script>
+   <script src="pre_def.js"></script>
+   <script src="input_list.js"></script>
+   <script>evalURL()</script>
+   <script type="text/javascript">
+      input_file = input_list[choice_ind]
+      document.write("<script src='"+input_file+"'>")
+   </script></script>
+   <script type="text/javascript">
+	   // Load Cookie handling
+	   extra_fun='nada.js'
+	   if ( do_remember && do_save || do_manip ) { extra_fun='cookie_fun.js' }
+	   document.write("<script src='"+extra_fun+"'>")</script>
+   </script>
+   <script type="text/javascript">
+	   // Load extra functions 
+	   extra_fun='nada.js'
+	   if ( do_flip || do_manip || do_delete ) { extra_fun='extra_fun.js' }
+	   document.write("<script src='"+extra_fun+"'>")</script>
+   </script>
+
+   <link REL="STYLESHEET" TYPE="text/css" HREF="style.css">
+
+   <script type="text/javascript">
+      init()
+      document.write(parent.set_backgc())
+   </script>
+
+</head>
+
+<frameset framespacing='0' border='true' frameborder='25' rows='60,*' >
+   <frameset framespacing='0' border='true' frameborder='0' cols='200,*'>
+       <frame NAME='Top_left' scrolling='no' src='top_left.html'>
+           <frame NAME='Peak' scrolling='no' src='peak.html'>
+   </frameset>
+   <frameset framespacing='0' border='true' frameborder='0' cols='200,*'>
+       <frame NAME='List' scrolling='auto' src='list.html'>
+       <frameset framespacing='0' border='true' frameborder='25' rows='70,*' >
+           <frame NAME='Top'  scrolling='no'   src='top.html'>
+	   <frame NAME='Pic'  scrolling='auto' src='dp.html'>
+       </frameset>
+   </frameset>
+</frameset>
+
+</html>

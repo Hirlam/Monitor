@@ -1,0 +1,49 @@
+<html>
+<head>
+<link REL="STYLESHEET" TYPE="text/css" HREF="style.css">
+
+<script>
+
+// Set slideShowSpeed (milliseconds)
+var slideShowSpeed = parent.speed
+
+// Specify the image files
+
+var t
+var j = 0
+var p = parent.sli_menu.t.length 
+
+var preLoad = new Array()
+    parent.clean(preLoad)
+for (i = 0; i < p; i++){
+    preLoad[i] = new Image()
+    preLoad[i].src = parent.sli_menu.t[i]
+}
+
+function runSlideShow(){
+
+    document.images.SlideShow.src = preLoad[j].src
+    slideShowSpeed = parent.speed
+    j += parent.slide_dir
+
+      if (j > parent.slide_ep) j=parent.slide_sp
+      if (j < parent.slide_sp) j=parent.slide_ep
+
+    t = setTimeout('runSlideShow()', slideShowSpeed)
+}
+
+</script>
+</head>
+
+<body onload="runSlideShow()">
+
+<img src="" name='SlideShow'>
+<br>
+<script>
+document.write(parent.write_slide())
+</script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,11 @@
+#!/bin/ksh
+
+# Create WebgraF entrys
+  Create_ver_js
+
+# Verify synop
+  Run_verobs_surface || exit
+
+# Verify temp
+  Run_verobs_temp    || exit
+

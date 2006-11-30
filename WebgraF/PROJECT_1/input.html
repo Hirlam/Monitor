@@ -1,0 +1,137 @@
+<html>
+	<pre>
+// Input file definition for WebgraF
+
+// Colours for background and frames, optional
+// See also <a href="http://www.w3schools.com/html/html_colornames.asp">www.w3schools.com</a> for more colours
+backgc = "papayawhip"
+framec = "lightcoral"
+
+
+// Title
+title ="Surface verification"
+
+
+// File directory, default is ''
+pdir ="http://hirlam.fmi.fi/BRG/month_sta/"
+
+
+// File type, default is 'gif'
+// ext = 'gif'
+
+
+
+
+// Menu headers
+mname = ["Month","Parameter","Fc length"]
+
+
+// Define menus
+// The order should match the naming of the files
+// The number should match the number of mname headers
+// v array contains the words used to build the filename
+// t array contains the words displayed in your browser
+
+// Filenames are built as, pdir + v[0] + sep + ... + v[N] + '.' + ext
+//
+//
+// Some special keywords can be used
+// ['calc',1,100]  gives [1,2,...,100] 
+// ['calc',100,1]  gives [100,...,2,1] 
+// ['calc',100,0,2]  gives [100,...4,2,0] 
+// ['month_num']  gives ['01',...,'12']
+// ['month_num',100,1]  gives ['100',...,'001']
+// ['month_num',100,0,25]  gives ['100',...,'025','000']
+// ['month_num',100,0,25,4]  gives ['0100',...,'0025','0000']
+// ['month_txt']  gives ['Jan',...,'Dec']
+// ['time_arch',199909,200305]  gives ["1999/09/","1999/10/",...,"2003/05/"] 
+// ['gen_date','YYYYMMDDHH',1999050100,1999060218] gives [1999050100, ...,1999060212,1999060218]
+// ['gen_date','YYYYMMDD_HH','20050101_00','20050104_00',24] gives ["20050101_00","20050102_00",...,"20050104_00"] 
+// ['gen_date','YYYY_MM_DD','1999_05_01','1999_05_15',48] gives ['1999_05_01',...,'1999_05_13','1999_05_15']
+// ['gen_date','/YYYY_MMDD','/2005_0101','/2005_0104',24] gives ["/2005_0101","/2005_0102",...,"/2005_0104"] 
+// ['gen_date','YYYYMMDD','20050101','20050104',24] gives ["20050101","20050102",...,"20050104"] 
+// ['gen_date','/YYYY/MM/','/1999/05/','/1998/11/'] gives ['/1999/05/',...,'/1998/12/','/1998/11/']
+// ['txt_date','YYYY MM','1999 05','1999 11'] gives ['May 1999',...,'Oct 1999','Nov 1999']
+// etc.
+
+
+// Special keyword applied
+
+v[0] = ['time_axis',200009,199909]
+t[0] = ['time_text',200009,199909] 
+
+
+// Menus with only one entry does not appeare on your browser
+v[1] = ['/obs_surf_']    ; t[1] = v[1]
+v[2] = ['06','12','24']  ; t[2] = v[2]
+
+// File name separator, default is '_'
+sep = ''
+
+// Different "sep" can be defined for each space
+// such as, pdir + v[0] + msep[0] + ... + msep[N-1] + v[N] + '.' + ext
+// If not defined msep = sep
+// msep[0] = ''
+
+
+// How to build the file name, optional
+// If you have a file called A_B_A.gif you would specify spec_name = [0,1,0]
+// spec_name = [0,1,2]
+
+
+// Menu order of appearence on browser, optional
+order = [2,1,0]
+
+
+// Location, left = l; top = t, optional
+// If left empty script will decide
+loc = ['l','l','l' ]
+
+
+// Type of meny, Normal menu = 0; 
+//               Scroll menu = 1;
+// Type is optional
+// Menus in top panel will always be forced to scrollmenus !!!!
+// If left empty script will decide
+type = [1,1,0]
+
+
+// Help text for the user
+help ="This can be <b> very </b> useful!"
+
+// An extra page with information for the user
+info ="info.html"
+
+//Language, English = 0 ; Swedish = 1, default is 0
+pre_lan = 1
+
+
+// Possibility to store favorites : do_remember = true/false , default is true
+do_remember = true
+
+// Enable saving of choices
+do_save 	= true
+
+// Enable flip of menus
+do_flip 	= true
+
+// Enable manipulation of menus
+do_delete 	= true
+
+// Enable to save manipulated menus
+do_manip 	= true
+
+// Enable subset of slideshow
+do_subset 	= true
+
+// Enable send menu
+// This means that you send an URL to an explicit figure to someone 
+// Try it
+do_send 	= false
+
+// Maximum size of menu that can be collapsed ( when you click on the header)
+// view_limit = 50 default
+
+//----------------------------------------------------------------------
+	</pre>
+</html>

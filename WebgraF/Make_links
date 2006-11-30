@@ -1,0 +1,18 @@
+#!/bin/ksh
+
+
+for F in \
+dp.html \
+index.html \
+info.html \
+list.html \
+pre_def.js \
+style.css \
+top.html \
+top_start.html \
+webgraf.js 
+do
+ln -sf src2/$F .
+done
+
+ln -sf src/input.html .

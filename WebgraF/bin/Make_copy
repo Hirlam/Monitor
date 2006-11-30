@@ -1,0 +1,7 @@
+#!/bin/ksh
+
+DATE=`date +"%Y%m%d"`
+
+cd ..
+tar cvf WebgraF_${DATE}.tar src src2 bin Make_links
+gzip WebgraF_${DATE}.tar

@@ -1,0 +1,181 @@
+#
+# Define parameters to run verobs
+#
+#
+
+# Give the PROJECT NAME
+#PROJ_NAME=ALADIN_00
+#PROJ_NAME=ALADIN_12
+#PROJ_NAME=AROME_00
+#PROJ_NAME=AROME_12
+#PROJ_NAME=TEST2
+
+PROJ_NAME=AROME_00_LAND
+
+# Give the choice of stations
+# EWGLAM = EWGLAM stations
+# HTB = Helsinki Testbed stations 
+# EHTB = EWGLAM + Helsinki Testbed stations 
+#STATIONS=EWGLAM
+#STATIONS=EHTB
+STATIONS=HTB
+
+# Date
+MONTH=7
+SDATE=20060701
+EDATE=20060731
+
+# Path to this project
+SCR=$HOME/monitor/scr
+BIN=$HOME/monitor/bin
+WRK=$SCRATCH/monitor/wrk_${STATIONS}_${MONTH}
+WEB=$HOME/monitor/WebgraF
+
+# MAG_HOME
+# Needs no setting at ecgate
+# export MAGH_HOME=/data/proj/hirfou/uandrae/magics
+
+# Path to vobs files
+#
+OBSPATH=$SCRATCH/dat/Obs/${STATIONS}/
+
+# Experiment
+
+if [ ${PROJ_NAME} == "ALADIN_00" ]
+then
+ NEXP=3
+ MYEXP="'ALD','MBE','RCR'"
+ EXP[1]=ALD
+ EXP[2]=MBE
+ EXP[3]=RCR
+
+# Path to vfld files
+ MODPATH[1]=$SCRATCH/dat/NWP/${STATIONS}/00/
+ MODPATH[2]=$SCRATCH/dat/NWP/${STATIONS}/00/
+ MODPATH[3]=$SCRATCH/dat/NWP/${STATIONS}/00/
+
+# Explanation on webpage
+ HELP="<b> ALADIN and HIRLAM experiments </b> \
+       <br> ALADIN - ALD  : 11km, 40 levels (cy30t1) \
+       <br> HIRLAM - MBE : 9km, 40 levels (6.2.1) \
+       <br> HIRLAM - RCR : 22km, 40 levels (6.4.4)  "
+
+elif  [ ${PROJ_NAME} == "ALADIN_12" ] 
+then
+
+ NEXP=3
+ MYEXP="'ALD','MBE','RCR'"
+ EXP[1]=ALD
+ EXP[2]=MBE
+ EXP[3]=RCR
+
+# Path to vfld files
+ MODPATH[1]=$SCRATCH/dat/NWP/${STATIONS}/12/
+ MODPATH[2]=$SCRATCH/dat/NWP/${STATIONS}/12/
+ MODPATH[3]=$SCRATCH/dat/NWP/${STATIONS}/12/
+
+# Explanation on webpage
+ HELP="<b> ALADIN and HIRLAM experiments </b> \
+       <br> ALADIN - ALD  : 11km, 40 levels (cy30t1) \
+       <br> HIRLAM - MBE : 9km, 40 levels (6.2.1) \
+       <br> HIRLAM - RCR : 22km, 40 levels (6.4.4)  "
+
+elif [ ${PROJ_NAME} == "AROME_00" ]
+then
+
+ NEXP=3
+ MYEXP="'ARO','ALD','MBE'"
+ EXP[1]=ARO
+ EXP[2]=ALD
+ EXP[3]=MBE
+
+# Size of a map
+M_SCALE=0.5E7
+C_LAT=59.0
+C_LON=27.0
+
+# Path to vfld files
+ MODPATH[1]=$SCRATCH/dat/NWP/${STATIONS}/00/
+ MODPATH[2]=$SCRATCH/dat/NWP/${STATIONS}/00/
+ MODPATH[3]=$SCRATCH/dat/NWP/${STATIONS}/00/
+
+# Explanation on webpage
+ HELP="<b> AROME, ALADIN and HIRLAM experiments </b> \
+       <br> AROME - ARO  : 2.5km, 40 levels (cy30t1) \
+       <br> ALADIN - ALD  : 11km, 40 levels (cy30t1) \
+       <br> HIRLAM - MBE : 9km, 40 levels (6.2.1)"
+
+elif [ ${PROJ_NAME} == "AROME_12" ] 
+then
+
+ NEXP=3
+ MYEXP="'ARO','ALD','MBE'"
+ EXP[1]=ARO
+ EXP[2]=ALD
+ EXP[3]=MBE
+
+# Size of a map
+M_SCALE=0.5E7
+C_LAT=59.0
+C_LON=27.0
+
+# Path to vfld files
+ MODPATH[1]=$SCRATCH/dat/${STATIONS}/12/
+ MODPATH[2]=$SCRATCH/dat/${STATIONS}/12/
+ MODPATH[3]=$SCRATCH/dat/${STATIONS}/12/
+
+# Explanation on webpage
+ HELP="<b> AROME, ALADIN and HIRLAM experiments </b> \
+       <br> AROME - ARO  : 2.5km, 40 levels (cy30t1) \
+       <br> ALADIN - ALD  : 11km, 40 levels (cy30t1) \
+       <br> HIRLAM - MBE : 9km, 40 levels (6.2.1)"
+
+elif [ ${PROJ_NAME} == "AROME_00_LAND" ]
+then
+
+ NEXP=3
+ MYEXP="'ARO','ALD','MBE'"
+ EXP[1]=ARO
+ EXP[2]=ALD
+ EXP[3]=MBE
+
+# Size of a map
+M_SCALE=0.5E7
+C_LAT=59.0
+C_LON=27.0
+
+# Path to vfld files
+ MODPATH[1]=$SCRATCH/dat/NWP/${STATIONS}/00/
+ MODPATH[2]=$SCRATCH/dat/NWP/${STATIONS}/00/
+ MODPATH[3]=$SCRATCH/dat/NWP/${STATIONS}/00/
+
+# Explanation on webpage
+ HELP="<b> AROME, ALADIN and HIRLAM experiments, land stations only</b> \
+       <br> AROME - ARO  : 2.5km, 40 levels (cy30t1) \
+       <br> ALADIN - ALD  : 11km, 40 levels (cy30t1) \
+       <br> HIRLAM - MBE : 9km, 40 levels (6.2.1)"
+else
+
+ NEXP=1
+ MYEXP="'ALD'"
+ EXP[1]=ALD
+
+# Path to vfld files
+ MODPATH[1]=$SCRATCH/dat/NWP/${STATIONS}/00/
+
+# Explanation on webpage
+ HELP="<b> ALADIN experiment </b> \
+       <br> ALD  : 11km, 40 levels"
+
+fi
+
+
+# WebgraF
+# setting WEBCALL="" gives no WebgraF
+# Project name PROJECT
+WEBCALL="$WEB/bin/WebgraF -p ${PROJ_NAME}"
+
+
+export PROJECT PROJ_NAME STATIONS WEBCALL BASE BIN MYEXP NEXP SDATE EDATE HELP WRK SCR BIN M_SCALE C_LAT C_LON
+
+###########################
