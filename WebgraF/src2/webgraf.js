@@ -30,7 +30,7 @@ function get_random_fig() {
 function get_info(ind) {
    if ( ind > -1 ) {
       tmp = mlist[ind].info_list
-      if (  tmp == 'undefined' ) { show_info() ; return }
+      if (  tmp == undefined || tmp == "undefined" ) { show_info() ; return }
 
       parent.frames['Pic'].location = tmp
    }
@@ -93,7 +93,7 @@ function update_all() {
    do {
 
       p = arguments[i+1]
-      if( p.indexOf("html",0) < 0 ) { p += ".html" }
+      if( p.indexOf("html",0) < 0 && p.indexOf("http",0) < 0 ) { p += ".html" }
       parent.frames[arguments[i]].location = p
       i++ ; i++
 
@@ -218,7 +218,12 @@ function sim_head() {
 
 }
 //--------------------------------------------------------------------------------------------------------------------
-function show_info() { parent.frames['Pic'].location = info }
+function show_info() { 
+
+ if ( info == "undefined" || info == undefined ) {parent.frames['Pic'].location = "info.html" }
+ else {parent.frames['Pic'].location = info }
+
+}
 //--------------------------------------------------------------------------------------------------------------------
 function to_main() { window.top.location = "http://www-int/cmp/jsp/polopoly.jsp?d=1155" }
 //--------------------------------------------------------------------------------------------------------------------

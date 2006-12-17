@@ -1,18 +1,20 @@
-SUBROUTINE calc_corr(lunxml,nobs,id,xval,yval,cexp,ctype)
+SUBROUTINE calc_corr(nobs,xval,yval,            &
+                     xmean,ymean,stdevx,stdevy, &
+                     bias,rmse,corr)
 
  IMPLICIT NONE
 
- INTEGER, INTENT(IN ) :: lunxml,nobs,id
- REAL,    INTENT(IN)  :: xval(nobs),yval(nobs)
- CHARACTER(LEN=*), INTENT(IN) :: cexp,ctype
+ INTEGER, INTENT(IN ) :: nobs
+ REAL,    INTENT(IN ) :: xval(nobs),yval(nobs)
+ REAL,    INTENT(OUT) :: xmean,ymean,          &
+                         stdevx,stdevy,        &
+                         bias,rmse,corr
 
  ! Local
 
  INTEGER :: i,ierr
  REAL    :: sumy,sumx,sumxx,sumyy,             &
-            sumxy,sumxy2,                      &
-            xmean,ymean,stdevx,stdevy,         &
-            bias,rmse,stdevd,corr,             &
+            sumxy,sumxy2,stdevd,               &
             xpt,xptd,xhelp,yhelp,sid,rv
 !-------------------------------------------------------------------------------
 ! Bin the data
@@ -65,19 +67,5 @@ SUBROUTINE calc_corr(lunxml,nobs,id,xval,yval,cexp,ctype)
     IF (STDEVX /= 0. .AND. STDEVY /= 0.) &
         CORR   = (SUMXY-XPT*XMEAN*YMEAN)/(STDEVX*STDEVY*(XPT-1.))
 
-
-    WRITE(lunxml,*)'<STATION>'
-    WRITE(lunxml,*)'<ID>',id,'</ID>'
-    WRITE(lunxml,*)'<EXP>',TRIM(cexp),'</EXP>'
-    WRITE(lunxml,*)'<TYPE>',TRIM(ctype),'</TYPE>'
-    WRITE(lunxml,*)'<MEAN>',ymean,'</MEAN>'
-    WRITE(lunxml,*)'<STDEV>',stdevy,'</STDEV>'
-    WRITE(lunxml,*)'<BIAS>',bias,'</BIAS>'
-    WRITE(lunxml,*)'<RMSE>',rmse,'</RMSE>'
-    WRITE(lunxml,*)'<CORR>',rmse,'</CORR>'
-    WRITE(lunxml,*)'<MEAN_OBS>',xmean,'</MEAN_OBS>'
-    WRITE(lunxml,*)'<STDEV_OBS>',stdevx,'</STDEV_OBS>'
-    WRITE(lunxml,*)'</STATION>'
-   
  RETURN
 END SUBROUTINE 

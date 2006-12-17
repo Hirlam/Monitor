@@ -6,7 +6,13 @@ ROOTDIR := $(PWD)
 
 include $(ROOTDIR)/config/config.$(ARCH)
 
-GLLINK := src rdr mod
+
+ifeq ($(MAGICSFLAG),-DMAGICS)
+   GLLINK := src plt rdr mod
+else
+   GLLINK := src rdr mod
+endif
+
 
 LIBSGL := $(patsubst %,$(ROOTDIR)/$(ARCH)/lib/%.a,$(GLLINK))
 
@@ -27,7 +33,12 @@ allclean:
 clean_arch:
 	-$(RMDIR) ./$(ARCH)
 
-GLDIRS := mod rdr src prg
+ifeq ($(MAGICSFLAG),-DMAGICS)
+   GLDIRS := mod rdr plt src prg
+else
+   GLDIRS := mod rdr src prg
+endif
+
 GLLIBS := $(patsubst %,$(ROOTDIR)/$(ARCH)/lib/%.a,$(GLDIRS))
 
 $(GLLIBS): $(ROOTDIR)/$(ARCH)/bin/depf90mod.x ./$(ARCH)/lib 

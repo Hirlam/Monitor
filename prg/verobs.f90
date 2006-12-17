@@ -19,6 +19,10 @@ PROGRAM verobs
            timing_id1,timing_id2
  !--------------------
 
+ WRITE(6,*)
+ WRITE(6,*)' This is verobs running '
+ WRITE(6,*)
+
  !
  ! Read namelist
  !
@@ -114,7 +118,7 @@ PROGRAM verobs
 
        CALL selection(1)
        IF ( use_pos ) THEN
-          CALL verify_pos
+!         CALL verify_pos
        ELSE
           CALL verify
        ENDIF

@@ -20,10 +20,6 @@ SUBROUTINE check_namelist
 
  ENDIF
 
- IF( LTIMESERIE_STAT_MONTH .OR. LPLOT_STAT_MONTH ) THEN
-    MONTHVISE = .TRUE.
- ENDIF
-
  ! More to come ....
 
  RETURN

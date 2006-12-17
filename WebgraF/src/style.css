@@ -67,5 +67,5 @@ A.debug:visited { text-decoration: none;  visibility : visible }
 A.debug:hover { text-decoration: none;  visibility : hidden }
 
 
-td { text-align : left; text-valign : middle ; }
-img { border : 0 ; align : middle }
+td { text-align : left; vertical-align : middle ; }
+img { border : 0 ; vertical-align : middle }

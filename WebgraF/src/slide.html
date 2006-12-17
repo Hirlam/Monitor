@@ -6,12 +6,14 @@
 
 // Set slideShowSpeed (milliseconds)
 var slideShowSpeed = parent.speed
+var size_fig = parent.size_fig
 
 // Specify the image files
 
 var t
 var j = 0
 var p = parent.sli_menu.t.length 
+var change_size = true
 
 var preLoad = new Array()
     parent.clean(preLoad)
@@ -22,8 +24,14 @@ for (i = 0; i < p; i++){
 
 function runSlideShow(){
 
+
     document.images.SlideShow.src = preLoad[j].src
     slideShowSpeed = parent.speed
+    if ( change_size ) {
+       document.images.SlideShow.height = 
+       document.images.SlideShow.height * size_fig
+       change_size = false
+    }
     j += parent.slide_dir
 
       if (j > parent.slide_ep) j=parent.slide_sp
@@ -45,5 +53,4 @@ document.write(parent.write_slide())
 
 
 </body>
-
 </html>

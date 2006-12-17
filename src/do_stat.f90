@@ -9,7 +9,7 @@ SUBROUTINE do_stat(p1,p2)
  INTEGER :: p1(maxstn),p2(maxstn)
 
  ! Local
- INTEGER :: i,j,k,o,current_month,pp1,pp2,      &
+ INTEGER :: i,j,k,o,current_month,      &
             wrk(mparver),nlev,nmax
  INTEGER :: vertime(ntimver),timing_id,par_active(nparver)
 
@@ -18,6 +18,8 @@ SUBROUTINE do_stat(p1,p2)
 
  CHARACTER(LEN=4 ) :: ttype = 'TIME'
  CHARACTER(LEN=38) :: text  = '   BIAS    RMSE     STDV      N      R'
+ CHARACTER(LEN= 3) :: seasonal_name1(4)=(/'DJF','MAM','JJA','SON'/),		&
+                      seasonal_name2(12)=(/'JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'/)
 !---------------------------------
 
  timing_id = 0
@@ -83,7 +85,16 @@ SUBROUTINE do_stat(p1,p2)
 
     IF(leach_station) THEN
        WRITE(lunstat,*)
-       WRITE(lunstat,*)'Station',stat(i)%stnr,p1(i),p2(i)
+       IF ( MINVAL(p1) < 13 ) THEN
+          SELECT CASE(period_freq) 
+          CASE(1)
+             WRITE(lunstat,*)'Station',stat(i)%stnr,'Period ',seasonal_name1(MINVAL(p1))
+          CASE(3)
+             WRITE(lunstat,*)'Station',stat(i)%stnr,'Period ',seasonal_name2(MINVAL(p1))
+          END SELECT
+       ELSE
+          WRITE(lunstat,*)'Station',stat(i)%stnr,p1(i),p2(i)
+       ENDIF
        IF (nexp.GT.1) WRITE(lunstat,103)expname(1:nexp)
        WRITE(lunstat,102)'TYPE ',ttype,(text,o=1,nexp)
     ENDIF
@@ -110,8 +121,8 @@ SUBROUTINE do_stat(p1,p2)
     ! Plot statistics against hour or forecast time
     !
 
-    IF(leach_station.AND.( lplot_stat .AND. .NOT. doing_monthvise  .OR.   &
-                           lplot_stat_month .AND. doing_monthvise)      ) &
+#ifdef MAGICS
+    IF (leach_station.AND. lplot_stat ) &
       CALL plot_stat2(lunout,nexp,nparver,ntimver,                        &
       stat(i)%s,stat(i)%stnr,p1(i),p2(i),par_active)
 
@@ -120,23 +131,24 @@ SUBROUTINE do_stat(p1,p2)
     ! hour or forecast time
     !
 
-    IF ( ltemp .AND. leach_station  .AND.               &
-       ( lplot_vert .AND. .NOT. doing_monthvise  .OR.   &
-         lplot_vert_month .AND. doing_monthvise)      )  THEN
+    IF ( ltemp .AND. leach_station  .AND. lplot_vert )  THEN
       wrk = 0
       WHERE ( lev_lst > 0 ) wrk = 1 
       nlev = SUM(wrk)
       CALL plot_vert(lunout,nexp,nlev,nparver,ntimver,                        &
       stat(i)%s,stat(i)%stnr,p1(i),p2(i),par_active)
     ENDIF
+#endif
 
     IF (lallstat) CALL acc_stat(statall,stat(i)%s,nexp,nparver,ntimver)
 
  ENDDO
 
+#ifdef MAGICS
  IF ( plot_bias_map ) CALL plot_map(0,minval(p1),maxval(p2),0,map_type)
  IF ( plot_bias_map ) CALL plot_map(0,minval(p1),maxval(p2),1,map_type)
  IF ( plot_obs_map  ) CALL plot_map(0,minval(p1),maxval(p2),2,map_type)
+#endif
 
  csi = 1
 
@@ -149,8 +161,19 @@ SUBROUTINE do_stat(p1,p2)
  ALLSTAT : IF (lallstat.AND.(count(stat%active).GT.0)) THEN
 
     WRITE(lunstat,*)
-    WRITE(lunstat,'(A4,I4,A10,2I12)')'All ',    &
-    count(stat%active),' stations',minval(p1),maxval(p2)
+    IF ( MINVAL(p1)< 13 ) THEN
+       SELECT CASE(period_freq) 
+       CASE(1)
+          WRITE(lunstat,'(A4,I4,A19,A4)')'All ',    &
+          count(stat%active),' stations  Period :',seasonal_name1(MINVAL(p1))
+       CASE(3)
+          WRITE(lunstat,'(A4,I4,A19,A4)')'All ',    &
+          count(stat%active),' stations  Period :',seasonal_name2(MINVAL(p1))
+       END SELECT
+    ELSE
+       WRITE(lunstat,'(A4,I4,A10,2I12)')'All ',    &
+       count(stat%active),' stations',minval(p1),maxval(p2)
+    ENDIF
 
     IF (nexp.GT.1) WRITE(lunstat,103)expname(1:nexp)
     WRITE(lunstat,102)'TYPE ',ttype,(text,o=1,nexp)
@@ -177,8 +200,8 @@ SUBROUTINE do_stat(p1,p2)
     ! Plot statistics against hour or forecast time
     !
 
-    IF( lplot_stat .AND. .NOT. doing_monthvise  .OR.   &
-        lplot_stat_month .AND. doing_monthvise       ) &
+#ifdef MAGICS
+    IF( lplot_stat ) &
     THEN
       IF (lprint_do_stat) WRITE(6,*)'Call plot_stat'
       CALL plot_stat2(lunout,nexp,nparver,ntimver,     &
@@ -189,9 +212,7 @@ SUBROUTINE do_stat(p1,p2)
     ! Plot statistics against level for specific
     ! hour or forecast time
     !
-    IF ( ltemp .AND.                                    &
-       ( lplot_vert .AND. .NOT. doing_monthvise  .OR.   &
-         lplot_vert_month .AND. doing_monthvise)      )  THEN
+    IF ( ltemp .AND. lplot_vert )  THEN
 
        wrk = 0
        WHERE ( lev_lst > 0 ) wrk = 1 
@@ -201,6 +222,7 @@ SUBROUTINE do_stat(p1,p2)
                       par_active)
 
     ENDIF
+#endif
 
     DEALLOCATE(statall)
 

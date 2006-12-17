@@ -1,0 +1,204 @@
+#!/bin/ksh
+
+set -axk
+
+ulimit -m unlimited
+ulimit -f unlimited
+ulimit -t unlimited
+ulimit -s unlimited
+
+ulimit -a
+
+# Spec
+
+. Env_exp
+
+set -axk
+
+
+############ functions
+############ functions
+############ functions
+function experiments {
+
+F=1
+EXPNAME=""
+  echo '  MODPATH=' >> fort.10
+  while [ $F -le $NEXP ] ; do
+  echo    \'${MODPATH[$F]}\', >> fort.10
+  F=$( expr $F + 1 ) 
+done
+
+cat << EOF >> fort.10
+  SDATE = $SDATE,
+  EDATE = $EDATE,
+  PERIOD_TYPE     = 2
+  PERIOD_FREQ     = 1
+  OUTPUT_TYPE=$OUTPUT_TYPE
+  NEXP=$NEXP
+  OBSPATH ='$OBSPATH',
+  PRINT_READ = 1,
+  EXPNAME =
+EOF
+F=1
+while [ $F -le $NEXP ] ; do
+  echo \'${EXP[$F]}\', >> fort.10
+  F=$( expr $F + 1 ) 
+done
+
+}
+############ functions
+############ functions
+############ functions
+function end_of_namelist {
+cat << EOF >> fort.10
+/
+EOF
+}
+############ functions
+############ functions
+############ functions
+function variables {
+
+cat << EOF >> fort.10
+ NPARVER = 8,
+ FF_IND  = 1,
+ DD_IND  = 2,
+ PS_IND  = 3,
+ TT_IND  = 4,
+ RH_IND  = 5,
+ QQ_IND  = 6,
+ NN_IND  = 7,
+ PE_IND  = 8,
+ LREJECT_GROSS   = T,
+ LPRINT_GROSS    = T,
+ FF_LIM = 25.,
+ QQ_LIM = 30.,
+EOF
+
+}
+############ functions
+############ functions
+############ functions
+function stations {
+
+cat << EOF >> fort.10
+ MAXSTN = 3000,
+ STNLIST = 0
+ STNLIST_BL = 1075,1078,1092,1098,1055,22028,22304,22342,22583,
+              23701,15505,22113,6760,6762,1590,1592,22471,3031,
+	      3039,3037,3034,3035,3041,
+EOF
+}
+############ functions
+############ functions
+############ functions
+
+cd $BASE/wrk || exit
+
+rm -f *.ps *.png *.dat *.xml *.html
+
+
+#
+# Verification by forecast length
+#
+
+cat << EOF > fort.10
+ &NAMVER
+ STATNAME='Surface_LL.html'
+ OBINT      = 03
+ FCINT      = 12
+ NFCLENGTHS = 8,
+ FCLEN      = 03,06,09,12,15,18,21,24,
+ LFCVER = T,
+ DATA_TO_VERIFY = 1,
+ LPLOT_STAT= T,
+ LSTAT_GEN = T,
+ LTIMESERIE_STAT= T,
+ TIME_STAT_FCLEN = 15,18,21,24,
+ TIMESERIE_WIND  = 06,
+ LDIFF = T,
+EOF
+
+experiments
+variables
+stations
+end_of_namelist
+
+cp fort.10 namelist_surf_ll
+
+$BIN/verobs || exit
+
+echo DONE Verobs
+
+
+rm -f fort.10 || true
+
+#
+# Verification by time of day
+#
+
+cat << EOF > fort.10
+ &NAMVER
+ SDATE = $SDATE,
+ EDATE = $EDATE,
+ STATNAME='Surface_HH.html'
+ OBINT      = 03,
+ FCINT      = 12,
+ NTIMVER    = 8,
+ NFCLENGTHS = 4,
+ FCLEN      = 03,06,09,12,
+ LFCVER = F,
+ LSTAT_GEN = T
+ DATA_TO_VERIFY  = 1,
+ LPLOT_STAT= T,
+ LPLOT_FREQ      = T,
+ LPLOT_SCAT      = T,
+ LDIFF           = F,
+ PLOT_BIAS_MAP   = T,
+ NMAP_HOURS      = 2,
+ MAP_HOURS       = 00,12,
+ MAP_BIAS_INTERVAL = -6.,-90.,-1.5,-6.,-15.,-3.,-6.,-6.,-1.,-1.,
+                     -4.,-60.,-1.0,-4.,-10.,-2.,-4.,-3.,-1.,-1.,
+		     -2.,-30.,-0.5,-2., -5.,-1.,-2.,-1.,-1.,-1.,
+                      0.,  0., 0. , 0.,  0., 0., 0., 0.,-1.,-1.,
+                      2., 30., 0.5, 2.,  5., 1., 2., 1.,-1.,-1.,
+                      4., 60., 1.0, 4., 10., 2., 4., 3.,-1.,-1.,
+                      6., 90., 1.5, 6., 15., 3., 6., 6.,-1.,-1.,
+ SHOW_OBS        = T,
+ LPREP_XML       = T,
+EOF
+
+experiments
+variables
+stations
+end_of_namelist
+
+cp fort.10 namelist_surf_hh
+
+
+$BIN/verobs || exit
+
+
+[[ $WEBCALL == ""  ]] && exit
+
+# Convert/rename plots
+
+if [ $OUTPUT_TYPE -eq 1 ] ; then
+   $BASE/scr/ps2png 8 1 $NEXP '-resize 75% -rotate 90'
+   tar cvf fig.tar *.png 
+elif [ $OUTPUT_TYPE -eq 2 ] ; then
+   $BASE/scr/png2png 8 1 $NEXP png
+   tar cvf fig.tar *.png 
+elif [ $OUTPUT_TYPE -eq 3 ] ; then
+   $BASE/scr/png2png 8 1 $NEXP jpg
+   tar cvf fig.tar *.jpg
+fi
+
+cp $BASE/scr/style.xsl .
+
+$WEBCALL -e Surface -f fig.tar
+tar cvf xml.tar  *.xml style.xsl
+$WEBCALL -e Surf_scat -f xml.tar
+
+rm -f *.tar *.png *.ps *.jpg *.xml *.xsl || true

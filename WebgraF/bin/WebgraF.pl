@@ -22,11 +22,13 @@
  $usage .=" -b Work with a different base directory \n" ;
  $usage .=" \n";
 
- # Change you working directory here        
- #############################################
-# $WEBGRAF_BASE = "/home/ms/fi/fim/monitor/WebgraF" ;
- $WEBGRAF_BASE = "/scratch/ms/fi/fim/monitor/WebgraF" ;
- #############################################
+ # Change you working directory here
+ ##############################################
+ $WEBGRAF_BASE = "" ;
+ if ( $ENV{WEBGRAF_BASE}  ) { $WEBGRAF_BASE = $ENV{WEBGRAF_BASE}  ; } ;
+ # Check the WebgraF directory
+ if  ( ! -s "$WEBGRAF_BASE/webgraf.js" ) { die " Please set and export WEBGRAF_BASE correct : $WEBGRAF_BASE\n" ; } ;
+ ##############################################
 
  $CALLDIR = $ENV{PWD} ; 
 
@@ -478,12 +480,16 @@ if ( -s "$FILE" ) {
 		print "Copy $FILE \n"; system ("cp $FILE $BASENTRY/info.html") 
 	} elsif ( $FILE =~m/\.png/) {
 		print "Copy $FILE \n"; system ("cp $FILE $BASENTRY/.") 
+	} elsif ( $FILE =~m/\.pdf/) {
+		print "Copy $FILE \n"; system ("cp $FILE $BASENTRY/.") 
+	} elsif ( $FILE =~m/\.ps/) {
+		print "Copy $FILE \n"; system ("cp $FILE $BASENTRY/.") 
 	} elsif ( $FILE =~m/\.js/) {
 		print "Copy $FILE \n"; system ("cp $FILE $BASENTRY/input.js") 
 	} elsif ( $FILE =~m/\.tar/) {
-        print "Copy $FILE \n"; system ("cp $FILE $BASENTRY/fig.tar")  ;
-        chdir $BASENTRY or die "Could not goto $BASENTRY \n";
-        system ("tar xvf fig.tar; rm -f fig.tar") ;
+                print "Copy $FILE \n"; system ("cp $FILE $BASENTRY/fig.tar")  ;
+                chdir $BASENTRY or die "Could not goto $BASENTRY \n";
+                system ("tar xvf fig.tar; rm -f fig.tar") ;
 	} else {
 	       	die "I don't know what to do with $FILE \n" ;
 	} ;

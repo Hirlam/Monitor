@@ -14,15 +14,10 @@
 
  - Unzip and untar WebgraF.tar.gz
 
- - Set your WebgraF main directory in WebgraF/bin/WebgraF.pl where :
-
- # Change you working directory here        
- #############################################
- $WEBGRAF_BASE = "$SOME_PATH/WebgraF" ;
- #############################################
+ - Set your WebgraF internal path by :
+   export WEBGRAF_BASE $SOME_PATH/WebgraF
 
  - Add $SOME_PATH/WebgraF/bin/WebgraF to you path
-
 
  Open $SOME_PATH/WebgraF/index.html in you browser
 
@@ -36,7 +31,7 @@
  -p PROJECT name 
  -e ENTRY name 
  -I Install a new WebgraF webhome, to be used with -b 
- -i INFO html file linked to project or entry 
+ -i INFO html file linked to mainpage, project or entry 
  -f FILE Webpage definition file or directory 
     can be FILE.js,FILE.tar or directory 
  -r Remove ENTRY or PROJECT 
@@ -65,6 +60,10 @@
 
 
  WebgraF -b $FULL_PATH/NEW_WEBGRAF -p PROJECT_1 -e ENTRY_1 -f PROJECT_1_ENTRY_1.js will create new project/entry PROJECT_1/ENTRY_1
+
+ WebgraF -b $FULL_PATH/NEW_WEBGRAF -i "some_file.html" will add a start page to the main page
+
+ WebgraF -b $FULL_PATH/NEW_WEBGRAF -i "http://www.ecmwf.int" will add a start page as a link to the main page
 
  WebgraF -b $FULL_PATH/NEW_WEBGRAF -p PROJECT_1 -i "http://www.smhi.se"  will add a new description on PROJECT_1
 
@@ -98,8 +97,3 @@
 
 
  Good Luck!
-
-
-
-
-

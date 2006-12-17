@@ -132,13 +132,14 @@ MODULE types
 
  TYPE stat_obs
     INTEGER, POINTER :: date,time
-    ! (ntimver)
+    ! (nparver)
     REAL,    POINTER :: obs(:)
-    ! (nexp,ntimver)
+    ! (nexp,nparver)
     REAL,    POINTER :: bias(:,:)
     REAL,    POINTER :: rmse(:,:)
-    INTEGER, POINTER :: n(:,:)
-    INTEGER, POINTER :: r(:,:)
+    ! nparver
+    INTEGER, POINTER :: n(:)
+!   INTEGER, POINTER :: r(:,:)
  END TYPE stat_obs
 
 END MODULE types

@@ -1,0 +1,53 @@
+ARCH=pgf90
+
+
+# CPP
+MACHINECPP :=
+CPP        := /lib/cpp -E -traditional
+
+# C
+CC      := gcc 
+CCFLAGS := -O2 -xP -g  $(MACHINECPP) 
+
+# Fortran
+FC    := pgf90
+FREE  := -Mfree -Mextend
+FIXED :=  -Mnofree
+
+MYFCFLAGS :=
+
+# Modules
+MODNAME = $(shell echo $(*F) | tr "[:upper:]" "[:lower:]")
+MODEXT := mod
+
+# Link
+LD          := pgf90
+LDFLAGS     := 
+
+# AR
+AR      := ar
+ARFLAGS := rv
+MV      := mv
+RM      := rm -f
+MKDIR   := mkdir
+RMDIR   := rmdir
+
+#
+# ALADIN libraries 
+# To compile without aladin functionality set ALADINFLAG empty
+#
+
+# Flags
+FCFLAGS := $(MYFCFLAGS) -I$(ROOTDIR)/inc -I$(ROOTDIR)/$(ARCH)/mod
+CPPFLAGS := -I$(ROOTDIR)/inc 
+
+# depf90mod.x search extensions ( -f is default )
+MODEXTS=-E F90 -E F -E f90 -E -f 
+
+# EMOSLIB
+EXTLIB := -L$(MAG_HOME)/lib -lmagics -lMvDevices -lmagics -lgd -lpng -ljpeg -lz -lfreetype -lstdc++ -lm -lemos /home/andrae/eclib/src/libec.new.R32.D64.I32.a
+
+
+
+
+

@@ -1,11 +1,8 @@
 #!/bin/ksh
 
-# Create WebgraF entrys
-  Create_ver_js
+set -ax
 
-# Verify synop
-  Run_verobs_surface || exit
-
-# Verify temp
-  Run_verobs_temp    || exit
+Create_ver_js      || exit
+Run_verobs_surface || exit
+Run_verobs_temp    || exit
 

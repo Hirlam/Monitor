@@ -20,7 +20,7 @@ done
 cat << EOF >> fort.10
   NEXP=$NEXP
   OBSPATH ='$OBSPATH',
-  PRINT_READ = 1,
+  PRINT_READ = 0,
   EXPNAME =
 EOF
 F=1
@@ -44,7 +44,7 @@ EOF
 function variables {
 
 cat << EOF >> fort.10
- NPARVER =          36,
+ NPARVER =          30,
  FF_IND  =          1,
  DD_IND  =          2,
  TT_IND  =          3,
@@ -52,7 +52,7 @@ cat << EOF >> fort.10
  QQ_IND  =          5,
  FI_IND  =          6,
  LTEMP   = T,
- LEV_LST = 925,850,700,500,300,200,
+ LEV_LST = 850,700,500,300,200,
 EOF
 
 }
@@ -60,13 +60,9 @@ EOF
 ############ functions
 ############ functions
 
-cd $WRK || exit
+cd $BASE/wrk || exit
 
-rm -f *.ps *.png  fort.* temp.tar
-
-#
-# Create verification against forecast length
-#
+rm -f *.ps *.png *.jpg fort.* temp.tar vert.tar
 
 cat << EOF > fort.10
  &NAMVER
@@ -74,102 +70,101 @@ cat << EOF > fort.10
  EDATE = $EDATE,
  MAXSTN = 200,
  STNLIST = 0,
- STATNAME='Temp_LL.dat'
- FCINT      = 24,
+ STATNAME='Temp_LL.html'
+ FCINT      = 12,
  OBINT      = 12
- NTIMVER    = 2
  NFCLENGTHS = 2
  FCLEN      = 12,24,
- LFCVER     = T,
- DATA_TO_VERIFY  = 2,
- LPLOT_STAT      = T,
+ LFCVER = T,
+ DATA_TO_VERIFY = 2,
+ LPLOT_STAT= T,
  LPRINT_GROSS    = T,
- LREJECT_GROSS   = F,
+ LREJECT_GROSS   = T,
+ LSTAT_GEN = T,
 EOF
 
 experiments
 variables
 end_of_namelist
 
-cp fort.10 namelist_temp_ll
+cp fort.10 namelist_temp
 
 $BIN/verobs || exit
 
-#
-# Create verification against time of day 
-# and make vertical profile
-#
 
 cat << EOF > fort.10
  &NAMVER
- SDATE   = $SDATE,
- EDATE   = $EDATE,
- MAXSTN  = 200,
+ SDATE = $SDATE,
+ EDATE = $EDATE,
+ MAXSTN = 200,
  STNLIST = 0,
- STATNAME='vert_temp_HH.dat'
+ STATNAME='vert_temp_HH.html'
  NTIMVER    = 4
- NFCLENGTHS = 2,
+ NFCLENGTHS = 2
  FCLEN      = 12,24,
- FCINT      = 24,
+ FCINT      = 12,
  OBINT      = 12
- LFCVER          = F,
- DATA_TO_VERIFY  = 2,
- LPRINT_GROSS    = T,
- LPLOT_VERT      = T,
- LTIMESERIE_STAT = T
- LDIFF           = T,
- LREJECT_GROSS   = F,
+ LFCVER = F,
+ DATA_TO_VERIFY = 2,
+ LPRINT_GROSS          = T,
+ LPLOT_VERT= T,
+ LTIMESERIE_STAT= T
+ TIMESERIE_WIND = 12,
+ LDIFF = T,
+ LREJECT_GROSS   = T,
+ LSTAT_GEN = T,
+ LPREP_XML = T,
 EOF
 
 experiments
 variables
 end_of_namelist
 
-cp fort.10 namelist_temp_hh
+cp fort.10 namelist_vert
 
 $BIN/verobs || exit
 
-
-tar cvf temp_ps.tar *.ps
-
 [[ $WEBCALL == ""  ]] && exit
 
+#
+# Convert/rename plots
+#
 
-# Make png
+mkdir vert 
+if [ $OUTPUT_TYPE -eq 1 ] ; then
+   mv l*.ps vert
+   $BASE/scr/ps2png 6 5 $NEXP '-resize 75% -rotate 90'
+   tar cvf temp.tar *.png
+elif [ $OUTPUT_TYPE -eq 2 ] ; then
+   mv l*.png vert
+   $BASE/scr/png2png 6 5 $NEXP png
+   tar cvf temp.tar *.png
+elif [ $OUTPUT_TYPE -eq 3 ] ; then
+   mv l*.jpg vert
+   $BASE/scr/png2png 6 5 $NEXP jpg
+   tar cvf temp.tar *.jpg
+fi
 
-mkdir vert
-mv l*.ps vert
-
-
-# Per level 
-#$SCR/ps2png  6 5 $NEXP '-resize 75% -rotate 90'
-$SCR/ps2png  6 6 $NEXP '-resize 75% -rotate 90'
-
-# Include the month information into file name
-for F in $( ls *.png ) ; do
- newfile=`echo $F | sed 's/\.png$//'`_${MONTH}.png
- mv $F ${newfile}
-done
-
-tar cvf temp.tar *.png
-
-rm *.ps
-mv vert/*.ps .
-rmdir vert
 
 #Vertical
-$SCR/ps2png  6 1 $NEXP '-resize 75%'
+cp $BASE/scr/style.xsl .
+if [ $OUTPUT_TYPE -eq 1 ] ; then
+   mv vert/*.ps .
+   $BASE/scr/ps2png 6 1 $NEXP '-resize 75%'
+   tar cvf vert.tar *.png *.xml style.xsl
+elif [ $OUTPUT_TYPE -eq 2 ] ; then
+   mv vert/*.png .
+   $BASE/scr/png2png 6 1 $NEXP png
+   tar cvf vert.tar *.png *.xml style.xsl
+elif [ $OUTPUT_TYPE -eq 3 ] ; then
+   mv vert/*.jpg .
+   $BASE/scr/png2png 6 1 $NEXP jpg
+   tar cvf vert.tar *.jpg *.xml style.xsl
+fi
 
-# Include the month information into file name
-for F in $( ls *.png ) ; do
- newfile=`echo $F | sed 's/\.png$//'`_${MONTH}.png
- mv $F ${newfile}
-done
-
-tar cvf vert.tar *.png
+rmdir vert
 
 $WEBCALL -e Temp -f temp.tar
 $WEBCALL -e Vert -f vert.tar
 
-rm -f *.png *.ps
-
+rm -f *.png *.tar *.ps *.jpg *.xml || true

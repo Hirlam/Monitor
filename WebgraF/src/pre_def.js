@@ -20,6 +20,8 @@ var mlist 	= new Array()
 var pos   	= new Array()
 var input_list  = new Array() ;
 var input_text  = new Array() ;
+var my_xml      = new Array() ;
+var my_xml_txt  = new Array() ;
 var multi  	= false
 var mpos   	= -99
 var save_txt 	= ""
@@ -39,6 +41,8 @@ var start_at 	= new String("#")
 var list 	="LIST"
 var top 	="TOP"
 var on_start 	= true
+var wdt         = 0
+var hgt         = 0
 
 // User provided 
 var v      	= new Array()
@@ -66,9 +70,11 @@ var do_delete	= false
 var do_subset 	= false
 var do_manip  	= false
 var do_send  	= false
-var do_debug  	= true
+var do_debug  	= false
 var info_start  = false
 var user        = "nada"
+var size_fig    = 1.0
+var do_resize   = true
 
 // Language
 
@@ -77,7 +83,7 @@ var lang = new Array( )
 function language_def(home,favo,late,save,remo,clea,welc,
               slid,up,down,forw,back,fast,slow,stop,help,
               downl,ps,pdf,stpo,enpo,flip,load,youm,dele,
-              rest,mifo,send,mhed) {
+              rest,mifo,send,mhed,larg,smal,orig,resi) {
 
 this.home = home
 this.favo = favo
@@ -108,6 +114,10 @@ this.rest  = rest
 this.mifo  = mifo
 this.send  = send
 this.mhed  = mhed
+this.larg  = larg
+this.smal  = smal
+this.orig  = orig
+this.resi  = resi
 
 }
 
@@ -117,9 +127,11 @@ var pre_lan = 0
 lang[0] = new language_def("WebgraF","Favorites","All","Save","DEL","Clear","Choices",
                            "Slideshow","Up","Down","Forward","Backward","Faster","Slower",
                            "Stop","Help","Download","Postscript","PDF","Start point","End point",
-                            "FLIP","Load","Your Menu","Delete","Restore","Info","Send","Show all")
+                            "FLIP","Load","Your Menu","Delete","Restore","Info","Send",
+                            "Show all","Larger","Smaller","Original","Resize")
 // Swedish
 lang[1] = new language_def("WebgraF","Favoriter","Alla","Spara","DEL","Rensa","Val",
                            "Bildspel","Upp","Ned","Framåt","Bakåt","Snabbare","Långsammare",
                            "Stopp","Hjälp","Ladda ned","Postscript","PDF","Startpunkt","Ändpunkt",
-                            "VÄND","Ladda","Din Meny","Ta bort","Återställ","Info","Skicka","Visa alla")
+                            "VÄND","Ladda","Din Meny","Ta bort","Återställ","Info","Skicka",
+                            "Visa alla","Större","Mindre","Original","Storlek")

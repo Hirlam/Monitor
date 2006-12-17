@@ -1,9 +1,20 @@
-# Instructions for verobs 
+###########################
+# Instructions for verobs #
+###########################
+
+This verification setup will produce
+statistics and plots as can be seen at :
+
+https://hirlam.org/portal/smhi/WebgraF/HIRALD
+
+Input files are assumed to be on the form as they 
+are produced by the fldxtr and obsxtr programs 
+
 
 In directory scr there are a file Env_exp where you define your experiments
 Edit to fit your needs
 
-Run_verobs_all will : 
+The script Run_verobs_all will : 
 
 Create a WebgraF webpage for you verification ( Create_ver_js )
 Run a synop station verification              ( Run_verobs_surface )
@@ -11,6 +22,214 @@ Run a temp  station verification              ( Run_verobs_temp )
 
 All scripts can be run alone
 
-For usage of the namelist variables read the definition in src/module_data.f
+The script Run_verobs_all_month will do the same
+but accumulate statistics monthvise.
+
+#####################################
+A test data set can be downloaded from
+
+https://hirlam.org/contrib/ulf/aladin/dat.tar.gz
+
+#####################################
+
+Below follows an explanation of the namelists created by the scripts in scr
+
+#####################################
+
+ Verification of surface observations against forecast length
+
+ &NAMVER
+ SDATE = 20061120,                ! Start date
+ EDATE = 20061128,                ! End date
+ STATNAME='Surface_LL.html'       ! Name of statistics output file
+ OBINT      = 03                  ! Observation interval in hours
+ FCINT      = 12                  ! Forecast cycle interval in hours
+ NFCLENGTHS = 8,                  ! Number of forecast lengths
+ FCLEN      = 03,06,09,12,15,18,21,24,     ! Forecast lengths used
+ LFCVER = T,                               ! Verify against forecast length, 
+                                           ! F means verify against time of day
+ DATA_TO_VERIFY = 1,                       ! Section to be called in my_choice.f90
+ LSTAT_GEN = T,                            ! Accumulate general statistics
+ LPLOT_STAT= T,                            ! Plot general statistics
+ LTIMESERIE_STAT= T,                       ! Plot timeserie statistics
+ TIME_STAT_FCLEN = 15,18,21,24,            ! Forecast lenghts used for timeserie statistics
+                                           ! TIME_STAT_FCLEN = 0 means all
+ TIMESERIE_WIND  = 12,                     ! Time window in hours for average in timeseries
+ LDIFF = T,                                ! Plot difference
+  NEXP=2                                   ! Number of experiments to verify
+  EXPNAME = 'al00_31t0', 'ALD',            ! Experiment names
+  MODPATH=                                 ! Path to model data
+'/data/proj_ns1/hirfou/uandrae/harmonie/monitor/dat/al00_31t0/',
+'/data/proj_ns1/hirfou/uandrae/harmonie/monitor/dat/ALD/',
+  OBSPATH =                                ! Path to observation data
+'/data/proj_ns1/hirfou/uandrae/harmonie/monitor/dat/obs/', 
+  OUTPUT_TYPE=1                            ! 1: creates .ps files
+                                           ! 2: .png , 3: .jpg
+  PRINT_READ = 1,                          ! Print extra information when reading
+ NPARVER = 8,                              ! Number of parameters to verify
+ FF_IND  = 1,                              ! Index of FF (wind speed)
+ DD_IND  = 2,                              ! Index of DD (wind direction)
+ PS_IND  = 3,                              ! Index of PS (Surface pressure)
+ TT_IND  = 4,                              ! Index of TT (Temperature)
+ RH_IND  = 5,                              ! Index of RH (Relative humidity)
+ QQ_IND  = 6,                              ! Index of QQ (Specific humidity)
+ NN_IND  = 7,                              ! Index of NN (Cloud cover)
+ PE_IND  = 8,                              ! Index of PE (Precipitation 12h accumulation time)
+ LREJECT_GROSS   = T,                      ! Reject erroneous observations
+ LPRINT_GROSS    = T,                      ! Print stations rejected
+ FF_LIM = 25.,                             ! Gross error limit for FF
+ QQ_LIM = 30.,                             ! Gross error limit for QQ
+ MAXSTN = 3000,                            ! Maximum number of stations
+ STNLIST = 0                               ! Stations to verify 0 means all available
+ STNLIST_BL = 1075,1078,1092,1098,1055,    ! Blacklisted stations
+              22028,22304,22342,22583,
+              23701,15505,22113,6760,
+	      6762,1590,1592,22471,3031,
+	      3039,3037,3034,3035,3041,
+/
+
+ Verification of surface observations against time of day 
+
+ &NAMVER
+ SDATE = 20061120,
+ EDATE = 20061128,
+ STATNAME='Surface_HH.html'
+ OBINT      = 03,
+ FCINT      = 12,
+ NTIMVER    = 8,               ! Verify daily cycle with 3h step ( 24/8 ) 
+ NFCLENGTHS = 4,               ! Number of forecast lengths to use
+ FCLEN      = 03,06,09,12,
+ LFCVER = F,                   ! Verify against time of day
+ LSTAT_GEN = T
+ DATA_TO_VERIFY  = 1,
+ LPLOT_STAT= T,
+ SHOW_OBS        = T,          ! Show full values on verificaion plot, in this case the daily cycle
+ LPLOT_FREQ      = T,          ! Plot frequency distribution
+ LPLOT_SCAT      = T,          ! Plot scatter plots
+ LDIFF           = F,
+ PLOT_BIAS_MAP   = T,          ! Plot bias/rmse maps
+ NMAP_HOURS      = 2,          ! Number of hours to map
+ MAP_HOURS       = 00,12,      ! Map hours
+                               ! Bias intervals for maps
+ MAP_BIAS_INTERVAL = -6.,-90.,-1.5,-6.,-15.,-3.,-6.,-6.,-1.,-1.,
+                     -4.,-60.,-1.0,-4.,-10.,-2.,-4.,-3.,-1.,-1.,
+		     -2.,-30.,-0.5,-2., -5.,-1.,-2.,-1.,-1.,-1.,
+                      0.,  0., 0. , 0.,  0., 0., 0., 0.,-1.,-1.,
+                      2., 30., 0.5, 2.,  5., 1., 2., 1.,-1.,-1.,
+                      4., 60., 1.0, 4., 10., 2., 4., 3.,-1.,-1.,
+                      6., 90., 1.5, 6., 15., 3., 6., 6.,-1.,-1.,
+ LPREP_XML       = T,          ! Print station statistics as XML files
+  MODPATH=
+'/data/proj_ns1/hirfou/uandrae/harmonie/monitor/dat/al00_31t0/',
+'/data/proj_ns1/hirfou/uandrae/harmonie/monitor/dat/ALD/',
+  OUTPUT_TYPE=1
+  NEXP=2
+  OBSPATH ='/data/proj_ns1/hirfou/uandrae/harmonie/monitor/dat/obs/',
+  PRINT_READ = 1,
+  EXPNAME =
+'al00_31t0',
+'ALD',
+ NPARVER = 8,
+ FF_IND  = 1,
+ DD_IND  = 2,
+ PS_IND  = 3,
+ TT_IND  = 4,
+ RH_IND  = 5,
+ QQ_IND  = 6,
+ NN_IND  = 7,
+ PE_IND  = 8,
+ LREJECT_GROSS   = T,
+ LPRINT_GROSS    = T,
+ FF_LIM = 25.,
+ QQ_LIM = 30.,
+ MAXSTN = 3000,
+ STNLIST = 0
+ STNLIST_BL = 1075,1078,1092,1098,1055,22028,22304,22342,22583,
+              23701,15505,22113,6760,6762,1590,1592,22471,3031,
+	      3039,3037,3034,3035,3041,
+/
+
+ &NAMVER
+ SDATE = 20061120,
+ EDATE = 20061128,
+ MAXSTN = 200,
+ STNLIST = 0,
+ STATNAME='Temp_LL.html'
+ FCINT      = 12,
+ OBINT      = 12
+ NFCLENGTHS = 2
+ FCLEN      = 12,24,
+ LFCVER = T,
+ DATA_TO_VERIFY = 2,
+ LPLOT_STAT= T,
+ LPRINT_GROSS    = T,
+ LREJECT_GROSS   = T,
+ LSTAT_GEN = T,
+  MODPATH=
+'/data/proj_ns1/hirfou/uandrae/harmonie/monitor/dat/al00_31t0/',
+'/data/proj_ns1/hirfou/uandrae/harmonie/monitor/dat/ALD/',
+  NEXP=2
+  OBSPATH ='/data/proj_ns1/hirfou/uandrae/harmonie/monitor/dat/obs/',
+  PRINT_READ = 0,
+  EXPNAME =
+'al00_31t0',
+'ALD',
+ NPARVER =          30,         ! Number of parameter time number of levels
+ FF_IND  =          1,
+ DD_IND  =          2,
+ TT_IND  =          3,
+ RH_IND  =          4,
+ QQ_IND  =          5,
+ FI_IND  =          6,
+ LTEMP   = T,                   ! This is a multilevel verification
+ LEV_LST = 850,700,500,300,200, ! Pressure levels
+/
+
+ &NAMVER
+ SDATE = 20061120,
+ EDATE = 20061128,
+ MAXSTN = 200,
+ STNLIST = 0,
+ STATNAME='vert_temp_HH.html'
+ NTIMVER    = 4
+ NFCLENGTHS = 2
+ FCLEN      = 12,24,
+ FCINT      = 12,
+ OBINT      = 12
+ LFCVER = F,
+ DATA_TO_VERIFY = 2,
+ LPRINT_GROSS          = T,
+ LPLOT_VERT= T,               ! Plot vertical profiles
+ LTIMESERIE_STAT= T
+ TIMESERIE_WIND = 12,
+ LDIFF = T,
+ LREJECT_GROSS   = T,
+ LSTAT_GEN = T,
+ LPREP_XML = T,
+  MODPATH=
+'/data/proj_ns1/hirfou/uandrae/harmonie/monitor/dat/al00_31t0/',
+'/data/proj_ns1/hirfou/uandrae/harmonie/monitor/dat/ALD/',
+  NEXP=2
+  OBSPATH ='/data/proj_ns1/hirfou/uandrae/harmonie/monitor/dat/obs/',
+  PRINT_READ = 0,
+  EXPNAME =
+'al00_31t0',
+'ALD',
+ NPARVER =          30,
+ FF_IND  =          1,
+ DD_IND  =          2,
+ TT_IND  =          3,
+ RH_IND  =          4,
+ QQ_IND  =          5,
+ FI_IND  =          6,
+ LTEMP   = T,
+ LEV_LST = 850,700,500,300,200,
+/
 
 
+# The monthly verification is controled by setting
+PERIOD_TYPE = 2
+Number of consecituve months to accumulate over is controlled by
+PERIOD_FREQ = 1
+
+For usage of the namelist variables read the definition in src/module_data.f90

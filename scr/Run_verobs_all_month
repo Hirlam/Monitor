@@ -1,0 +1,8 @@
+#!/bin/ksh
+
+set -ax
+
+Create_ver_month_js       || exit
+Run_verobs_surface_month || exit
+Run_verobs_temp_month    || exit
+

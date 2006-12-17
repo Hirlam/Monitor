@@ -1,4 +1,9 @@
 //----------------------------------------------------
+function resize(size_ind) {
+   if ( size_ind == 0 ) { size_fig = 1.0 }else { size_fig += size_ind }
+   getFig(0,pos[0])
+ }
+//----------------------------------------------------
 function debug_window() {
 
    passing = input_list[choice_ind].substr(0,input_list[choice_ind].lastIndexOf("\.js"))
@@ -86,14 +91,19 @@ function convert_passing() {
  
 }
 // --------------------------------------------------------
-function findProject() {
+function findProject(pind) {
    str = new String(window.location) ;
    // si = str.indexOf("WebgraF") + 8
    si = str.lastIndexOf("/") 
    str = str.substring(0,si)
    si = str.lastIndexOf("/") 
-   str = str.substring(0,si)
-   si = str.lastIndexOf("/") + 1
+   if ( pind == 1 ) {
+      si = str.lastIndexOf("/") + 1
+      ei = str.length
+      return str.substring(si,ei)
+   }
+   str2 = str.substring(0,si)
+   si = str2.lastIndexOf("/") + 1
    ei = str.length
    return str.substring(si,ei)
 }
@@ -206,6 +216,7 @@ function figName(p)
    this.pos = new Array()
  
    for (j = 0; j < (spec_name.length - 1); j++) {
+       if ( msep[j] == undefined ) { msep[j] = sep }
        this.src += mlist[spec_name[j]].v[p[spec_name[j]]] + msep[j]
    }
    this.src += mlist[spec_name[j]].v[p[spec_name[j]]]
@@ -226,7 +237,7 @@ function figName(p)
 
    for (j = 0; j < mlist.length ; j++) { this.pos[j] = p[j] }
 
-   this.act = dirFig(this.src,("pre_getFig(["+this.pos+"])"),this.txt)
+   this.act = dirPic(this.src,("pre_getFig(["+this.pos+"])"),this.txt)
 
    found_rem = false
    if ( ! sli_menu.active && do_remember ) {
@@ -582,8 +593,10 @@ var p = arguments[0]
                        else { mstart = p[2] ; mstop = p[1] ; reverse = true  }
       }
 
+      jj = 0
       for ( mm=mstart ; mm <= mstop ; mm++ ) {
-         p[(mm-1)] =  mn[(mm-1)]
+         p[(jj)] =  mn[(mm-1)]
+         jj += 1
       }
 
       if ( reverse ) { p = p.reverse() }
@@ -760,7 +773,7 @@ function update_all() {
    do {
 
       p = arguments[i+1]
-      if( p.indexOf("html",0) < 0 ) { p += ".html" }
+      if( p.indexOf("html",0) < 0 && p.indexOf("xml",0) < 0 ) { p += ".html" }
       parent.frames[arguments[i]].location = p
       i++ ; i++
 
@@ -781,6 +794,25 @@ function dirFig(fg,action,ft,tdstyle)
    if ( tdstyle == undefined ) { tdstyle = '' }
    tfg = " Missing: "+ fg 
    return "<td "+tdstyle+"><a href='javascript:parent." +action+ "' a><img alt='" +tfg+ "' title='" +ft+ "' src='" +fg+ "' border='0'></a></td>"
+}
+// --------------------------------------------------------
+function dirPic(fg,action,ft,tdstyle)
+{
+   if ( tdstyle == undefined ) { tdstyle = '' }
+   fgs = ""
+   if ( do_resize ) {
+      myimage = new Image()
+      myimage.src = fg
+      if (myimage.height != 0 ) {hgt = myimage.height * size_fig }
+      if (myimage.width  != 0 ) {wdt = myimage.width  * size_fig }
+      if ( wdt != 0 || hgt != 0 ){ fgs =" width="+wdt+" height="+hgt+" " }
+   //   alert(fgs)
+   }
+   tfg = " Missing: "+ fg
+
+
+   //return "<img alt='" +tfg+ "' title='" +ft+ "' src='" +fg+ "'"+ fgs+" border='0'>"
+   return "<td "+tdstyle+"><a href='javascript:parent." +action+ "' a><img alt='" +tfg+ "' title='" +ft+ "' src='" +fg+ "'"+ fgs+" border='0'></a></td>"
 }
 // --------------------------------------------------------
 function dirTxt(tdstyle,text,action,style,mytitle)
@@ -917,15 +949,29 @@ function sim_head() {
     if ( pre_lan == 1 ) { this.mytitle = "Visa definitionen för sidan"}
     break
 
+    case -14:
+    this.act = "nada()"
+    this.txt += dirTxt('width=100',this.name,this.act,m_head,this.mytitle)
+    this.txt += dirFig('down.gif' ,("resize(-0.1)"),lang[pre_lan].smal,'width=10')
+    this.txt += dirFig('stop.gif' ,("resize(   0)"),lang[pre_lan].orig,'width=10')
+    this.txt += dirFig('up.gif',   ("resize( 0.1)"),lang[pre_lan].larg,'width=10')
+    break
+
+    case -15:
+    this.act = "nada()"
+    break
+
  }
 
- this.txt += dirTxt('width=100',this.name,this.act,m_head,this.mytitle)
 
  if ( this.ind == -4 ) {
-    if ( pre_lan == 0 ) { this.mytitle = "Show page definition" }
-    if ( pre_lan == 1 ) { this.mytitle = "Visa definitionen för sidan"}
-    this.act = "debug_window()"
-    this.txt += dirTxt('width=1','.',this.act,'debug',this.mytitle)
+    this.act = "to_main()"
+    this.txt += dirTxt('width=5','../',this.act,m_item,this.mytitle)
+    this.txt += dirTxt('width=100',this.name,'nada()',m_head,this.mytitle)
+ } else {
+    if ( this.ind != -14 ) {
+       this.txt += dirTxt('width=100',this.name,this.act,m_head,this.mytitle)
+    }
  }
 
  this.txt += "</tr>" 
@@ -1053,6 +1099,35 @@ function dow_body( ) {
 
 }
 //--------------------------------------------------------------------------------------------------------------------
+function xml_update(loc) { 
+ tmp = my_xml[loc] + '.xml'
+ if ( info.lastIndexOf("http") < 0 ) {
+    tmp =  baseURL.substr(0,baseURL.lastIndexOf("index.html")) 
+    tmp += input_text[choice_ind]+'/'+ my_xml[loc] + '.xml'
+ }
+ parent.frames['Pic'].location = tmp
+}
+//--------------------------------------------------------------------------------------------------------------------
+function xml_body( ) { 
+
+ this.attrib = "bgcolor='#ffffff' rowspan='1' colspan='6'"
+ this.menu_style = menu_style
+ this.txt        = ""
+
+ this.act = "xml_update(selectedIndex)"
+ this.txt += sel_top(6,this.act,0)
+
+ for (jj = 0; jj < this.v.length; jj++) {
+    if ( this.p == jj ) { seltext = 'selected' } else { seltext ='' }
+    this.txt += "<option " +seltext+" class="+m_item+">"+this.t[jj]+"</option>"
+ }
+
+ this.txt += "</select></td></tr>"
+
+ return this.txt
+
+}
+//--------------------------------------------------------------------------------------------------------------------
 function make_menu(loc) { 
 
  this.txt = ""
@@ -1132,7 +1207,9 @@ function write_list(){
 
  this.txt += you_menu.make_menu('l') 
  if ( user != 'nada' ) { this.txt +="<b> By "+user+"</b> <br>" }
- if ( do_debug ) { this.txt += deb_menu.make_menu('l') }
+ if ( do_debug  ) { this.txt += deb_menu.make_menu('l') }
+ if ( do_resize ) { this.txt += res_menu.make_menu('l') }
+ this.txt += xml_menu.make_menu('l') 
 
  list = this.txt
 
@@ -1193,7 +1270,7 @@ function fix_input_text(input_list){
 function init() {
 
  input_text = fix_input_text(input_list)
- if ( title == "" ) { title = "WebgraF/" + findProject() +"/" + input_text[choice_ind]  }
+ if ( title == "" ) { title = findProject(0) +"/" + input_text[choice_ind]  }
 
  rem_menu = new menu(-1,"rem_menu",[""],[""],'t',1,all_head,gen_body,0,false)
  rem_menu.pos = new Array()
@@ -1202,7 +1279,7 @@ function init() {
  sli_menu = new menu(-3,"sli_menu" ,[""],[""],'l',0,sli_head,nada    ,-1,false)
 
  if (input_list.length <= 1 ) { body = nada } else { body = gen_body }
- top_menu = new menu(-4,findProject(),input_list,input_text,'l',1,sim_head,body,choice_ind,true)
+ top_menu = new menu(-4,findProject(1),input_list,input_text,'l',1,sim_head,body,choice_ind,true)
 
  hel_menu = new menu(-6,lang[pre_lan].help,[""],[""],'l',0,sim_head,nada,0,( help != "" ))
  dow_menu = new menu(-7,lang[pre_lan].downl,download,download,'l',0,sim_head,dow_body,0,( download.length > 0 ))
@@ -1216,6 +1293,9 @@ function init() {
  inf_menu = new menu(-11,lang[pre_lan].mifo,[""],[""],'l',0,sim_head,nada,0,( info != ""))
  sen_menu = new menu(-12,lang[pre_lan].send,[""],[""],'l',0,sim_head,nada,0,( do_send && ! do_manip && ! do_flip && ! do_delete ))
  deb_menu = new menu(-13,'Debug'           ,[""],[""],'l',0,sim_head,nada,0, do_debug )
+ res_menu = new menu(-14,lang[pre_lan].resi,[""],[""],'l',0,sim_head,nada,0, do_resize )
+ if ( my_xml_txt.length == 0 ) { my_xml_txt = my_xml }
+ xml_menu = new menu(-15,'XML statistics'             ,my_xml,my_xml_txt,'l',0,sim_head,xml_body,0, (my_xml.length > 0 ))
 
  for ( i=0 ; i < mname.length ; i++ ) {
 

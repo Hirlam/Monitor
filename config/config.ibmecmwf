@@ -1,5 +1,8 @@
 ARCH=ibmecmwf
 
+# Magics flag
+# If this is not set only tables will be produced
+MAGICSFLAG := -DMAGICS
 
 # CPP
 MACHINECPP :=
@@ -15,7 +18,7 @@ FC    := xlf90
 FREE  := -qfree=f90 -qsuffix=f=f90 -qsuffix=cpp=F90
 FIXED := -qfixed
 
-MYFCFLAGS :=  -C -d -qnoextname -qarch=auto -qtune=auto -q32 -qmaxmem=-1 -g -O3 -qstrict
+MYFCFLAGS :=  -d -qnoextname -qarch=auto -qtune=auto -q32 -qmaxmem=-1 -g -O3 -qstrict
 
 # Modules
 MODNAME = $(shell echo $(*F) | tr "[:upper:]" "[:lower:]")
@@ -40,15 +43,14 @@ RMDIR   := rmdir
 
 # Flags
 FCFLAGS := $(MYFCFLAGS) -I$(ROOTDIR)/inc -I$(ROOTDIR)/$(ARCH)/mod
-CPPFLAGS := -I$(ROOTDIR)/inc 
+CPPFLAGS := -I$(ROOTDIR)/inc  $(MAGICSFLAG)
 
 # depf90mod.x search extensions ( -f is default )
 MODEXTS=-E F90 -E F -E f90 -E -f 
 
 # EMOSLIB
-EXTLIB := $(MAGLIB) $(EMOSLIB) $(ECLIB)
-
-
-
-
-
+ifeq ($(MAGICSFLAG),-DMAGICS)
+   EXTLIB := $(MAGLIB) $(EMOSLIB) $(ECLIB)
+else
+   EXTLIB := $(ECLIB)
+endif

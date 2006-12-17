@@ -1,41 +1,17 @@
 #!/bin/ksh
 
-#@ shell           = /bin/ksh
-#@ class           = long
-#@ job_name        = verobs_surf
-#@ output          = $(job_name).$(host).$(jobid).out
-#@ error           = $(job_name).$(host).$(jobid).out
-#@ environment     = COPY_ALL
-#@ notification    = error 
-#@ job_cpu_limit   = 3:00:00,2:59:55
-#@ wall_clock_limit= 6:00:00,5:29:50
-#@ queue 
-
 set -axk
 
-#ulimit -m unlimited
-#ulimit -f unlimited
-#ulimit -t unlimited
-#ulimit -s unlimited
-
-ulimit -m 256000
+ulimit -m unlimited
 ulimit -f unlimited
-ulimit -t 1800
-ulimit -s 921600
-ulimit -d 921600
+ulimit -t unlimited
+ulimit -s unlimited
 
 ulimit -a
 
 # Spec
 
-. $HOME/monitor/scr/Env_exp
-
-if [[ $STATIONS == "EHTB" ]] then
- $SCR/Merge_files
-fi
-if [[ $STATIONS == "HTB" ]] then
- $SCR/Copy_files
-fi
+. Env_exp
 
 set -axk
 
@@ -54,6 +30,7 @@ EXPNAME=""
 done
 
 cat << EOF >> fort.10
+  OUTPUT_TYPE=$OUTPUT_TYPE
   NEXP=$NEXP
   OBSPATH ='$OBSPATH',
   PRINT_READ = 1,
@@ -91,12 +68,9 @@ cat << EOF >> fort.10
  PE_IND  = 8,
  LREJECT_GROSS   = T,
  LPRINT_GROSS    = T,
- TT_LIM = 35.,
- FF_LIM = 40.,
- PS_LIM = 40.,
- PE_LIM = 100.,
+ FF_LIM = 25.,
+ QQ_LIM = 30.,
 EOF
-
 
 }
 ############ functions
@@ -105,36 +79,21 @@ EOF
 function stations {
 
 cat << EOF >> fort.10
- MAXSTN  = 3000,
- STNLIST = 0,
- STNLIST_PLOT =,
- STNLIST_BL=00046,01089,22113,00001,00002,00003,00004,00005,00006,00007,00008,
-            00011,00012,00013,00018,00029,00030,00045,                
-            02910,02584,02589,02976,02790,02988,02971,02982,02981,02980,02984,
-            02496,26115,26214,26128,26226,26218,26313,02489,02493,02487,
-            02485,02288,02449,02587,02499
- LPRINT_SUMMARY=F,
+ MAXSTN = 3000,
+ STNLIST = 0
+ STNLIST_BL = 1075,1078,1092,1098,1055,22028,22304,22342,22583,
+              23701,15505,22113,6760,6762,1590,1592,22471,3031,
+	      3039,3037,3034,3035,3041,
 EOF
 }
-
-#Default list
-# STNLIST_BL=00046,01089,22113,
-# STNLIST_BL=00046,00051,01089,22113,
-
-# Black list for excluding the sea areas from FMI AROME domain
-# STNLIST_BL=00046,01089,22113,00001,00002,00003,00004,00005,00006,00007,00008,
-#            00011,00012,00013,00018,00029,00030,00045,                
-#            02910,02584,02589,02976,02790,02988,02971,02982,02981,02980,02984,
-#            02496,26115,26214,26128,26226,26218,26313,02489,02493,02487,
-#            02485,02288,02449,02587,02499
 ############ functions
 ############ functions
 ############ functions
 
-[[ -s $WRK ]] || mkdir -p $WRK
-cd $WRK || exit
+cd $BASE/wrk || exit
 
-rm -f *.ps *.png *.dat
+rm -f *.ps *.png *.dat *.xml *.html
+
 
 #
 # Verification by forecast length
@@ -142,32 +101,21 @@ rm -f *.ps *.png *.dat
 
 cat << EOF > fort.10
  &NAMVER
- SDATE           = $SDATE,
- EDATE           = $EDATE,
- STATNAME        ='Surface_LL.dat'
- FCINT           = 24,
- OBINT           = 3,
- NTIMVER         = 8,
- NFCLENGTHS      = 8,
- FCLEN           = 03,06,09,12,15,18,21,24,
- LFCVER          = T,
- DATA_TO_VERIFY  = 1,
- LPLOT_STAT      = T,
- PLOT_BIAS_MAP   = T,
- MAP_SCALE       = $M_SCALE,
- MAP_CENTRE_LATITUDE    = $C_LAT,
- MAP_CENTRE_LONGITUDE   = $C_LON,
- NMAP_HOURS      = 2,
- MAP_HOURS       = 12,24,
- LTIMESERIE_STAT = T,
- LDIFF           = T,
- MAP_BIAS_INTERVAL = -8.,-120.,-3.0,-8.,-25.,-6.,-6.,-8.,-1.,-1.,
-                     -4.,-60., -1.0,-4.,-10.,-2.,-4.,-3.,-1.,-1.,
-                     -2.,-30., -0.5,-2., -5.,-1.,-2.,-1.,-1.,-1.,
-                      0.,  0.,  0. , 0.,  0., 0., 0., 0.,-1.,-1.,
-                      2., 30.,  0.5, 2.,  5., 1., 2., 1.,-1.,-1.,
-                      4., 60.,  1.0, 4., 10., 2., 4., 3.,-1.,-1.,
-                      8.,120.,  3.0, 8., 25., 6., 6., 8.,-1.,-1.,
+ SDATE = $SDATE,
+ EDATE = $EDATE,
+ STATNAME='Surface_LL.html'
+ OBINT      = 03
+ FCINT      = 12
+ NFCLENGTHS = 8,
+ FCLEN      = 03,06,09,12,15,18,21,24,
+ LFCVER = T,
+ DATA_TO_VERIFY = 1,
+ LPLOT_STAT= T,
+ LSTAT_GEN = T,
+ LTIMESERIE_STAT= T,
+ TIME_STAT_FCLEN = 15,18,21,24,
+ TIMESERIE_WIND  = 06,
+ LDIFF = T,
 EOF
 
 experiments
@@ -175,46 +123,48 @@ variables
 stations
 end_of_namelist
 
-cp fort.10 namelist_surf_ll_bias
+cp fort.10 namelist_surf_ll
 
 $BIN/verobs || exit
+
+echo DONE Verobs
+
 
 rm -f fort.10 || true
 
 #
-# Verification by time of day (maps only)
+# Verification by time of day
 #
 
 cat << EOF > fort.10
  &NAMVER
- SDATE           = $SDATE,
- EDATE           = $EDATE,
- STATNAME        ='Surface_HH.dat'
- FCINT           = 24,
- OBINT           = 3,
- NTIMVER         = 8,
- NFCLENGTHS      = 8,
- FCLEN           = 03,06,09,12,15,18,21,24
- LFCVER          = F,
+ SDATE = $SDATE,
+ EDATE = $EDATE,
+ STATNAME='Surface_HH.html'
+ OBINT      = 03,
+ FCINT      = 12,
+ NTIMVER    = 8,
+ NFCLENGTHS = 4,
+ FCLEN      = 03,06,09,12,
+ LFCVER = F,
+ LSTAT_GEN = T
  DATA_TO_VERIFY  = 1,
- LPLOT_STAT      = T,
+ LPLOT_STAT= T,
  LPLOT_FREQ      = T,
  LPLOT_SCAT      = T,
- LDIFF           = T,
+ LDIFF           = F,
  PLOT_BIAS_MAP   = T,
- MAP_SCALE       = $M_SCALE,
- MAP_CENTRE_LATITUDE    = $C_LAT,
- MAP_CENTRE_LONGITUDE   = $C_LON,
- NMAP_HOURS      = 3,
- MAP_HOURS       = 00,12,18,
+ NMAP_HOURS      = 2,
+ MAP_HOURS       = 00,12,
+ MAP_BIAS_INTERVAL = -6.,-90.,-1.5,-6.,-15.,-3.,-6.,-6.,-1.,-1.,
+                     -4.,-60.,-1.0,-4.,-10.,-2.,-4.,-3.,-1.,-1.,
+		     -2.,-30.,-0.5,-2., -5.,-1.,-2.,-1.,-1.,-1.,
+                      0.,  0., 0. , 0.,  0., 0., 0., 0.,-1.,-1.,
+                      2., 30., 0.5, 2.,  5., 1., 2., 1.,-1.,-1.,
+                      4., 60., 1.0, 4., 10., 2., 4., 3.,-1.,-1.,
+                      6., 90., 1.5, 6., 15., 3., 6., 6.,-1.,-1.,
  SHOW_OBS        = T,
- MAP_BIAS_INTERVAL = -8.,-120.,-3.0,-8.,-25.,-6.,-6.,-8.,-1.,-1.,
-                     -4.,-60., -1.0,-4.,-10.,-2.,-4.,-3.,-1.,-1.,
-                     -2.,-30., -0.5,-2., -5.,-1.,-2.,-1.,-1.,-1.,
-                      0.,  0.,  0. , 0.,  0., 0., 0., 0.,-1.,-1.,
-                      2., 30.,  0.5, 2.,  5., 1., 2., 1.,-1.,-1.,
-                      4., 60.,  1.0, 4., 10., 2., 4., 3.,-1.,-1.,
-                      8.,120.,  3.0, 8., 25., 6., 6., 8.,-1.,-1.,
+ LPREP_XML       = T,
 EOF
 
 experiments
@@ -224,30 +174,29 @@ end_of_namelist
 
 cp fort.10 namelist_surf_hh
 
+
 $BIN/verobs || exit
 
-tar cvf surface_ps.tar *.ps
 
 [[ $WEBCALL == ""  ]] && exit
 
-# Convert to png
-$SCR/ps2png 8 1 $NEXP '-resize 75% -rotate 90'
+# Convert/rename plots
 
-# Include the month information into file name
-for F in $( ls *.png ) ; do
- newfile=`echo $F | sed 's/\.png$//'`_${MONTH}.png
- mv $F ${newfile}
-done
-
-# Include the station information into file name
-if [[ ${PROJ_NAME} == "AROME_00" || ${PROJ_NAME} == "AROME_12"  || ${PROJ_NAME} == "AROME_00_LAND"  ]] then
- for F in $( ls *.png ) ; do
-  newfile=${STATIONS}_$F
-  mv $F ${newfile}
- done
+if [ $OUTPUT_TYPE -eq 1 ] ; then
+   $BASE/scr/ps2png 8 1 $NEXP '-resize 75% -rotate 90'
+   tar cvf fig.tar *.png 
+elif [ $OUTPUT_TYPE -eq 2 ] ; then
+   $BASE/scr/png2png 8 1 $NEXP png
+   tar cvf fig.tar *.png 
+elif [ $OUTPUT_TYPE -eq 3 ] ; then
+   $BASE/scr/png2png 8 1 $NEXP jpg
+   tar cvf fig.tar *.jpg
 fi
 
-tar cvf fig.tar *.png
+cp $BASE/scr/style.xsl .
 
-${WEBCALL} -e Surface -f fig.tar
-rm -f *.png *.ps
+$WEBCALL -e Surface -f fig.tar
+tar cvf xml.tar  *.xml style.xsl
+$WEBCALL -e Surf_scat -f xml.tar
+
+rm -f *.tar *.png *.ps *.jpg *.xml *.xsl || true

@@ -14,6 +14,7 @@ MODULE data
  INTEGER, PARAMETER :: lunin2  = 16
  INTEGER, PARAMETER :: lunout  = 14
  INTEGER, PARAMETER :: lunstat = 15
+ INTEGER, PARAMETER :: lunxml  = 47
  INTEGER, PARAMETER :: len_lab = 6
  INTEGER, PARAMETER :: maxexp  = 5	! Max experiments
  INTEGER, PARAMETER :: mparver = 100	! Max parameters to verify
@@ -47,6 +48,15 @@ MODULE data
 !
 
  ! Time control
+ INTEGER :: period_type   = 1    ! Time of period to work with
+                                 ! 1 : sdate - edate
+                                 ! 2 : sdate - edate in consecutive monthvise pieces like 200611,200612, ...
+                                 ! 3 : sdate - edate in seasonal monthvise pieces like, DJF,MAM,JJA,SON 
+ INTEGER :: period_freq   = 1    ! Accumulation frequency in months for
+                                 ! period_type 2 and 3
+                                 ! for period_type 3 only a frequency of 1 and 3
+                                 ! is allowed
+                                 ! 
  INTEGER :: sdate  = 19990901 	 ! Start date
  INTEGER :: stime  = 0 		 ! Start time
  INTEGER :: edate  = 20000320 	 ! End date
@@ -83,9 +93,6 @@ MODULE data
  INTEGER :: obint            = 1                ! Interval between observations in hour
                                                 ! Not applicable everywhere 
  INTEGER :: time_shift                 =  0     ! Shift in time when doing daily average
- INTEGER :: monthvise_freq             =  1     ! Frequency, in months, of monthvise verify
- INTEGER :: yearvise_freq              =  3     ! Frequency, in months, of seasonal verify, 
-                                                ! only 1 (monthly) or 3 (seasonal as in DJF) available
  INTEGER :: yearvise_wind              =  7     ! Accumulation period for seasonal verify
  INTEGER :: timeserie_wind             =  0     ! Accumulation period for timeserie plots
  INTEGER :: window_pos                 =  0     ! Plot position of period
@@ -229,7 +236,6 @@ MODULE data
  LOGICAL :: lfcver           = .FALSE. 	! Verify by fclength else by time of day
  LOGICAL :: leach_station    = .FALSE.	! Verify each station separately
  LOGICAL :: lallstat         = .TRUE.	! Show statistics for all stations
- LOGICAL :: monthvise        = .FALSE.	! Show monthly statistics
  LOGICAL :: lfindplot        = .FALSE.	! Call findplot obsolete at the moment
  LOGICAL :: ldaymean         = .FALSE.	! Calculate daily means 
  LOGICAL :: ltimeserie       = .FALSE.	! Plot timeseries for all stations
@@ -237,6 +243,8 @@ MODULE data
  LOGICAL :: ltimeserie_stat_month  = .FALSE.	! Plot timeserie statistics for all stations month by month
  LOGICAL :: lplot_freq       = .FALSE.	! Make frequency distribution plots
  LOGICAL :: lplot_scat       = .FALSE.	! Make scatterplots
+ LOGICAL :: lprep_xml        = .FALSE.	! Create statistics in xml format based
+                                        ! on scatter data
  LOGICAL :: lverify          = .TRUE.	! Call verify main subroutine
  LOGICAL :: lstat_gen        = .TRUE.	! Calculate general statistics
  LOGICAL :: lprint_selection = .FALSE.	! Print selected stations
@@ -253,7 +261,6 @@ MODULE data
  LOGICAL :: lplot_stat_year  = .FALSE.	! Create plot file for seasonal statistics
  LOGICAL :: lprint_gross     = .FALSE.	! Print gross error diagnostics
  LOGICAL :: lreject_gross    = .FALSE.  ! Reject gross error data
- LOGICAL :: lyearvise        = .FALSE.  ! Do seasonal cycle
  LOGICAL :: use_database     = .FALSE.  ! Try to use database, obsolete
  LOGICAL :: release_memory   = .TRUE.   ! Release memory as soon as data have been used
  LOGICAL :: release_memory_f = .FALSE.  ! Release memory after findplot, obsolete
@@ -283,7 +290,7 @@ MODULE data
  LOGICAL :: show_bias        = .TRUE.   ! Plot bias
  LOGICAL :: show_rmse        = .TRUE.   ! Plot rmse
  LOGICAL :: show_stdv        = .FALSE.  ! Plot stdv
- LOGICAL :: show_obs         = .FALSE.  ! Plot full obs turnes the others to false
+ LOGICAL :: show_obs         = .FALSE.  ! Plot full obs turns the others to false
 
 
  ! Special conditions
@@ -297,15 +304,15 @@ MODULE data
  INTEGER :: kalman_frequency_n     = 24       ! Expected data frequency
  INTEGER :: kalman_fclen(maxfclen) = 0        ! fclen to use in kalman filter
 
+ ! Output type
+ INTEGER :: output_type = 1                   ! 1 = ps, 2 = png, 3 = jpg
 
  ! Namlist 
  namelist/namver/sdate,stime,edate,etime,		&
                  maxstn,maxtim,maxtim_scat,             &
                  ntimver,time_shift,                    &
                  nfclengths,fclen,fcint,obint,          &
-                 yearvise_freq,yearvise_wind,	        &
                  timeserie_wind,window_pos,             &
-                 monthvise_freq,			&
                  stnlist,stnlist_bl,stnlist_plot,	&
                  nexp,expname,				&
                  nparver,				&
@@ -323,11 +330,11 @@ MODULE data
                  obspath,modpath,                       &
                  lfcver,leach_station,ltiming,          &
                  lallstat,                              &
-                 monthvise,lfindplot,                   &
+                 lfindplot,                   &
                  lstat_gen,lverify,          		&
                  lplot_stat,ldaymean,                   &
                  lplot_vert_month,lplot_vert,     	&
-                 ltimeserie,lplot_scat,                 &
+                 ltimeserie,lplot_scat,lprep_xml,       &
                  ltimeserie_stat,                       &
                  ltimeserie_stat_month,                 &
                  time_stat_fclen,                       &
@@ -350,7 +357,7 @@ MODULE data
                  release_memory,lplot_freq,		&
                  release_memory_f,       		&
                  cbox,lpoly,data_to_verify,ltemp,       &
-                 lyearvise,use_database,	        &
+                 use_database,	        &
                  fi_lim,tt_lim,ff_lim,dd_lim,rh_lim,    &
                  ps_lim,pe_lim,sw_lim,lw_lim,lu_lim,	&
                  ld_lim,qq_lim,su_lim,sd_lim,		&
@@ -362,10 +369,11 @@ MODULE data
                  lspecial_cond,special_flag,		&
                  gap_filled_data,ldiff,lnorm,           &
                  show_fc_length,all_var_present,        &
-                 use_pos,                               &
+                 use_pos,output_type,                   &
                  ncla,classtype,npre_cla,pre_fcla,      &
                  maxcla,mincla,                         &
-                 show_bias,show_rmse,show_stdv,show_obs
+                 show_bias,show_rmse,show_stdv,show_obs,&
+                 period_type,period_freq
 
 CONTAINS
 
