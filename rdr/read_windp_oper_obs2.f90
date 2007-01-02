@@ -112,6 +112,10 @@ SUBROUTINE read_windp_oper_obs2
 
  STATION_LOOP : DO i=1,maxstn
  
+  IF (obs(i)%stnr == 0 ) THEN
+     obs(i)%active = .FALSE.
+     CYCLE STATION_LOOP
+  ENDIF
   obs(i)%active = .TRUE.
 
   j = 0
@@ -139,8 +143,8 @@ SUBROUTINE read_windp_oper_obs2
        wtime = ctime
        CALL adddtg(wdate,wtime,obint*3600,cdate,ctime)
 
-       IF(cdate >  edate) EXIT TIME_LOOP
-       IF(cdate >= edate .AND. ctime/10000 > etime) EXIT TIME_LOOP
+       IF(cdate >  edate_obs) EXIT TIME_LOOP
+       IF(cdate >= edate_obs .AND. ctime/10000 > etime_obs) EXIT TIME_LOOP
 
        CYCLE TIME_LOOP
     ENDIF
@@ -176,8 +180,8 @@ SUBROUTINE read_windp_oper_obs2
     wtime = ctime
     CALL adddtg(wdate,wtime,obint*3600,cdate,ctime)
 
-    IF(cdate >  edate) EXIT TIME_LOOP
-    IF(cdate >= edate .AND. ctime/10000 > etime) EXIT TIME_LOOP
+    IF(cdate >  edate_obs) EXIT TIME_LOOP
+    IF(cdate >= edate_obs .AND. ctime/10000 > etime_obs) EXIT TIME_LOOP
 
   ENDDO TIME_LOOP
 

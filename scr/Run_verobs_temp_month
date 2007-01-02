@@ -22,6 +22,7 @@ cat << EOF >> fort.10
   PERIOD_FREQ = 1
   NEXP=$NEXP
   OBSPATH ='$OBSPATH',
+  OUTPUT_TYPE=$OUTPUT_TYPE, 
   PRINT_READ = 0,
   EXPNAME =
 EOF
@@ -62,7 +63,7 @@ EOF
 ############ functions
 ############ functions
 
-cd $BASE/wrk || exit
+cd $WRK || exit
 
 rm -f *.ps *.png  fort.* temp.tar *.xml
 
@@ -111,7 +112,7 @@ cat << EOF > fort.10
  LPRINT_GROSS          = T,
  LPLOT_VERT= T,
  LTIMESERIE_STAT= T
- TIMESERIE_WIND = 12,
+ TIMESERIE_WIND = 30*12,
  LDIFF = T,
  LREJECT_GROSS   = T,
  LSTAT_GEN = T,
@@ -135,34 +136,36 @@ $BIN/verobs || exit
 mkdir vert 
 if [ $OUTPUT_TYPE -eq 1 ] ; then
    mv l*.ps vert
-   $BASE/scr/ps2png 6 5 $NEXP '-resize 75% -rotate 90'
+   $SCR/ps2png 6 5 $NEXP '-resize 75% -rotate 90'
    tar cvf temp.tar *.png
 elif [ $OUTPUT_TYPE -eq 2 ] ; then
    mv l*.png vert
-   $BASE/scr/png2png 6 5 $NEXP png
+   $SCR/png2png 6 5 $NEXP png
    tar cvf temp.tar *.png
 elif [ $OUTPUT_TYPE -eq 3 ] ; then
    mv l*.jpg vert
-   $BASE/scr/png2png 6 5 $NEXP jpg
+   $SCR/png2png 6 5 $NEXP jpg
    tar cvf temp.tar *.jpg
 fi
 
-
 #Vertical
-cp $BASE/scr/style.xsl .
+cp $SCR/style.xsl .
 if [ $OUTPUT_TYPE -eq 1 ] ; then
+   rm -f *.ps
    mv vert/*.ps .
-   $BASE/scr/ps2png 6 1 $NEXP '-resize 75%'
+   $SCR/ps2png 6 1 $NEXP '-resize 75%'
    tar cvf vert.tar *.png *.xml style.xsl
 elif [ $OUTPUT_TYPE -eq 2 ] ; then
+   rm -f *.png
    mv vert/*.png .
-   $BASE/scr/png2png 6 1 $NEXP png
+   $SCR/png2png 6 1 $NEXP png
    tar cvf vert.tar *.png *.xml style.xsl
 elif [ $OUTPUT_TYPE -eq 3 ] ; then
+   rm -f *.jpg
    mv vert/*.jpg .
-   $BASE/scr/png2png 6 1 $NEXP jpg
+   $SCR/png2png 6 1 $NEXP jpg
    tar cvf vert.tar *.jpg *.xml style.xsl
-fi
+fi 
 
 rmdir vert
 

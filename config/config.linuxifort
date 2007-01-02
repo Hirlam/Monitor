@@ -15,7 +15,7 @@ CCFLAGS := -O2 -xP -g  $(MACHINECPP)
 
 # Fortran
 FC := ifort
-MYFCFLAGS := -O3 -xW -traceback -g -check bounds -pg
+MYFCFLAGS := -O3 -xW -traceback -g -checkbounds
 
 # Modules
 MODNAME = $(shell echo $(*F) | tr "[:upper:]" "[:lower:]")
@@ -24,9 +24,9 @@ MODEXT := mod
 # Link
 LD          := $(FC)
 ifeq ($(MAGICSFLAG),-DMAGICS)
-LDFLAGS     := -O3 -xW -I/usr/lib -lglib-2.0 -lfam -traceback -g -pg -check bounds 
+LDFLAGS     := -O3 -xW -I/usr/lib -lglib-2.0 -lfam -traceback -g -checkbounds
 else
-LDFLAGS     := -O3 -xW -I/usr/lib -lglib-2.0 -lfam -traceback -g -pg -check bounds -static -Bstatic
+LDFLAGS     := -O3 -xW -I/usr/lib -lglib-2.0 -lfam -traceback -g -static -Bstatic
 endif
 #-Bstatic -static
 

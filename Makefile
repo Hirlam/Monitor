@@ -1,4 +1,4 @@
-ARCH   := ibmecmwf
+ARCH   := linuxifort
 
 .DELETE_ON_ERROR:
 

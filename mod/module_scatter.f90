@@ -59,16 +59,18 @@ MODULE scatter
 
   INTEGER :: i,j
   
-  DO j=1,maxper
-     DO i=1,nparver
-        DEALLOCATE(scat_data(i,j)%dat)
-        DEALLOCATE(all_scat_data(i,j)%dat)
-     ENDDO
-  ENDDO
+! DO j=1,maxper
+!    DO i=1,nparver
+     !IF ( ALLOCATED(scat_data(i,j))     &
+     !DEALLOCATE(scat_data(i,j)%dat)
+     !IF ( ASSOCIATED(all_scat_data(i,j)%dat)) &
+     !DEALLOCATE(all_scat_data(i,j)%dat)
+     !ENDDO
+  !ENDDO
 
-  DEALLOCATE(scat_data)
-  DEALLOCATE(all_scat_data)
-  DEALLOCATE(all_par_active)
+  IF (ALLOCATED(scat_data))      DEALLOCATE(scat_data     )
+  IF (ALLOCATED(all_scat_data))  DEALLOCATE(all_scat_data )
+  IF (ALLOCATED(all_par_active)) DEALLOCATE(all_par_active)
 
   RETURN
 

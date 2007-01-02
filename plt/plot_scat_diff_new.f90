@@ -7,7 +7,7 @@ SUBROUTINE plot_scat_diff_new(lunout,nparver,nr,nrun,    &
  USE data, ONLY : obstype,expname,err_ind,nexp,station_name,csi, &
                   fclen,nfclengths,                              &
                   show_fc_length,ltiming,dd_ind,                 &
-                  period_freq
+                  period_freq,output_type
  USE mymagics
 
  IMPLICIT NONE
@@ -70,9 +70,9 @@ SUBROUTINE plot_scat_diff_new(lunout,nparver,nr,nrun,    &
 
   ! Set filename
   IF ( p1 < 999999 ) THEN
-     CALL make_fname(prefix,p1,nr,nrun,fname)
+     CALL make_fname(prefix,p1,nr,nrun,fname,output_type)
   ELSE
-     CALL make_fname(prefix, 0,nr,nrun,fname)
+     CALL make_fname(prefix, 0,nr,nrun,fname,output_type)
   ENDIF
 
   CALL open_output(fname)

@@ -28,8 +28,6 @@ MODULE data
 
 ! Some global values
  INTEGER :: nrun             = 0
- INTEGER :: ntimmax          = 0
- INTEGER :: ntimmax_findplot = 0
  INTEGER :: timdiff          = 0
  INTEGER :: csi              = 0 ! Current station index
  INTEGER :: active_stations  = 0 ! Number of active stations
@@ -61,6 +59,8 @@ MODULE data
  INTEGER :: stime  = 0 		 ! Start time
  INTEGER :: edate  = 20000320 	 ! End date
  INTEGER :: etime  = 0 		 ! End time
+ INTEGER :: edate_obs  = 0 	 ! End date for observation
+ INTEGER :: etime_obs  = 0 		 ! End time for observation
  INTEGER :: maxtim = 0           ! Estimated number of times 
                                  ! set to 0 to let the program decide
  INTEGER :: maxtim_scat = 0      ! Estimated number of times for
@@ -94,7 +94,7 @@ MODULE data
                                                 ! Not applicable everywhere 
  INTEGER :: time_shift                 =  0     ! Shift in time when doing daily average
  INTEGER :: yearvise_wind              =  7     ! Accumulation period for seasonal verify
- INTEGER :: timeserie_wind             =  0     ! Accumulation period for timeserie plots
+ INTEGER :: timeserie_wind(mparver)    =  0     ! Accumulation period for timeserie plots
  INTEGER :: window_pos                 =  0     ! Plot position of period
                                                 ! -1 Beginning
                                                 !  0 Centre
@@ -239,8 +239,8 @@ MODULE data
  LOGICAL :: lfindplot        = .FALSE.	! Call findplot obsolete at the moment
  LOGICAL :: ldaymean         = .FALSE.	! Calculate daily means 
  LOGICAL :: ltimeserie       = .FALSE.	! Plot timeseries for all stations
- LOGICAL :: ltimeserie_stat  = .FALSE.	! Plot timeserie statistics for all stations
- LOGICAL :: ltimeserie_stat_month  = .FALSE.	! Plot timeserie statistics for all stations month by month
+ LOGICAL :: ltimeserie_stat  = .FALSE.	! Plot timeserie statistics 
+ LOGICAL :: lprint_timeserie_stat  = .FALSE.	! Print timeserie statistics 
  LOGICAL :: lplot_freq       = .FALSE.	! Make frequency distribution plots
  LOGICAL :: lplot_scat       = .FALSE.	! Make scatterplots
  LOGICAL :: lprep_xml        = .FALSE.	! Create statistics in xml format based
@@ -336,7 +336,7 @@ MODULE data
                  lplot_vert_month,lplot_vert,     	&
                  ltimeserie,lplot_scat,lprep_xml,       &
                  ltimeserie_stat,                       &
-                 ltimeserie_stat_month,                 &
+                 lprint_timeserie_stat,                 &
                  time_stat_fclen,                       &
                  lplot_stat_month,                      &
                  lplot_stat_year,                       &
@@ -1251,15 +1251,16 @@ SUBROUTINE allocate_obs
  ENDIF
 
  ! Estimate maxtim if not given by user
- IF (maxtim == 0) maxtim=get_maxtim(sdate,edate,1)
+ IF ( edate_obs == 0 ) edate_obs = edate
+ IF (maxtim == 0) maxtim=get_maxtim(sdate,edate_obs,1)
 
  !
  ! If model array is not allocated 
  ! do so and init arrays
  !
 
- si = sdate * 100 + stime
- ei = edate * 100 + etime
+ si = sdate     * 100 + stime
+ ei = edate_obs * 100 + etime_obs
 
  DO k = 1,maxstn
     ALLOCATE(obs(k)%o(maxtim))

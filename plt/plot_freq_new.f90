@@ -11,7 +11,7 @@ SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active)
                   ncla,classtype,npre_cla,pre_fcla,      &
                   mincla,maxcla,my_ymax,my_ymin,dd_ind,  &
                   mpre_cla,copied_mod,copied_obs,        &
-                  period_freq
+                  period_freq,output_type
 
  IMPLICIT NONE
 
@@ -74,9 +74,9 @@ SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active)
  ENDIF
 
  IF ( p1 < 999999 ) THEN
-    CALL make_fname('f',p1,nr,nrun,fname)
+    CALL make_fname('f',p1,nr,nrun,fname,output_type)
  ELSE
-    CALL make_fname('f', 0,nr,nrun,fname)
+    CALL make_fname('f', 0,nr,nrun,fname,output_type)
  ENDIF
 
  CALL open_output(fname)

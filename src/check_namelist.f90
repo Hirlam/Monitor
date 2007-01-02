@@ -20,6 +20,9 @@ SUBROUTINE check_namelist
 
  ENDIF
 
+ ! Adjust last obs date and time according to forecast length
+ CALL adddtg(edate,etime,3600*MAXVAL(fclen),edate_obs,etime_obs)
+
  ! More to come ....
 
  RETURN

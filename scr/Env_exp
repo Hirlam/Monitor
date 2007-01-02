@@ -11,6 +11,8 @@ BASE=$SCRATCH/monitor
 
 # Bin
 BIN=$BASE/bin/
+WRK=$BASE/wrk/
+SCR=$BASE/scr/
 
 # MAG_HOME for magics
 # export MAG_HOME=/data/proj/hirfou/uandrae/magics
@@ -54,6 +56,6 @@ HELP="HIRALD ALADIN experiments \
       <br> al00_31t0 : 11km, 60 levels, SMHI ALADIN CY31t0 \
       <br> ALD       : 11km, 40 levels, FMI ALADIN  CY30t1 "
 
-export PROJECT WEBCALL WEBGRAF_BASE BASE BIN MYEXP NEXP SDATE EDATE HELP OUTPUT_TYPE INITIAL_DATE
+export PROJECT WEBCALL WEBGRAF_BASE BASE BIN MYEXP NEXP SDATE EDATE HELP OUTPUT_TYPE INITIAL_DATE WRK SCR
 
 ###########################

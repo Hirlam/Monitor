@@ -66,20 +66,6 @@ PROGRAM verobs
  
  CALL my_choices
 
- !
- ! Estimate maximum size of arrays used
- !
-
- ntimmax = MAXVAL(hir%ntim)
- !ntimmax_findplot = ntimmax * 24 / fcint * nfclengths
-
- ntimmax = MAX(ntimmax,MAXVAL(obs%ntim))
- !ntimmax_findplot = MAX(ntimmax,ntimmax_findplot)
-
- WRITE(6,*)
- WRITE(6,*)'MAXTIM (used,suggested) : ',ntimmax,maxtim
- WRITE(6,*)
-
  CALL read_station_name
 
  IF (ltiming) CALL add_timing(timing_id2,'reading')

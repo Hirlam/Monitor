@@ -20,8 +20,6 @@ var mlist 	= new Array()
 var pos   	= new Array()
 var input_list  = new Array() ;
 var input_text  = new Array() ;
-var my_xml      = new Array() ;
-var my_xml_txt  = new Array() ;
 var multi  	= false
 var mpos   	= -99
 var save_txt 	= ""
@@ -121,7 +119,7 @@ this.resi  = resi
 
 }
 
-var pre_lan = 0
+var pre_lan = 1
 
 // English
 lang[0] = new language_def("WebgraF","Favorites","All","Save","DEL","Clear","Choices",

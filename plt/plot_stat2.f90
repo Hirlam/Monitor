@@ -9,7 +9,8 @@ SUBROUTINE plot_stat2(lunout,nexp,nparver,ntimver,s,stnr,yymm,yymm2,par_active)
                   nfclengths,                     &
                   timdiff,time_shift,show_fc_length,ltiming,    &
                   show_bias,show_rmse,show_stdv,show_obs,       &
-                  copied_obs,copied_mod,period_freq,period_type
+                  copied_obs,copied_mod,period_freq,period_type,&
+                  output_type
 
  IMPLICIT NONE
 
@@ -57,9 +58,9 @@ SUBROUTINE plot_stat2(lunout,nexp,nparver,ntimver,s,stnr,yymm,yymm2,par_active)
  prefix = 'v'
  IF (lfcver) prefix = 'V'
  IF (yymm < 999999 ) THEN
-    CALL make_fname(prefix,yymm,stnr,nrun,fname)
+    CALL make_fname(prefix,yymm,stnr,nrun,fname,output_type)
  ELSE
-    CALL make_fname(prefix,0,stnr,nrun,fname)
+    CALL make_fname(prefix,0,stnr,nrun,fname,output_type)
  ENDIF
 
  ! Set number of hours

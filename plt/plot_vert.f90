@@ -15,7 +15,7 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
                   lev_lst,ltemp,nfclengths,                     &
                   show_fc_length,ltiming,                       &
                   show_bias,show_rmse,show_stdv,show_obs,       &
-                  len_lab,period_freq,period_type
+                  len_lab,period_freq,period_type,output_type
 
 
  IMPLICIT NONE
@@ -65,9 +65,9 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
  prefix = 'l'
  IF (lfcver) prefix = 'L'
  IF (yymm < 999999 ) THEN
-    CALL make_fname(prefix,yymm,stnr,nrun,fname)
+    CALL make_fname(prefix,yymm,stnr,nrun,fname,output_type)
  ELSE
-    CALL make_fname(prefix,   0,stnr,nrun,fname)
+    CALL make_fname(prefix,   0,stnr,nrun,fname,output_type)
  ENDIF
 
  ! Set vertical levels
@@ -75,9 +75,7 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
 
  ! Plotting
 
- CALL popen
- CALL PSETC ('PS_DEVICE','ps_a4')
- CALL PSETC ('PS_FILE_NAME',fname)
+ CALL open_output(fname)
  CALL PSET1R ('GRAPH_CURVE_Y_VALUES',lev,nlev)
 
 

@@ -90,7 +90,7 @@ EOF
 ############ functions
 ############ functions
 
-cd $BASE/wrk || exit
+cd $WRK || exit
 
 rm -f *.ps *.png *.dat *.xml *.html
 
@@ -114,7 +114,7 @@ cat << EOF > fort.10
  LSTAT_GEN = T,
  LTIMESERIE_STAT= T,
  TIME_STAT_FCLEN = 15,18,21,24,
- TIMESERIE_WIND  = 06,
+ TIMESERIE_WIND  = 7*06,00
  LDIFF = T,
 EOF
 
@@ -183,17 +183,17 @@ $BIN/verobs || exit
 # Convert/rename plots
 
 if [ $OUTPUT_TYPE -eq 1 ] ; then
-   $BASE/scr/ps2png 8 1 $NEXP '-resize 75% -rotate 90'
+   $SCR/ps2png 8 1 $NEXP '-resize 75% -rotate 90'
    tar cvf fig.tar *.png 
 elif [ $OUTPUT_TYPE -eq 2 ] ; then
-   $BASE/scr/png2png 8 1 $NEXP png
+   $SCR/png2png 8 1 $NEXP png
    tar cvf fig.tar *.png 
 elif [ $OUTPUT_TYPE -eq 3 ] ; then
-   $BASE/scr/png2png 8 1 $NEXP jpg
+   $SCR/png2png 8 1 $NEXP jpg
    tar cvf fig.tar *.jpg
 fi
 
-cp $BASE/scr/style.xsl .
+cp $SCR/style.xsl .
 
 $WEBCALL -e Surface -f fig.tar
 tar cvf xml.tar  *.xml style.xsl

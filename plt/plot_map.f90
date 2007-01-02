@@ -91,9 +91,9 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype)
 
 
  IF (yymm < 999999 ) THEN
-    CALL make_fname(prefix,yymm,stnr,nrun,fname)
+    CALL make_fname(prefix,yymm,stnr,nrun,fname,output_type)
  ELSE
-    CALL make_fname(prefix,0   ,stnr,nrun,fname)
+    CALL make_fname(prefix,0   ,stnr,nrun,fname,output_type)
  ENDIF
 
  !

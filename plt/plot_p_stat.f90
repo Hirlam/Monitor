@@ -33,7 +33,7 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
                   time_stat_fclen,dd_ind,                &
                   copied_obs,copied_mod,                 &
                   show_rmse,show_stdv,show_bias,         &
-                  ltemp,lev_lst,window_pos
+                  ltemp,lev_lst,window_pos,output_type
 
  USE functions
 
@@ -112,7 +112,7 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
  ! Create filename
  prefix ='ps'
  IF ( ldiff ) prefix='PS'
- CALL make_fname(prefix,period1,nr,nrun,fname)
+ CALL make_fname(prefix,period1,nr,nrun,fname,output_type)
 
  ! Write to timeserie file
 
@@ -122,8 +122,12 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
 
  ytitle = ' '
 
- IF ( timeserie_wind /= 0 ) THEN
-    maxtim = get_maxtim(time_stat(istart)%date,time_stat(iend)%date,timeserie_wind)
+ IF ( SUM(timeserie_wind) /= 0 ) THEN
+    IF ( MINVAL(timeserie_wind(1:npar)) == 0 ) THEN
+    maxtim = get_maxtim(time_stat(istart)%date,time_stat(iend)%date,obint)
+    ELSE
+    maxtim = get_maxtim(time_stat(istart)%date,time_stat(iend)%date,MAX(obint,MINVAL(timeserie_wind(1:npar))))
+    ENDIF
  ELSE
     maxtim = get_maxtim(time_stat(istart)%date,time_stat(iend)%date,obint)
  ENDIF
@@ -206,13 +210,13 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
       ntime = time
       dlen  = ii
 
-      IF (timeserie_wind /= 0) THEN
+      IF (timeserie_wind(j) /= 0) THEN
 
          IF ( k == 1 ) THEN
 
            CALL carefull_sumup(           &
            obs,ndate,ntime,               &
-           ii,maxtim,timeserie_wind,dlen, &
+           ii,maxtim,timeserie_wind(j),dlen, &
            data_min(0),data_max(0),       &
            data_ave(0),ndate(1),00,       &
            sumup_tolerance,obint,         &
@@ -226,7 +230,7 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
 
            CALL carefull_sumup(           &
            rnum(:,k),ndate(:),ntime(:),   &
-           ii,maxtim,timeserie_wind,dlen, &
+           ii,maxtim,timeserie_wind(j),dlen, &
            rnum_min(k),rnum_max(k),       &
            rnum_ave(k),ndate(1),00,       &
            sumup_tolerance,obint,         &
@@ -237,7 +241,7 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
 
            CALL carefull_sumup(           &
            bias(:,k),ndate(:),ntime(:),   &
-           ii,maxtim,timeserie_wind,dlen, &
+           ii,maxtim,timeserie_wind(j),dlen, &
            data_min(k),data_max(k),       &
            data_ave(k),ndate(1),00,       &
            sumup_tolerance,obint,         &
@@ -250,7 +254,7 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
 
               CALL carefull_sumup(           &
               rmse(:,k),ndate(:),ntime(:),   &
-              ii,maxtim,timeserie_wind,dlen, &
+              ii,maxtim,timeserie_wind(j),dlen, &
               rmse_min(k),rmse_max(k),       &
               rmse_ave(k),ndate(1),00,       &
               sumup_tolerance,obint,         &
@@ -261,7 +265,7 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
 
               CALL carefull_sumup(           &
               stdv(:,k),ndate(:),ntime(:),   &
-              ii,maxtim,timeserie_wind,dlen, &
+              ii,maxtim,timeserie_wind(j),dlen, &
               stdv_min(k),stdv_max(k),       &
               stdv_ave(k),ndate(1),00,       &
               sumup_tolerance,obint,         &
@@ -278,7 +282,7 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
 
     CALL yunit(obstype(j),ytitle)
 
-    IF ( timeserie_wind == 0 ) THEN
+    IF ( timeserie_wind(j) == 0 ) THEN
        miny = MINVAL(bias(1:ntim_use,:))
        maxy = MAXVAL(bias(1:ntim_use,:))
         
@@ -354,9 +358,9 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
           WRITE(wtext,wname)'Forecast lengths used:',fclen(1:nfclengths)
        ENDIF
 
-       IF ( timeserie_wind /= 0 ) THEN
+       IF ( timeserie_wind(j) /= 0 ) THEN
           wname = ' '
-          WRITE(wname(1:3),'(I3)')timeserie_wind
+          WRITE(wname(1:3),'(I3)')timeserie_wind(j)
           wtext = TRIM(wtext)//'  Window:'//TRIM(wname)//'h'
        ENDIF
 

@@ -23,7 +23,7 @@ SUBROUTINE plot_scat_comp(lunout,nparver,nr,nrun,    &
  USE timing
  USE data, ONLY : obstype,expname,err_ind,nexp,station_name,csi, &
                   fclen,nfclengths,                              &
-                  show_fc_length,ltiming,ldiff
+                  show_fc_length,ltiming,ldiff,output_type
  USE mymagics
 
  IMPLICIT NONE
@@ -109,7 +109,7 @@ SUBROUTINE plot_scat_comp(lunout,nparver,nr,nrun,    &
 
 
   ! Set filename
-  CALL make_fname(prefix,p1,nr,nrun,fname)
+  CALL make_fname(prefix,p1,nr,nrun,fname,output_type)
 
   ! Open ps file
   CALL open_output(fname)

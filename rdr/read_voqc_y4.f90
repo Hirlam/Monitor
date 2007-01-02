@@ -10,8 +10,6 @@ SUBROUTINE read_voqc_y4
 
  INTEGER :: i,ii,j,k,l,			&
             ierr = 0,			&
-            edate_obs = 999999,		&
-            etime_obs = 999999,		&
             cdate = 999999,		&
             ctime = 999999,		&
             wdate = 999999,		&
@@ -40,9 +38,6 @@ SUBROUTINE read_voqc_y4
  max_found_stat = 0
 
  use_stnlist =(  MAXVAL(stnlist) > 0 )
-
- ! Adjust observation enddate to maximum fc length
- CALL adddtg(edate,etime,3600*MAXVAL(fclen),edate_obs,etime_obs)
 
  !
  ! If obs array is not allocated

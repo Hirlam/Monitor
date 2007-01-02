@@ -59,13 +59,13 @@ MODULE means
    r_win = 1. / FLOAT(win / dhour )
 
    !
-   ! Always start at 00UTC to make sure we always make
+   ! Always start at the closest timeserie_win position to make sure we always make
    ! e.g. daily means over 00 - 23
    !
    
    k    = 0
    mask = .TRUE.
-   ii   = MINVAL(MINLOC(time(1:ntim)))
+   ii   = MINVAL(MINLOC(MOD(time(1:ntim),win)))
 
    mindate = startdate
    mintime = starttime * 10000

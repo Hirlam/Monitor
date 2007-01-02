@@ -51,7 +51,6 @@ SUBROUTINE verify
             ind_pe(nfclengths),                         &
             lyear,year_map(12) = 0,                     &
             cdate,ctime,                                &
-            edate_obs,etime_obs,                        &
             nexp_ver,                                   &
             par_active(nparver),                        &
             len_scat,per_ind
@@ -125,14 +124,6 @@ SUBROUTINE verify
  ELSEIF (MAXVAL(stnlist_plot) >= 0 ) THEN
     leach_station = .TRUE.
  ENDIF
-
-
- !
- ! Adjust observation enddate to maximum fc length
- !
-
- CALL adddtg(edate,etime,3600*MAXVAL(fclen+24),edate_obs,etime_obs)
-
 
  !
  ! Find PE index locations
@@ -307,21 +298,24 @@ SUBROUTINE verify
  IF (ltiming) CALL add_timing(timing_id_loop,'Verify_loop')
 
 
- OPEN(lunstat,file=statname)
+ IF ( lstat_gen ) THEN
+    OPEN(lunstat,file=statname)
 
- !
- ! Create filename
- !
+    !
+    ! Create filename
+    !
 
- WRITE(lunstat,*)'<html><pre>'
- WRITE(lunstat,*)'Verification for ',trim(name)
+    WRITE(lunstat,*)'<html><pre>'
+    WRITE(lunstat,*)'Verification for ',trim(name)
 
- IF (lfcver) THEN
-    WRITE(lunstat,*)'Verification by forecast length'
- ELSE
-    WRITE(lunstat,*)'Verification by time of day'
- ENDIF
- WRITE(lunstat,*)
+    IF (lfcver) THEN
+       WRITE(lunstat,*)'Verification by forecast length'
+    ELSE
+       WRITE(lunstat,*)'Verification by time of day'
+    ENDIF
+    WRITE(lunstat,*)
+
+ ENDIF 
 
 
  !
@@ -453,9 +447,9 @@ SUBROUTINE verify
           CASE(1)
              per_ind = 1
           CASE(2)
-             per_ind = mondiff(sdate/100,wdate/100)/period_freq + 1
+             per_ind = mondiff(sdate/100,hir(i)%o(j)%date/100)/period_freq + 1
           CASE(3)
-             per_ind = year_map(MOD(wdate/100,100))
+             per_ind = year_map(MOD(hir(i)%o(j)%date/100,100))
           END SELECT
 
           IF ( lstat_gen ) allstat(i,per_ind)%active = .TRUE.
@@ -514,15 +508,15 @@ SUBROUTINE verify
                    ! Reject zero value observations if wind is higher
                    !
 
-                     IF  (obs(i)%o(jj)%val(k) < 1.e-6 ) THEN
-                        IF (       ANY(hir(i)%o(j)%nal(:,n,k) > 100.)  .AND.     &
-                             .NOT. ANY(hir(i)%o(j)%nal(:,n,k) < 50. )       )          THEN
-                             WRITE(6,*)'Rejected wp obs', hir(i)%stnr,wdate,wtime,     &
-                             obs(i)%o(jj)%val(k),hir(i)%o(j)%nal(:,n,k)
-                             obs(i)%o(jj)%val = err_ind
-                             CYCLE NPARVER_LOOP
-                        ENDIF
-                     ENDIF
+                   ! IF  (obs(i)%o(jj)%val(k) < 1.e-6 ) THEN
+                   !    IF (       ANY(hir(i)%o(j)%nal(:,n,k) > 100.)  .AND.     &
+                   !         .NOT. ANY(hir(i)%o(j)%nal(:,n,k) < 50. )       )          THEN
+                   !         WRITE(6,*)'Rejected wp obs', hir(i)%stnr,wdate,wtime,     &
+                   !         obs(i)%o(jj)%val(k),hir(i)%o(j)%nal(:,n,k)
+                   !         obs(i)%o(jj)%val = err_ind
+                   !         CYCLE NPARVER_LOOP
+                   !    ENDIF
+                   ! ENDIF
 
                 ENDIF
 
@@ -742,15 +736,19 @@ SUBROUTINE verify
      !
      IF ( period_type == 1 ) periods = 0
 
-#ifdef MAGICS
      IF ( time_stat_max /= 0 .AND. leach_station ) THEN
           DO l=1,maxper
+             IF ( lprint_timeserie_stat ) &
+             CALL print_p_stat(lunout,time_stat_max,nparver,        &
+                  obs(i)%stnr,nrun,time_stat(1:time_stat_max),      &
+                  par_active,periods(l),periods(l+1))
+#ifdef MAGICS
              CALL plot_p_stat(lunout,time_stat_max,nparver,         &
                   obs(i)%stnr,nrun,time_stat(1:time_stat_max),      &
                   par_active,periods(l),periods(l+1))
+#endif
           ENDDO
      ENDIF
-#endif
 
      IF (lallstat) CALL add_all_time_stat
 
@@ -853,15 +851,18 @@ SUBROUTINE verify
 
         IF ( period_type == 1 ) periods = 0
 
-#ifdef MAGICS
         DO l=1,maxper
            DO j=1,nparver
               par_active(j) = SUM(tim_par_active(l,:,j))
            ENDDO
+           IF (lprint_timeserie_stat ) &
+           CALL print_p_stat(lunout,all_time_stat_max,nparver,0,   &
+                nrun,all_time_stat,par_active,periods(l),periods(l+1))
+#ifdef MAGICS
            CALL plot_p_stat(lunout,all_time_stat_max,nparver,0,   &
                 nrun,all_time_stat,par_active,periods(l),periods(l+1))
-        ENDDO
 #endif
+        ENDDO
 
      DEALLOCATE(all_time_stat)
 
