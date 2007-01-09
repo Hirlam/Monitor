@@ -307,6 +307,8 @@ MODULE data
  ! Output type
  INTEGER :: output_type = 1                   ! 1 = ps, 2 = png, 3 = jpg
 
+ ! Special precipitation thing
+ INTEGER :: pe_interval = 12
  ! Namlist 
  namelist/namver/sdate,stime,edate,etime,		&
                  maxstn,maxtim,maxtim_scat,             &
@@ -373,7 +375,7 @@ MODULE data
                  ncla,classtype,npre_cla,pre_fcla,      &
                  maxcla,mincla,                         &
                  show_bias,show_rmse,show_stdv,show_obs,&
-                 period_type,period_freq
+                 period_type,period_freq,pe_interval
 
 CONTAINS
 

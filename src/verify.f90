@@ -114,17 +114,6 @@ SUBROUTINE verify
     timdiff = 24 / ntimver
  ENDIF
 
-
- !
- ! Find which single stations to allocate/plot
- !
-
- IF (MAXVAL(stnlist_plot) == -1 ) THEN
-    leach_station = .FALSE.
- ELSEIF (MAXVAL(stnlist_plot) >= 0 ) THEN
-    leach_station = .TRUE.
- ENDIF
-
  !
  ! Find PE index locations
  !
@@ -132,9 +121,9 @@ SUBROUTINE verify
  IF (lfcver ) THEN
     ind_pe = 0
     DO i=1,nfclengths
-       IF(fclen(i) < 12) CYCLE 
-       ind_pe(i)=TRANSFER(MINLOC(ABS(fclen(1:nfclengths)-(fclen(i)-12))),ii)
-       if (fclen(i)-fclen(ind_pe(i)) < 12 ) ind_pe(i) = 0
+       IF(fclen(i) < pe_interval) CYCLE 
+       ind_pe(i)=TRANSFER(MINLOC(ABS(fclen(1:nfclengths)-(fclen(i)-pe_interval))),ii)
+       if (fclen(i)-fclen(ind_pe(i)) < pe_interval ) ind_pe(i) = 0
     ENDDO
     IF(lprint_verif) WRITE(6,*)'IND_PE',ind_pe
  ENDIF
@@ -353,6 +342,7 @@ SUBROUTINE verify
     ! Check if we should plot this station
     !
 
+    leach_station = .FALSE.
     IF (MAXVAL(stnlist_plot) == -1 ) THEN
        leach_station = .FALSE.
     ELSEIF (MAXVAL(stnlist_plot) == 0 ) THEN
@@ -528,9 +518,9 @@ SUBROUTINE verify
                    !
 
                    IF (lprint_verif) WRITE(6,*)'PE ',i,n,o,ind_pe(n)
-                   IF(fclen(n) == 12) THEN
+                   IF(fclen(n) == pe_interval) THEN
                       diff_prep = hir(i)%o( j)%nal(o,n,k)
-                   ELSEIF(fclen(n) > 12 .AND. ind_pe(n) > 0 ) THEN
+                   ELSEIF(fclen(n) > pe_interval .AND. ind_pe(n) > 0 ) THEN
 
                       IF (ABS(hir(i)%o(j)%nal(o,ind_pe(n),k)-err_ind)<1.e-6) THEN
                          IF (demand_equal ) hir(i)%o(j)%nal(:,ind_pe(n),k) = err_ind

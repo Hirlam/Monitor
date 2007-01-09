@@ -137,17 +137,6 @@ CHARACTER(LEN=2)  :: ci   = ' '
     CALL read_windp_oper_mod_day
     CALL read_vindstat
 
- CASE(26)
-
-    CALL read_windp_oper_obs2
-    CALL read_windp_mix_mod
-
- CASE(27)
-
-    CALL read_windp_oper_obs2
-    CALL read_windp_oper_mod_plot
-
-
  CASE DEFAULT
     WRITE(6,*)'No such option ',data_to_verify
     CALL abort

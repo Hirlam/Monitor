@@ -82,7 +82,7 @@ MODULE mymagics
  CASE('UZ')
    u='s^-1'
  CASE('PE')
-   u='mm/12h'
+   u='mm'
  CASE DEFAULT
  
  u = p

@@ -49,8 +49,6 @@ SUBROUTINE plot_scat_diff_new(lunout,nparver,nr,nrun,    &
  ! Init timing counter
  !
 
- !IF ( nr /= 0 ) OPEN(47,POSITION='APPEND')
-
  timing_id = 0
  IF (ltiming) CALL acc_timing(timing_id,'plot_scatt_diff')
 
@@ -78,7 +76,6 @@ SUBROUTINE plot_scat_diff_new(lunout,nparver,nr,nrun,    &
   CALL open_output(fname)
   CALL PSETC ('TEXT_COLOUR', 'BLACK')
 
- !CALL psetc('PAGE_ID_LINE_USER_TEXT','Copyright ECMWF')
  CALL psetc('PAGE_ID_LINE_SYSTEM_PLOT','ON')
  CALL psetc('PAGE_ID_LINE_ERRORS_PLOT','OFF')
  CALL psetc('PAGE_ID_LINE_DATE_PLOT','ON')

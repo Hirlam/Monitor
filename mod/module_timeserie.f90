@@ -164,8 +164,6 @@ MODULE timeserie
   ! Add timeserie statistics
   ! 
 
-  tim_par_active(per_ind,station_ind,par_ind) = 1
-
   this_stat_time = -1
   DO oo=time_stat_max,1,-1
      IF (time_stat(oo)%date == date .AND.   &
@@ -177,9 +175,27 @@ MODULE timeserie
 
   IF ( this_stat_time == -1 ) THEN
 
+     !
+     ! No corresponding date was found, let us add one
+     !
+
+     IF ( time_stat_max > 0 ) THEN
+     IF ( time_stat(time_stat_max)%date >  date .OR.    &
+         (time_stat(time_stat_max)%date == date .AND.   &
+          time_stat(time_stat_max)%time >  time ) ) THEN
+
+         !
+         ! If difference between forecast hours is not constant
+         ! we may have irregular times
+         !
+
+         RETURN
+
+     ENDIF
+     ENDIF
+
      time_stat_max = time_stat_max + 1
      oo = time_stat_max
-
      time_stat(oo)%date      = date
      time_stat(oo)%time      = time
 
@@ -191,6 +207,8 @@ MODULE timeserie
   time_stat(oo)%bias(:,par_ind) = time_stat(oo)%bias(:,par_ind) + exp_diff
   time_stat(oo)%rmse(:,par_ind) = time_stat(oo)%rmse(:,par_ind) + exp_diff**2
   time_stat(oo)%n(par_ind)      = time_stat(oo)%n(par_ind) + 1
+
+  tim_par_active(per_ind,station_ind,par_ind) = 1
 
  END SUBROUTINE add_timeserie
 
