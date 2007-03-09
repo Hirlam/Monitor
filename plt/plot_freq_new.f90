@@ -9,7 +9,7 @@ SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active)
                   fclen,nfclengths,lfcver,show_fc_length,&
                   ltiming,                               &
                   ncla,classtype,npre_cla,pre_fcla,      &
-                  mincla,maxcla,my_ymax,my_ymin,dd_ind,  &
+                  mincla,maxcla,my_ymax,my_ymin,         &
                   mpre_cla,copied_mod,copied_obs,        &
                   period_freq,output_type
 
@@ -97,7 +97,7 @@ SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active)
                       scat(j)%dat(1  ,1:n) 
     ENDDO
 
-    IF ( j == dd_ind ) THEN
+    IF ( obstype(j)(1:2) == 'DD' ) THEN
        DO k=1,nexp
        DO m=1,n
            IF(work(m,k) > 360. )THEN

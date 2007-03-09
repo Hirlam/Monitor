@@ -233,7 +233,7 @@ SUBROUTINE quality_control
                 ! Wind direction
                 !
 
-                 IF(k == dd_ind.AND.ABS(diff(o)) > 180.) &
+                 IF(obstype(k)(1:2) == 'DD'.AND.ABS(diff(o)) > 180.) &
                  diff(o) = diff(o) + SIGN(360.,180.-diff(o))
 
                 !

@@ -9,7 +9,7 @@ SUBROUTINE prep_xml(lunxml,nparver,nr,time,scat)
 
  USE types
  USE timing
- USE data, ONLY : obstype,expname,nexp,dd_ind,ltiming
+ USE data, ONLY : obstype,expname,nexp,ltiming
 
  IMPLICIT NONE
 
@@ -62,7 +62,7 @@ SUBROUTINE prep_xml(lunxml,nparver,nr,time,scat)
         xval(1:kk) = scat(j)%dat(1   ,1:kk)
         yval(1:kk) = scat(j)%dat(1+jj,1:kk) + scat(j)%dat(1   ,1:kk)
 
-        IF ( j == dd_ind ) THEN
+        IF ( obstype(j)(1:2) == 'DD' ) THEN
            DO l=1,kk
               IF (yval(l) > 360. ) THEN
               yval(l) = yval(l) - 360.         

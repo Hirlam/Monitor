@@ -532,7 +532,7 @@ SUBROUTINE verify
                 ! Wind direction
                 !
 
-                IF(k == dd_ind.AND.ABS(diff) > 180.) diff = diff + SIGN(360.,180.-diff)
+                IF(obstype(k)(1:2)== 'DD'.AND.ABS(diff) > 180.) diff = diff + SIGN(360.,180.-diff)
 
                 !
                 ! Store this difference
@@ -839,8 +839,8 @@ SUBROUTINE verify
        ENDDO
 
        IF ( period_type == 1 ) THEN
-          periods(l)   = mindate(i)
-          periods(l+1) = maxdate(i)
+          periods(l)   = MINVAL(mindate)
+          periods(l+1) = MAXVAL(maxdate)
        ENDIF
 
 

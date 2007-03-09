@@ -10,7 +10,7 @@ SUBROUTINE plot_scat_comp(lunout,nparver,nr,nrun,    &
  USE types
  USE timing
  USE data, ONLY : obstype,expname,err_ind,nexp,station_name,csi, &
-                  fclen,nfclengths,dd_ind,                       &
+                  fclen,nfclengths,                              &
                   show_fc_length,output_type,                    &
                   mparver,corr_pairs,flag_pairs,exp_pairs,       &
                   period_freq
@@ -104,6 +104,11 @@ SUBROUTINE plot_scat_comp(lunout,nparver,nr,nrun,    &
     ! Cycle is nothing is to be done
     IF ( ALL(lcorr_pairs(j,:) == 0 ) ) CYCLE
 
+    IF ( ANY(lcorr_pairs(j,:) == 0 ) ) THEN
+       WRITE(6,*)'Error in corr_pairs setting, skip this',lcorr_pairs(j,:)
+       CYCLE
+    ENDIF
+
     !
     ! Set title and axis names
     !
@@ -158,7 +163,9 @@ SUBROUTINE plot_scat_comp(lunout,nparver,nr,nrun,    &
     IF (kk > 0 )THEN
 
      DO k=1,2
+
       i = lcorr_pairs(j,k)
+
       SELECT CASE(lflag_pairs(j,k))
       CASE(-1)
          ! Observation
@@ -212,7 +219,7 @@ SUBROUTINE plot_scat_comp(lunout,nparver,nr,nrun,    &
 
      DO i=1,2
         ! Special wind direction case
-        IF ((lcorr_pairs(j,i) == dd_ind) .AND.   &
+        IF ( (obstype(lcorr_pairs(j,i))(1:2) == 'DD' ) .AND.   &
             (lflag_pairs(j,i) /= 0     )  ) THEN
             minax(i) =   0.
             maxax(i) = 360.
@@ -275,7 +282,7 @@ SUBROUTINE plot_scat_comp(lunout,nparver,nr,nrun,    &
            ! Special case for wind direction
            !
 
-           IF ( i == dd_ind .AND. lflag_pairs(j,k) /= 0 ) THEN
+           IF ( obstype(i)(1:2) == 'DD' .AND. lflag_pairs(j,k) /= 0 ) THEN
               DO l=1,kk
                  IF (val(k,l) > 360. ) THEN
                     val(k,l) = val(k,l) - 360.         
