@@ -119,7 +119,7 @@ this.resi  = resi
 
 }
 
-var pre_lan = 1
+var pre_lan = 0
 
 // English
 lang[0] = new language_def("WebgraF","Favorites","All","Save","DEL","Clear","Choices",

@@ -5,6 +5,8 @@ MODULE data
 
  IMPLICIT NONE
 
+ SAVE
+
 ! Constants
  REAL, PARAMETER :: err_ind = -999.e6 ! Error flag
 
@@ -111,7 +113,8 @@ MODULE data
  REAL    :: mincla               = 1.   ! Minimum class value
 
  ! Data to verify 
- INTEGER :: data_to_verify = 0          ! Which case to select in my_choice.f
+ INTEGER            :: data_to_verify = 0     ! Which case to select in my_choice.f
+ CHARACTER(LEN=100) :: data_source  = ''      ! Character string selection
 
  ! Parameters to verify
  INTEGER :: nparver = mparver
@@ -147,8 +150,6 @@ MODULE data
  INTEGER :: tu_ind = 0 ! dT/dU
  INTEGER :: la_ind = 0 ! Latitude
  INTEGER :: hg_ind = 0 ! Station height
- INTEGER :: diff_ind = 0 ! Pointer to difference scatter plot index
- INTEGER :: comp_ind = 0 ! Pointer to difference scatter plot index
  INTEGER :: lev_typ(mparver) = 0  ! No need to set, done in set_obstype.f
  REAL    :: lev_lst(mparver) = 0  ! List of vertical levels
                                   ! if lev_lst(n) < lev_lst(n+1) height is assumed
@@ -309,15 +310,35 @@ MODULE data
 
  ! Special precipitation thing
  INTEGER :: pe_interval = 12
+
+ ! Quality control
+ LOGICAL :: lquality_control   = .FALSE.      ! Pre verification quality control
+ LOGICAL :: estimate_qc_limit  = .FALSE.      ! Calculate STDV for given
+                                              ! qc_fclen
+ INTEGER :: qc_fclen(maxfclen) = -1           ! fclengths to be used for qc
+ REAL    :: qc_lim(mparver)    = err_ind      ! Quality control limits
+ REAL    :: qc_lim_scale       = 1.0          ! Scale estimated qc_lim by this
+                                              ! to be copied from XX_lim ...
+
+ ! Cross correlations of variables an biases
+ INTEGER :: corr_pairs(mparver,2) = 0         ! Pairs of variables to compare,
+                                              ! specify variable number
+ INTEGER :: flag_pairs(mparver,2) = 1         ! -1 means model  
+                                              !  0 means difference
+                                              !  1 means model
+ INTEGER :: exp_pairs(mparver,2)  = 0         ! Pairs of experiment to pick
+                                              !
+ LOGICAL :: lplot_comp                       = .FALSE.   ! 
+ !
  ! Namlist 
- namelist/namver/sdate,stime,edate,etime,		&
+ namelist/namver/sdate,stime,edate,etime,               &
                  maxstn,maxtim,maxtim_scat,             &
                  ntimver,time_shift,                    &
                  nfclengths,fclen,fcint,obint,          &
                  timeserie_wind,window_pos,             &
-                 stnlist,stnlist_bl,stnlist_plot,	&
-                 nexp,expname,				&
-                 nparver,				&
+                 stnlist,stnlist_bl,stnlist_plot,       &
+                 nexp,expname,                          &
+                 nparver,                               &
                  tt_ind,ff_ind,dd_ind,uw_ind,wt_ind,	&
                  sw_ind,lw_ind,lu_ind,ld_ind,		&
                  su_ind,sd_ind,				&
@@ -326,7 +347,6 @@ MODULE data
                  qq_ind,gs_ind,gc_ind,gr_ind,hb_ind,	&
                  tz_ind,uz_ind,tu_ind,la_ind,hg_ind,    &
                  wp_ind,wh_ind,       			&
-                 diff_ind,comp_ind,   			&
                  lev_typ,lev_lst,                       &
                  name,statname,				&
                  obspath,modpath,                       &
@@ -356,14 +376,15 @@ MODULE data
                  lprint_read,print_read,                &
                  lprint_verif,lprint_findp,	        &
                  lprint_do_stat,lreject_gross,		&
-                 release_memory,lplot_freq,		&
-                 release_memory_f,       		&
-                 cbox,lpoly,data_to_verify,ltemp,       &
-                 use_database,	        &
+                 release_memory,lplot_freq,             &
+                 release_memory_f,                      &
+                 cbox,lpoly,data_to_verify,data_source, &
+                 ltemp,                                 &
+                 use_database,                          &
                  fi_lim,tt_lim,ff_lim,dd_lim,rh_lim,    &
-                 ps_lim,pe_lim,sw_lim,lw_lim,lu_lim,	&
-                 ld_lim,qq_lim,su_lim,sd_lim,		&
-                 uw_lim,wt_lim,nr_lim,gr_lim,wq_lim,	&
+                 ps_lim,pe_lim,sw_lim,lw_lim,lu_lim,    &
+                 ld_lim,qq_lim,su_lim,sd_lim,           &
+                 uw_lim,wt_lim,nr_lim,gr_lim,wq_lim,    &
                  nn_lim,                                &
                  ff_llim,                               &
                  sumup_tolerance,			&
@@ -375,7 +396,11 @@ MODULE data
                  ncla,classtype,npre_cla,pre_fcla,      &
                  maxcla,mincla,                         &
                  show_bias,show_rmse,show_stdv,show_obs,&
-                 period_type,period_freq,pe_interval
+                 period_type,period_freq,pe_interval,   &
+                 lquality_control,qc_fclen,qc_lim,      &
+                 estimate_qc_limit,qc_lim_scale,        &
+                 corr_pairs,flag_pairs,exp_pairs
+
 
 CONTAINS
 
@@ -1204,7 +1229,7 @@ END FUNCTION qcu
 
  IMPLICIT NONE
 
- INTEGER :: k
+ INTEGER :: k,fc_diff
 
  IF (ANY(hir%obs_is_allocated)) THEN
     WRITE(6,*)'Warning, some model stations are allocated'
@@ -1213,8 +1238,17 @@ END FUNCTION qcu
  ENDIF
 
  ! Estimate maxtim if not given by user
- IF (maxtim == 0) maxtim=get_maxtim(sdate,edate,1)
+ !IF (maxtim == 0) maxtim=get_maxtim(sdate,edate,1)
+ IF ( nfclengths == 1 ) THEN
+    fc_diff = fcint
+ ELSEIF ( fclen(1) /= 0 ) THEN
+    fc_diff = fclen(1)
+ ELSE
+    fc_diff = fclen(2) - fclen(1)
+ ENDIF
+ maxtim=get_maxtim(sdate,edate,fcint)
 
+ WRITE(6,*)'Maxtim for model data is ',maxtim
  !
  ! If model array is not allocated 
  ! do so and init arrays
@@ -1254,8 +1288,9 @@ SUBROUTINE allocate_obs
 
  ! Estimate maxtim if not given by user
  IF ( edate_obs == 0 ) edate_obs = edate
- IF (maxtim == 0) maxtim=get_maxtim(sdate,edate_obs,1)
+ IF (maxtim == 0) maxtim=get_maxtim(sdate,edate_obs,obint)
 
+ WRITE(6,*)'Maxtim for observations is ',maxtim
  !
  ! If model array is not allocated 
  ! do so and init arrays

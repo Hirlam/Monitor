@@ -20,13 +20,14 @@ PROGRAM verobs
  !--------------------
 
  WRITE(6,*)
- WRITE(6,*)' This is verobs running '
+ WRITE(6,*)'This is verobs running '
  WRITE(6,*)
 
  !
  ! Read namelist
  !
 
+ OPEN(10,status='OLD')
  READ(10,namver,iostat=ierr)
 
  IF (ierr.NE.0) THEN
@@ -96,13 +97,16 @@ PROGRAM verobs
 
     IF(nrun.GT.1) maxstn = maxstn_save 
 
+    CALL selection(1)
+    IF ( estimate_qc_limit ) CALL quality_control
+    IF ( lquality_control  ) CALL quality_control
+
     IF (lverify) THEN
 
        !
        ! Do a station selection and call the main verificaion
        !
 
-       CALL selection(1)
        IF ( use_pos ) THEN
 !         CALL verify_pos
        ELSE

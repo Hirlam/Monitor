@@ -184,24 +184,20 @@ SUBROUTINE read_vobs_temp
 
           IF ( kk_lev == 0 ) CYCLE READ_LEV_OBS
 
-          WHERE(abs(val+99.).lt.1.e-6)
-             val = err_ind
-          END WHERE
-
           IF (print_read>1) WRITE(6,*)'ADD:',kk_lev,val
 
-          IF ((fi_ind /= 0 ) .AND. qca(val(2),-999.)) &
+          IF ((fi_ind /= 0 ) .AND. qca(val(2),-99.)) &
           obs(stat_i)%o(i)%val(kk_lev+ my_temp_lev*(fi_ind-1)) = val(2)
-          IF ((tt_ind /= 0 ) .AND. qca(val(3),-999.)) &
+          IF ((tt_ind /= 0 ) .AND. qca(val(3),-99.)) &
           obs(stat_i)%o(i)%val(kk_lev+ my_temp_lev*(tt_ind-1)) = val(3) - tzero
-          IF ((rh_ind /= 0 ) .AND. qca(val(4),-999.)) &
+          IF ((rh_ind /= 0 ) .AND. qca(val(4),-99.)) &
           obs(stat_i)%o(i)%val(kk_lev+ my_temp_lev*(rh_ind-1)) = val(4)
-          IF ((dd_ind /= 0 ) .AND. qca(val(5),-999.)) &
+          IF ((dd_ind /= 0 ) .AND. qca(val(5),-99.)) &
           obs(stat_i)%o(i)%val(kk_lev+ my_temp_lev*(dd_ind-1)) = val(5)
-          IF ((ff_ind /= 0 ) .AND. qca(val(6),-999.)) &
+          IF ((ff_ind /= 0 ) .AND. qca(val(6),-99.)) &
           obs(stat_i)%o(i)%val(kk_lev+ my_temp_lev*(ff_ind-1)) = val(6)
-          IF ((qq_ind /= 0 ) .AND. qca(val(7),-999.)) &
-          obs(stat_i)%o(i)%val(kk_lev+ my_temp_lev*(qq_ind-1)) = val(7) *1.e3
+          IF ((qq_ind /= 0 ) .AND. qca(val(7),-99.)) &
+          obs(stat_i)%o(i)%val(kk_lev+ my_temp_lev*(qq_ind-1)) = val(7) * 1.e3
 
        ENDDO READ_LEV_OBS
 

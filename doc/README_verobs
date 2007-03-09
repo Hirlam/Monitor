@@ -1,5 +1,6 @@
 ###########################
 # Instructions for verobs #
+# Ulf Andrae, SMHI, 2007  #
 ###########################
 
 This verification setup will produce
@@ -30,17 +31,19 @@ A test data set can be downloaded from
 
 https://hirlam.org/contrib/ulf/aladin/dat.tar.gz
 
-#####################################
-
 Below follows an explanation of the namelists created by the scripts in scr
+For further usage of the namelist variables read the definition in src/module_data.f90
+
+The system runs on ecgate:$SCRATCH without any modifications
 
 #####################################
 
  Verification of surface observations against forecast length
+ namelist_surf_ll
 
  &NAMVER
- SDATE = 20061120,                ! Start date
- EDATE = 20061128,                ! End date
+ SDATE = 20061126,                ! Start date
+ EDATE = 20061205,                ! End date
  STATNAME='Surface_LL.html'       ! Name of statistics output file
  OBINT      = 03                  ! Observation interval in hours
  FCINT      = 12                  ! Forecast cycle interval in hours
@@ -48,13 +51,13 @@ Below follows an explanation of the namelists created by the scripts in scr
  FCLEN      = 03,06,09,12,15,18,21,24,     ! Forecast lengths used
  LFCVER = T,                               ! Verify against forecast length, 
                                            ! F means verify against time of day
- DATA_TO_VERIFY = 1,                       ! Section to be called in my_choice.f90
+ DATA_SOURCE = 'vfld',                     ! Section to be called in my_choice.f90
  LSTAT_GEN = T,                            ! Accumulate general statistics
  LPLOT_STAT= T,                            ! Plot general statistics
  LTIMESERIE_STAT= T,                       ! Plot timeserie statistics
  TIME_STAT_FCLEN = 15,18,21,24,            ! Forecast lenghts used for timeserie statistics
                                            ! TIME_STAT_FCLEN = 0 means all
- TIMESERIE_WIND  = 12,                     ! Time window in hours for average in timeseries
+ TIMESERIE_WIND  = 7*06,00,                ! Time window in hours for average in timeseries
  LDIFF = T,                                ! Plot difference
   NEXP=2                                   ! Number of experiments to verify
   EXPNAME = 'al00_31t0', 'ALD',            ! Experiment names
@@ -65,7 +68,7 @@ Below follows an explanation of the namelists created by the scripts in scr
 '/data/proj_ns1/hirfou/uandrae/harmonie/monitor/dat/obs/', 
   OUTPUT_TYPE=1                            ! 1: creates .ps files
                                            ! 2: .png , 3: .jpg
-  PRINT_READ = 1,                          ! Print extra information when reading
+ PRINT_READ = 1,                           ! Print extra information when reading
  NPARVER = 8,                              ! Number of parameters to verify
  FF_IND  = 1,                              ! Index of FF (wind speed)
  DD_IND  = 2,                              ! Index of DD (wind direction)
@@ -75,24 +78,28 @@ Below follows an explanation of the namelists created by the scripts in scr
  QQ_IND  = 6,                              ! Index of QQ (Specific humidity)
  NN_IND  = 7,                              ! Index of NN (Cloud cover)
  PE_IND  = 8,                              ! Index of PE (Precipitation 12h accumulation time)
- LREJECT_GROSS   = T,                      ! Reject erroneous observations
- LPRINT_GROSS    = T,                      ! Print stations rejected
- FF_LIM = 25.,                             ! Gross error limit for FF
- QQ_LIM = 30.,                             ! Gross error limit for QQ
- MAXSTN = 3000,                            ! Maximum number of stations
+ LQUALITY_CONTROL = T,                     ! Perform quality control
+ FF_LIM = 14.21227                         ! Quality control limits
+ DD_LIM = 360.
+ PS_LIM = 6.017519
+ TT_LIM = 11.53204
+ RH_LIM = 56.90424
+ QQ_LIM = 6.644235
+ NN_LIM = 10.
+ PE_LIM = 50.
+ MAXSTN = 2000,                            ! Maximum number of stations
  STNLIST = 0                               ! Stations to verify 0 means all available
  STNLIST_BL = 1075,1078,1092,1098,1055,    ! Blacklisted stations
-              22028,22304,22342,22583,
-              23701,15505,22113,6760,
-	      6762,1590,1592,22471,3031,
-	      3039,3037,3034,3035,3041,
 /
 
+#####################################
+
  Verification of surface observations against time of day 
+ namelist_surf_hh
 
  &NAMVER
- SDATE = 20061120,
- EDATE = 20061128,
+ SDATE = 20061126,
+ EDATE = 20061205,
  STATNAME='Surface_HH.html'
  OBINT      = 03,
  FCINT      = 12,
@@ -101,7 +108,7 @@ Below follows an explanation of the namelists created by the scripts in scr
  FCLEN      = 03,06,09,12,
  LFCVER = F,                   ! Verify against time of day
  LSTAT_GEN = T
- DATA_TO_VERIFY  = 1,
+ DATA_SOURCE  = 'vfld',
  LPLOT_STAT= T,
  SHOW_OBS        = T,          ! Show full values on verificaion plot, in this case the daily cycle
  LPLOT_FREQ      = T,          ! Plot frequency distribution
@@ -138,16 +145,22 @@ Below follows an explanation of the namelists created by the scripts in scr
  QQ_IND  = 6,
  NN_IND  = 7,
  PE_IND  = 8,
- LREJECT_GROSS   = T,
- LPRINT_GROSS    = T,
- FF_LIM = 25.,
- QQ_LIM = 30.,
- MAXSTN = 3000,
+ LQUALTIY_CONTROL = T
+ FF_LIM = 14.21227
+ DD_LIM = 360.
+ PS_LIM = 6.017519
+ TT_LIM = 11.53204
+ RH_LIM = 56.90424
+ QQ_LIM = 6.644235
+ NN_LIM = 10.
+ PE_LIM = 50.
+ MAXSTN = 2000,
  STNLIST = 0
- STNLIST_BL = 1075,1078,1092,1098,1055,22028,22304,22342,22583,
-              23701,15505,22113,6760,6762,1590,1592,22471,3031,
-	      3039,3037,3034,3035,3041,
 /
+
+#####################################
+
+ namelist_temp
 
  &NAMVER
  SDATE = 20061120,
@@ -160,21 +173,17 @@ Below follows an explanation of the namelists created by the scripts in scr
  NFCLENGTHS = 2
  FCLEN      = 12,24,
  LFCVER = T,
- DATA_TO_VERIFY = 2,
+ DATA_SOURCE = 'vfld_temp'
  LPLOT_STAT= T,
- LPRINT_GROSS    = T,
- LREJECT_GROSS   = T,
  LSTAT_GEN = T,
   MODPATH=
 '/data/proj_ns1/hirfou/uandrae/harmonie/monitor/dat/al00_31t0/',
 '/data/proj_ns1/hirfou/uandrae/harmonie/monitor/dat/ALD/',
-  NEXP=2
-  OBSPATH ='/data/proj_ns1/hirfou/uandrae/harmonie/monitor/dat/obs/',
-  PRINT_READ = 0,
-  EXPNAME =
-'al00_31t0',
-'ALD',
- NPARVER =          30,         ! Number of parameter time number of levels
+ NEXP=2
+ OBSPATH ='/data/proj_ns1/hirfou/uandrae/harmonie/monitor/dat/obs/',
+ PRINT_READ = 0,
+ EXPNAME = 'al00_31t0', 'ALD',
+ NPARVER =          36,         ! Number of parameter time number of levels
  FF_IND  =          1,
  DD_IND  =          2,
  TT_IND  =          3,
@@ -182,12 +191,22 @@ Below follows an explanation of the namelists created by the scripts in scr
  QQ_IND  =          5,
  FI_IND  =          6,
  LTEMP   = T,                   ! This is a multilevel verification
- LEV_LST = 850,700,500,300,200, ! Pressure levels
+ LEV_LST = 850,700,500,300,200,100, ! Pressure levels
+ QC_LIM = 13.39068    ,   13.11960    ,   14.41789    ,   16.73272    ,   12.92609    ,   11.88875    
+ ,  360.,360.,360.,360.,360.,360.,
+ ,   5.681776    ,   4.537991    ,   3.996569    ,   4.399463    ,   6.170159    ,   4.673162    
+ ,   89.23454    ,   102.9881    ,   93.87140    ,   70.88361    ,   40.92588    ,   10.52063    
+ ,   4.092330    ,   3.495025    ,   1.396699    ,  0.1407883    ,  3.2562181E-02 ,  2.2908855E-02
+ ,   42.01955    ,   43.00373    ,   52.88125    ,   65.51881    ,   60.46507    72.68517    
 /
 
+#####################################
+
+ namelist_vert 
+
  &NAMVER
- SDATE = 20061120,
- EDATE = 20061128,
+ SDATE = 20061126,
+ EDATE = 20061205,
  MAXSTN = 200,
  STNLIST = 0,
  STATNAME='vert_temp_HH.html'
@@ -212,10 +231,8 @@ Below follows an explanation of the namelists created by the scripts in scr
   NEXP=2
   OBSPATH ='/data/proj_ns1/hirfou/uandrae/harmonie/monitor/dat/obs/',
   PRINT_READ = 0,
-  EXPNAME =
-'al00_31t0',
-'ALD',
- NPARVER =          30,
+  EXPNAME = 'al00_31t0', 'ALD',
+ NPARVER =          36,
  FF_IND  =          1,
  DD_IND  =          2,
  TT_IND  =          3,
@@ -223,13 +240,47 @@ Below follows an explanation of the namelists created by the scripts in scr
  QQ_IND  =          5,
  FI_IND  =          6,
  LTEMP   = T,
- LEV_LST = 850,700,500,300,200,
+ LEV_LST = 850,700,500,300,200,100,
+ QC_LIM = 13.39068    ,   13.11960    ,   14.41789    ,   16.73272    ,   12.92609    ,   11.88875    
+ ,  360.,360.,360.,360.,360.,360.,
+ ,   5.681776    ,   4.537991    ,   3.996569    ,   4.399463    ,   6.170159    ,   4.673162    
+ ,   89.23454    ,   102.9881    ,   93.87140    ,   70.88361    ,   40.92588    ,   10.52063    
+ ,   4.092330    ,   3.495025    ,   1.396699    ,  0.1407883    ,  3.2562181E-02 ,  2.2908855E-02
+ ,   42.01955    ,   43.00373    ,   52.88125    ,   65.51881    ,   60.46507    72.68517    
 /
 
 
 # The monthly verification is controled by setting
+
 PERIOD_TYPE = 2
 Number of consecituve months to accumulate over is controlled by
 PERIOD_FREQ = 1
 
-For usage of the namelist variables read the definition in src/module_data.f90
+
+# Scatterplots
+
+Any combination of scatterplots can be done using the namelist variables
+ INTEGER :: corr_pairs(mparver,2)
+ INTEGER :: flag_pairs(mparver,2)
+ INTEGER :: exp_pairs(mparver,2)
+
+ corr_pairs(1,1) =  1 picks the first variable ( defined by XX_IND ) on the x-axis
+ flag_pairs(1,1) =  1 picks the observerd value on the y-axis
+ -1 means model, 0 bias and 1 means observations
+  exp_pairs(1,1)  = 1 picks the first experiment for the x -axis
+
+ corr_pairs(1,2) = 1 picks the first variable ( defined by XX_IND ) on the y-axis
+ flag_pairs(1,2) = -1 picks the model value on  the y-axis
+  exp_pairs(1,2)  = 1 picks the first experiment for the x -axis
+
+# Quality control
+
+The quality control is controlled by the flag LQUALITY_CONTROL. 
+An observation is rejected if  ABS(mod - exp) > err_limit for _ALL_ experiments used 
+in the verification. Forecast lengths used for quality control can be set by namelist 
+variable QC_FCLEN. If QC_FCLEN is not set The forecasts < forecast interval is used. 
+The limits can be set explicitly in namelist by XX_LIM for each variable or by
+QC_LIM for all variables. By setting ESTIMATE_QC_LIMIT the QC_LIM will be set as 
+SCALE_QC_LIM * STDV for the forecasts in QC_FCLEN.
+
+

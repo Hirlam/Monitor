@@ -132,9 +132,6 @@ SUBROUTINE read_vfld
 
           stat_i = stations(istnr)
 
-
-          WHERE(abs(val+99.) < 1.e-6) val = err_ind
-
           !
           ! Station found! Allocate data array if 
           ! this is a new time
@@ -177,30 +174,30 @@ SUBROUTINE read_vfld
           IF (print_read > 1 ) WRITE(6,*)'ADD',istnr,val
           IF (print_read > 1 ) WRITE(6,*)'BOUND',istnr,UBOUND( hir(stat_i)%o(i)%nal )
 
-          IF (nn_ind /= 0 .AND. qca(val(1),-999.)  .AND. &
+          IF (nn_ind /= 0 .AND. qca(val(1),-99.)  .AND. &
                                 qcl(val(1),nn_ind) .AND. &
                                 qcu(val(1),nn_ind)) hir(stat_i)%o(i)%nal(l,j,nn_ind) = val(1)
-          IF (dd_ind /= 0 .AND. qca(val(2),-999.)  .AND. &
+          IF (dd_ind /= 0 .AND. qca(val(2),-99.)  .AND. &
                                 qcl(val(2),dd_ind) .AND. &
                                 qcu(val(2),dd_ind)) hir(stat_i)%o(i)%nal(l,j,dd_ind) = val(2)
-          IF (ff_ind /= 0 .AND. qca(val(3),-999.)        &
+          IF (ff_ind /= 0 .AND. qca(val(3),-99.)        &
 !                                                  .AND. &
 !                               qcl(val(3),ff_ind) .AND. &
 !                               qcu(val(3),ff_ind)       &
                                 ) hir(stat_i)%o(i)%nal(l,j,ff_ind) = val(3)
-          IF (tt_ind /= 0 .AND. qca(val(4),-999.)        .AND. &
+          IF (tt_ind /= 0 .AND. qca(val(4),-99.)        .AND. &
                                 qcl(val(4)-tzero,tt_ind) .AND. &
                                 qcu(val(4)-tzero,tt_ind)) hir(stat_i)%o(i)%nal(l,j,tt_ind) = val(4) - tzero
-          IF (rh_ind /= 0 .AND. qca(val(5),-999.)  .AND. &
+          IF (rh_ind /= 0 .AND. qca(val(5),-99.)  .AND. &
                                 qcl(val(5),rh_ind) .AND. &
                                 qcu(val(5),rh_ind)) hir(stat_i)%o(i)%nal(l,j,rh_ind) = val(5)
-          IF (ps_ind /= 0 .AND. qca(val(6),-999.)  .AND. &
+          IF (ps_ind /= 0 .AND. qca(val(6),-99.)  .AND. &
                                 qcl(val(6),ps_ind) .AND. &
                                 qcu(val(6),ps_ind)) hir(stat_i)%o(i)%nal(l,j,ps_ind) = val(6)
-          IF (pe_ind /= 0 .AND. qca(val(7),-999.)  .AND. &
+          IF (pe_ind /= 0 .AND. qca(val(7),-99.)  .AND. &
                                 qcl(val(7),pe_ind) .AND. &
                                 qcu(val(7),pe_ind)) hir(stat_i)%o(i)%nal(l,j,pe_ind) = val(7)
-          IF (qq_ind /= 0 .AND. qca(val(8),-999.)  .AND. &
+          IF (qq_ind /= 0 .AND. qca(val(8),-99.)  .AND. &
                                 qcl(val(8),qq_ind) .AND. &
                                 qcu(val(8),qq_ind)) hir(stat_i)%o(i)%nal(l,j,qq_ind) = val(8) * 1.e3
 
@@ -230,7 +227,7 @@ SUBROUTINE read_vfld
     hir(i)%active = ( hir(i)%ntim > 0 )
  ENDDO
 
- IF (print_read > 0 ) WRITE(6,*) 'FOUND TIMES MODEL',MAXVAL(hir(:)%ntim)
+ WRITE(6,*) 'FOUND TIMES MODEL',MAXVAL(hir(:)%ntim)
 
  RETURN
 

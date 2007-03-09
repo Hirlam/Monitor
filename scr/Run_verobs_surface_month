@@ -70,10 +70,15 @@ cat << EOF >> fort.10
  QQ_IND  = 6,
  NN_IND  = 7,
  PE_IND  = 8,
- LREJECT_GROSS   = T,
- LPRINT_GROSS    = T,
- FF_LIM = 25.,
- QQ_LIM = 30.,
+ LQUALITY_CONTROL = T
+ FF_LIM = 14.21227
+ DD_LIM = 360.
+ PS_LIM = 6.017519
+ TT_LIM = 11.53204
+ RH_LIM = 56.90424
+ QQ_LIM = 6.644235
+ NN_LIM = 10.
+ PE_LIM = 50.
 EOF
 
 }
@@ -83,11 +88,8 @@ EOF
 function stations {
 
 cat << EOF >> fort.10
- MAXSTN = 3000,
+ MAXSTN = 2000,
  STNLIST = 0
- STNLIST_BL = 1075,1078,1092,1098,1055,22028,22304,22342,22583,
-              23701,15505,22113,6760,6762,1590,1592,22471,3031,
-	      3039,3037,3034,3035,3041,
 EOF
 }
 ############ functions
@@ -111,7 +113,7 @@ cat << EOF > fort.10
  NFCLENGTHS = 8,
  FCLEN      = 03,06,09,12,15,18,21,24,
  LFCVER = T,
- DATA_TO_VERIFY = 1,
+ DATA_SOURCE= 'vfld',
  LPLOT_STAT= T,
  LSTAT_GEN = T,
  LTIMESERIE_STAT= T,
@@ -150,7 +152,7 @@ cat << EOF > fort.10
  FCLEN      = 03,06,09,12,
  LFCVER = F,
  LSTAT_GEN = T
- DATA_TO_VERIFY  = 1,
+ DATA_SOURCE  = 'vfld'
  LPLOT_STAT= T,
  LPLOT_FREQ      = T,
  LPLOT_SCAT      = T,

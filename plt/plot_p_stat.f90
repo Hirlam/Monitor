@@ -75,6 +75,7 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
 
 
  CHARACTER(LEN=3  ) :: cdum='   '
+ CHARACTER(LEN=6  ) :: ob_short='      '
  CHARACTER(LEN=2  ) :: prefix=' '
  CHARACTER(LEN=30 ) :: fname=' '
  CHARACTER(LEN=120) :: wtext,wname
@@ -204,13 +205,14 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
 
     ENDDO
 
+
     DO k=1,nexp
 
       ndate = date
       ntime = time
       dlen  = ii
 
-      IF (timeserie_wind(j) /= 0) THEN
+      IF (timeserie_wind(j) /= 0 .AND. dlen /= 0 ) THEN
 
          IF ( k == 1 ) THEN
 
@@ -280,7 +282,9 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
     ntim_use = MAX(dlen,1)
 
 
-    CALL yunit(obstype(j),ytitle)
+    ob_short = obstype(j)
+    ob_short(3:6) = '   '
+    CALL yunit(ob_short,ytitle)
 
     IF ( timeserie_wind(j) == 0 ) THEN
        miny = MINVAL(bias(1:ntim_use,:))

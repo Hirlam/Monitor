@@ -10,6 +10,13 @@ SUBROUTINE check_namelist
 
  !---------------------------------------------
 
+ ! Check date 
+
+ IF ( SDATE > EDATE ) THEN
+    WRITE(6,*)' EDATE should be greater than SDATE '
+    CALL abort
+ ENDIF
+
  IF( lfcver ) THEN
 
     !
@@ -22,6 +29,10 @@ SUBROUTINE check_namelist
 
  ! Adjust last obs date and time according to forecast length
  CALL adddtg(edate,etime,3600*MAXVAL(fclen),edate_obs,etime_obs)
+
+ ! X plots
+ all_var_present = ( ANY(corr_pairs /= 0) .OR. all_var_present )
+ lplot_comp      = ( ANY(corr_pairs /= 0) )
 
  ! More to come ....
 

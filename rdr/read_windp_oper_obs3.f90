@@ -1,4 +1,4 @@
-SUBROUTINE read_windp_oper_obs2
+SUBROUTINE read_windp_oper_obs3
 
  USE data
 
@@ -8,13 +8,13 @@ SUBROUTINE read_windp_oper_obs2
  INTEGER :: i,j,jj,ierr,  &
             wdate,wtime,  &
             cdate,ctime,  &
-            wpi
+            hh,maxpow
 
  REAL :: wpo
 
  CHARACTER(LEN=99) :: cname =''
  CHARACTER(LEN= 3) :: cstn  = ''
- CHARACTER(LEN=08) :: datec = ''
+ CHARACTER(LEN= 8) :: datec = ''
 
  LOGICAL :: stnlist_found = .FALSE.
 
@@ -67,7 +67,7 @@ SUBROUTINE read_windp_oper_obs2
        READ(lunwp,'(I10,X,I3,x,4(f7.3,x),A50)',IOSTAT=ierr)     &
        id,type,lat,lon,hubhgt,hgt,sname
 
-       WRITE(6,'(I10,X,I3,x,4(f7.3,x),A50)')     &
+       WRITE(6,'(I10,X,I3,x,4(f7.3,x),A50)',IOSTAT=ierr)     &
        id,type,lat,lon,hubhgt,hgt,sname
 
        !
@@ -80,7 +80,6 @@ SUBROUTINE read_windp_oper_obs2
                 obs(j)%lat = lat
                 obs(j)%lon = lon
                 obs(j)%hgt = hgt
-                !station_name(j) = TRIM(sname)
                 CYCLE READ_STATION
              ENDIF
           ENDDO
@@ -88,9 +87,7 @@ SUBROUTINE read_windp_oper_obs2
           obs(i)%stnr     = id
           obs(i)%lat      = lat
           obs(i)%lon      = lon
-          obs(i)%hgt      = hgt
           stnlist(i)      = id
-          !station_name(i) = TRIM(sname)
        ENDIF
 
     ENDDO READ_STATION
@@ -130,9 +127,8 @@ SUBROUTINE read_windp_oper_obs2
     !
 
     WRITE(datec,'(I8.8)')cdate
-    WRITE(cstn,'(I3.3)')obs(i)%stnr
 
-    cname = TRIM(obspath)//datec//'.dat'
+    cname = TRIM(obspath)//TRIM(datec)//'.dat'
 
     OPEN(lunin,file=cname,status='old',iostat=ierr)
 
@@ -141,7 +137,7 @@ SUBROUTINE read_windp_oper_obs2
 
        wdate = cdate
        wtime = ctime
-       CALL adddtg(wdate,wtime,obint*3600,cdate,ctime)
+       CALL adddtg(wdate,wtime,24*3600,cdate,ctime)
 
        IF(cdate >  edate_obs) EXIT TIME_LOOP
        IF(cdate >= edate_obs .AND. ctime/10000 > etime_obs) EXIT TIME_LOOP
@@ -152,23 +148,26 @@ SUBROUTINE read_windp_oper_obs2
     IF (print_read > 0 )WRITE(6,*)'READ ',TRIM(cname)
 
 
-    READ(lunin,*,iostat=ierr)wpo
+    READ_LOOP : DO
 
-    j  =  j + 1
+       READ(lunin,*,iostat=ierr)hh,wpo
 
-    ALLOCATE(obs(i)%o(j)%date)
-    ALLOCATE(obs(i)%o(j)%time)
-    ALLOCATE(obs(i)%o(j)%val(nparver))
+       IF ( ierr /= 0 ) EXIT READ_LOOP
 
-    obs(i)%o(j)%val = err_ind
-    obs(i)%ntim      = j
-    obs(i)%o(j)%val  = err_ind
-    obs(i)%o(j)%date = cdate
-    obs(i)%o(j)%time = ctime/10000
-    IF ( use_pos ) obs(i)%pos(cdate * 100 + ctime/10000) = j
+       j  =  j + 1
 
-    IF (wp_ind /= 0) obs(i)%o(j)%val(wp_ind) = wpo
+       ALLOCATE(obs(i)%o(j)%date)
+       ALLOCATE(obs(i)%o(j)%time)
+       ALLOCATE(obs(i)%o(j)%val(nparver))
 
+       obs(i)%ntim      = j
+       obs(i)%o(j)%val  = err_ind
+       obs(i)%o(j)%date = cdate
+       obs(i)%o(j)%time = hh
+
+       IF (wp_ind /= 0) obs(i)%o(j)%val(wp_ind) = wpo 
+
+    ENDDO READ_LOOP
 
     CLOSE(lunin)
 
@@ -178,7 +177,7 @@ SUBROUTINE read_windp_oper_obs2
 
     wdate = cdate
     wtime = ctime
-    CALL adddtg(wdate,wtime,obint*3600,cdate,ctime)
+    CALL adddtg(wdate,wtime,24*3600,cdate,ctime)
 
     IF(cdate >  edate_obs) EXIT TIME_LOOP
     IF(cdate >= edate_obs .AND. ctime/10000 > etime_obs) EXIT TIME_LOOP
@@ -193,4 +192,4 @@ SUBROUTINE read_windp_oper_obs2
 
  RETURN
 
-END SUBROUTINE read_windp_oper_obs2
+END SUBROUTINE read_windp_oper_obs3

@@ -55,7 +55,7 @@ SUBROUTINE verify
             par_active(nparver),                        &
             len_scat,per_ind
 
- INTEGER, ALLOCATABLE :: periods(:),gross_error(:,:)
+ INTEGER, ALLOCATABLE :: periods(:)
 
  REAL              :: diff,diff_prep
  REAL, ALLOCATABLE :: tmpdiff(:)
@@ -118,15 +118,12 @@ SUBROUTINE verify
  ! Find PE index locations
  !
 
- IF (lfcver ) THEN
-    ind_pe = 0
-    DO i=1,nfclengths
-       IF(fclen(i) < pe_interval) CYCLE 
-       ind_pe(i)=TRANSFER(MINLOC(ABS(fclen(1:nfclengths)-(fclen(i)-pe_interval))),ii)
-       if (fclen(i)-fclen(ind_pe(i)) < pe_interval ) ind_pe(i) = 0
-    ENDDO
-    IF(lprint_verif) WRITE(6,*)'IND_PE',ind_pe
- ENDIF
+ ind_pe = 0
+ DO i=1,nfclengths
+    IF(fclen(i) < pe_interval) CYCLE 
+    ind_pe(i)=TRANSFER(MINLOC(ABS(fclen(1:nfclengths)-(fclen(i)-pe_interval))),ii)
+    IF (fclen(i)-fclen(ind_pe(i)) < pe_interval ) ind_pe(i) = 0
+ ENDDO
 
 
  ! Set min and max date
@@ -253,7 +250,7 @@ SUBROUTINE verify
  ENDIF
 
 
- lscat_array = (lplot_scat .OR. lplot_freq .OR. lprep_xml )
+ lscat_array = (lplot_scat .OR. lplot_freq .OR. lprep_xml .OR. lplot_comp )
 
  IF ( lscat_array ) CALL allocate_scatter(len_scat,maxper)
 
@@ -270,13 +267,6 @@ SUBROUTINE verify
 
  IF ( lprep_xml ) CALL open_xml(lunxml,maxper,periods)
  
- !
- ! Gross error tracking
- !
-
- ALLOCATE(gross_error(maxstn,nparver))
- gross_error = 0
-
  IF (ltiming) CALL add_timing(timing_id_init,'Verify_init')
 
  ! --------------------------
@@ -378,6 +368,13 @@ SUBROUTINE verify
        ENDIF
 
        !
+       ! Skip this fclength if not all variables are present
+       ! and all_var_present is TRUE
+       !
+
+       IF ( all_var_present .AND. ANY(ABS( hir(i)%o(j)%nal(:,n,:) - err_ind ) < 1.e-6 ))  CYCLE
+       
+       !
        ! Step time to verification time 
        ! If we have no observations inside the range then cycle
        !
@@ -409,6 +406,12 @@ SUBROUTINE verify
        OBS_TEST :				&
        IF(obs(i)%o(jj)%date == wdate .AND.	&
           obs(i)%o(jj)%time == wtime ) THEN
+
+          !
+          ! Reject this observation if not all variables are present
+          !
+
+          IF ( all_var_present .AND. ANY(ABS( obs(i)%o(jj)%val - err_ind ) < 1.e-6 ))  CYCLE FC_CYCLE
 
           found_right_time = .TRUE.
 
@@ -443,11 +446,6 @@ SUBROUTINE verify
           END SELECT
 
           IF ( lstat_gen ) allstat(i,per_ind)%active = .TRUE.
-
-          !
-          ! Reject this observation if not all variables are present
-          !
-          IF ( all_var_present .AND. ANY(ABS( obs(i)%o(jj)%val -err_ind ) < 1.e-6 ))  CYCLE
 
           NPARVER_LOOP : DO k=1,nparver
 
@@ -491,33 +489,12 @@ SUBROUTINE verify
  
              EXP_LOOP : DO o=1,nexp_ver
 
-                IF( k == wp_ind ) THEN
-
-                   !
-                   ! Special for wind power
-                   ! Reject zero value observations if wind is higher
-                   !
-
-                   ! IF  (obs(i)%o(jj)%val(k) < 1.e-6 ) THEN
-                   !    IF (       ANY(hir(i)%o(j)%nal(:,n,k) > 100.)  .AND.     &
-                   !         .NOT. ANY(hir(i)%o(j)%nal(:,n,k) < 50. )       )          THEN
-                   !         WRITE(6,*)'Rejected wp obs', hir(i)%stnr,wdate,wtime,     &
-                   !         obs(i)%o(jj)%val(k),hir(i)%o(j)%nal(:,n,k)
-                   !         obs(i)%o(jj)%val = err_ind
-                   !         CYCLE NPARVER_LOOP
-                   !    ENDIF
-                   ! ENDIF
-
-                ENDIF
-
-
-                IF(k == pe_ind .AND. lfcver) THEN
+                IF(k == pe_ind) THEN
 
                    !
                    ! Special for precipitation
                    !
 
-                   IF (lprint_verif) WRITE(6,*)'PE ',i,n,o,ind_pe(n)
                    IF(fclen(n) == pe_interval) THEN
                       diff_prep = hir(i)%o( j)%nal(o,n,k)
                    ELSEIF(fclen(n) > pe_interval .AND. ind_pe(n) > 0 ) THEN
@@ -555,50 +532,13 @@ SUBROUTINE verify
                 ! Wind direction
                 !
 
-                 IF(k == dd_ind.AND.ABS(diff) > 180.) diff = diff + SIGN(360.,180.-diff)
+                IF(k == dd_ind.AND.ABS(diff) > 180.) diff = diff + SIGN(360.,180.-diff)
 
                 !
-                ! Gross error check
+                ! Store this difference
                 !
 
-                IF (qc(diff,k)) THEN
-                   tmpdiff(o) = diff
-                ELSE   
-
-                  !
-                  ! Reject erroneous observations
-                  !
-
-                  IF (lprint_gross) THEN
-                     WRITE(6,'(3A,2I10,2I3)')'GROSS ERROR ',expname(o),	&
-                     ' station:',hir(i)%stnr,wdate,wtime,fclen(n)
-                     WRITE(6,*)'model,obs',diff_prep,obs(i)%o(jj)%val(k),obstype(k)
-                  ENDIF
-
-                  gross_error(i,k) = gross_error(i,k) + 1
-
-                  IF(lreject_gross) THEN
-
-                     all_exp_verified = .FALSE.
-
-                     obs(i)%o(jj)%val(k) = err_ind
-
-                     IF ( lstat_gen ) THEN
-                        allstat(i,per_ind)%s(1,k,tim_ind)%r =  	&
-                        allstat(i,per_ind)%s(1,k,tim_ind)%r + 1
-                     ENDIF 
-
-                     CYCLE NPARVER_LOOP
-
-                  ENDIF 
-
-                  !
-                  ! If not rejected still use it
-                  !
-
-                  tmpdiff(o) = diff
-
-                ENDIF
+                tmpdiff(o) = diff
 
              ENDDO EXP_LOOP
 
@@ -612,7 +552,6 @@ SUBROUTINE verify
 
                 mindate(i) = MIN(mindate(i),hir(i)%o(j)%date)
                 maxdate(i) = MAX(maxdate(i),hir(i)%o(j)%date)
-
 
                 IF (use_kalman) THEN
 
@@ -634,7 +573,6 @@ SUBROUTINE verify
                                            obs(i)%o(jj)%val(k),tmpdiff)
 
                 ENDIF
-
 
                 IF (lscat_array ) THEN
 
@@ -776,24 +714,22 @@ SUBROUTINE verify
 
 #ifdef MAGICS
 
-         IF ( lplot_scat .AND. leach_station) THEN
-            CALL plot_scat_diff_new( &
-            lunout,nparver,obs(i)%stnr,nrun,0,scat_data(:,l),periods(l),periods(l+1),par_active)
-            IF ( diff_ind /= 0 ) &
-            CALL plot_scat_comp(lunout,nparver,obs(i)%stnr,nrun,diff_ind,   &
-                 scat_data(:,l),periods(l),periods(l+1),par_active)
-            IF ( comp_ind /= 0 ) &
-            CALL plot_scat_comp(lunout,nparver,obs(i)%stnr,nrun,comp_ind,   &
-                 scat_data(:,l),periods(l),periods(l+1),par_active)
-            IF (ldiff) &
-            CALL plot_scat_diff_new( &
-            lunout,nparver,obs(i)%stnr,nrun,-1,scat_data(:,l),periods(l),periods(l+1),par_active)
-         ENDIF
+         ! Plot normal scatterplot
+         IF ( lplot_scat .AND. leach_station)                      &
+            CALL plot_scat_comp(lunout,nparver,obs(i)%stnr,nrun,   &
+                 scat_data(:,l),periods(l),periods(l+1),par_active,&
+                 lplot_scat)
 
-         IF ( lplot_freq .AND. leach_station )        &
+         ! Plot Xcrossplot
+         IF ( lplot_comp .AND. leach_station)                      &
+            CALL plot_scat_comp(lunout,nparver,obs(i)%stnr,nrun,   &
+                 scat_data(:,l),periods(l),periods(l+1),par_active,.FALSE.)
+
+         ! Plot frequencydistribution
+         IF ( lplot_freq .AND. leach_station )               &
          CALL plot_freq_new(lunout,nparver,obs(i)%stnr,nrun, &
-                            scat_data(:,l),    &
-                            periods(l),periods(l+1),par_active)
+              scat_data(:,l),                                &
+              periods(l),periods(l+1),par_active)
 
 #endif
 
@@ -909,25 +845,26 @@ SUBROUTINE verify
 
 
 #ifdef MAGICS
-       IF ( lplot_scat) THEN
-          CALL plot_scat_diff_new( &
-          lunout,nparver,0,nrun, 0,all_scat_data(:,l),periods(l),periods(l+1),par_active)
-          IF ( diff_ind /= 0 ) &
-          CALL plot_scat_comp(lunout,nparver,0,nrun,diff_ind,   &
-               all_scat_data(:,l),periods(l),periods(l+1),par_active)
-          IF ( comp_ind /= 0 ) &
-          CALL plot_scat_comp(lunout,nparver,0,nrun,comp_ind,   &
-               all_scat_data(:,l),periods(l),periods(l+1),par_active)
-          IF (ldiff) &
-          CALL plot_scat_diff_new(lunout,nparver,0,nrun,-1,     &
-               all_scat_data(:,l),periods(l),periods(l+1),par_active)
-       ENDIF
 
-       IF ( lplot_freq )        &
+       ! Plot normal scatterplot
+       IF ( lplot_scat)                              &
+       CALL plot_scat_comp(lunout,nparver,0,nrun,    &
+            all_scat_data(:,l),                      &
+            periods(l),periods(l+1),                 &
+            par_active,lplot_scat)
+
+       ! Plot Xcrossplot
+       IF ( lplot_comp)                              &
+       CALL plot_scat_comp(lunout,nparver,0,nrun,    &
+            all_scat_data(:,l),                      &
+            periods(l),periods(l+1),                 &
+            par_active,.FALSE.)
+
+       ! Plot frequencydistribution
+       IF ( lplot_freq )                         &
        CALL plot_freq_new(lunout,nparver,0,nrun, &
-                          all_scat_data(:,l),    &
-                          periods(l),periods(l+1),par_active)
-
+            all_scat_data(:,l),                  &
+            periods(l),periods(l+1),par_active)
 
 #endif
     ENDDO
@@ -963,9 +900,6 @@ SUBROUTINE verify
 
 
  IF (ltiming) CALL add_timing(timing_id_plot,'Verify_plot')
-
- CALL sumup_gross(gross_error)
- DEALLOCATE(gross_error)
 
  !IF (use_kalman) CALL clear_kalman
 

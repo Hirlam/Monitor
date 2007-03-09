@@ -1,6 +1,6 @@
 SUBROUTINE my_choices
 
-USE data, ONLY : data_to_verify
+USE data, ONLY : data_to_verify,data_source
 
 IMPLICIT NONE
 
@@ -9,8 +9,42 @@ CHARACTER(LEN=2)  :: ci   = ' '
 
 !---------------------------------------
 
- WRITE(ci,'(I2.2)')data_to_verify
- info = TRIM(info)//' '//ci
+ IF (LEN(TRIM(data_source)) > 0 ) THEN
+
+    !
+    ! Select by string
+    !
+
+    WRITE(6,*)'Start reading data from ',TRIM(data_source)
+
+    SELECT CASE (TRIM(data_source))
+   
+    CASE('vfld','VFLD')
+   
+       CALL read_vobs
+       CALL read_vfld
+   
+    CASE('vfld_temp','VFLD_TEMP')
+   
+       CALL read_vobs_temp
+       CALL read_vfld_temp
+   
+    CASE DEFAULT
+
+       WRITE(6,*)'No such option ',TRIM(data_source)
+       CALL abort
+
+    END SELECT
+
+ ELSE
+
+ !
+ ! Select by number
+ ! This should be made redundant at
+ ! some point
+ !
+
+ WRITE(6,*)'Start reading data from ',data_to_verify
 
  SELECT CASE (data_to_verify)
 
@@ -104,13 +138,9 @@ CHARACTER(LEN=2)  :: ci   = ' '
     CALL read_windp_obs
     CALL read_windp_mod
 
-    info = ' Read windpower data'
-    
  CASE(20)
 
     CALL read_kalman_test
-
-    info = ' Read Kalman test'
 
  CASE(21)
 
@@ -137,13 +167,34 @@ CHARACTER(LEN=2)  :: ci   = ' '
     CALL read_windp_oper_mod_day
     CALL read_vindstat
 
+ CASE(27)
+
+    CALL read_windp_oper_obs2
+    CALL read_windp_oper_mod_plot
+
+ CASE(28)
+
+    CALL read_windp_oper_obs3
+    CALL read_windp_oper_mod2
+
+ CASE(29)
+
+    CALL read_auto
+    CALL read_vfld
+
+ CASE(30)
+
+    CALL read_vv_obs
+    CALL read_vfld
+
  CASE DEFAULT
     WRITE(6,*)'No such option ',data_to_verify
     CALL abort
  END SELECT
 
- WRITE(6,*)
- WRITE(6,*)TRIM(info)
+ ENDIF
+
+ WRITE(6,*)'Done reading data'
  WRITE(6,*)
 
 RETURN

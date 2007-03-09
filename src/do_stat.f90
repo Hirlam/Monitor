@@ -17,7 +17,7 @@ SUBROUTINE do_stat(p1,p2)
  TYPE (statistics), ALLOCATABLE  :: statall(:,:,:)
 
  CHARACTER(LEN=4 ) :: ttype = 'TIME'
- CHARACTER(LEN=38) :: text  = '   BIAS    RMSE     STDV      N      R'
+ CHARACTER(LEN=31) :: text  = '    BIAS    RMSE    STDV     N'
  CHARACTER(LEN= 3) :: seasonal_name1(4)=(/'DJF','MAM','JJA','SON'/),		&
                       seasonal_name2(12)=(/'JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'/)
 !---------------------------------
@@ -27,8 +27,8 @@ SUBROUTINE do_stat(p1,p2)
 
  IF(lprint_do_stat) WRITE(6,*)'--DO_STAT--',p1,p2
 
-102 format(2A5,5(A38))
-103 format(5(A38))
+102 format(2A5,5(A31))
+103 format(5(A31))
 
 
  ! Recheck active stations
@@ -272,8 +272,8 @@ SUBROUTINE write_stat(p,t,s,n)
 
  INTEGER :: o
  REAL    :: rn(n)
- CHARACTER(LEN=30) :: form1='(2A6,x(3f8.3,2I7))'
- CHARACTER(LEN=30) :: form2='(A6,I5,x(3f8.3,2I7))'
+ CHARACTER(LEN=30) :: form1='(2A6,x(3f8.3,I7))'
+ CHARACTER(LEN=30) :: form2='(A6,I5,x(3f8.3,I7))'
  
 !------------------------------------------
 
@@ -300,7 +300,7 @@ SUBROUTINE write_stat(p,t,s,n)
              sqrt(s(o)%rmse/rn(o)),           &
              sqrt(ABS(s(o)%rmse/rn(o)         &
                     -(s(o)%bias/rn(o))**2)),  &
-                  s(o)%n,s(o)%r,o=1,n)
+                  s(o)%n,o=1,n)
        WRITE(lunstat,*)
  ELSE
        WRITE(lunstat,form2)p,t,               &
@@ -309,7 +309,7 @@ SUBROUTINE write_stat(p,t,s,n)
              sqrt(s(o)%rmse/rn(o)),           &
              sqrt(ABS(s(o)%rmse/rn(o)         &
                     -(s(o)%bias/rn(o))**2)),  &
-                  s(o)%n,s(o)%r,o=1,n)
+                  s(o)%n,o=1,n)
  ENDIF
 
  RETURN

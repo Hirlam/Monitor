@@ -26,16 +26,10 @@ External libraries needed without magics: eclib
 External libraries needed magics: magics emoslib eclib
 
 At ecgate
-Make sure ARCH=ibmecmwf in the monitor/Makefile 
-
-   BINDIR=$(SCRATCH)/bin
-   MODDIR=$(SCRATCH)/lib
-   LIBDIR=$(SCRATCH)/lib
-   SRCDIR=$(SCRATCH)/monitor/src
+Make sure ARCH=ecgate in the monitor/Makefile 
 
 For other machines a new config file has to be introduced
 
 Compile by ; cd $SRCDIR ; gmake
 
 Read on in the README_verobs for further usage
-

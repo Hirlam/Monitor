@@ -116,7 +116,7 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
     IF (show_obs ) THEN
        miny = MIN(miny,MINVAL(obs))
        maxy = MAX(maxy,MAXVAL(obs))
-    ELSE
+    ELSEIF(show_rmse) THEN
        miny = MIN(miny,MINVAL(rmse))
        maxy = MAX(maxy,MAXVAL(rmse))
     ENDIF
@@ -125,7 +125,9 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
     miny = miny - 0.5*diff
     maxy = maxy + 0.5*diff
 
-    CALL yunit(obstype(j),ytitle)
+    ob_short = obstype(j)
+    ob_short(3:6) = '    '
+    CALL yunit(ob_short,ytitle)
 
     plotfcver     = lfcver
     plotltemp     = ltemp
@@ -157,7 +159,7 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
     ob_short = obstype(j)
     ob_short(3:6) = '    '
     CALL pname(ob_short,wtext)
-
+     
     ! Line 2
     IF (yymm == 0 ) THEN
     ELSEIF(yymm < 13) THEN

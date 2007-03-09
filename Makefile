@@ -1,4 +1,4 @@
-ARCH   := ibmecmwf
+ARCH   := ecgate
 
 .DELETE_ON_ERROR:
 

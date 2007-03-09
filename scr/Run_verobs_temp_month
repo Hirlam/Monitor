@@ -47,7 +47,7 @@ EOF
 function variables {
 
 cat << EOF >> fort.10
- NPARVER =          30,
+ NPARVER =          36,
  FF_IND  =          1,
  DD_IND  =          2,
  TT_IND  =          3,
@@ -55,7 +55,14 @@ cat << EOF >> fort.10
  QQ_IND  =          5,
  FI_IND  =          6,
  LTEMP   = T,
- LEV_LST = 850,700,500,300,200,
+ LEV_LST = 850,700,500,300,200,100,
+ LQUALITY_CONTROL = T
+ QC_LIM = 13.39068    ,   13.11960    ,   14.41789    ,   16.73272    ,   12.92609    ,   11.88875    
+ ,  360.,360.,360.,360.,360.,360.,
+ ,   5.681776    ,   4.537991    ,   3.996569    ,   4.399463    ,   6.170159    ,   4.673162    
+ ,   89.23454    ,   102.9881    ,   93.87140    ,   70.88361    ,   40.92588    ,   10.52063    
+ ,   4.092330    ,   3.495025    ,   1.396699    ,  0.1407883    ,  3.2562181E-02 ,  2.2908855E-02
+ ,   42.01955    ,   43.00373    ,   52.88125    ,   65.51881    ,   60.46507    72.68517    
 EOF
 
 }
@@ -79,7 +86,7 @@ cat << EOF > fort.10
  NFCLENGTHS = 2
  FCLEN      = 12,24,
  LFCVER = T,
- DATA_TO_VERIFY = 2,
+ DATA_SOURCE = 'vfld_temp'
  LPLOT_STAT= T,
  LPRINT_GROSS    = T,
  LREJECT_GROSS   = T,
@@ -108,7 +115,7 @@ cat << EOF > fort.10
  FCINT      = 12,
  OBINT      = 12
  LFCVER = F,
- DATA_TO_VERIFY = 2,
+ DATA_SOURCE = 'vfld_temp'
  LPRINT_GROSS          = T,
  LPLOT_VERT= T,
  LTIMESERIE_STAT= T
@@ -136,15 +143,15 @@ $BIN/verobs || exit
 mkdir vert 
 if [ $OUTPUT_TYPE -eq 1 ] ; then
    mv l*.ps vert
-   $SCR/ps2png 6 5 $NEXP '-resize 75% -rotate 90'
+   $SCR/ps2png 6 6 $NEXP '-resize 75% -rotate 90'
    tar cvf temp.tar *.png
 elif [ $OUTPUT_TYPE -eq 2 ] ; then
    mv l*.png vert
-   $SCR/png2png 6 5 $NEXP png
+   $SCR/png2png 6 6 $NEXP png
    tar cvf temp.tar *.png
 elif [ $OUTPUT_TYPE -eq 3 ] ; then
    mv l*.jpg vert
-   $SCR/png2png 6 5 $NEXP jpg
+   $SCR/png2png 6 6 $NEXP jpg
    tar cvf temp.tar *.jpg
 fi
 

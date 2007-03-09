@@ -153,10 +153,9 @@ v[3] =[1] ;
 t[3] = v[3] ;
 v[4] = ['calc',0,5]
 t[4] = ['Wind speed','Wind dir','Temperature','Relative hum','Specific hum.','Height']
-v[5] = ['calc',4,0]
-t[5] = [850,700,500,300,200]
-t[5] = t[5].reverse()
-v[6] =[0] ;
+v[5] = ['calc',5,0]
+t[5] = [100,200,300,500,700,850]
+v[6] =  [0] ;
 t[6] = v[6] ;
 
 mname = ["Type","Period","Station","dum","Parameter","Level (hPa)","Exp"]
@@ -270,3 +269,5 @@ my_xml_txt = ['DD0200',
 EOF
 
 $WEBCALL -e Vert -f input.js
+
+rm -f input.js

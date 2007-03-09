@@ -1,9 +1,4 @@
-# 
-# Settings for the HARMONIE verification
-#
-
-# Project name this is the name 
-# that will be given to the Webpage
+# Project name
 PROJECT=monitor
 
 # Path to this project
@@ -11,27 +6,23 @@ BASE=$SCRATCH/monitor
 
 # Bin
 BIN=$BASE/bin/
-WRK=$BASE/wrk/
 SCR=$BASE/scr/
+WRK=$BASE/wrk/
 
-# MAG_HOME for magics
-# export MAG_HOME=/data/proj/hirfou/uandrae/magics
+# MAG_HOME for magics, not needed at ecgate
+# export MAG_HOME=
+#
 
-# Number of experiments and name
+# Experiment
 NEXP=2
 MYEXP="'al00_31t0','ALD'"
+
 EXP[1]=al00_31t0
 EXP[2]=ALD
 
-# Path to observations and model
-# data
-OBSPATH=$BASE/dat/obs/
+   OBSPATH=$BASE/dat/obs/
 MODPATH[1]=$BASE/dat/${EXP[1]}/
 MODPATH[2]=$BASE/dat/${EXP[2]}/
-
-# A test data set for this period and setup may be downloaded from 
-# https://hirlam.org/contrib/ulf/aladin/dat.tar.gz
-#
 
 # Select output_type
 # 1  Postscript
@@ -41,21 +32,19 @@ MODPATH[2]=$BASE/dat/${EXP[2]}/
 OUTPUT_TYPE=2
 
 # Date
-# When running monthly verification SDATE may differ from INITIAL_DATE
 INITIAL_DATE=20061126
 SDATE=$INITIAL_DATE
 EDATE=20061205
 
 # WebgraF call, set empty if not used
 WEBGRAF_BASE=$BASE/WebgraF
-WEBCALL=""
-WEBCALL="$WEBGRAF_BASE/bin/WebgraF -p $PROJECT"
+WEBCALL="$BASE/WebgraF/bin/WebgraF -p $PROJECT"
 
 # Explanation on webpage
 HELP="HIRALD ALADIN experiments \
       <br> al00_31t0 : 11km, 60 levels, SMHI ALADIN CY31t0 \
       <br> ALD       : 11km, 40 levels, FMI ALADIN  CY30t1 "
 
-export PROJECT WEBCALL WEBGRAF_BASE BASE BIN MYEXP NEXP SDATE EDATE HELP OUTPUT_TYPE INITIAL_DATE WRK SCR
+export PROJECT WEBCALL WEBGRAF_BASE BASE BIN MYEXP NEXP SDATE EDATE HELP OUTPUT_TYPE INITIAL_DATE SCR WRK
 
 ###########################

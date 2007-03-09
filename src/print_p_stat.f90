@@ -128,6 +128,11 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
            stdv(maxtim,nexp),   &
            rnum(maxtim,nexp))
 
+ DO i=istart,iend
+    WRITE(6,*)time_stat(i)%date,time_stat(i)%time,time_stat(i)%bias(2,1),time_stat(i)%obs(:)
+ ENDDO
+ STOP
+
  NPAR_LOOP : DO j=1,npar
 
     rnum = 0.

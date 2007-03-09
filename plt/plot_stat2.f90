@@ -41,6 +41,7 @@ SUBROUTINE plot_stat2(lunout,nexp,nparver,ntimver,s,stnr,yymm,yymm2,par_active)
  CHARACTER(LEN= 30) :: fname=' '
  CHARACTER(LEN= 30) :: wname=' '
  CHARACTER(LEN=  1) :: prefix = ' '
+ CHARACTER(LEN=  6) :: ob_short = '      '
 
 !------------------------------------------
  ! Init timing counter
@@ -136,7 +137,9 @@ SUBROUTINE plot_stat2(lunout,nexp,nparver,ntimver,s,stnr,yymm,yymm2,par_active)
     miny = miny - 0.5*diff
     maxy = maxy + 0.5*diff
 
-    CALL yunit(obstype(j),ytitle)
+    ob_short=obstype(j)
+    ob_short(3:6)='    '   
+    CALL yunit(ob_short,ytitle)
     plotfcver   = lfcver
     plottimdiff = FLOAT(timdiff)
     CALL new_page(0,0,0,0,hour(1),hour(ntimver_l),miny,maxy)

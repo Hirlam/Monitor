@@ -7,6 +7,8 @@
  Download the latest WebgraF from : 
 
     http://www.smhi.se/sgn0106/if/hirald/WebgraF/WebgraF.tar.gz
+    or by subversion
+    snv export https://svn.hirlma.org/trunk/harmonie/util/monitor/WebgraF
 
 
  Install 
@@ -15,16 +17,12 @@
  - Unzip and untar WebgraF.tar.gz
 
  - Set your WebgraF main directory in WebgraF/bin/WebgraF.pl where :
+ - Tell WebgraF where you have installed it by exporting the environment variable
+   WEBGRAF_BASE = "$SOME_FULL_PATH/WebgraF"
 
- # Change you working directory here        
- #############################################
- $WEBGRAF_BASE = "$SOME_PATH/WebgraF" ;
- #############################################
+ - Add $SOME_FULL_PATH/WebgraF/bin/WebgraF to you path
 
- - Add $SOME_PATH/WebgraF/bin/WebgraF to you path
-
-
- Open $SOME_PATH/WebgraF/index.html in you browser
+ Open $SOME_FULL_PATH/WebgraF/index.html in you browser
 
 
  Basic usage
@@ -54,7 +52,7 @@
 
  WebgraF will print list + help
 
- WebgraF -p PROJECT_1 -e ENTRY_1 -g will give you the file definition for PROJECT_1/ENTRY_1
+ WebgraF -p PROJECT_1 -e RAOBCORE -g will give you the file definition for PROJECT_1/RAOBCORE
 
  WebgraF -p PROJECT_1 -i -g will give you the project description PROJECT_1
 
@@ -64,7 +62,7 @@
                         Open $FULL_PATH/NEW_WEBGRAF/index.html in your browser
 
 
- WebgraF -b $FULL_PATH/NEW_WEBGRAF -p PROJECT_1 -e ENTRY_1 -f PROJECT_1_ENTRY_1.js will create new project/entry PROJECT_1/ENTRY_1
+ WebgraF -b $FULL_PATH/NEW_WEBGRAF -p PROJECT_1 -e ENTRY_1 -f PROJECT_1_RAOBCORE.js will create new project/entry PROJECT_1/ENTRY_1
 
  WebgraF -b $FULL_PATH/NEW_WEBGRAF -p PROJECT_1 -i "http://www.smhi.se"  will add a new description on PROJECT_1
 
@@ -98,8 +96,3 @@
 
 
  Good Luck!
-
-
-
-
-

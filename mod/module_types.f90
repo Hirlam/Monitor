@@ -59,7 +59,7 @@ MODULE types
  TYPE observation
    INTEGER, POINTER :: date,time
    REAL,    POINTER :: val(:)
-   REAL,    POINTER :: fal(:,:)
+!  REAL,    POINTER :: fal(:,:)
    REAL,    POINTER :: nal(:,:,:)
  END TYPE observation
 

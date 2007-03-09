@@ -1,289 +1,300 @@
 SUBROUTINE plot_scat_comp(lunout,nparver,nr,nrun,    &
-           diff_ind,scat,p1,p2,par_active)
+           scat,p1,p2,par_active,full_scatter)
 
  !
- ! Cross scatter plots
+ ! X scatter plots
  ! 
- ! -1000 < diff_ind <    0 : 
- !  Plot model variable diff_ind as a function of observation variable 1 ... N
- !     0 < diff_ind < 1000 :
- !  Plot observation of variable 1 as a function of model variable 1 ... N
- ! 
- ! diff_ind < -1000 : 
- !  Plot model variable 1 ... N  as a function of observation variable diff_ind
- ! diff_ind >  1000 :
- !  Plot observation variable 1 ... N as a function of model variable diff_ind
- !
- ! ldiff = TRUE will give the bias instead of full value
- ! 
- ! Ulf Andrae, SMHI, 2006
+ ! Ulf Andrae, SMHI, 2007
  !
 
  USE types
  USE timing
  USE data, ONLY : obstype,expname,err_ind,nexp,station_name,csi, &
-                  fclen,nfclengths,                              &
-                  show_fc_length,ltiming,ldiff,output_type
+                  fclen,nfclengths,dd_ind,                       &
+                  show_fc_length,output_type,                    &
+                  mparver,corr_pairs,flag_pairs,exp_pairs,       &
+                  period_freq
  USE mymagics
+ USE functions
 
  IMPLICIT NONE
 
  ! INPUT
 
- INTEGER,            INTENT(IN) :: lunout,nparver,nr,nrun,diff_ind,p1,p2
+ INTEGER,            INTENT(IN) :: lunout,nparver,nr,nrun,p1,p2
  INTEGER,            INTENT(IN) :: par_active(nparver)
  TYPE(scatter_type), INTENT(IN) :: scat(nparver)
+ LOGICAL,            INTENT(IN) :: full_scatter
 
  ! LOCAL
 
- INTEGER :: i,j,jj,k,kk,timing_id,miff_ind
- CHARACTER(LEN= 40) :: fname=' '
- CHARACTER(LEN=100) :: wtext  =' ', &
-                       wtext1 =' ', &
-                       wtext2 =' ', &
-                       wtext3 =' ', &
-                       wtext4 =' ', &
-                       wname  =' '
- CHARACTER(LEN=  1) :: prefix = ' '
- CHARACTER(LEN= 80) :: title =' '
+ INTEGER :: i,j,jj,k,kk,x,y,l,       &
+            nexp_plot,pp1,           &
+            lcorr_pairs(mparver,2),  &
+            lflag_pairs(mparver,2),  &
+             lexp_pairs(mparver,2)
 
- REAL :: miny,maxy,minx,maxx,rtmp,diff_flag
+ CHARACTER(LEN= 10) :: cnum    =' '
+ CHARACTER(LEN= 40) :: fname   =' '
+ CHARACTER(LEN=100) :: wtext   =' ', &
+                       axist(2)=' ', &
+                       wtext2  =' ', &
+                       wtext3  =' ', &
+                       wtext4  =' ', &
+                       wname   =' ', &
+                       titln   =' '
+ CHARACTER(LEN=  1) :: prefix  =' '
+ CHARACTER(LEN= 80) :: title   =' '
 
- REAL, ALLOCATABLE :: xval(:),yval(:)
+ REAL :: minax(2),maxax(2),rtmp
 
- LOGICAL :: scatflag,lcomp
+ REAL, ALLOCATABLE :: val(:,:)
 
+ LOGICAL :: scatflag = .TRUE.
 
  !
  !-----------------------------------------------------
  !
-
-
- !
- ! Init timing counter
- !
-
- timing_id = 0
- IF (ltiming) CALL acc_timing(timing_id,'plot_scatt_comp')
-
- ALLOCATE(xval(MAXVAL(scat%n)))
- ALLOCATE(yval(MAXVAL(scat%n)))
-
- SELECT CASE(diff_ind)
- CASE(:-1001)
-     prefix = 'E'
-     lcomp  = .TRUE.
-     miff_ind = diff_ind + 1000
- CASE(-1000:-1)
-     prefix  = 'C'
-     lcomp  = .FALSE.
-     miff_ind = diff_ind 
- CASE(1:1000)
-     prefix = 'c'
-     lcomp  = .FALSE.
-     miff_ind = diff_ind 
- CASE(1001:)
-     prefix = 'e'
-     lcomp  = .TRUE.
-     miff_ind = diff_ind - 1000
- CASE DEFAULT
-     WRITE(6,*)'No such option in diff_ind'
-     CALL abort
- END SELECT
-
- IF ( ldiff ) THEN
-     diff_flag = 0.0
-     scatflag = .FALSE.
+ IF ( full_scatter ) THEN
+    prefix ='s'
+    titln = 'Scatterplot'
+    lcorr_pairs = 0 
+    lflag_pairs = 1
+     lexp_pairs = 0
+    k = 0
+    DO i=1,nparver
+       DO j=1,nexp
+          k = k + 1
+          lcorr_pairs(k,:) = i
+          lflag_pairs(k,:) = (/-1,1/)
+           lexp_pairs(k,:) = j
+       ENDDO
+    ENDDO
  ELSE
-     scatflag = .TRUE.
-     diff_flag = 1.0
+    prefix ='x'
+    titln = 'Xcrossplot'
+    lcorr_pairs = corr_pairs
+    lflag_pairs = flag_pairs
+     lexp_pairs =  exp_pairs
  ENDIF
- 
- !WRITE(6,*)
- !WRITE(6,*)'Choices in plot_scat_comp:'
- !WRITE(6,*)'prefix   ',prefix
- !WRITE(6,*)'lcomp    ',lcomp
- !WRITE(6,*)'miff_ind ',miff_ind
- !WRITE(6,*)'diff_ind ',diff_ind
- !WRITE(6,*)
 
+ ! Allocate working data
+ ALLOCATE(val(2,MAXVAL(scat%n)))
 
-  ! Set filename
-  CALL make_fname(prefix,p1,nr,nrun,fname,output_type)
+ ! Set filename
+ IF ( p1 < 999999 ) THEN
+    CALL make_fname(prefix,p1,nr,nrun,fname,output_type)
+ ELSE
+    CALL make_fname(prefix, 0,nr,nrun,fname,output_type)
+ ENDIF
 
-  ! Open ps file
-  CALL open_output(fname)
+ ! Open ps file
+ CALL open_output(fname)
 
-  CALL PSETC ('TEXT_COLOUR', 'BLACK')
+ CALL PSETC ('TEXT_COLOUR','BLACK')
 
-  CALL psetc('PAGE_ID_LINE_SYSTEM_PLOT','ON')
-  CALL psetc('PAGE_ID_LINE_ERRORS_PLOT','OFF')
-  CALL psetc('PAGE_ID_LINE_DATE_PLOT','ON')
-  CALL psetc('PAGE_ID_LINE_QUALITY','HIGH')
-  CALL psetc('PAGE_ID_LINE_LOGO_PLOT','OFF')
+ CALL psetc('PAGE_ID_LINE_SYSTEM_PLOT','ON'  )
+ CALL psetc('PAGE_ID_LINE_ERRORS_PLOT','OFF' )
+ CALL psetc('PAGE_ID_LINE_DATE_PLOT'  ,'ON'  )
+ CALL psetc('PAGE_ID_LINE_QUALITY'    ,'HIGH')
+ CALL psetc('PAGE_ID_LINE_LOGO_PLOT'  ,'OFF' )
 
-  DO j=1,nparver
+ DO j=1,mparver
+  
+    ! Cycle is nothing is to be done
+    IF ( ALL(lcorr_pairs(j,:) == 0 ) ) CYCLE
 
-   ! Set title and axis names
-   IF (nr > 0) THEN
+    !
+    ! Set title and axis names
+    !
+    IF (nr > 0) THEN
       IF(ALLOCATED(station_name)) THEN
-        WRITE(title,'(A,A)')'Difference scatterplot ',	&
-        TRIM(station_name(csi))
+        title = TRIM(titln)//' for '//TRIM(station_name(csi))
       ELSE
-        WRITE(title,'(A,I)')'Difference scatterplot for station ',nr
+        WRITE(cnum,'(I8)')nr
+        title = TRIM(titln)//' for '//TRIM(cnum)
       ENDIF
-   ELSE
-      title='Difference scatterplot for      stations'
-      WRITE(title(28:31),'(I4)')par_active(j)
-   ENDIF
+    ELSE
+      WRITE(cnum,'(I4)')par_active(lcorr_pairs(j,1))
+      title = TRIM(titln)//' for '//TRIM(cnum)//' stations'
+    ENDIF
 
-     ! Find min and max
-     miny = 0.
-     minx = 0.
-     maxy = 1.
-     maxx = 1.
+    ! Line 2, time period
+    IF (p1 == 0 ) THEN
+    ELSEIF(p1 < 13) THEN
 
-     kk = scat(j)%n
+       SELECT CASE(period_freq) 
+       CASE(1)
+        WRITE(wtext4,'(A8,A8)')'Period: ',seasonal_name2(p1)
+       CASE(3)
+        WRITE(wtext4,'(A8,A8)')'Period: ',seasonal_name1(p1)
+       END SELECT 
 
-     IF (kk > 0 )THEN
+    ELSEIF(p1 < 999999 ) THEN
+       pp1 = monincr(p1,period_freq-1)
+       IF(p1 == pp1 ) THEN
+          WRITE(wtext4,'(A8,I8)')'Period: ',p1
+       ELSE
+          WRITE(wtext4,'(A8,I8,A2,I8)')'Period: ',        &
+          p1,' -',pp1
+       ENDIF
+    ELSE
+       WRITE(wtext4,'(A8,I8,A1,I8)')'Period: ',p1,'-',p2
+    ENDIF
 
-      IF ( lcomp ) THEN
-        IF ( miff_ind < 0 ) THEN
-           minx =  MINVAL(scat(ABS(miff_ind))%dat(1,1:kk))
-           maxx =  MAXVAL(scat(ABS(miff_ind))%dat(1,1:kk))
-        ELSE IF ( miff_ind > 0 ) THEN
-           minx =  MINVAL(scat(miff_ind)%dat(1+1,1:kk) + scat(miff_ind)%dat(1,1:kk))
-           maxx =  MAXVAL(scat(miff_ind)%dat(1+1,1:kk) + scat(miff_ind)%dat(1,1:kk))
-        ENDIF
 
-        miny =  MINVAL(scat(ABS(j))%dat(1+1,1:kk) + diff_flag * scat(ABS(j))%dat(1,1:kk))
-        maxy =  MAXVAL(scat(ABS(j))%dat(1+1,1:kk) + diff_flag * scat(ABS(j))%dat(1,1:kk))
+    ! Find min and max
 
-        DO jj=2,nexp
-          rtmp =  MINVAL(scat(ABS(j))%dat(1+jj,1:kk) + diff_flag * scat(ABS(j))%dat(1,1:kk))
-          miny =  MIN(rtmp,miny)
-          rtmp =  MAXVAL(scat(ABS(j))%dat(1+jj,1:kk) + diff_flag * scat(ABS(j))%dat(1,1:kk))
-          maxy =  MAX(rtmp,maxy)
+    minax = 0.
+    maxax = 1.
 
-        IF ( miff_ind > 0 ) THEN
-           rtmp =  MINVAL(scat(miff_ind)%dat(1+jj,1:kk) + scat(miff_ind)%dat(1,1:kk))
-           minx =  MAX(rtmp,minx)
-           rtmp =  MAXVAL(scat(miff_ind)%dat(1+jj,1:kk) + scat(miff_ind)%dat(1,1:kk))
-           maxx =  MAX(rtmp,maxx)
-        ENDIF
+    !
+    ! Since we have demanded all_var_present
+    ! all n should be equal and we only have 
+    ! to test 1 case
+    !
+    kk = scat(lcorr_pairs(j,1))%n
 
-        ENDDO
+    IF (kk > 0 )THEN
 
-      ELSE
+     DO k=1,2
+      i = lcorr_pairs(j,k)
+      SELECT CASE(lflag_pairs(j,k))
+      CASE(-1)
+         ! Observation
+         minax(k) =  MINVAL(scat(i)%dat(1,1:kk))
+         maxax(k) =  MAXVAL(scat(i)%dat(1,1:kk))
+      CASE( 0)
+         ! Bias
+         IF( ALL( lexp_pairs(j,:) == 0 ) ) THEN
+            minax(k) =  MINVAL(scat(i)%dat(2,1:kk))
+            maxax(k) =  MAXVAL(scat(i)%dat(2,1:kk))
+            DO jj=2,nexp
+               rtmp =  MINVAL(scat(i)%dat(1+jj,1:kk))
+               minax(k) =  MIN(rtmp,minax(k))
+               rtmp =  MAXVAL(scat(i)%dat(1+jj,1:kk))
+               maxax(k) =  MAX(rtmp,maxax(k))
+            ENDDO
+         ELSE
+            x = lexp_pairs(j,k) + 1
+            minax(k) =  MINVAL(scat(i)%dat(x,1:kk))
+            maxax(k) =  MAXVAL(scat(i)%dat(x,1:kk))
+         ENDIF
+      CASE( 1)
+         ! Model
+         IF( ALL(lexp_pairs(j,:) == 0 ) ) THEN
+         minax(k) =  MINVAL(scat(i)%dat(2,1:kk) + scat(i)%dat(1,1:kk))
+         maxax(k) =  MAXVAL(scat(i)%dat(2,1:kk) + scat(i)%dat(1,1:kk))
+         DO jj=2,nexp
+            rtmp =  MINVAL(scat(i)%dat(1+jj,1:kk) + scat(i)%dat(1,1:kk))
+            minax(k) =  MIN(rtmp,minax(k))
+            rtmp =  MAXVAL(scat(i)%dat(1+jj,1:kk) + scat(i)%dat(1,1:kk))
+            maxax(k) =  MAX(rtmp,maxax(k))
+         ENDDO
+         ELSE
+            x = lexp_pairs(j,k) + 1
+            minax(k) =  MINVAL(scat(i)%dat(x,1:kk) + scat(i)%dat(1,1:kk))
+            maxax(k) =  MAXVAL(scat(i)%dat(x,1:kk) + scat(i)%dat(1,1:kk))
+         ENDIF
+      CASE DEFAULT
+         WRITE(6,*)'No such option in flag_pairs',lflag_pairs(j,1)
+      END SELECT
 
-        IF ( miff_ind < 0 ) THEN
-           minx =  MINVAL(scat(j)%dat(1,1:kk))
-           maxx =  MAXVAL(scat(j)%dat(1,1:kk))
-        ELSE IF ( miff_ind > 0 ) THEN
-           minx =  MINVAL(scat(j)%dat(1,1:kk) + scat(j)%dat(2,1:kk))
-           maxx =  MAXVAL(scat(j)%dat(1,1:kk) + scat(j)%dat(2,1:kk))
-        ENDIF
+     ENDDO
 
-        miny =  MINVAL(scat(ABS(miff_ind))%dat(1+1,1:kk) + diff_flag * scat(ABS(miff_ind))%dat(1,1:kk))
-        maxy =  MAXVAL(scat(ABS(miff_ind))%dat(1+1,1:kk) + diff_flag * scat(ABS(miff_ind))%dat(1,1:kk))
-
-        DO jj=2,nexp
-          rtmp =  MINVAL(scat(ABS(miff_ind))%dat(1+jj,1:kk) + diff_flag * scat(ABS(miff_ind))%dat(1,1:kk))
-          miny =  MIN(rtmp,miny)
-          rtmp =  MAXVAL(scat(ABS(miff_ind))%dat(1+jj,1:kk) + diff_flag * scat(ABS(miff_ind))%dat(1,1:kk))
-          maxy =  MAX(rtmp,maxy)
-
-          IF ( diff_ind > 0 ) THEN
-             rtmp =  MINVAL(scat(j)%dat(1+jj,1:kk) + scat(j)%dat(1,1:kk))
-             minx =  MAX(rtmp,minx)
-             rtmp =  MAXVAL(scat(j)%dat(1+jj,1:kk) + scat(j)%dat(1,1:kk))
-             maxx =  MAX(rtmp,maxx)
-          ENDIF
-
-        ENDDO
-      ENDIF
-
+     IF ( ALL( lflag_pairs(j,:) /= 0 )  .AND.    &
+          (lcorr_pairs(j,1) == lcorr_pairs(j,2)) ) THEN
+        ! If the parameters is the same the axis
+        ! should be the same
+         minax =  MINVAL(minax)
+         maxax =  MAXVAL(maxax)
      ENDIF
 
-     DO jj=1,nexp
-
-        IF ( ldiff ) THEN
-           IF ( lcomp ) THEN
-              IF (miff_ind > 0) THEN
-                 wtext1 = TRIM(expname(jj))//' - OBS '//TRIM(obstype(j))
-                 wtext2= 'MOD '//TRIM(obstype(miff_ind))
-              ELSEIF (miff_ind < 0) THEN
-                 wtext1 = TRIM(expname(jj))//' - OBS '//TRIM(obstype(j))
-                 wtext2= 'OBS '//TRIM(obstype(-miff_ind))
-              ENDIF
-           ELSE
-              IF (miff_ind > 0) THEN
-                 wtext1 = TRIM(expname(jj))//' - OBS '//TRIM(obstype(miff_ind))
-                 wtext2= 'MOD '//TRIM(obstype(j))
-              ELSEIF (miff_ind < 0) THEN
-                 wtext1 = TRIM(expname(jj))//' - OBS '//TRIM(obstype(-miff_ind))
-                 wtext2= 'OBS '//TRIM(obstype(j))
-              ENDIF
-           ENDIF
-        ELSE
-           IF ( lcomp ) THEN
-              IF (miff_ind > 0) THEN
-                 wtext1 = TRIM(expname(jj))//' '//TRIM(obstype(j))
-                 wtext2= 'MOD '//TRIM(obstype(miff_ind))
-              ELSEIF (miff_ind < 0) THEN
-                 wtext1 = TRIM(expname(jj))//' '//TRIM(obstype(j))
-                 wtext2= 'OBS '//TRIM(obstype(-miff_ind))
-              ENDIF
-           ELSE
-              IF (miff_ind > 0) THEN
-                 wtext1 = TRIM(expname(jj))//' '//TRIM(obstype(miff_ind))
-                 wtext2= 'MOD '//TRIM(obstype(j))
-              ELSEIF (miff_ind < 0) THEN
-                 wtext1 = TRIM(expname(jj))//' '//TRIM(obstype(-miff_ind))
-                 wtext2= 'OBS '//TRIM(obstype(j))
-              ENDIF
-           ENDIF
+     DO i=1,2
+        ! Special wind direction case
+        IF ((lcorr_pairs(j,i) == dd_ind) .AND.   &
+            (lflag_pairs(j,i) /= 0     )  ) THEN
+            minax(i) =   0.
+            maxax(i) = 360.
         ENDIF
+     ENDDO
 
-        IF ( show_fc_length ) THEN
-        IF (nfclengths > 10 ) THEN
-           wname='(A,2I3.2,A5,I2.2)'
-           WRITE(wtext3,wname)'Forecast lengths used:',   &
-           fclen(1:2),' ... ',fclen(nfclengths)
-        ELSE
-           wname='(A,XX(1X,I2.2))'
-           WRITE(wname(4:5),'(I2.2)')nfclengths
-           WRITE(wtext3,wname)'Forecast lengths used:',fclen(1:nfclengths)
-           CALL PSETC('TEXT_LINE_4',wtext)
-        ENDIF
-        ENDIF
+    ENDIF ! kk > 0
 
-        kk = scat(j)%n
+    IF ( show_fc_length ) THEN
+       IF (nfclengths > 10 ) THEN
+          wname='(A,2I3.2,A5,I2.2)'
+          WRITE(wtext3,wname)'Forecast lengths used:',   &
+          fclen(1:2),' ... ',fclen(nfclengths)
+       ELSE
+          wname='(A,XX(1X,I2.2))'
+          WRITE(wname(4:5),'(I2.2)')nfclengths
+          WRITE(wtext3,wname)'Forecast lengths used:',fclen(1:nfclengths)
+          CALL PSETC('TEXT_LINE_4',wtext)
+       ENDIF
+    ENDIF
 
-        IF ( lcomp ) THEN
-           IF ( miff_ind < 0 ) THEN
-              xval(1:kk) = scat(-miff_ind)%dat(1   ,1:kk)
-           ELSE IF ( miff_ind > 0 ) THEN
-              xval(1:kk) = scat(miff_ind)%dat(1+jj,1:kk) + scat(miff_ind)%dat(1   ,1:kk)
+    nexp_plot = 1
+    IF( ALL(lexp_pairs(j,:) == 0 ) ) nexp_plot = nexp
+
+    DO jj=1,nexp_plot
+
+        ! Copy the data
+        DO k=1,2
+
+           i = lcorr_pairs(j,k)
+           CALL pname(obstype(i),wtext) 
+
+           SELECT CASE(lflag_pairs(j,k))
+           CASE(-1)
+              val(k,1:kk) = scat(i)%dat(1,1:kk)
+              axist(k)= 'OBS '//TRIM(wtext)
+           CASE( 0)
+              IF( ALL(lexp_pairs(j,:) == 0 ) ) THEN
+                val(k,1:kk) = scat(i)%dat(1+jj,1:kk)
+                axist(k) = TRIM(expname(jj))//' - OBS '//TRIM(wtext)
+              ELSE
+                x = lexp_pairs(j,k) + 1
+                val(k,1:kk) = scat(i)%dat(x,1:kk)
+                axist(k) = TRIM(expname(x-1))//' - OBS '//TRIM(wtext)
+              ENDIF
+           CASE( 1)
+              IF( ALL(lexp_pairs(j,:) == 0 ) ) THEN
+                val(k,1:kk) = scat(i)%dat(1+jj,1:kk) + &
+                              scat(i)%dat(1   ,1:kk)
+                axist(k) = TRIM(expname(jj))//' '//TRIM(wtext)
+              ELSE
+                x = lexp_pairs(j,k) + 1
+                val(k,1:kk) = scat(i)%dat(x,1:kk) + &
+                              scat(i)%dat(1   ,1:kk)
+                axist(k) = TRIM(expname(x-1))//' '//TRIM(wtext)
+              ENDIF
+           END SELECT
+
+           !
+           ! Special case for wind direction
+           !
+
+           IF ( i == dd_ind .AND. lflag_pairs(j,k) /= 0 ) THEN
+              DO l=1,kk
+                 IF (val(k,l) > 360. ) THEN
+                    val(k,l) = val(k,l) - 360.         
+                 ELSEIF(val(k,l) <   0. ) THEN
+                    val(k,l) = val(k,l) + 360.         
+                 ENDIF
+              ENDDO
            ENDIF
-           yval(1:kk) = scat(j)%dat(1+jj,1:kk) + diff_flag * &
-                        scat(j)%dat(1   ,1:kk)
-        ELSE
-           IF ( miff_ind < 0 ) THEN
-              xval(1:kk) = scat(j)%dat(1   ,1:kk)
-           ELSE IF ( miff_ind > 0 ) THEN
-              xval(1:kk) = scat(j)%dat(1+jj,1:kk) + scat(j)%dat(1   ,1:kk)
-           ENDIF
-           yval(1:kk) = scat(ABS(miff_ind))%dat(1+jj,1:kk) + diff_flag * &
-                        scat(ABS(miff_ind))%dat(1   ,1:kk)
-        ENDIF
+        ENDDO
 
-        CALL pname(obstype(j),wtext)
+        wtext ='                               '
+        IF( full_scatter ) &
+        CALL pname(obstype(lcorr_pairs(j,1)),wtext)
 
-        call bin_scat(xval(1:kk),yval(1:kk),kk,					&
-                      minx,maxx,miny,maxy,						&
-                      scatflag,									&
-                      title,wtext,wtext1,wtext2,				&
+        call bin_scat(val(1,1:kk),val(2,1:kk),kk,     &
+                      minax(1),maxax(1),              &
+                      minax(2),maxax(2),              &
+                      scatflag,                       &
+                      title,wtext,axist(2),axist(1),  &
                       wtext3,wtext4)
 
      ENDDO
@@ -291,10 +302,8 @@ SUBROUTINE plot_scat_comp(lunout,nparver,nr,nrun,    &
   ENDDO
 
   CALL PCLOSE
-  IF (ltiming) CALL acc_timing(timing_id,'plot_scatt_comp')
 
-  DEALLOCATE(xval,yval)
-
+  DEALLOCATE(val)
 
 RETURN
 END SUBROUTINE plot_scat_comp

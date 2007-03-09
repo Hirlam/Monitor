@@ -277,7 +277,8 @@ IMPLICIT NONE
   zyy(1) = 0.
   zxx(2) = bin_maxx
   zyy(2) = 0.
-  IF(l_corr) THEN
+  IF((ABS(bin_min - bin_minx) <1.e-6 ).AND.   &
+     (ABS(bin_max - bin_maxx) <1.e-6 )) THEN
      zyy(1) = bin_min
      zyy(2) = bin_max
   ENDIF

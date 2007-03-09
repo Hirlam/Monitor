@@ -1,4 +1,4 @@
-ARCH=ibmecmwf
+ARCH=ecgate
 
 # Magics flag
 # If this is not set only tables will be produced

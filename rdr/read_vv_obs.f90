@@ -1,12 +1,12 @@
-SUBROUTINE read_vobs
+SUBROUTINE read_vv_obs
 
  USE data
  USE functions
- USE timing
  USE constants
 
  IMPLICIT NONE
 
+! lat, lon, temp vid snofall, regnmangd mm, snomangd cm, temp, rel fuktighet.
 
  INTEGER :: i,ii,j,k,l,			&
             ierr = 0,			&
@@ -15,30 +15,35 @@ SUBROUTINE read_vobs
             wdate = 999999,		&
             wtime = 999999,		&
             istnr = 0,			&
-            stat_i,				&
-            num_temp,num_stat,	&
-            num_temp_lev,		&
-            stations(100000),	&
-            max_found_stat,		&
-            timing_id
+            stat_i,			&
+            stations(100000),      	&
+            max_found_stat
             
  
  
- REAL :: lat,lon,height,val(8)
-
+ REAL :: lat,lon,val(5),RR
+ 
+ REAL :: SFAC = 1.3
+  
  CHARACTER(LEN=100) :: fname =' '
- CHARACTER(LEN= 10) :: ndate =' '
+ CHARACTER(LEN= 08) :: ndate =' '
 
- LOGICAL :: qco,use_stnlist
+ LOGICAL :: use_stnlist
 
 !----------------------------------------------------------
 
+ ! Init
+
  stations       = 0
  max_found_stat = 0
+ use_stnlist    = ( MAXVAL(stnlist) > 0 )
 
- use_stnlist =(  MAXVAL(stnlist) > 0 )
+ !
+ ! Allocate observation array
+ !
 
  CALL allocate_obs
+
 
  ! Copy time
 
@@ -51,51 +56,41 @@ SUBROUTINE read_vobs
  ! Loop over all times
  !
 
- i = 0
 
  TIME_LOOP : DO
 
- IF (print_read > 1) WRITE(6,*)'TIME:',cdate,ctime/10000
- WRITE(ndate(1:10),'(I8.8,I2.2)')cdate,ctime/10000
- fname = TRIM(obspath)//'vobs'//ndate
+    WRITE(ndate(1:8),'(I6.6,I2.2)')MOD(cdate,1000000),ctime/10000
+    fname = TRIM(obspath)//'vvis_01_'//ndate//'00'
 
- i = i + 1
-
- !
- ! Read obs data
- !
+    !
+    ! Read obs data
+    !
 
        OPEN(lunin,file=fname,status='old',iostat=ierr)
 
-       IF (ierr.NE.0) THEN
+       IF (ierr /= 0) THEN
   
           IF( print_read > 1 )WRITE(6,*)'Could not open:',TRIM(fname)
 
           wdate = cdate
           wtime = ctime
           CALL adddtg(wdate,wtime,3600*obint,cdate,ctime)
-          IF(cdate.gt.edate_obs) EXIT TIME_LOOP
-
-          i = i - 1
+          IF(cdate > edate_obs) EXIT TIME_LOOP
           CYCLE TIME_LOOP
 
        ENDIF
 
        IF (print_read > 0 ) WRITE(6,*)'READ ',TRIM(fname)
 
-       READ(lunin,*)num_stat,num_temp
-       READ(lunin,*)num_temp_lev
+       READ_STATION_OBS : DO 
 
-       READ_STATION_OBS : DO k=1,num_stat
+          READ(lunin,*,iostat=ierr)lat,lon,val,istnr
 
-          READ(lunin,*,iostat=ierr)istnr,lat,lon,	&
-          height,val
+          IF (print_read > 1 ) WRITE(6,*)'READ'
+          IF (print_read > 1 ) WRITE(6,*)lat,lon,val,istnr
+          IF (print_read > 1 ) WRITE(6,*)
 
-      !    IF (print_read > 1 ) WRITE(6,*)'READ'
-      !    IF (print_read > 1 ) WRITE(6,*)istnr,lat,lon,height,val
-      !    IF (print_read > 1 ) WRITE(6,*)
-
-          IF (ierr  /= 0) CYCLE READ_STATION_OBS
+          IF (ierr  /= 0) EXIT READ_STATION_OBS
 
           IF (istnr == 0) CYCLE READ_STATION_OBS
 
@@ -122,11 +117,11 @@ SUBROUTINE read_vobs
 
              stations(istnr) = max_found_stat 
              obs(max_found_stat)%active = .TRUE.
-             obs(max_found_stat)%stnr   = istnr
              obs(max_found_stat)%lat    = lat
              obs(max_found_stat)%lon    = lon
-             obs(max_found_stat)%hgt    = height
-
+             obs(max_found_stat)%stnr   = istnr
+             obs(max_found_stat)%hgt    = 0.
+             
              IF (max_found_stat > maxstn) THEN
                 WRITE(6,*)'Increase maxstn',max_found_stat
                 CALL abort
@@ -142,8 +137,6 @@ SUBROUTINE read_vobs
 
           i = obs(stat_i)%ntim + 1
 
-          IF ( print_read > 1 ) WRITE(6,*)'STATION ',stat_i,obs(stat_i)%stnr
-
           ALLOCATE(obs(stat_i)%o(i)%date)
           ALLOCATE(obs(stat_i)%o(i)%time)
           ALLOCATE(obs(stat_i)%o(i)%val(nparver))
@@ -151,32 +144,39 @@ SUBROUTINE read_vobs
           obs(stat_i)%ntim      = i
           obs(stat_i)%o(i)%date = cdate
           obs(stat_i)%o(i)%time = ctime/10000
-          IF ( use_pos ) obs(stat_i)%pos(cdate * 100 + ctime/10000 ) = i
           obs(stat_i)%o(i)%val  = err_ind
+          
+          CALL VVIS2RR(val(4),val(3),val(2),SFAC,RR)
+                    
 
-          if (nn_ind /= 0 .AND. qca(val(1),-999.) .AND.                 &
-                                qco(val(1)).AND.qcl(val(1),nn_ind).AND. &
+          !
+          ! Store requested data
+          ! This is not correct yet ............
+          !
+
+          if (nn_ind /= 0 .AND. qca(val(1),-999.) .AND. &
+                                qcl(val(1),nn_ind).AND. &
                                 qcu(val(1),nn_ind)) obs(stat_i)%o(i)%val(nn_ind) = val(1)
-          if (dd_ind /= 0 .AND. qca(val(1),-999.) .AND.                 &
-                                qco(val(2)).AND.qcl(val(2),dd_ind).AND. &
+          if (dd_ind /= 0 .AND. qca(val(1),-999.) .AND. &
+                                qcl(val(2),dd_ind).AND. &
                                 qcu(val(2),dd_ind)) obs(stat_i)%o(i)%val(dd_ind) = val(2)
-          if (ff_ind /= 0 .AND. qca(val(1),-999.) .AND.                 &
-                                qco(val(3)).AND.qcl(val(3),ff_ind).AND. &
+          if (ff_ind /= 0 .AND. qca(val(1),-999.) .AND. &
+                                qcl(val(3),ff_ind).AND. &
                                 qcu(val(3),ff_ind)) obs(stat_i)%o(i)%val(ff_ind) = val(3)
-          if (tt_ind /= 0 .AND. qca(val(1),-999.) .AND.                       &
-                                qco(val(4)).AND.qcl(val(4)-tzero,tt_ind).AND. &
+          if (tt_ind /= 0 .AND. qca(val(1),-999.) .AND. &
+                                qcl(val(4)-tzero,tt_ind).AND. &
                                 qcu(val(4)-tzero,tt_ind)) obs(stat_i)%o(i)%val(tt_ind) = val(4) - tzero
-          if (rh_ind /= 0 .AND. qca(val(1),-999.) .AND.                 &
-                                qco(val(5)).AND.qcl(val(5),rh_ind).AND. &
+          if (rh_ind /= 0 .AND. qca(val(1),-999.) .AND. &
+                                qcl(val(5),rh_ind).AND. &
                                 qcu(val(5),rh_ind)) obs(stat_i)%o(i)%val(rh_ind) = val(5)
-          if (ps_ind /= 0 .AND. qca(val(1),-999.) .AND.                 &
-                                qco(val(6)).AND.qcl(val(6),ps_ind).AND. &
+          if (ps_ind /= 0 .AND. qca(val(1),-999.) .AND. &
+                                qcl(val(6),ps_ind).AND. &
                                 qcu(val(6),ps_ind)) obs(stat_i)%o(i)%val(ps_ind) = val(6)
-          if (pe_ind /= 0 .AND. qca(val(1),-999.) .AND.                 &
-                                qco(val(7)).AND.qcl(val(7),pe_ind).AND. &
-                                qcu(val(7),pe_ind)) obs(stat_i)%o(i)%val(pe_ind) = val(7)
-          if (qq_ind /= 0 .AND. qca(val(1),-999.) .AND.                 &
-                                qco(val(8)).AND.qcl(val(8),qq_ind).AND. &
+
+          if (pe_ind /= 0) obs(stat_i)%o(i)%val(pe_ind) = val(3)
+
+          if (qq_ind /= 0 .AND. qca(val(1),-999.) .AND. &
+                                qcl(val(8),qq_ind).AND. &
                                 qcu(val(8),qq_ind)) obs(stat_i)%o(i)%val(qq_ind) = val(8) * 1.e3
 
           if (la_ind /= 0 ) obs(stat_i)%o(i)%val(la_ind) = obs(stat_i)%lat
@@ -191,11 +191,11 @@ SUBROUTINE read_vobs
     wdate = cdate
     wtime = ctime
     CALL adddtg(wdate,wtime,3600*obint,cdate,ctime)
-    IF(cdate.gt.edate_obs) EXIT TIME_LOOP
+    IF(cdate > edate_obs) EXIT TIME_LOOP
 
  ENDDO TIME_LOOP
 
- WRITE(6,*) 'FOUND TIMES OBS',obs(1)%ntim
+ IF (print_read > 0 ) WRITE(6,*) 'FOUND TIMES OBS',obs(1)%ntim
 
  DO i=1,maxstn
     obs(i)%active = ( obs(i)%ntim > 0 )
@@ -203,15 +203,4 @@ SUBROUTINE read_vobs
 
  RETURN
 
-END SUBROUTINE read_vobs
-LOGICAL FUNCTION qco(a)
-
-USE DATA, only : err_ind
-
-IMPLICIT NONE
-
-REAL    :: a
-
- qco = (ABS(a+99.) > 1.e-6 )
-
-END FUNCTION qco
+END SUBROUTINE read_vv_obs
