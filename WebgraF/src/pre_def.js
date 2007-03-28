@@ -81,7 +81,8 @@ var lang = new Array( )
 function language_def(home,favo,late,save,remo,clea,welc,
               slid,up,down,forw,back,fast,slow,stop,help,
               downl,ps,pdf,stpo,enpo,flip,load,youm,dele,
-              rest,mifo,send,mhed,larg,smal,orig,resi) {
+              rest,mifo,send,mhed,larg,smal,orig,resi,
+              saco,cltm,fltm,rtpo) {
 
 this.home = home
 this.favo = favo
@@ -116,20 +117,32 @@ this.larg  = larg
 this.smal  = smal
 this.orig  = orig
 this.resi  = resi
-
+this.saco  = saco
+this.cltm  = cltm
+this.fltm  = fltm
+this.rtpo  = rtpo
 }
 
 var pre_lan = 0
+var months  = new Array()
 
 // English
 lang[0] = new language_def("WebgraF","Favorites","All","Save","DEL","Clear","Choices",
                            "Slideshow","Up","Down","Forward","Backward","Faster","Slower",
                            "Stop","Help","Download","Postscript","PDF","Start point","End point",
                             "FLIP","Load","Your Menu","Delete","Restore","Info","Send",
-                            "Show all","Larger","Smaller","Original","Resize")
+                            "Show all","Larger","Smaller","Original","Resize",
+                            "Save as a cookie","Clear this menu","Flip this menu","Remove this item")
+
+months[0] = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] 
+
+
 // Swedish
 lang[1] = new language_def("WebgraF","Favoriter","Alla","Spara","DEL","Rensa","Val",
                            "Bildspel","Upp","Ned","Framåt","Bakåt","Snabbare","Långsammare",
                            "Stopp","Hjälp","Ladda ned","Postscript","PDF","Startpunkt","Ändpunkt",
                             "VÄND","Ladda","Din Meny","Ta bort","Återställ","Info","Skicka",
-                            "Visa alla","Större","Mindre","Original","Storlek")
+                            "Visa alla","Större","Mindre","Original","Ändra storlek",
+                            "Spara som en kaka","Rensa denna meny","Vänd denna meny","Tag bort denna post")
+
+months[1] = ['Jan','Feb','Mar','Apr','Maj','Jun','Jul','Aug','Sep','Okt','Nov','Dec']

@@ -1,8 +1,14 @@
 //----------------------------------------------------
 function resize(size_ind) {
-   if ( size_ind == 0 ) { size_fig = 1.0 }else { size_fig += size_ind }
+   if ( size_ind == 0 ) { size_fig = 1.0 }else{
+      if ( size_fig < Math.abs(size_ind) && size_ind < 0 ) {
+       size_fig = (1+size_ind) * size_fig
+      }else{
+       size_fig += size_ind
+      }
+   }
    getFig(0,pos[0])
- }
+}
 //----------------------------------------------------
 function debug_window() {
 
@@ -444,16 +450,6 @@ var my
 var mm
 var ii
 var jj
-
-if (pre_lan ==0 ) {
- mn = ['Jan','Feb','Mar','Apr','May','Jun',
-       'Jul','Aug','Sep','Oct','Nov','Dec'] }
-
-if (pre_lan ==1 ) {
- mn = ['Jan','Feb','Mar','Apr','Maj','Jun',
-       'Jul','Aug','Sep','Okt','Nov','Dec'] }
-
-
 var txt
 var p = arguments[0]
 
@@ -498,7 +494,7 @@ var p = arguments[0]
       ii = 0
 
       do {
-         if ( flag == 'time_text' ) { p[(ii)] = mn[(mm-1)] + " " + my }
+         if ( flag == 'time_text' ) { p[(ii)] = months[(mm-1)] + " " + my }
                                else { p[(ii)] = is                    }
 
          if ( is == ie ) { break}
@@ -595,7 +591,7 @@ var p = arguments[0]
 
       jj = 0
       for ( mm=mstart ; mm <= mstop ; mm++ ) {
-         p[(jj)] =  mn[(mm-1)]
+         p[(jj)] =  months[(mm-1)]
          jj += 1
       }
 
@@ -698,7 +694,7 @@ var p = arguments[0]
       do {
 
          if ( ! do_day && ! do_hour && do_text ) {
-            p[jj]  = sep_yy + mn[cday.getMonth()]
+            p[jj]  = sep_yy + months[cday.getMonth()]
             p[jj] += sep_ym + cday.getFullYear() 
          } else {
             p[jj]  = sep_yy + cday.getFullYear() 
@@ -849,12 +845,10 @@ function all_head( ) {
 
     this.txt += dirTxt('',lang[pre_lan].late,'getFig(-1,-1)',m_item,lang[pre_lan].mhed)
     if ( do_save && local_save && ! sli_menu.active ) { 
-       if (pre_lan == 0 ) { this.mytitle ="Save as a cookie"  }
-       if (pre_lan == 1 ) { this.mytitle ="Spara som en kaka" }
+       this.mytitle = lang[pre_lan].saco
        this.txt += dirTxt('',lang[pre_lan].save,'SaveCookie()' ,m_item,this.mytitle) 
     }
-    if (pre_lan == 0 ) { this.mytitle ="Clear this menu"  }
-    if (pre_lan == 1 ) { this.mytitle ="Rensa denna meny" }
+    this.mytitle = lang[pre_lan].cltm
     this.txt += dirTxt('',lang[pre_lan].clea ,("adjust_rem(0,"+rem_menu.t.length+",true)"),m_item,this.mytitle)
     act = "adjust_rem("+this.p+",1,true)"
 
@@ -868,13 +862,11 @@ function all_head( ) {
 
  if ( ! sli_menu.active ) {
     if ( do_flip   ) {
-       if (pre_lan == 0 ) { this.mytitle ="Flip this menu"  }
-       if (pre_lan == 1 ) { this.mytitle ="Vänd denna meny" }
+       this.mytitle = lang[pre_lan].fltm
        this.txt += dirTxt('width=20',lang[pre_lan].flip,("flip("+this.ind+")"),m_grey,this.mytitle) 
     }
     if ( do_delete || this.ind == -1 ) { 
-       if (pre_lan == 0 ) { this.mytitle ="Remove this item"  }
-       if (pre_lan == 1 ) { this.mytitle ="Tag bort denna post" }
+       this.mytitle = lang[pre_lan].rtpo
        this.txt += dirTxt('width=20',lang[pre_lan].remo.substr(0,3),act,m_grey,this.mytitle) 
     }
  }
@@ -1264,7 +1256,7 @@ function init() {
 
  for ( i=0 ; i < mname.length ; i++ ) {
 
-     pos[i] = 0
+   if ( pos[i] == undefined ) { pos[i] = 0 }
    mname[i] = mname[i].substring(0,1).toUpperCase() +mname[i].substring(1).toLowerCase() 
    mlist[i] = new menu(i,mname[i],checkV(v[i]),checkV(t[i]),loc[i],type[i],all_head,gen_body,0,( t[i].length > 1 ))
 
@@ -1297,7 +1289,11 @@ function init() {
 
  if ( ext != "html" ) { 
 
-    fig = new figName(pos)
+    if ( mpos != -99 ){
+       getFig(mpos,-1)
+    } else {
+       getFig(0,0)
+    }
     adjust_rem(0,rem_menu.t.length,false)
 
     // Start at a postion given in the URL
