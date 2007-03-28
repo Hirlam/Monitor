@@ -7,7 +7,13 @@ function resize(size_ind) {
        size_fig += size_ind
       }
    }
-   getFig(0,pos[0])
+
+   if ( multi ){
+      multi = false
+      getFig(mpos,-1)
+   } else {
+      getFig(0,pos[0])
+   }
 }
 //----------------------------------------------------
 function debug_window() {
