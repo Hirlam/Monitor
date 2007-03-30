@@ -1,25 +1,40 @@
  -------- WebgraF -------
 
- (c) Ulf Andrae 2003-2006
+ Ulf Andrae 2003-2006
 
  -------- WebgraF -------
 
  Download the latest WebgraF from : 
 
-    http://www.smhi.se/sgn0106/if/hirald/WebgraF/WebgraF.tar.gz
-
+ http://www.smhi.se/sgn0106/if/hirald/WebgraF/WebgraF.tar.gz
+ or with subversion by
+ svn export https://svn.hirlam.org/trunk/harmonie/util/monitor/WebgraF
 
  Install 
  -------
 
  - Unzip and untar WebgraF.tar.gz
 
- - Set your WebgraF internal path by :
+ - Set your WebgraF internal path by adding to your .cshrc or similar:
    export WEBGRAF_BASE $SOME_PATH/WebgraF
 
  - Add $SOME_PATH/WebgraF/bin/WebgraF to you path
 
  Open $SOME_PATH/WebgraF/index.html in you browser
+
+
+ Update your own version to the latest version
+ ---------------------------------------------
+
+ Download the source code again and unpack it somewhere
+ Make a temporary change of the WEBGRAF_BASE variable to the new version
+
+ Run :
+
+ $LATEST_VERION_PATH/WebgraF/bin/WebgraF -b $SOME_OLD_INSTALLATION/WebgraF -I
+
+ This will update your javascript but not touch your on added projects 
+ To update the perl script in WebgraF/bin/WebgraF you have to copy it manually
 
 
  Basic usage
@@ -93,7 +108,6 @@
 
  For a description of the options in the entry definition javascript file click INFO on the main page 
  and then FILE.js in the description.
-
 
 
  Good Luck!

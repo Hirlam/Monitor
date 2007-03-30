@@ -1297,7 +1297,9 @@ function init() {
 
     if ( mpos != -99 ){
        getFig(mpos,-1)
+       getFig(mpos,-1)
     } else {
+       getFig(0,0)
        getFig(0,0)
     }
     adjust_rem(0,rem_menu.t.length,false)
