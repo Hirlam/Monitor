@@ -500,7 +500,7 @@ var p = arguments[0]
       ii = 0
 
       do {
-         if ( flag == 'time_text' ) { p[(ii)] = months[(mm-1)] + " " + my }
+         if ( flag == 'time_text' ) { p[(ii)] = months[pre_lan][(mm-1)] + " " + my }
                                else { p[(ii)] = is                    }
 
          if ( is == ie ) { break}
@@ -511,7 +511,6 @@ var p = arguments[0]
          
       } while ( 1 > 0 )
    }
-
 
 // Year month archive
 
@@ -548,7 +547,6 @@ var p = arguments[0]
 
       } while ( 1 > 0 )
    }
-
 
 // Month list
 
@@ -597,7 +595,7 @@ var p = arguments[0]
 
       jj = 0
       for ( mm=mstart ; mm <= mstop ; mm++ ) {
-         p[(jj)] =  months[(mm-1)]
+         p[(jj)] =  months[pre_lan][(mm-1)]
          jj += 1
       }
 
@@ -700,7 +698,7 @@ var p = arguments[0]
       do {
 
          if ( ! do_day && ! do_hour && do_text ) {
-            p[jj]  = sep_yy + months[cday.getMonth()]
+            p[jj]  = sep_yy + months[pre_lan][cday.getMonth()]
             p[jj] += sep_ym + cday.getFullYear() 
          } else {
             p[jj]  = sep_yy + cday.getFullYear() 
@@ -808,12 +806,9 @@ function dirPic(fg,action,ft,tdstyle)
       if (myimage.height != 0 ) {hgt = myimage.height * size_fig }
       if (myimage.width  != 0 ) {wdt = myimage.width  * size_fig }
       if ( wdt != 0 || hgt != 0 ){ fgs =" width="+wdt+" height="+hgt+" " }
-   //   alert(fgs)
    }
    tfg = " Missing: "+ fg
 
-
-   //return "<img alt='" +tfg+ "' title='" +ft+ "' src='" +fg+ "'"+ fgs+" border='0'>"
    return "<td "+tdstyle+"><a href='javascript:parent." +action+ "' a><img alt='" +tfg+ "' title='" +ft+ "' src='" +fg+ "'"+ fgs+" border='0'></a></td>"
 }
 // --------------------------------------------------------
@@ -1297,9 +1292,7 @@ function init() {
 
     if ( mpos != -99 ){
        getFig(mpos,-1)
-       getFig(mpos,-1)
     } else {
-       getFig(0,0)
        getFig(0,0)
     }
     adjust_rem(0,rem_menu.t.length,false)
