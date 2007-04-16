@@ -611,11 +611,13 @@ var p = arguments[0]
       p[2] = p[2].toString()
       p[3] = p[3].toString()
 
-      do_day  = false ; 
-      do_hour = false ; 
-      do_text = ( p[0] == 'txt_date' )
+      do_month  = false ; 
+      do_day    = false ; 
+      do_hour   = false ; 
+      do_text   = ( p[0] == 'txt_date' )
 
-      if ( p[4] == undefined ) { dh = 6 } else { dh = p[4] } ;
+      dh = -1 
+
 
       si = 0  ; so = 0 ;
       sep_yy ='' ; sep_hh ='' ;
@@ -640,8 +642,16 @@ var p = arguments[0]
 
          if ( so != si ) { sep_ym = p[1].substring(so,si) }
          si += 2 ; so = si  ;
-       
-       } ;
+         do_month = true ; 
+
+      } else {
+          sm = 06 
+          em = 06 
+	  if ( dh == -1 ) {
+             if ( p[4] == undefined ) { dh = 6*30*24 } else { dh = p[4]*30*24 } ;
+	  } ;
+      } ;
+
 
       if ( p[1].indexOf("DD"  ,si) > -1 ) {
          si = p[1].indexOf("DD",si)
@@ -653,13 +663,14 @@ var p = arguments[0]
        
          do_day = true ; 
        
-       } else {
- 
-          sd = 15 
-          ed = 15 
-          dh = 30 * 24 ; 
-   
-       };
+      } else {
+         sd = 15 
+         ed = 15 
+	 if ( dh == -1 ) {
+             if ( p[4] == undefined ) { dh = 30*24 } else { dh = p[4]*30*24 } ;
+	 } ;
+      };
+
 
       if ( p[1].indexOf("HH"  ,si) > -1 ) {
          si = p[1].indexOf("HH",si)
@@ -670,11 +681,20 @@ var p = arguments[0]
          si += 2 ; so = si  ;
 
          do_hour = true ; 
-       
-       } ;
+	 if ( dh == -1 ) {
+            if ( p[4] == undefined ) { dh = 6 } else { dh = p[4] } ;
+	 } ;
 
-       so = p[1].length ;
-       if ( so != si ) { sep_hh = p[1].substring(so,si) }
+      } else {
+         sh = 12 
+         eh = 12 
+	 if ( dh == -1 ) {
+            if ( p[4] == undefined ) { dh = 24 } else { dh = p[4]*24 } ;
+	 } ;
+      } ;
+
+      so = p[1].length ;
+      if ( so != si ) { sep_hh = p[1].substring(so,si) }
 
       cday = new Date(sy,sm,sd,sh,00,00)
       eday = new Date(ey,em,ed,eh,00,00)
@@ -808,6 +828,7 @@ function dirPic(fg,action,ft,tdstyle)
       if ( wdt != 0 || hgt != 0 ){ fgs =" width="+wdt+" height="+hgt+" " }
    }
    tfg = " Missing: "+ fg
+
 
    return "<td "+tdstyle+"><a href='javascript:parent." +action+ "' a><img alt='" +tfg+ "' title='" +ft+ "' src='" +fg+ "'"+ fgs+" border='0'></a></td>"
 }
