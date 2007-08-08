@@ -52,10 +52,10 @@ SUBROUTINE sumup_gross(gross_error,total_amount)
  !
 
  WRITE(6,*)
- WRITE(6,*) 'Total number of rejected observations'
+ WRITE(6,*) 'Rejection statistics (rejected,total)'
  DO j=1,nparver
     total_sum = SUM(total_amount(:,j))
-    WRITE(6,*)obstype(j),gross_sum(j),total_sum
+    WRITE(6,'(A8,2I8)')obstype(j),gross_sum(j),total_sum
  ENDDO
 
  RETURN

@@ -30,15 +30,15 @@ EXPNAME=""
 done
 
 cat << EOF >> fort.10
-  SDATE = $SDATE,
-  EDATE = $EDATE,
-  PERIOD_TYPE     = 2
-  PERIOD_FREQ     = 1
-  OUTPUT_TYPE=$OUTPUT_TYPE
-  NEXP=$NEXP
-  OBSPATH ='$OBSPATH',
-  PRINT_READ = 1,
-  EXPNAME =
+ SDATE = $SDATE,
+ EDATE = $EDATE,
+ PERIOD_TYPE     = 2
+ PERIOD_FREQ     = 1
+ OUTPUT_TYPE=$OUTPUT_TYPE
+ NEXP=$NEXP
+ OBSPATH ='$OBSPATH',
+ PRINT_READ = 1,
+ EXPNAME =
 EOF
 F=1
 while [ $F -le $NEXP ] ; do
@@ -113,13 +113,17 @@ cat << EOF > fort.10
  NFCLENGTHS = 8,
  FCLEN      = 03,06,09,12,15,18,21,24,
  LFCVER = T,
- DATA_SOURCE= 'vfld',
+ DATA_SOURCE = 'vfld',
  LPLOT_STAT= T,
  LSTAT_GEN = T,
  LTIMESERIE_STAT= T,
  TIME_STAT_FCLEN = 15,18,21,24,
  TIMESERIE_WIND  = 7*06,00
  LDIFF = T,
+ CONT_PARAM  = 1
+ CONT_IND(1) = 8,
+ CONT_CLASS(1) = 7,
+ CONT_LIM(1,1:7) = 0.1,0.3,1.0,3.0,10.0,30.0,100.0,
 EOF
 
 experiments
@@ -142,8 +146,6 @@ rm -f fort.10 || true
 
 cat << EOF > fort.10
  &NAMVER
- SDATE = $SDATE,
- EDATE = $EDATE,
  STATNAME='Surface_HH.html'
  OBINT      = 03,
  FCINT      = 12,
@@ -152,7 +154,7 @@ cat << EOF > fort.10
  FCLEN      = 03,06,09,12,
  LFCVER = F,
  LSTAT_GEN = T
- DATA_SOURCE  = 'vfld'
+ DATA_SOURCE = 'vfld',
  LPLOT_STAT= T,
  LPLOT_FREQ      = T,
  LPLOT_SCAT      = T,

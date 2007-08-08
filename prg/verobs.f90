@@ -27,12 +27,18 @@ PROGRAM verobs
  ! Read namelist
  !
 
- OPEN(10,status='OLD')
- READ(10,namver,iostat=ierr)
+ OPEN(10,STATUS='OLD',IOSTAT=ierr)
+ IF ( ierr /= 0 ) THEN
+    WRITE(6,*)'Could not open namelist file fort.10'
+    CALL abort
+ ENDIF
 
- IF (ierr.NE.0) THEN
+ READ(10,namver,IOSTAT=ierr)
+ IF ( ierr /=0 ) THEN
    WRITE(6,namver)
-   STOP
+   WRITE(6,*)
+   WRITE(6,*)'Error reading namelist file fort.10'
+   CALL abort
  ENDIF
 
  !
@@ -95,7 +101,7 @@ PROGRAM verobs
        STOP
     ENDIF
 
-    IF(nrun.GT.1) maxstn = maxstn_save 
+    IF( nrun > 1 ) maxstn = maxstn_save 
 
     CALL selection(1)
     IF ( estimate_qc_limit ) CALL quality_control

@@ -72,7 +72,7 @@ EOF
 
 cd $WRK || exit
 
-rm -f *.ps *.png  fort.* temp.tar *.xml
+rm -f *.ps *.png *.jpg fort.* temp.tar vert.tar
 
 cat << EOF > fort.10
  &NAMVER
@@ -86,10 +86,8 @@ cat << EOF > fort.10
  NFCLENGTHS = 2
  FCLEN      = 12,24,
  LFCVER = T,
- DATA_SOURCE = 'vfld_temp'
+ DATA_SOURCE = 'vfld_temp',
  LPLOT_STAT= T,
- LPRINT_GROSS    = T,
- LREJECT_GROSS   = T,
  LSTAT_GEN = T,
 EOF
 
@@ -100,7 +98,6 @@ end_of_namelist
 cp fort.10 namelist_temp
 
 $BIN/verobs || exit
-
 
 cat << EOF > fort.10
  &NAMVER
@@ -115,13 +112,11 @@ cat << EOF > fort.10
  FCINT      = 12,
  OBINT      = 12
  LFCVER = F,
- DATA_SOURCE = 'vfld_temp'
- LPRINT_GROSS          = T,
+ DATA_SOURCE = 'vfld_temp',
  LPLOT_VERT= T,
  LTIMESERIE_STAT= T
  TIMESERIE_WIND = 30*12,
  LDIFF = T,
- LREJECT_GROSS   = T,
  LSTAT_GEN = T,
  LPREP_XML = T,
 EOF

@@ -84,7 +84,7 @@ cat << EOF > fort.10
  NFCLENGTHS = 2
  FCLEN      = 12,24,
  LFCVER = T,
- DATA_SORUCE = 'vfld_temp',
+ DATA_SOURCE = 'vfld_temp',
  LPLOT_STAT= T,
  LSTAT_GEN = T,
 EOF

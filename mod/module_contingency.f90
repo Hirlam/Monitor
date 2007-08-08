@@ -118,6 +118,10 @@ MODULE contingency
 
   OPEN(UNIT=luncont,FILE=contfile)
 
+  WRITE(6,*)
+  WRITE(6,*)'Contingency output will go to contingency.dat'
+  WRITE(6,*)
+
  END SUBROUTINE ini_cont
 
  !------------------------------------------------------

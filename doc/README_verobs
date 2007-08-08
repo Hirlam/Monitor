@@ -27,14 +27,16 @@ The script Run_verobs_all_month will do the same
 but accumulate statistics monthvise.
 
 #####################################
-A test data set can be downloaded from
+A test data set can be downloaded from:
 
 https://hirlam.org/contrib/ulf/aladin/dat.tar.gz
 
+On ecgate you may unpack the data in your monitor directory and you will be able to test the program directly. 
+Pack the WebgraF directory, download it, unpack it and browse it at home to get a feeling of what the verification
+produces.
+
 Below follows an explanation of the namelists created by the scripts in scr
 For further usage of the namelist variables read the definition in src/module_data.f90
-
-The system runs on ecgate:$SCRATCH without any modifications
 
 #####################################
 
@@ -273,6 +275,7 @@ Any combination of scatterplots can be done using the namelist variables
  flag_pairs(1,2) = -1 picks the model value on  the y-axis
   exp_pairs(1,2)  = 1 picks the first experiment for the x -axis
 
+
 # Quality control
 
 The quality control is controlled by the flag LQUALITY_CONTROL. 
@@ -282,5 +285,18 @@ variable QC_FCLEN. If QC_FCLEN is not set The forecasts < forecast interval is u
 The limits can be set explicitly in namelist by XX_LIM for each variable or by
 QC_LIM for all variables. By setting ESTIMATE_QC_LIMIT the QC_LIM will be set as 
 SCALE_QC_LIM * STDV for the forecasts in QC_FCLEN.
+
+
+# Contingency tables 
+
+Contingency tables may be created by adding the following to the namelist
+
+ CONT_PARAM  = 1             Number of parameters to create contingency tables for
+ CONT_IND(1) = 8,            Parameter number, compare with XX_IND above
+ CONT_CLASS(1) = 7,          Number of classes
+ CONT_LIM(1,1:7) = 0.1,0.3,1.0,3.0,10.0,30.0,100.0, Limits of of the classes
+
+The contingency tables are written to a file contingency.dat
+
 
 

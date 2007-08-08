@@ -92,9 +92,21 @@ while ( <@ARGV> ) {
 if ( ! $CLEANAGE) { $CLEANAGE = 9999 ; } ;
 
 chdir $BASE or die "Could not go to $BASE \n" ;
-print "\n" ;
-print " WebgraF is using $BASE \n" ;
 
+#
+# Check name
+#
+
+if ( open FILE, "< webgraf_name.js" ) {
+      $webname = <FILE> ;
+      chomp $webname ;
+      $webname =~s/title=//g;
+      $webname = " ".$webname." at"  ;
+      close FILE ;
+} else { $webname ="" ; };
+
+print "\n" ;
+print " WebgraF is working with$webname $BASE \n" ;
 
 #
 # List projects and entrys
@@ -485,7 +497,10 @@ if ( -s "$FILE" ) {
 	} elsif ( $FILE =~m/\.ps/) {
 		print "Copy $FILE \n"; system ("cp $FILE $BASENTRY/.") 
 	} elsif ( $FILE =~m/\.js/) {
-		print "Copy $FILE \n"; system ("cp $FILE $BASENTRY/input.js") 
+		print "Copy $FILE \n"; system ("cp $FILE $BASENTRY/input.js")  ;
+		system("echo  '<html><pre>'     > $BASENTRY/debug.html") ;
+		system("cat $BASENTRY/input.js >> $BASENTRY/debug.html") ;
+		system("echo  '</pre></html>'  >> $BASENTRY/debug.html") ;
 	} elsif ( $FILE =~m/\.tar/) {
                 print "Copy $FILE \n"; system ("cp $FILE $BASENTRY/fig.tar")  ;
                 chdir $BASENTRY or die "Could not goto $BASENTRY \n";
