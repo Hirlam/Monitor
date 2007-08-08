@@ -52,7 +52,7 @@ MODEXTS=-E F90 -E F -E f90 -E -f
 
 # EMOSLIB
 ifeq ($(MAGICSFLAG),-DMAGICS)
-EXTLIB := -L/data/proj_ns1/hirfou/uandrae/magics/lib -lmagics -lMvDevices -lmagics -L/data/proj_ns1/hirfou/uandrae/magics/lib -lemos -lec
+EXTLIB := -L/data/proj/hirfou/uandrae/magics/lib -lmagics -lMvDevices -lmagics -L/data/proj_ns1/hirfou/uandrae/magics/lib -lemos -lec
 else
 EXTLIB := -L/data/proj_ns1/hirfou/uandrae/magics/lib -lec
 endif

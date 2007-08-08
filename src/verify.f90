@@ -28,6 +28,7 @@ SUBROUTINE verify
 
  USE data
  USE scatter
+ USE contingency
  USE timeserie
  USE functions
  USE timing
@@ -250,15 +251,21 @@ SUBROUTINE verify
  ENDIF
 
 
- lscat_array = (lplot_scat .OR. lplot_freq .OR. lprep_xml .OR. lplot_comp )
+ lscat_array = (lplot_scat .OR. lplot_freq .OR.      &
+                lprep_xml  .OR. lplot_comp .OR.      &
+                lcontingency)
 
  IF ( lscat_array ) CALL allocate_scatter(len_scat,maxper)
+
+ IF ( lcontingency ) CALL ini_cont(nexp,mpre_cla,mparver,   &
+                                   cont_class,cont_param,   &
+                                   cont_ind,cont_lim)
 
  !
  ! Allocate array for timeserie statistics
  !
 
- IF ( ltimeserie_stat ) CALL allocate_timeserie(maxper,timdiff,edate_obs)
+ IF ( ltimeserie_stat .OR. lprint_timeserie_stat ) CALL allocate_timeserie(maxper,timdiff,edate_obs)
 
 
  !
@@ -598,7 +605,7 @@ SUBROUTINE verify
                 ! Add timeserie statistics
                 ! 
 
-                IF ( ltimeserie_stat  &
+                IF ( ( ltimeserie_stat .OR. lprint_timeserie_stat ) &
                     .AND. ( ANY(time_stat_fclen  == fclen(n))    &
                      .OR.   time_stat_fclen_diff == -1      ))   &
 
@@ -657,7 +664,7 @@ SUBROUTINE verify
   
    ENDIF
 
-   IF ( ltimeserie_stat .AND.(lallstat .OR. leach_station )) THEN
+   IF ( (lprint_timeserie_stat .OR. ltimeserie_stat ) .AND.(lallstat .OR. leach_station )) THEN
 
      !
      ! Plot statistics for this station if requested
@@ -671,6 +678,7 @@ SUBROUTINE verify
                   obs(i)%stnr,nrun,time_stat(1:time_stat_max),      &
                   par_active,periods(l),periods(l+1))
 #ifdef MAGICS
+             IF ( ltimeserie_stat ) &
              CALL plot_p_stat(lunout,time_stat_max,nparver,         &
                   obs(i)%stnr,nrun,time_stat(1:time_stat_max),      &
                   par_active,periods(l),periods(l+1))
@@ -698,7 +706,7 @@ SUBROUTINE verify
    IF ( lscat_array ) THEN
 
       !
-      ! Plot scatter and frequency plots for a single stations
+      ! Plot scatter and frequency plots for a single station
       !
 
       DO l=1,maxper
@@ -765,7 +773,7 @@ SUBROUTINE verify
  IF (ltiming) CALL add_timing(timing_id_plot,'Verify_plot')
 
 
- IF ( ltimeserie_stat .AND.(lallstat .OR. leach_station )) THEN
+ IF ( ( lprint_timeserie_stat .OR. ltimeserie_stat ) .AND.(lallstat .OR. leach_station )) THEN
 
     !
     ! Printout timeserie statistics all stations
@@ -785,6 +793,7 @@ SUBROUTINE verify
            CALL print_p_stat(lunout,all_time_stat_max,nparver,0,   &
                 nrun,all_time_stat,par_active,periods(l),periods(l+1))
 #ifdef MAGICS
+           IF (ltimeserie_stat ) &
            CALL plot_p_stat(lunout,all_time_stat_max,nparver,0,   &
                 nrun,all_time_stat,par_active,periods(l),periods(l+1))
 #endif
@@ -828,8 +837,10 @@ SUBROUTINE verify
 
  IF ( lscat_array ) THEN
 
+    IF ( lallstat ) THEN
+
     !
-    ! Print or plot scatter statistics
+    ! Print or plot scatter statistics for all stations
     !
 
     DO l=1,maxper
@@ -860,14 +871,22 @@ SUBROUTINE verify
             periods(l),periods(l+1),                 &
             par_active,.FALSE.)
 
-       ! Plot frequencydistribution
+       ! Plot frequency distribution
        IF ( lplot_freq )                         &
        CALL plot_freq_new(lunout,nparver,0,nrun, &
             all_scat_data(:,l),                  &
             periods(l),periods(l+1),par_active)
 
 #endif
+       ! Accumulate and print contingency tables
+       IF ( lcontingency ) THEN
+          CALL acc_cont(nexp,nparver,all_scat_data(:,l))
+          CALL print_cont
+          CALL clear_cont
+       ENDIF
     ENDDO
+
+    ENDIF ! lallstat 
 
     CALL deallocate_scatter(maxper,nparver)
 
@@ -894,6 +913,7 @@ SUBROUTINE verify
  ! Deallocate
  !
 
+ IF ( lcontingency ) CALL clear_cont
  IF ( ALLOCATED(periods))  DEALLOCATE(periods)
  IF ( ALLOCATED(allstat)) DEALLOCATE(allstat)
  IF ( ALLOCATED(stat)) DEALLOCATE(stat)

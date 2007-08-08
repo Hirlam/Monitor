@@ -1,4 +1,4 @@
-SUBROUTINE sumup_gross(gross_error)
+SUBROUTINE sumup_gross(gross_error,total_amount)
 
  USE types
  USE data, ONLY : obs,hir,maxstn,nparver,obstype
@@ -6,7 +6,11 @@ SUBROUTINE sumup_gross(gross_error)
  IMPLICIT NONE
 
  INTEGER, INTENT(INOUT) :: gross_error(maxstn,nparver)
- INTEGER :: i,j,gross_pos(2),gross_sum(nparver)
+ INTEGER, INTENT(INOUT) :: total_amount(maxstn,nparver)
+
+ INTEGER :: i,j,gross_pos(2),               &
+            gross_sum(nparver),             &
+            total_sum
 
  !
  ! Gross error statistics
@@ -42,6 +46,7 @@ SUBROUTINE sumup_gross(gross_error)
 
  ENDDO GROSS_LOOP
 
+
  !
  ! Print total
  !
@@ -49,7 +54,8 @@ SUBROUTINE sumup_gross(gross_error)
  WRITE(6,*)
  WRITE(6,*) 'Total number of rejected observations'
  DO j=1,nparver
-    WRITE(6,*)obstype(j),gross_sum(j)
+    total_sum = SUM(total_amount(:,j))
+    WRITE(6,*)obstype(j),gross_sum(j),total_sum
  ENDDO
 
  RETURN

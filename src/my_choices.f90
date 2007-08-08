@@ -19,6 +19,21 @@ CHARACTER(LEN=2)  :: ci   = ' '
 
     SELECT CASE (TRIM(data_source))
    
+    CASE('WINDP_CUSTOM')
+
+       CALL read_windp_oper_obs2_custom
+       CALL read_windp_oper_mod_custom
+
+    CASE('sodaflux')
+   
+       CALL read_soda
+       CALL read_mod_soda
+
+    CASE('wind_test','WIND_TEST')
+   
+       CALL read_vobs
+       CALL read_any
+
     CASE('vfld','VFLD')
    
        CALL read_vobs
@@ -29,6 +44,27 @@ CHARACTER(LEN=2)  :: ci   = ' '
        CALL read_vobs_temp
        CALL read_vfld_temp
    
+    CASE('vfld_hirvda_y4','VFLD_HIRVDA_Y4')
+   
+       CALL read_vobs_y4
+       CALL read_vfld_hirvda_y4
+
+    CASE('vfld_temp_hirvda_y4','VFLD_TEMP_HIRVDA_Y4')
+   
+       CALL read_vobs_temp_y4
+       CALL read_vfld_temp_hirvda_y4
+
+    CASE('htb','HTB')
+   
+       ! Helsinki testbed data
+       CALL read_vhtb
+       CALL read_vfld
+
+    CASE('windp_test')
+
+       CALL read_windp_oper_obs2
+       CALL read_windp_oper_mod
+
     CASE DEFAULT
 
        WRITE(6,*)'No such option ',TRIM(data_source)

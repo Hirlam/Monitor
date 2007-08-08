@@ -89,14 +89,16 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
     DO i = 1,nexp
     DO jj= 1,nlev
        j_ind = (j/nlev-1)*nlev + jj
-    DO k = 1,ntimver
-       rnum(i,jj) = rnum(i,jj) + float(s(i,j_ind,k)%n)
-       bias(i,jj) = bias(i,jj) +       s(i,j_ind,k)%bias
-       rmse(i,jj) = rmse(i,jj) +       s(i,j_ind,k)%rmse
-        obs(i,jj) =  obs(i,jj) +       s(i,j_ind,k)%obs
+       DO k = 1,ntimver
+          rnum(i,jj) = rnum(i,jj) + float(s(i,j_ind,k)%n)
+          bias(i,jj) = bias(i,jj) +       s(i,j_ind,k)%bias
+          rmse(i,jj) = rmse(i,jj) +       s(i,j_ind,k)%rmse
+           obs(i,jj) =  obs(i,jj) +       s(i,j_ind,k)%obs
+       ENDDO
     ENDDO
     ENDDO
-    ENDDO
+
+    IF ( SUM(rnum) < 1.e-6 ) CYCLE
 
     rnum = MAX(1.,rnum)
 

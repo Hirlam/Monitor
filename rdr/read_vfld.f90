@@ -48,6 +48,8 @@ SUBROUTINE read_vfld
  max_found_stat = 0
  use_stnlist = ( MAXVAL(stnlist) > 0 ) 
 
+ hir%hgt = obs%hgt
+
  CALL allocate_mod
 
  ! Copy time
@@ -119,7 +121,6 @@ SUBROUTINE read_vfld
              hir(max_found_stat)%stnr   = istnr
              hir(max_found_stat)%lat    = lat 
              hir(max_found_stat)%lon    = lon 
-             hir(max_found_stat)%hgt    = 0.
 
              IF (max_found_stat > maxstn) THEN
                 WRITE(6,*)'Increase maxstn',max_found_stat

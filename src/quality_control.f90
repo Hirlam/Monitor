@@ -23,13 +23,15 @@ SUBROUTINE quality_control
             ind_pe(nfclengths),                         &
             nver(nparver)
 
- INTEGER, ALLOCATABLE :: gross_error(:,:)
+ INTEGER, ALLOCATABLE :: gross_error(:,:),              &
+                         total_amount(:,:)
 
  REAL              :: diff(nexp),diff_prep,             &
                       bias(nparver),rmse(nparver)
 
- LOGICAL :: all_exp_verified = .TRUE.
- LOGICAL :: found_right_time = .FALSE.
+ LOGICAL :: all_exp_verified   = .TRUE.
+ LOGICAL :: found_right_time   = .FALSE.
+ LOGICAL :: lprint_gross_first = .TRUE.
  LOGICAL :: qc_control(nexp) 
 
  !----------------------------------------------------------
@@ -94,9 +96,12 @@ SUBROUTINE quality_control
     !
 
     ALLOCATE(gross_error(maxstn,nparver))
-    gross_error = 0
+    gross_error  = 0
 
  ENDIF
+
+ ALLOCATE(total_amount(maxstn,nparver))
+ total_amount = 0
 
  !
  ! Loop over all stations
@@ -274,6 +279,11 @@ SUBROUTINE quality_control
                 ELSEIF ( (fclen(n) == pe_interval).OR. &
                          (fclen(n) >  pe_interval .AND.  ind_pe(n) > 0 )) THEN
                    IF (lprint_gross ) THEN
+                      IF (lprint_gross_first ) THEN
+                         WRITE(6,'(A)')'GROSS ERROR station: stnr, date, time, fclen'
+                         WRITE(6,'(A)')'Obstype, qc limit, obs, model'
+                         lprint_gross_first = .FALSE.
+                      ENDIF
                       WRITE(6,'(A,2I10,2I3)')'GROSS ERROR station:', &
                       hir(i)%stnr,wdate,wtime,fclen(n)
                       WRITE(6,*)obstype(k),qc_lim(k),     &
@@ -282,8 +292,8 @@ SUBROUTINE quality_control
                    gross_error(i,k)    = gross_error(i,k) + 1
                    obs(i)%o(jj)%val(k) = err_ind
                 ENDIF
-
              ENDIF
+             total_amount(i,k)    = total_amount(i,k) + 1
 
           ENDDO NPARVER_LOOP
 
@@ -326,9 +336,10 @@ SUBROUTINE quality_control
     estimate_qc_limit = .FALSE.
 
  ELSE
-    CALL sumup_gross(gross_error)
+    CALL sumup_gross(gross_error,total_amount)
     DEALLOCATE(gross_error)
  ENDIF
+ DEALLOCATE(total_amount)
 
  RETURN
 

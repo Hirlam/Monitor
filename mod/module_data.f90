@@ -329,8 +329,19 @@ MODULE data
  INTEGER :: exp_pairs(mparver,2)  = 0         ! Pairs of experiment to pick
                                               !
  LOGICAL :: lplot_comp                       = .FALSE.   ! 
+
+ ! Contingency flags
+
+ LOGICAL :: lcontingency = .FALSE.
+
+ INTEGER :: cont_param          = 0
+ INTEGER :: cont_ind(mparver)   = 0
+ INTEGER :: cont_class(mparver) = 0
+ REAL    :: cont_lim(mparver,mpre_cla) = 0.0 !
+
  !
- ! Namlist 
+ ! Namelist 
+ !
  namelist/namver/sdate,stime,edate,etime,               &
                  maxstn,maxtim,maxtim_scat,             &
                  ntimver,time_shift,                    &
@@ -399,8 +410,8 @@ MODULE data
                  period_type,period_freq,pe_interval,   &
                  lquality_control,qc_fclen,qc_lim,      &
                  estimate_qc_limit,qc_lim_scale,        &
-                 corr_pairs,flag_pairs,exp_pairs
-
+                 corr_pairs,flag_pairs,exp_pairs,       &
+                 cont_ind,cont_class,cont_lim,cont_param
 
 CONTAINS
 

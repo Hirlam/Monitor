@@ -34,6 +34,9 @@ SUBROUTINE check_namelist
  all_var_present = ( ANY(corr_pairs /= 0) .OR. all_var_present )
  lplot_comp      = ( ANY(corr_pairs /= 0) )
 
+ ! Contingency settings
+ lcontingency = ANY( cont_ind /= 0 ) 
+
  ! More to come ....
 
  RETURN

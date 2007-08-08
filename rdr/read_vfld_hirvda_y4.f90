@@ -49,38 +49,7 @@ SUBROUTINE read_vfld_hirvda_y4
  max_found_stat = 0
  use_stnlist = ( MAXVAL(stnlist) > 0 ) 
 
- !
- ! If model array is not allocated
- ! do so and init arrays
- !
-
- IF (.NOT.hir(1)%obs_is_allocated) THEN
-
-    timing_id = 0
-    IF (ltiming) CALL add_timing(timing_id,'allocate_read_vfld')
-
-    ! Estimate maxtim if not given by user
-    IF (maxtim.EQ.0) maxtim=get_maxtim(sdate,edate,1)
-    IF(print_read > 1) WRITE(6,*)'MAXTIM', maxtim
-
-    ! Init model array
-    DO k = 1,maxstn
-       ALLOCATE(hir(k)%o(maxtim))
-    ENDDO
-  
-    hir%ntim       = 0
-    hir%nexp       = nexp
-    hir%nparver    = nparver
-    hir%nfclengths = nfclengths
-    hir%active     = .FALSE.
-    hir%stnr       = 0
-
-    hir%obs_is_allocated = .TRUE.
-
-    IF (ltiming) CALL add_timing(timing_id,'allocate_read_vfld')
-
- ENDIF
-
+ CALL allocate_mod
  ! Copy time
 
  cdate = sdate

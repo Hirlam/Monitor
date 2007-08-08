@@ -75,11 +75,15 @@ while [ $I -le $IEND ] ; do
         ||  [[ $FTYPE == "m" ]] || [[ $FTYPE == "M" ]] ; then
            while [ $L -lt $NXPO ] ; do
             [[ -s $FFF.png.$I ]] && convert $ADD $FFF.png.$I ${FFF}_${J}_${K}_${L}.png 
+            II=$( expr $I + 1 )
+            [[ -s $FFF.png.$I ]] && psselect -q $II $FF.ps > ${FFF}_${J}_${K}_${L}.ps 
             I=$( expr $I + 1 )
             L=$( expr $L + 1 )
            done
          else
             [[ -s $FFF.png.$I ]] && convert $ADD $FFF.png.$I ${FFF}_${J}_${K}_${L}.png 
+            II=$( expr $I + 1 )
+            [[ -s $FFF.png.$I ]] && psselect -q $II $FF.ps > ${FFF}_${J}_${K}_${L}.ps 
             I=$( expr $I + 1 )
          fi
          K=$( expr $K + 1 )

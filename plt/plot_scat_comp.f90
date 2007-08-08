@@ -171,7 +171,7 @@ SUBROUTINE plot_scat_comp(lunout,nparver,nr,nrun,    &
          ! Observation
          minax(k) =  MINVAL(scat(i)%dat(1,1:kk))
          maxax(k) =  MAXVAL(scat(i)%dat(1,1:kk))
-      CASE( 0)
+      CASE( 0,2)
          ! Bias
          IF( ALL( lexp_pairs(j,:) == 0 ) ) THEN
             minax(k) =  MINVAL(scat(i)%dat(2,1:kk))
@@ -275,6 +275,16 @@ SUBROUTINE plot_scat_comp(lunout,nparver,nr,nrun,    &
                 val(k,1:kk) = scat(i)%dat(x,1:kk) + &
                               scat(i)%dat(1   ,1:kk)
                 axist(k) = TRIM(expname(x-1))//' '//TRIM(wtext)
+              ENDIF
+           CASE( 2)
+              IF( ALL(lexp_pairs(j,:) == 0 ) ) THEN
+                val(k,1:kk) = scat(i)%dat(1+jj,1:kk)
+                axist(k) = TRIM(expname(jj))//' - OBS '//TRIM(wtext)
+              ELSE
+                x = lexp_pairs(j,1) + 1
+                y = lexp_pairs(j,2) + 1
+                val(k,1:kk) = scat(i)%dat(x,1:kk) - scat(i)%dat(y,1:kk)
+                axist(k) = TRIM(expname(x-1))//' - '//TRIM(expname(y-1))//' '//TRIM(wtext)
               ENDIF
            END SELECT
 

@@ -47,7 +47,7 @@ SUBROUTINE read_windp_oper_obs
        WRITE(datec,'(I8.8)')cdate
        WRITE(cstn,'(I3.3)')obs(i)%stnr
 
-       cname = TRIM(obspath)//cstn//'_'//datec//'00.dat'
+       cname = TRIM(obspath)//cstn//'/'//datec//'.dat'
 
        OPEN(lunin,file=cname,status='old',iostat=ierr)
    

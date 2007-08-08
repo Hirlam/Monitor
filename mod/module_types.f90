@@ -3,6 +3,18 @@ MODULE types
  IMPLICIT NONE
 
  ! 
+ ! Contingeny type
+ !
+
+ TYPE contingency_type
+    INTEGER              :: nclass = 0
+    INTEGER              :: ind    = 0
+    INTEGER              :: nval   = 0
+    INTEGER, POINTER     :: table(:,:,:)
+    REAL,    POINTER     :: limit(:)
+ END TYPE contingency_type
+
+ ! 
  ! Plot control type
  !
 

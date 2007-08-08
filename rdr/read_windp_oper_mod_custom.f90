@@ -1,4 +1,4 @@
-SUBROUTINE read_windp_oper_mod
+SUBROUTINE read_windp_oper_mod_custom
 
  USE data
 
@@ -36,7 +36,7 @@ SUBROUTINE read_windp_oper_mod
   j = 0
 
   cdate = sdate
-  ctime = stime
+  ctime = stime*10000
 
   !
   ! Set lat and lon
@@ -103,8 +103,8 @@ SUBROUTINE read_windp_oper_mod
           
           IF ( fc_ind /= 0 ) THEN
              IF (ff_ind /= 0) hir(i)%o(j)%nal(k:k+1,fc_ind,ff_ind) = uu
-             IF (wp_ind /= 0) hir(i)%o(j)%nal(k    ,fc_ind,wp_ind) = wpm
-             IF (wp_ind /= 0) hir(i)%o(j)%nal(k+1  ,fc_ind,wp_ind) = wpk
+             IF (wp_ind /= 0) hir(i)%o(j)%nal(k    ,fc_ind,wp_ind) = wpk
+             IF (wp_ind /= 0) hir(i)%o(j)%nal(k+1  ,fc_ind,wp_ind) = hir(i)%hgt
              IF (tt_ind /= 0) hir(i)%o(j)%nal(k:k+1,fc_ind,tt_ind) = temp
           ENDIF
 
@@ -136,4 +136,4 @@ SUBROUTINE read_windp_oper_mod
 
  RETURN
 
-END SUBROUTINE read_windp_oper_mod
+END SUBROUTINE read_windp_oper_mod_custom

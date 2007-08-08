@@ -80,10 +80,12 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
  IF (ltiming) CALL acc_timing(timing_id,'print_p_stat')
 
  ! Find start and endpoint
+ WRITE(6,*)'PERIOD1,PERIOD2',period1,period2
 
  IF ( period1 /= 0 ) THEN
     istart = 1
-    iend   = ntim
+    !iend   = ntim
+    iend   = 1
     DO i=1,ntim
        IF ((time_stat(i)%date/100 - period1) == 0 ) THEN
                istart   = i 
@@ -102,17 +104,18 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
     iend   = ntim
  ENDIF
 
- ! Create filename
- prefix ='ps'
- IF ( ldiff ) prefix='PS'
- CALL make_fname(prefix,period1,nr,nrun,fname,0)
+ iend = MAX(istart,iend)
 
- OPEN(lunout,NAME=fname)
+ IF ( istart == iend ) THEN
+    WRITE(6,*)'No output for this period'
+    RETURN
+ ENDIF
+ WRITE(6,*)'ISTART,IEND',ISTART,IEND
 
  ! Write to timeserie file
 
  IF ( SUM(timeserie_wind) /= 0 ) THEN
-    maxtim = get_maxtim(time_stat(istart)%date,time_stat(iend)%date,MINVAL(timeserie_wind))
+    maxtim = get_maxtim(time_stat(istart)%date,time_stat(iend)%date,MAX(1,MINVAL(timeserie_wind)))
  ELSE
     maxtim = get_maxtim(time_stat(istart)%date,time_stat(iend)%date,obint)
  ENDIF
@@ -128,12 +131,16 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
            stdv(maxtim,nexp),   &
            rnum(maxtim,nexp))
 
- DO i=istart,iend
-    WRITE(6,*)time_stat(i)%date,time_stat(i)%time,time_stat(i)%bias(2,1),time_stat(i)%obs(:)
- ENDDO
- STOP
-
  NPAR_LOOP : DO j=1,npar
+
+    ! Create filename
+    prefix ='ps'
+    IF ( ldiff ) prefix='PS'
+    CALL make_fname(prefix,period1,nr,nrun,fname,0)
+    fname = TRIM(obstype(j))//'_'//TRIM(fname)
+    OPEN(lunout,NAME=fname)
+    WRITE(6,*)'Doing ',TRIM(fname)
+
 
     rnum = 0.
     bias = 0.
@@ -288,11 +295,13 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
     ENDIF
 
     cform = '(I10,I3.2,NN(x,en13.3e2))'
-    WRITE(cform(11:12),'(I2.2)')(nexp+1)
+    WRITE(cform(11:12),'(I2.2)')(nexp+2)
     DO i=1,ntim_use
        IF ( (ABS(obs(i) - err_ind ) < 1.e-6) &
             .AND. ( i == 1 .OR. i == ntim_use ) ) CYCLE
-       WRITE(lunout,cform)ndate(i),ntime(i),obs(i),bias(i,:)
+       WRITE(lunout,cform)ndate(i),ntime(i),rnum(i,1),  &
+                                            obs(i),     &
+                                            bias(i,:)
     ENDDO
 
     CLOSE(lunout)

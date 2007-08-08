@@ -1,4 +1,4 @@
-SUBROUTINE read_windp_oper_obs2
+SUBROUTINE read_windp_oper_obs2_custom
 
  USE data
 
@@ -19,7 +19,7 @@ SUBROUTINE read_windp_oper_obs2
  LOGICAL :: stnlist_found = .FALSE.
 
  ! Station list 
- INTEGER :: id,type
+ INTEGER :: id,type,inp
  REAL    :: lat,lon,hubhgt,hgt
  CHARACTER(LEN=50) :: sname
  ! ------------------------------------------------------------------
@@ -64,11 +64,11 @@ SUBROUTINE read_windp_oper_obs2
 
     READ_STATION : DO i=1,jj
        sname = ''
-       READ(lunwp,'(I10,X,I3,x,4(f7.3,x),A50)',IOSTAT=ierr)     &
-       id,type,lat,lon,hubhgt,hgt,sname
+       READ(lunwp,'(I4,I06,X,I3,x,4(f7.3,x),A50)',IOSTAT=ierr)     &
+       inp,id,type,lat,lon,hubhgt,hgt,sname
 
-       WRITE(6,'(I10,X,I3,x,4(f7.3,x),A50)')     &
-       id,type,lat,lon,hubhgt,hgt,sname
+       WRITE(6,'(I4,I06,X,I3,x,4(f7.3,x),A50)')     &
+       inp,id,type,lat,lon,hubhgt,hgt,sname
 
        !
        ! Set station parameters
@@ -79,8 +79,7 @@ SUBROUTINE read_windp_oper_obs2
              IF ( id == obs(j)%stnr ) THEN
                 obs(j)%lat = lat
                 obs(j)%lon = lon
-                obs(j)%hgt = hgt
-                !station_name(j) = TRIM(sname)
+                obs(j)%hgt = FLOAT(inp)
                 CYCLE READ_STATION
              ENDIF
           ENDDO
@@ -88,9 +87,8 @@ SUBROUTINE read_windp_oper_obs2
           obs(i)%stnr     = id
           obs(i)%lat      = lat
           obs(i)%lon      = lon
-          obs(i)%hgt      = hgt
+          obs(i)%hgt = FLOAT(inp)
           stnlist(i)      = id
-          !station_name(i) = TRIM(sname)
        ENDIF
 
     ENDDO READ_STATION
@@ -194,4 +192,4 @@ SUBROUTINE read_windp_oper_obs2
 
  RETURN
 
-END SUBROUTINE read_windp_oper_obs2
+END SUBROUTINE read_windp_oper_obs2_custom

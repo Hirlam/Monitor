@@ -132,11 +132,13 @@ SUBROUTINE do_stat(p1,p2)
     !
 
     IF ( ltemp .AND. leach_station  .AND. lplot_vert )  THEN
+
       wrk = 0
       WHERE ( lev_lst > 0 ) wrk = 1 
       nlev = SUM(wrk)
       CALL plot_vert(lunout,nexp,nlev,nparver,ntimver,                        &
       stat(i)%s,stat(i)%stnr,p1(i),p2(i),par_active)
+
     ENDIF
 #endif
 
