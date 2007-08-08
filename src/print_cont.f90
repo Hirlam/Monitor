@@ -32,7 +32,7 @@ SUBROUTINE print_cont
        WRITE(luncont,*)'In table x=obs, y=fc'
        WRITE(luncont,*)'Total number of values',cont_table(i)%nval
 
-       WRITE(cform(2:3),'I2.2')cont_table(i)%nclass
+       WRITE(cform(2:3),'(I2.2)')cont_table(i)%nclass
 
        DO l=1,nexp
           WRITE(luncont,*)'Experiment ',TRIM(expname(l))
