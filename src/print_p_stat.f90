@@ -80,7 +80,6 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
  IF (ltiming) CALL acc_timing(timing_id,'print_p_stat')
 
  ! Find start and endpoint
- WRITE(6,*)'PERIOD1,PERIOD2',period1,period2
 
  IF ( period1 /= 0 ) THEN
     istart = 1
@@ -110,7 +109,6 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
     WRITE(6,*)'No output for this period'
     RETURN
  ENDIF
- WRITE(6,*)'ISTART,IEND',ISTART,IEND
 
  ! Write to timeserie file
 
@@ -138,7 +136,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
     IF ( ldiff ) prefix='PS'
     CALL make_fname(prefix,period1,nr,nrun,fname,0)
     fname = TRIM(obstype(j))//'_'//TRIM(fname)
-    OPEN(lunout,NAME=fname)
+    OPEN(lunout,FILE=fname)
     WRITE(6,*)'Doing ',TRIM(fname)
 
 
