@@ -19,7 +19,7 @@ SUBROUTINE polygon_selection
  !-----------------------------------------------------------------
  ! Read polygon file
 
- OPEN(lunpol,name='poly.dat',IOSTAT=ierr,STATUS='OLD') 
+ OPEN(lunpol,FILE='poly.dat',IOSTAT=ierr,STATUS='OLD') 
 
  IF (ierr /= 0) THEN
     WRITE(6,*)' No polygon found, no selection performed'

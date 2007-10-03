@@ -586,7 +586,7 @@ MODULE windp
   
      WRITE(cwrk,'(I2.2)')i
      wrk = TRIM(fname)//'_'//cwrk//'.dat'
-     OPEN(10,name=wrk)
+     OPEN(10,FILE=wrk)
 
      WRITE(10,'(A50)')windtyp_name(i)
      DO j=1,50
