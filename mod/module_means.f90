@@ -51,6 +51,8 @@ MODULE means
   REAL    :: r_win,r_jj,wrk,rlen,tmp(ndim)
   INTEGER  :: ldate(ndim),ltime(ndim)
 
+  INTEGER :: difdtg
+
   LOGICAL :: mask(ndim)
   
  !-------------------------------------------
@@ -99,10 +101,12 @@ MODULE means
          cd = MOD(date(i),100)
          ch = time(i)
 
-         CALL hourdiff(cy,cm,cd,ch,y1,m1,d1,h1,dhour,ierr)
+!EC         CALL hourdiff(cy,cm,cd,ch,y1,m1,d1,h1,dhour,ierr)
+         CALL hourdiff2(cy,cm,cd,ch,y1,m1,d1,h1,dhour,ierr)
          IF ( dhour < 0 ) CYCLE FIND_TIMES
 
-         CALL hourdiff(cy,cm,cd,ch,y2,m2,d2,h2,dhour,ierr)
+!EC         CALL hourdiff(cy,cm,cd,ch,y2,m2,d2,h2,dhour,ierr)
+         CALL hourdiff2(cy,cm,cd,ch,y2,m2,d2,h2,dhour,ierr) 
          IF ( dhour > 0 ) EXIT FIND_TIMES
 
          ! YES we found a suitable time
@@ -269,6 +273,7 @@ MODULE means
              date(ntim),time(ntim)
 
   INTEGER :: idate2yd,minday,maxday
+  INTEGER :: idat2c, yday1
 
   REAL :: data(ntim,npar),nday(366)
 
@@ -287,7 +292,9 @@ MODULE means
       mm = MOD(date(i) / 100,100)
       dd = MOD(date(i)      ,100)
 
-      yday=idate2yd(yy,mm,dd,ierr)
+!EC      yday=idate2yd(yy,mm,dd,ierr)
+      yday1 = idat2c((100*yy+01)*100+01)
+      yday  = idat2c(date(i)) - yday1 + 1
 
       mwork(yday,:) = mwork(yday,:) + data(i,:)
       nday(yday)    = nday(yday)    + 1.
@@ -303,7 +310,9 @@ MODULE means
    dlen = dsto
 
    DO i=dsta,dsto
-      CALL YD2DATE  (i+minday-1,yy,mm,dd,ierr)
+
+      CALL GREGOR (i+minday-1 + yday1 -1,yy,mm,dd)
+!EC      CALL YD2DATE  (i+minday-1,yy,mm,dd,ierr)
       date(i)=yy*10000 + mm*100 + dd
       time(i)=00
    ENDDO

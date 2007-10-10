@@ -375,6 +375,8 @@ SUBROUTINE set_cdate(date,time,n,s)
  CHARACTER(LEN=20) :: wdate = ''
 
  REAL :: err_ind_l
+
+ integer :: difdtg
  !-----------------------------------------------------
 
  ! Plotting part
@@ -499,7 +501,8 @@ SUBROUTINE set_cdate(date,time,n,s)
     CALL psetc ('AXIS_DATE_MAX_VALUE',wdate)
     CALL preset('AXIS_TICK_INTERVAL')
 
-    CALL daydiff(ey,em,ed,sy,sm,sd,diff,ierr)
+!EC    CALL daydiff(ey,em,ed,sy,sm,sd,diff,ierr)
+    diff = difdtg((sy*100+sm)*100+sd,0,(ey*100+em)*100+ed,0)/86400
 
     CALL PRESET  ('AXIS_HOURS_LABEL')
     CALL PRESET  ('AXIS_MONTHS_LABEL')

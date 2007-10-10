@@ -90,11 +90,19 @@ IMPLICIT NONE
  INTEGER :: yyyymm,inc
 
  INTEGER :: y1,m1,y2,m2,d2,ierr
+
+ integer :: yyyymmdd2,t2
  
+ integer :: monincr2
+
  y1=yyyymm/100
  m1=MOD(yyyymm,100)
- CALL dayincr(y1,m1,25,inc*30,y2,m2,d2,ierr)
- monincr = y2*100+m2
+
+!EC CALL dayincr(y1,m1,25,inc*30,y2,m2,d2,ierr)
+ call adddtg( yyyymm*100+25 , 0,inc*30*86400, yyyymmdd2, t2)
+
+!EC monincr = y2*100+m2
+ monincr= yyyymmdd2/100
 
 END FUNCTION monincr
 !-----------------------------------------------
@@ -124,8 +132,12 @@ IMPLICIT NONE
 INTEGER :: ndates,step
 INTEGER :: date(ndates)
 
+integer :: diff2
+
 ! Local
-INTEGER :: y1,m1,d1,y2,m2,d2,diff,ierr,i
+INTEGER :: y1,m1,d1,y2,m2,d2,diff,ierr,i,date1
+
+INTEGER :: difdtg
 
  missing_index = 0
 
@@ -138,12 +150,14 @@ INTEGER :: y1,m1,d1,y2,m2,d2,diff,ierr,i
     y1 = y2
     m1 = m2
     d1 = d2
+    date1 = (y1*100 + m1)*100 + d1 
     y2 = date(i)/10000
     m2 = MOD(date(i),10000)/100
     d2 = MOD(date(i),100)
     
-    CALL daydiff(y2,m2,d2,y1,m1,d1,diff,ierr)
-   
+!EC    CALL daydiff(y2,m2,d2,y1,m1,d1,diff,ierr)
+    diff = difdtg(date1,0,date(i),0)/86400.
+
     IF (diff.GT.step) THEN
        missing_index = i - 1
        EXIT

@@ -1,52 +1,44 @@
-SUBROUTINE adddtg(idate,itime,inc,odate,otime)
+SUBROUTINE adddtg(kdi,kti,kfp,kd,kt)
 
-!
-! Interface to eclib time increment routine
-!
-
-IMPLICIT NONE
-
-! Input
-
-INTEGER  :: idate      ! Input date YYYYMMDD
-INTEGER  :: itime      ! Input time HHMMSS
-INTEGER  :: inc        ! Time increment in seconds
-INTEGER  :: odate      ! Input date YYYYMMDD
-INTEGER  :: otime      ! Input time HHMMSS
-
-! Local
-
- INTEGER ::  year,  month,  day,  hour,  minute,	&
-            nyear, nmonth, nday, nhour,	nminute,	&
-            ierr
+  !     returns new date yyyymmdd and time hhmmss by adding kfp (seconds,
+  !     may be negative) to old values
 
 
-!-----------------------------------------------
 
-   year   = idate/10000
-   month  = (idate-year*10000)/100
-   day    = mod(idate,100)
-   hour   = itime / 10000
-   minute = (itime-hour*10000)/100
+  INTEGER, INTENT(IN OUT)                  :: kdi
+  INTEGER, INTENT(IN)                      :: kti
+  INTEGER, INTENT(IN)                      :: kfp
+  INTEGER, INTENT(OUT)                     :: kd
+  INTEGER, INTENT(OUT)                     :: kt
+  PARAMETER(ispd=86400)
 
-   !CALL hourincr(year,month,day,hour,inc/3600,nyear,nmonth,nday,nhour,ierr)
-   CALL minincr(year,month,day,hour,minute,inc/60,nyear,nmonth,nday,nhour,nminute,ierr)
+  !     convert to century date
+  ic=idat2c(kdi)
 
+  !     split kfp into days and seconds
+  id=kfp/ispd
+  IF(kfp < 0)id=id-1
+  is=kfp-id*ispd
 
-   IF (ierr.NE.0) THEN
-      WRITE(6,*)'Error returned from minincr ',ierr
-      CALL abort
-   ENDIF
+  !     decode kti into seconds, and add to seconds from kti
+  ih=kti/10000
+  ir=kti-ih*10000
+  im=ir/100
+  is=is + ir-im*100 + im*60 + ih*3600
 
-   odate = nyear*10000 +  nmonth*100 + nday
-   otime = nhour*10000 + nminute*100
+  !     split seconds into days and seconds
+  ir=is/ispd
+  id=id+ir
+  is=is-ir*ispd
 
-   !WRITE(6,*)'ADDDTG'
-   !WRITE(6,*)idate,itime,inc,odate,otime
-   !WRITE(6,*)year,month,day,hour,minute,inc/60,nyear,nmonth,nday,nhour,nminute,ierr
-   !WRITE(6,*)
+  !     add days, convert to yyyymmdd format
+  ic=ic+id
+  kd=ic2dat(ic)
 
-
-RETURN
-
+  !     convert seconds to hhmmss format
+  ih=is/3600
+  ir=is-ih*3600
+  im=ir/60
+  is=ir-im*60
+  kt=ih*10000 + im*100 + is
 END SUBROUTINE adddtg

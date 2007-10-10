@@ -1,5 +1,8 @@
 ARCH=pgf90
 
+# Magics flag
+# If this is not set only tables will be produced
+MAGICSFLAG := -DMAGICS
 
 # CPP
 MACHINECPP :=
@@ -32,11 +35,6 @@ RM      := rm -f
 MKDIR   := mkdir
 RMDIR   := rmdir
 
-#
-# ALADIN libraries 
-# To compile without aladin functionality set ALADINFLAG empty
-#
-
 # Flags
 FCFLAGS := $(MYFCFLAGS) -I$(ROOTDIR)/inc -I$(ROOTDIR)/$(ARCH)/mod
 CPPFLAGS := -I$(ROOTDIR)/inc 
@@ -45,9 +43,8 @@ CPPFLAGS := -I$(ROOTDIR)/inc
 MODEXTS=-E F90 -E F -E f90 -E -f 
 
 # EMOSLIB
-EXTLIB := -L$(MAG_HOME)/lib -lmagics -lMvDevices -lmagics -lgd -lpng -ljpeg -lz -lfreetype -lstdc++ -lm -lemos /home/andrae/eclib/src/libec.new.R32.D64.I32.a
-
-
-
-
-
+ifeq ($(MAGICSFLAG),-DMAGICS)
+   EXTLIB := -L$(MAG_HOME)/lib -lmagics -lMvDevices -lmagics -lgd -lpng -ljpeg -lz -lfreetype -lstdc++ -lm -lemos 
+else
+   EXTLIB := 
+endif

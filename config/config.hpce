@@ -37,11 +37,6 @@ RM      := rm -f
 MKDIR   := mkdir
 RMDIR   := rmdir
 
-#
-# ALADIN libraries 
-# To compile without aladin functionality set ALADINFLAG empty
-#
-
 # Flags
 FCFLAGS := $(MYFCFLAGS) -I$(ROOTDIR)/inc -I$(ROOTDIR)/$(ARCH)/mod
 CPPFLAGS := -I$(ROOTDIR)/inc  $(MAGICSFLAG)
@@ -51,7 +46,7 @@ MODEXTS=-E F90 -E F -E f90 -E -f
 
 # EMOSLIB
 ifeq ($(MAGICSFLAG),-DMAGICS)
-   EXTLIB := $(MAGLIB) $(EMOSLIB) $(ECLIB)
+   EXTLIB := $(MAGLIB) $(EMOSLIB)
 else
-   EXTLIB := $(ECLIB)
+   EXTLIB :=
 endif

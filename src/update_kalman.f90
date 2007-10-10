@@ -36,7 +36,8 @@ SUBROUTINE update_kalman(i,n,l,vdate,vtime,obs,dat)
        d2 = MOD(vdate,100  )
        h2 = vtime / 10000
 
-       CALL hourdiff(y2,m2,d2,h2,y1,m1,d1,h1,diff,ierr)
+!EC       CALL hourdiff(y2,m2,d2,h2,y1,m1,d1,h1,diff,ierr)
+       CALL hourdiff2(y2,m2,d2,h2,y1,m1,d1,h1,diff,ierr)
 
        d = kalvar(k,l,i)%d 
        kalvar(k,l,i)%d = 99.
@@ -90,8 +91,9 @@ SUBROUTINE update_kalman(i,n,l,vdate,vtime,obs,dat)
           d2 = MOD(vdate,100  )
           h2 = vtime / 10000
 
-          CALL hourdiff(y2,m2,d2,h2,y1,m1,d1,h1,diff,ierr)
-      
+!EC          CALL hourdiff(y2,m2,d2,h2,y1,m1,d1,h1,diff,ierr)
+          CALL hourdiff2(y2,m2,d2,h2,y1,m1,d1,h1,diff,ierr)
+
        ENDIF
 
        IF ( diff >= kalman_frequency ) THEN

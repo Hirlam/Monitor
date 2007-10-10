@@ -1,8 +1,7 @@
-ARCH=linuxifort
+ARCH=pclx054
 
 # Magics flag
 # If this is not set only tables will be produced
-MAGICSFLAG := 
 MAGICSFLAG := -DMAGICS
 
 # CPP
@@ -38,11 +37,6 @@ RM      := rm -f
 MKDIR   := mkdir
 RMDIR   := rmdir
 
-#
-# ALADIN libraries 
-# To compile without aladin functionality set ALADINFLAG empty
-#
-
 # Flags
 FCFLAGS := $(MYFCFLAGS) -I$(ROOTDIR)/inc -module $(ROOTDIR)/$(ARCH)/mod
 CPPFLAGS := -I$(ROOTDIR)/inc $(MAGICSFLAG)
@@ -52,9 +46,9 @@ MODEXTS=-E F90 -E F -E f90 -E -f
 
 # EMOSLIB
 ifeq ($(MAGICSFLAG),-DMAGICS)
-EXTLIB := -L/local_disk/uandrae/eclibs -lmagics -lMvDevices -lmagics -lemos -lec
+EXTLIB := -L/local_disk/uandrae/eclibs -lmagics -lMvDevices -lmagics -lemos 
 else
-EXTLIB := -L/local_disk/uandrae/eclibs -lec
+EXTLIB :=
 endif
 
 
