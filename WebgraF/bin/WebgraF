@@ -36,8 +36,8 @@
 # Get input
  
 
-$PROJECT = "WebgraF"  ;
-$ENTRY   = "Demo"     ;
+$PROJECT = "WebgraF_PROJECT"  ;
+$ENTRY   = "WebgraF_ENTRY"     ;
 $FILE    = "any file" ;
 $DELETE  = "false"    ;
 $GETFILE = "false"    ;
@@ -47,25 +47,29 @@ $EXPORT  = "false"    ;
 $CLEAN   = "false"    ;
 $ADDUSER = "false"    ;
 $RENAME  = "false"    ;
+$ADDFILE = "false"    ;
 $INSTALL = "false"    ;
 $MESSAGE = "none"     ;
 $NEWNAME = "none"     ;
 $BASNAME = "none"     ;
 $BASE    = $WEBGRAF_BASE  ;
+$TRANSPORT  = "false" ;
 
 $n = 0 ;
 while ( <@ARGV> ) {
 
    if ( /-h/) { die $usage ; } ;
-   if ( /-u/) { $WEBUSER = $ARGV[($n + 1)] ; $ADDUSER = "true" ;       } ;
    if ( /-p/) { $PROJECT = $ARGV[($n + 1)] ; $PROJECT = " $PROJECT " ; } ;
    if ( /-e/) { $ENTRY   = $ARGV[($n + 1)] ; $ENTRY   = " $ENTRY "   ; } ;
+   if ( /-u/) { $WEBUSER = $ARGV[($n + 1)] ; $ADDUSER = "true"       ; } ;
    if ( /-i/) { $INFO    = $ARGV[($n + 1)] ; $GETINFO = "true"       ; } ;
-   if ( /-n/) { $NEWNAME = $ARGV[($n + 1)] ; $RENAME = "true" ;} ;
+   if ( /-n/) { $NEWNAME = $ARGV[($n + 1)] ; $RENAME  = "true"       ; } ;
+   if ( /-c/) { $CLEANAGE= $ARGV[($n + 1)] ; $CLEAN   = "true"       ; } ;
+   if ( /-a/) { $FILE    = $ARGV[($n + 1)] ; $ADDFILE = "true"       ; } ;
    if ( /-f/) { $FILE    = $ARGV[($n + 1)] ; } ;
    if ( /-m/) { $MESSAGE = $ARGV[($n + 1)] ; } ;
-   if ( /-c/) { $CLEANAGE= $ARGV[($n + 1)] ; $CLEAN    = "true"        ; } ;
    if ( /-d/) { die "USE -r for delete \n" ; } ;
+   if ( /-t/) { $TRANSPORT = "true" ; } ;
    if ( /-I/) { $INSTALL = "true" ; } ;
    if ( /-x/) { $EXPORT  = "true" ; } ;
    if ( /-g/) { $GETFILE = "true" ; } ;
@@ -133,6 +137,7 @@ if ( $LIST =~ /true/ ||  ! grep(/[a-z,A-Z]/,@ARGV) ||  $n <= 2 && $BASE !~ /$WEB
 #
 # Install a new WebgraF javascript home
 #
+
 if ( $INSTALL =~ /true/ ) {
    if ( $BASE =~ /$WEBGRAF_BASE/ ) { 
 	    print " Please give full path to your new WebgraF home \n"; 
@@ -149,11 +154,33 @@ if ( $INSTALL =~ /true/ ) {
       print OFILE "title='$BASNAME'\n" ;
       close OFILE ;
       print " Installed WebgraF javascript at $BASE with name \"$BASNAME\" \n"; 
-      exit ;
+   } else {
+      print " Installed WebgraF javascript at $BASE \n"; 
    } ;
 
-   print " Installed WebgraF javascript at $BASE \n"; 
+   exit ;
 
+} ;
+
+#
+# Transport an entry or a project
+#
+
+if ( $TRANSPORT =~ /true/) {
+   $PROJECT =~ s/ //g ;
+   if ( $ENTRY   =~ /WebgraF_ENTRY/    ) { 
+      chdir $BASE or die "Could not change dir to $BASE \n" ;
+      $XPORT=$CALLDIR."/".$PROJECT."___transport.tar" ;
+      system("tar cf $XPORT $PROJECT ") ;
+   } else {
+      $WRK=$BASE."/".$PROJECT."/".$ENTRY ;
+      $WRK =~ s/ //g ;
+      chdir $WRK or die "Could not change dir to $WRK \n" ;
+      $ENTRY =~ s/ //g ;
+      $XPORT=$CALLDIR."/".$PROJECT."___".$ENTRY."___transport.tar" ;
+      system("tar cf $XPORT *") ;
+   } ;
+   print "Created $XPORT \n";
    exit ;
 } ;
 
@@ -166,7 +193,7 @@ if ( $EXPORT =~ /true/ ) {
 
    $PROJECT =~ s/ //g ;
    print " $PROJECT \n" ;
-   if ( $PROJECT =~ /WebgraF/ ) {
+   if ( $PROJECT =~ /WebgraF_PROJECT/ ) {
 	   chdir $WEBGRAF_BASE or die ;
 	   system(" tar cvf $CALLDIR/Install_WebgraF.tar Make_links src src2") ;
 	   print " Created $CALLDIR/Install_WebgraF.tar \n" ;
@@ -176,7 +203,7 @@ if ( $EXPORT =~ /true/ ) {
    my @ENTRYS ;
    chdir $PROJECT or die "Could not change dir to $PROJECT \n" ;
 
-   if ( $ENTRY   =~ /Demo/    ) { 
+   if ( $ENTRY   =~ /WebgraF_ENTRY/    ) { 
 	print "Export $PROJECT \n" ;
         @ENTRYS = &get_dir ;
    } else {
@@ -220,8 +247,96 @@ if ( $EXPORT =~ /true/ ) {
 };
 
 
+# 
+# Add external PROJECT/ENTRY extracted with -t
+#
 
-if ( $PROJECT =~ /WebgraF/ ) { die "Please give PROJECT \n"; } ;
+if ( $ADDFILE =~ /true/ ) {
+
+   @TMP=split('/',$FILE);
+   if ( pop(@TMP) =~/$FILE/ ) { $FILE=$CALLDIR."/".$FILE ;  };
+
+   if ( ! $FILE               ) { print "Please give a file to add \n"; exit ; };
+   if ( ! -s "$FILE" ) { print "Could not find $FILE      \n"; exit ; };
+   if ( ! $FILE =~m/\.tar/    ) { print "$FILE is not a tar file   \n"; exit ; };
+
+   chdir $BASE or die "Could not change dir to $BASE \n" ;
+
+   @TMP=split('/',$FILE);
+   @TMP=split('___',pop(@TMP));
+   $len=scalar(@TMP); 
+
+   if ( $PROJECT =~ /WebgraF_PROJECT/ ) { $PROJECT=" $TMP[0] "; } ;
+
+   if ( $len == 2 ) {
+
+      #
+      # This is a project
+      #
+     
+      system("tar xf $FILE") ;
+      print "Added $FILE as $PROJECT\n";
+      &make_index() ;
+
+   } elsif ( $len == 3 ){
+
+      #
+      # This is an entry
+      #
+
+      if ( $ENTRY =~ /WebgraF_ENTRY/ ) { $ENTRY=" $TMP[1] "; } ;
+
+      @PROJECTS = &get_dir ;
+      print "PROJECTS: @PROJECTS \n";
+
+      if ( ! grep /$PROJECT/, @PROJECTS ) {
+	$WRK = $PROJECT ;
+	$WRK =~ s/ //g ;
+	mkdir $WRK,0777 ; 
+        chdir $WRK or die "Could not go to $WRK \n" ;
+	system ("ln -sf ../src/* .") ;
+        system("chmod 777 *") ;
+	print "Added $WRK \n";
+	if ( $FILE =~ /WebgraF.tar/ ) { exit ; } ;
+      } else {
+	$WRK = $PROJECT ;
+	$WRK =~ s/ //g ;
+        chdir $WRK or die "Could not go to $WRK \n" ;
+	print "Update $PROJECT \n";
+      };
+
+      @ENTRYS = &get_dir ;
+      $WRK = $ENTRY ;
+      $WRK =~ s/ //g ;
+      if ( ! grep /$ENTRY/, @ENTRYS ) { mkdir $WRK ; @ENTRYS = (@ENTRYS,$ENTRY) ; } ;
+      chdir $WRK or die "Could not go to $WRK \n" ;
+      system("tar xf $FILE") ;
+      system("chmod -R 777 *") ;
+
+      chdir ".." ;
+
+      $OLDFILE="$WRK"."/input.js" ;
+      $NEWFILE="$WRK".".js" ;
+      symlink $OLDFILE, $NEWFILE ;
+      &update_input_list(@ENTRYS) ;
+
+      print "Added $FILE as $WRK\n";
+
+      chdir ".." ;
+
+      &make_index();
+
+   } ;
+
+   exit ;
+
+} ;
+
+#
+# Request a PROJECT for the tasks following
+#
+
+if ( $PROJECT =~ /WebgraF_PROJECT/ ) { die "Please give PROJECT \n"; } ;
 
 
 
@@ -230,42 +345,40 @@ if ( $PROJECT =~ /WebgraF/ ) { die "Please give PROJECT \n"; } ;
 #
 
 if ( $RENAME =~ /true/ ) {
-   if ( $ENTRY =~ /Demo/ ) {
+   if ( $ENTRY =~ /WebgraF_ENTRY/ ) {
 	# Rename a project
         chdir $BASE or die "Could not change dir to $BASE \n" ;
 	# Rename project directory
 	$WRK = $PROJECT ;
 	$WRK =~ s/ //g ;
+        if ( ! -s $WRK   ) { die "PROJECT $WRK does not exist \n"; } ;
         if ( -s $NEWNAME ) { die "$NEWNAME does already exist \n"; } ;
-	system ("mv $WRK $NEWNAME") ; 
-	system ("mv $NEWNAME/$WRK.html $NEWNAME/$NEWNAME.html") ; 
+	rename $WRK,$NEWNAME ; 
+        if ( -s "$NEWNAME/$WRK.html" ) { 
+	   rename "$NEWNAME/$WRK.html","$NEWNAME/$NEWNAME.html" ; 
+        } ;
 	print "Moved  $WRK to $NEWNAME \n"; 
-	&make_index() ;
-   exit ;
-   } ;
-   # Rename an 
-	   $WRK=$BASE."/".$PROJECT ;
-	   $WRK =~ s/ //g ;
-           if ( ! -s $WRK ) { die "$WRK does not exist \n"; } ;
-	   print "$WRK\n"; 
- 	   chdir $WRK ;
-	$WRK = $ENTRY ;
+   } else {
+   # Rename an entry
+	$WRK=$BASE."/".$PROJECT ;
 	$WRK =~ s/ //g ;
         if ( ! -s $WRK ) { die "$WRK does not exist \n"; } ;
+ 	chdir $WRK ;
+	$WRK = $ENTRY ;
+	$WRK =~ s/ //g ;
+        if ( ! -s $WRK   ) { die "ENTRY $WRK does not exist \n"; } ;
         if ( -s $NEWNAME ) { die "$NEWNAME does already exist \n"; } ;
-	system ("mv $WRK $NEWNAME") ; 
-	system ("rm $WRK.js");
-	system ("ln -s $NEWNAME/input.js $NEWNAME.js");
+	rename $WRK,$NEWNAME ; 
+	rmdir "$WRK.js";
+	symlink "$NEWNAME/input.js","$NEWNAME.js";
 	print "Moved  $WRK to $NEWNAME \n"; 
 	print "Remember to update pdir in $NEWNAME \n"; 
 	&update_input_list(&get_dir) ;
 	chdir ".." ;
-	&make_index() ;
-
+   } ;
+   &make_index() ;
    exit ;
 } ;
-
-
 
 #
 # Add an infofile to the project or entry
@@ -275,7 +388,7 @@ if ( $GETINFO =~ /true/ && $GETFILE =~ /false/ && $DELETE =~ /false/ ) {
 
 	chdir $CALLDIR or die "Could not goto $CALLDIR \n";
 
-	if ( $ENTRY =~ /Demo/ ) { $BASENTRY=$BASE . "/" . $PROJECT ; $WRK = $PROJECT ;                }
+	if ( $ENTRY =~ /WebgraF_ENTRY/ ) { $BASENTRY=$BASE . "/" . $PROJECT ; $WRK = $PROJECT ;                }
                        	   else { $BASENTRY=$BASE . "/" . $PROJECT . "/" . $ENTRY ; $WRK=$ENTRY ;     } ;
 	   $BASENTRY =~ s/ //g ;
 	   $WRK      =~ s/ //g ;
@@ -289,7 +402,7 @@ if ( $GETINFO =~ /true/ && $GETFILE =~ /false/ && $DELETE =~ /false/ ) {
 		$INFO="$PROJECT/$WRK.html" ;
 	   $INFO      =~ s/ //g ;
 	} ;
-        if ( $ENTRY =~ /Demo/ ) {
+        if ( $ENTRY =~ /WebgraF_ENTRY/ ) {
            $WRK=$BASE."/".$PROJECT."/info.txt" ;
            $WRK =~ s/ //g ;
            open OFILE, "> $WRK";
@@ -309,27 +422,28 @@ if ( $GETINFO =~ /true/ && $GETFILE =~ /false/ && $DELETE =~ /false/ ) {
 
 if ( $DELETE =~ /true/ ) {
 
-	if ( $PROJECT !~ /WebgraF/ ) {
+	if ( $PROJECT !~ /WebgraF_PROJECT/ ) {
 
-	   if ( $ENTRY !~ /Demo/ && $GETINFO =~ /false/ ) {
+	   if ( $ENTRY !~ /WebgraF_ENTRY/ && $GETINFO =~ /false/ ) {
 
 		$WRK = $PROJECT ;
 		$WRK =~ s/ //g ;
  		chdir $WRK or die "Could not change dir to $PROJECT \n" ;
 		$WRK = $ENTRY ;
 		$WRK =~ s/ //g ;
- 		system ("rm -rf $WRK $WRK.js") ;
+		rmdir $WRK ;
+		rmdir "$WRK.js" ;
 		print " Removed entry $WRK \n" ;
 		&update_input_list(&get_dir) ;
 		chdir ".." ;
 	   }else{
-   	      if ( $GETINFO =~ /true/ && $ENTRY =~ /Demo/) {
+   	      if ( $GETINFO =~ /true/ && $ENTRY =~ /WebgraF_ENTRY/) {
 	         $BASENTRY=$BASE . "/" . $PROJECT ; 
-	         $WRK = $PROJECT ;
 	         $BASENTRY =~ s/ //g ;
                  if ( ! -s $BASENTRY ) { die " $BASENTRY does not exist \n"; } ;
-	         $WRK      =~ s/ //g ;
-	         system ("rm -f     $BASENTRY/$WRK.html") ;
+	         $WRK = $PROJECT ;
+	         $WRK =~ s/ //g ;
+	         rmdir "$BASENTRY/$WRK.html" ;
 	         $WRK=$BASE."/".$PROJECT."/info.txt" ;
 	         $WRK =~ s/ //g ;
 	         open OFILE, "> $WRK";
@@ -338,7 +452,7 @@ if ( $DELETE =~ /true/ ) {
 		 print "  Removed info file from project$PROJECT\n" ;
                  chdir $BASE or die "Could not change dir to $BASE \n" ;
 	      }else{
-   	         if ( $ENTRY =~ /Demo/ ) {
+   	         if ( $ENTRY =~ /WebgraF_ENTRY/ ) {
 	           system ("rm -rf $PROJECT") ;
 	           print " Removed project $PROJECT \n" ;
 	         }else{
@@ -361,7 +475,7 @@ if ( $DELETE =~ /true/ ) {
 
 if ( $GETFILE =~ /true/ ) {
    if ( $GETINFO =~ /true/ ) {
-      if ( $ENTRY  =~ /Demo/ ) { 
+      if ( $ENTRY  =~ /WebgraF_ENTRY/ ) { 
 	$WRK=$BASE."/".$PROJECT."/".$PROJECT.".html" ;
 	$OUT=$PROJECT."_info.html" ;
       } else {
@@ -381,7 +495,7 @@ if ( $GETFILE =~ /true/ ) {
 	exit ;
 };
 
-if ( $ENTRY   =~ /Demo/    ) { die "Please give ENTRY   \n"; } ;
+if ( $ENTRY   =~ /WebgraF_ENTRY/    ) { die "Please give ENTRY   \n"; } ;
 
 #
 # Add Message
@@ -391,7 +505,7 @@ unless ( $MESSAGE =~ /none/ ) {
    $WRK=$BASE."/".$PROJECT."/".$ENTRY."/message.txt" ;
    $WRK =~ s/ //g ;
 
-   open OFILE, "> $WRK";
+   open  OFILE, "> $WRK";
    print OFILE "$MESSAGE" ; 
    close OFILE ;
    if ( $FILE =~ "any file" ) { &make_index ; exit ; } ;
@@ -406,7 +520,7 @@ if ( $ADDUSER =~ /true/ ) {
    $WRK=$BASE."/".$PROJECT."/".$ENTRY."/input.js" ;
    $WRK =~ s/ //g ;
    if ( ! $WEBUSER ) { $WEBUSER= $ENV{USER} ; } ; 
-   open OFILE, ">> $WRK";
+   open  OFILE, ">> $WRK";
    print OFILE "user='$WEBUSER' \n" ; 
    close OFILE ;
    exit ;
@@ -438,6 +552,9 @@ if ( $CLEAN =~ /true/ ) {
 };
 
 
+#
+# Add/update a project 
+#
 
 @PROJECTS = &get_dir ;
 print "PROJECTS: @PROJECTS \n";
@@ -457,13 +574,14 @@ if ( ! grep /$PROJECT/, @PROJECTS ) {
 	print "Update $PROJECT \n";
 };
 
+#
+# Add/update an entry
+#
+
 @ENTRYS = &get_dir ;
 print "ENTRYS: @ENTRYS \n" ;
 
-if ( $ENTRY =~ /Demo/ ) { exit } ;
 if ( ! grep /$ENTRY/, @ENTRYS ) {
-
-	if ( $ENTRY =~ /Demo/ ) { $ENTRY=$PROJECT ; } ;
 	$WRK = $ENTRY ;
 	$WRK =~ s/ //g ;
 	mkdir $WRK,0755  ;
@@ -474,16 +592,13 @@ if ( ! grep /$ENTRY/, @ENTRYS ) {
 
 } ;
 
-	$WRK = $ENTRY ;
-	$WRK =~ s/ //g ;
-chdir $WRK or die "Could not goto $ENTRY \n";
-
 # Get the file
 
 chdir $CALLDIR or die "Could not goto $CALLDIR \n";
 
 $BASENTRY=$BASE . "/" . $PROJECT ."/" . $ENTRY ;
 $BASENTRY =~ s/ //g ;
+
 print "$BASENTRY \n" ;
 if ( -s "$FILE" ) { 
 	if ( -d "$FILE" ) { 

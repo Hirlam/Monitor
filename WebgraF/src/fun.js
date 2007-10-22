@@ -19,7 +19,7 @@ function resize(size_ind) {
 function debug_window() {
 
    passing = input_list[choice_ind].substr(0,input_list[choice_ind].lastIndexOf("\.js"))
-   newURL=baseURL.substr(0,baseURL.lastIndexOf("index\.html"))+'/'+passing+'/input.js'
+   newURL=baseURL.substr(0,baseURL.lastIndexOf("index\.html"))+'/'+passing+'/debug.html'
    passing = 'debug_'+passing
    window.open(newURL,passing,'width=700,height=400,scrollbars=yes,menubar=yes')
 
@@ -793,7 +793,7 @@ function update_all() {
    do {
 
       p = arguments[i+1]
-      if( p.indexOf("html",0) < 0 ) { p += ".html" }
+      if( p.indexOf("html",0) < 0  && p.indexOf("xml",0) < 0 ) { p += ".html" }
       parent.frames[arguments[i]].location = p
       i++ ; i++
 
@@ -971,6 +971,10 @@ function sim_head() {
     this.txt += dirFig('up.gif',   ("resize( 0.15)"),lang[pre_lan].larg,'width=10')
     break
 
+    case -15:
+    this.act = "nada()"
+    break
+
  }
 
 
@@ -1109,6 +1113,36 @@ function dow_body( ) {
 
 }
 //--------------------------------------------------------------------------------------------------------------------
+function xml_update(loc) { 
+ tmp = my_xml[loc]
+ if ( tmp.lastIndexOf("http") < 0 ) {
+    tmp =  baseURL.substr(0,baseURL.lastIndexOf("index.html")) 
+    tmp += input_text[choice_ind]+'/'+ my_xml[loc]
+ }
+ if ( tmp.lastIndexOf(".") < 0 ) { tmp += '.xml' }
+ parent.frames['Pic'].location = tmp
+}
+//--------------------------------------------------------------------------------------------------------------------
+function xml_body( ) { 
+
+ this.attrib = "bgcolor='#ffffff' rowspan='1' colspan='6'"
+ this.menu_style = menu_style
+ this.txt        = ""
+
+ this.act = "xml_update(selectedIndex)"
+ this.txt += sel_top(6,this.act,0)
+
+ for (jj = 0; jj < this.v.length; jj++) {
+    if ( this.p == jj ) { seltext = 'selected' } else { seltext ='' }
+    this.txt += "<option " +seltext+" class="+m_item+">"+this.t[jj]+"</option>"
+ }
+
+ this.txt += "</select></td></tr>"
+
+ return this.txt
+
+}
+//--------------------------------------------------------------------------------------------------------------------
 function make_menu(loc) { 
 
  this.txt = ""
@@ -1189,8 +1223,8 @@ function write_list(){
  if ( user != 'nada' ) { this.txt +="<b> By "+user+"</b> <br>" }
  if ( do_debug  ) { this.txt += deb_menu.make_menu('l') }
  if ( do_resize ) { this.txt += res_menu.make_menu('l') }
-
  if ( rem_menu.active ) { this.txt += sen_menu.make_menu('l') }
+ this.txt += xml_menu.make_menu('l')
 
  list = this.txt
 
@@ -1275,6 +1309,8 @@ function init() {
  sen_menu = new menu(-12,lang[pre_lan].send,[""],[""],'l',0,sim_head,nada,0,( do_send && ! do_manip && ! do_flip && ! do_delete ))
  deb_menu = new menu(-13,'Debug'           ,[""],[""],'l',0,sim_head,nada,0, do_debug )
  res_menu = new menu(-14,lang[pre_lan].resi,[""],[""],'l',0,sim_head,nada,0, do_resize )
+ if ( my_xml_txt.length == 0 ) { my_xml_txt = my_xml }
+ xml_menu = new menu(-15,my_xml_title,my_xml,my_xml_txt,'l',0,sim_head,xml_body,0, (my_xml.length > 0 ))
 
  for ( i=0 ; i < mname.length ; i++ ) {
 
