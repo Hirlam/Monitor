@@ -606,12 +606,14 @@ SUBROUTINE verify
                 ! 
 
                 IF ( ( ltimeserie_stat .OR. lprint_timeserie_stat ) &
-                    .AND. ( ANY(time_stat_fclen  == fclen(n))    &
-                     .OR.   time_stat_fclen_diff == -1      ))   &
+                    .AND. ( ANY(time_stat_fclen  == fclen(n))       &
+                     .OR.   time_stat_fclen_diff == -1      )) THEN
 
-                     CALL add_timeserie(per_ind,i,k,   &
-                          obs(i)%o(jj)%date,obs(i)%o(jj)%time,   &
+                     CALL add_timeserie(per_ind,i,k,                &
+                          obs(i)%o(jj)%date,obs(i)%o(jj)%time,      &
                           nexp,obs(i)%o(jj)%val(k),tmpdiff)
+
+                ENDIF
 
 
                 IF ( lstat_gen ) THEN

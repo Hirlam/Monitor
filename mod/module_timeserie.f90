@@ -25,7 +25,9 @@ MODULE timeserie
 
 
   USE data, ONLY : time_stat_fclen,fclen,nexp,nparver,  &
-                   sdate,stime,fcint,lallstat,maxstn
+                   sdate,stime,fcint,lallstat,maxstn,   &
+                   maxfclen
+
   USE functions, ONLY : get_maxtim
   IMPLICIT NONE
 
@@ -58,8 +60,9 @@ MODULE timeserie
        time_stat_fclen_diff = -1
        IF ( time_stat_fclen(1)   /= -1 ) time_stat_fclen_diff = time_stat_fclen(1)
        IF ( time_stat_fclen_diff ==  0 ) time_stat_fclen_diff = fcint
+       time_stat_fclen_diff = MIN(fcint,time_stat_fclen_diff)
 
-       DO i=2,48
+       DO i=2,maxfclen
           
           IF ( time_stat_fclen(i) /= -1 ) THEN
                   IF ( time_stat_fclen_diff >                         &
@@ -136,6 +139,7 @@ MODULE timeserie
 
     ENDDO
 
+        time_stat_max = 0
     all_time_stat_max = i
 
     ALLOCATE(tim_par_active(maxper,maxstn,nparver))
@@ -159,6 +163,8 @@ MODULE timeserie
 
 
   INTEGER :: oo,this_stat_time
+
+  !--------------------------------------------------------
   
   ! 
   ! Add timeserie statistics
@@ -196,6 +202,12 @@ MODULE timeserie
 
      time_stat_max = time_stat_max + 1
      oo = time_stat_max
+
+     IF ( oo > all_time_stat_max ) THEN
+        WRITE(6,*)'oo > all_time_stat_max'
+        CALL abort
+     ENDIF 
+    
      time_stat(oo)%date      = date
      time_stat(oo)%time      = time
 
