@@ -1,5 +1,11 @@
 MODULE scatter
 
+ ! 
+ ! Storage for scatter array
+ !
+ ! Ulf Andrae, SMHI, 2007
+ ! 
+
  USE types
 
  IMPLICIT NONE
@@ -13,9 +19,9 @@ MODULE scatter
 
  CONTAINS
 
- !
- !
- !
+ !--------------------------------------------
+ !--------------------------------------------
+ !--------------------------------------------
 
  SUBROUTINE allocate_scatter(len_scat,maxper)
 
@@ -51,6 +57,11 @@ MODULE scatter
  all_par_active = 0
 
  END SUBROUTINE allocate_scatter
+
+ !--------------------------------------------
+ !--------------------------------------------
+ !--------------------------------------------
+
  SUBROUTINE deallocate_scatter(maxper,nparver)
 
   IMPLICIT NONE

@@ -219,12 +219,10 @@ For further usage of the namelist variables read the definition in src/module_da
  OBINT      = 12
  LFCVER = F,
  DATA_TO_VERIFY = 2,
- LPRINT_GROSS          = T,
  LPLOT_VERT= T,               ! Plot vertical profiles
  LTIMESERIE_STAT= T
  TIMESERIE_WIND = 12,
  LDIFF = T,
- LREJECT_GROSS   = T,
  LSTAT_GEN = T,
  LPREP_XML = T,
   MODPATH=
@@ -285,6 +283,7 @@ variable QC_FCLEN. If QC_FCLEN is not set The forecasts < forecast interval is u
 The limits can be set explicitly in namelist by XX_LIM for each variable or by
 QC_LIM for all variables. By setting ESTIMATE_QC_LIMIT the QC_LIM will be set as 
 SCALE_QC_LIM * STDV for the forecasts in QC_FCLEN.
+QC ouput may be controlled by print_qc={0,1,2}
 
 
 # Contingency tables 

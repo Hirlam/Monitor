@@ -145,8 +145,8 @@ SUBROUTINE verify
     ALLOCATE(periods(maxper+1))
     periods = 0
 
-    ii = get_maxtim(sdate,edate_obs,MIN(timdiff,fcint))
-    ii = ii * timdiff * nfclengths / fcint
+    ii = get_maxtim(sdate,edate_obs,MIN(timdiff,fcint)) & 
+         * nfclengths / fcint
     len_scat = MAX(ii,maxtim_scat)
 
 
@@ -164,8 +164,8 @@ SUBROUTINE verify
        periods(i) = monincr(periods(i-1),period_freq)
     ENDDO
 
-    ii = 31*period_freq*24/MIN(timdiff,fcint)
-    ii = ii * timdiff * nfclengths / fcint
+    ii = 31*period_freq*24/MIN(timdiff,fcint) &
+         * nfclengths / fcint
     len_scat = MAX(ii,maxtim_scat)
 
  CASE(3)
@@ -193,8 +193,8 @@ SUBROUTINE verify
     END SELECT
 
     ii = 31*period_freq*24/MIN(timdiff,fcint) * &
-         (edate/10000 - sdate/10000 +1)
-    ii = ii * timdiff * nfclengths / fcint
+         (edate/10000 - sdate/10000 +1)       * &
+         nfclengths / fcint
     len_scat = MAX(ii,maxtim_scat)
 
  CASE DEFAULT
@@ -855,7 +855,6 @@ SUBROUTINE verify
           periods(l)   = MINVAL(mindate)
           periods(l+1) = MAXVAL(maxdate)
        ENDIF
-
 
 #ifdef MAGICS
 

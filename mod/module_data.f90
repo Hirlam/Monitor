@@ -260,8 +260,6 @@ MODULE data
  LOGICAL :: lplot_stat       = .FALSE.	! Create plot file for statistics
  LOGICAL :: lplot_stat_month = .FALSE.	! Create plot file for monthly statistics
  LOGICAL :: lplot_stat_year  = .FALSE.	! Create plot file for seasonal statistics
- LOGICAL :: lprint_gross     = .FALSE.	! Print gross error diagnostics
- LOGICAL :: lreject_gross    = .FALSE.  ! Reject gross error data
  LOGICAL :: use_database     = .FALSE.  ! Try to use database, obsolete
  LOGICAL :: release_memory   = .TRUE.   ! Release memory as soon as data have been used
  LOGICAL :: release_memory_f = .FALSE.  ! Release memory after findplot, obsolete
@@ -312,6 +310,7 @@ MODULE data
  INTEGER :: pe_interval = 12
 
  ! Quality control
+ INTEGER :: print_qc           = 1            ! Quality control output level (0,1,2)
  LOGICAL :: lquality_control   = .FALSE.      ! Pre verification quality control
  LOGICAL :: estimate_qc_limit  = .FALSE.      ! Calculate STDV for given
                                               ! qc_fclen
@@ -363,11 +362,12 @@ MODULE data
                  obspath,modpath,                       &
                  lfcver,leach_station,ltiming,          &
                  lallstat,                              &
-                 lfindplot,                   &
-                 lstat_gen,lverify,          		&
+                 lfindplot,                             &
+                 lstat_gen,lverify,          	    	&
                  lplot_stat,ldaymean,                   &
-                 lplot_vert_month,lplot_vert,     	&
+                 lplot_vert_month,lplot_vert,        	&
                  ltimeserie,lplot_scat,lprep_xml,       &
+                 lcontingency,                          &
                  ltimeserie_stat,                       &
                  lprint_timeserie_stat,                 &
                  time_stat_fclen,                       &
@@ -382,11 +382,11 @@ MODULE data
                  map_bias_interval,map_type,            &
                  MAP_CENTRE_LATITUDE,                   &
                  MAP_CENTRE_LONGITUDE,                  &
-                 lprint_gross,lprint_selection,         &
+                 lprint_selection,                      &
                  lprint_summary,                        &
                  lprint_read,print_read,                &
-                 lprint_verif,lprint_findp,	        &
-                 lprint_do_stat,lreject_gross,		&
+                 lprint_verif,lprint_findp,   	        &
+                 lprint_do_stat,                		&
                  release_memory,lplot_freq,             &
                  release_memory_f,                      &
                  cbox,lpoly,data_to_verify,data_source, &
@@ -408,6 +408,7 @@ MODULE data
                  maxcla,mincla,                         &
                  show_bias,show_rmse,show_stdv,show_obs,&
                  period_type,period_freq,pe_interval,   &
+                 print_qc,                              &
                  lquality_control,qc_fclen,qc_lim,      &
                  estimate_qc_limit,qc_lim_scale,        &
                  corr_pairs,flag_pairs,exp_pairs,       &

@@ -133,8 +133,7 @@ PROGRAM verobs
     !
 
     READ(10,namver,iostat=ierr)
-
-    IF (ierr.NE.0) EXIT
+    IF (ierr /= 0) EXIT
 
     maxstn_save = maxstn
 

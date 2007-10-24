@@ -32,13 +32,16 @@ SUBROUTINE quality_control
  LOGICAL :: all_exp_verified   = .TRUE.
  LOGICAL :: found_right_time   = .FALSE.
  LOGICAL :: lprint_gross_first = .TRUE.
+ LOGICAL :: lprecip_qc_only    = .FALSE.
  LOGICAL :: qc_control(nexp) 
 
  !----------------------------------------------------------
 
- WRITE(6,*)
- WRITE(6,*)'--QUALTITY CONTROL--'
- WRITE(6,*)
+ IF ( print_qc > 0 ) THEN
+    WRITE(6,*)
+    WRITE(6,*)'--QUALTITY CONTROL--'
+    WRITE(6,*)
+ ENDIF
 
  bias = 0.
  rmse = 0.
@@ -64,12 +67,14 @@ SUBROUTINE quality_control
 
  ENDIF
 
- WRITE(6,*)
- DO i=1,nfclengths
-    IF(qc_fclen(i) == -1 ) EXIT
-    WRITE(6,*)'Quality check forecast length ',qc_fclen(i)
- ENDDO
- WRITE(6,*)
+ IF ( print_qc > 0 ) THEN
+    WRITE(6,*)
+    DO i=1,nfclengths
+       IF(qc_fclen(i) == -1 ) EXIT
+       WRITE(6,*)'Quality check forecast length ',qc_fclen(i)
+    ENDDO
+    WRITE(6,*)
+ ENDIF
 
 
  !
@@ -144,7 +149,13 @@ SUBROUTINE quality_control
        ! Cycle if this fc hour should not be user for quality control
        !
 
-       IF (.NOT. ANY(qc_fclen == fclen(n)) ) CYCLE FC_CYCLE
+       lprecip_qc_only = (                                      &
+                          ((ind_pe(n) > 0 )            .OR.     &
+                           (fclen(n) == pe_interval )) .AND.    &
+                          (.NOT. ( ANY(qc_fclen == fclen(n))))  &
+                                                              )
+
+       IF (.NOT. ( ANY(qc_fclen == fclen(n)) .OR. lprecip_qc_only )) CYCLE FC_CYCLE
 
        !
        ! Step time to verification time 
@@ -179,6 +190,8 @@ SUBROUTINE quality_control
 
           NPARVER_LOOP : DO k=1,nparver
 
+             IF(k /= pe_ind .AND. lprecip_qc_only ) CYCLE NPARVER_LOOP
+
              !
              ! Loop over all variables
              !
@@ -188,14 +201,9 @@ SUBROUTINE quality_control
              !
              ! All EXP should have data, else do not quality control
              !
-!
-!            DO o=1,nexp
-!              IF (ABS(hir(i)%o(j)%nal(o,n,k)-err_ind) < 1.e-6) CYCLE NPARVER_LOOP
-!            ENDDO
 
              qc_control       = .FALSE.
              diff             = err_ind
-             !all_exp_verified = .TRUE.
 
              EXP_LOOP : DO o=1,nexp
 
@@ -212,7 +220,6 @@ SUBROUTINE quality_control
                    ELSEIF(fclen(n) > pe_interval .AND. ind_pe(n) > 0 ) THEN
 
                       IF (ABS(hir(i)%o(j)%nal(o,ind_pe(n),k)-err_ind)<1.e-6) CYCLE EXP_LOOP
-                         !all_exp_verified = .FALSE.
 
                       diff_prep = hir(i)%o(j)%nal(o,n        ,k) - &
                                   hir(i)%o(j)%nal(o,ind_pe(n),k)
@@ -225,7 +232,6 @@ SUBROUTINE quality_control
                       ENDIF
 
                    ELSE
-!                     all_exp_verified = .FALSE.
                       CYCLE EXP_LOOP
                    ENDIF
                 ELSE
@@ -268,7 +274,7 @@ SUBROUTINE quality_control
                 !
 
                 IF (k /= pe_ind ) THEN
-                   IF (lprint_gross ) THEN
+                   IF (print_qc > 1 ) THEN
                       WRITE(6,'(A,2I10,2I3)')'GROSS ERROR station:', &
                       hir(i)%stnr,wdate,wtime,fclen(n)
                       WRITE(6,*)obstype(k),qc_lim(k),     &
@@ -278,7 +284,7 @@ SUBROUTINE quality_control
                    obs(i)%o(jj)%val(k) = err_ind
                 ELSEIF ( (fclen(n) == pe_interval).OR. &
                          (fclen(n) >  pe_interval .AND.  ind_pe(n) > 0 )) THEN
-                   IF (lprint_gross ) THEN
+                   IF (print_qc > 1 ) THEN
                       IF (lprint_gross_first ) THEN
                          WRITE(6,'(A)')'GROSS ERROR station: stnr, date, time, fclen'
                          WRITE(6,'(A)')'Obstype, qc limit, obs, model'
@@ -336,7 +342,7 @@ SUBROUTINE quality_control
     estimate_qc_limit = .FALSE.
 
  ELSE
-    CALL sumup_gross(gross_error,total_amount)
+    IF ( print_qc > 1 ) CALL sumup_gross(gross_error,total_amount)
     DEALLOCATE(gross_error)
  ENDIF
  DEALLOCATE(total_amount)
