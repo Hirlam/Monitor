@@ -1,4 +1,4 @@
-ARCH   := hpce
+#ARCH   := hpce
 
 .DELETE_ON_ERROR:
 
@@ -8,9 +8,9 @@ include $(ROOTDIR)/config/config.$(ARCH)
 
 
 ifeq ($(MAGICSFLAG),-DMAGICS)
-   GLLINK := src plt rdr mod
+   GLLINK := src plt rdr mod src
 else
-   GLLINK := src rdr mod
+   GLLINK := src rdr mod src
 endif
 
 
