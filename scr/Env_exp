@@ -2,7 +2,7 @@
 PROJECT=monitor
 
 # Path to this project
-BASE=/local_disk/uandrae/new_monitor/monitor
+BASE=$SCRATCH/monitor
 
 # Bin
 BIN=$BASE/bin/
