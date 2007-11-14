@@ -2,7 +2,7 @@
 PROJECT=monitor
 
 # Path to this project
-BASE=$SCRATCH/monitor
+BASE=/local_disk/uandrae/new_monitor/monitor
 
 # Bin
 BIN=$BASE/bin/
@@ -14,27 +14,27 @@ WRK=$BASE/wrk/
 #
 
 # Experiment
-NEXP=2
-MYEXP="'al00_31t0','ALD'"
-
 EXP[1]=al00_31t0
 EXP[2]=ALD
 
-   OBSPATH=$BASE/dat/obs/
-MODPATH[1]=$BASE/dat/${EXP[1]}/
-MODPATH[2]=$BASE/dat/${EXP[2]}/
+   OBSPATH=$BASE/../dat/obs/
+MODPATH[1]=$BASE/../dat/${EXP[1]}/
+MODPATH[2]=$BASE/../dat/${EXP[2]}/
 
 # Select output_type
 # 1  Postscript
 # 2  PNG
 # 3  JPEG
 
-OUTPUT_TYPE=2
+OUTPUT_TYPE=1
 
 # Date
 INITIAL_DATE=20061126
 SDATE=$INITIAL_DATE
 EDATE=20061205
+
+# Setup number of TEMP levels
+LEV_LST="100 200 300 500 700 850 925"
 
 # WebgraF call, set empty if not used
 WEBGRAF_BASE=$BASE/WebgraF
@@ -45,6 +45,7 @@ HELP="HIRALD ALADIN experiments \
       <br> al00_31t0 : 11km, 60 levels, SMHI ALADIN CY31t0 \
       <br> ALD       : 11km, 40 levels, FMI ALADIN  CY30t1 "
 
-export PROJECT WEBCALL WEBGRAF_BASE BASE BIN MYEXP NEXP SDATE EDATE HELP OUTPUT_TYPE INITIAL_DATE SCR WRK
+export PROJECT WEBCALL WEBGRAF_BASE BASE BIN MYEXP SDATE EDATE HELP OUTPUT_TYPE INITIAL_DATE SCR WRK
+export LEV_LST
 
 ###########################

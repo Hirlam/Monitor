@@ -24,7 +24,7 @@ SUBROUTINE prep_xml(lunxml,nparver,nr,time,scat)
 
  REAL    :: xmean,ymean,          &
             stdevx,stdevy,        &
-            bias,rmse,corr
+            bias,rmse,stdv,corr
 
  REAL, ALLOCATABLE :: xval(:),yval(:)
 
@@ -74,7 +74,7 @@ SUBROUTINE prep_xml(lunxml,nparver,nr,time,scat)
 
         CALL calc_corr(kk,xval(1:kk),yval(1:kk),   &
                        xmean,ymean,stdevx,stdevy,  &
-                       bias,rmse,corr)
+                       bias,rmse,stdv,corr)
 
         IF ( jj == 1 ) THEN
            WRITE(lunxml,*)'<MEAN_OBS>',xmean,'</MEAN_OBS>'
@@ -86,7 +86,7 @@ SUBROUTINE prep_xml(lunxml,nparver,nr,time,scat)
         WRITE(lunxml,*)'<NAME>',TRIM(expname(jj)),'</NAME>'
         WRITE(lunxml,*)'<NUM>',kk,'</NUM>'
         WRITE(lunxml,*)'<MEAN>',ymean,'</MEAN>'
-        WRITE(lunxml,*)'<STDV>',stdevy,'</STDV>'
+        WRITE(lunxml,*)'<STDV>',stdv,'</STDV>'
         WRITE(lunxml,*)'<BIAS>',bias,'</BIAS>'
         WRITE(lunxml,*)'<RMSE>',rmse,'</RMSE>'
         WRITE(lunxml,*)'<CORR>',corr,'</CORR>'

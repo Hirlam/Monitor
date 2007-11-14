@@ -4,48 +4,61 @@ set -axk
 
 . Env_exp
 
-############ functions
-############ functions
-############ functions
-function experiments {
+cd $WRK || exit
 
-F=1
-EXPNAME=""
-  echo '  MODPATH=' >> fort.10
-  while [ $F -le $NEXP ] ; do
-  echo    \'${MODPATH[$F]}\', >> fort.10
-  F=$( expr $F + 1 ) 
-done
+rm -f *.ps *.png *.jpg fort.* temp.tar vert.tar fort.10
+
+# Experiment names and paths
+
+cat << EOF > fort.10
+&NAMVER
+EOF
 
 cat << EOF >> fort.10
-  NEXP=$NEXP
   OBSPATH ='$OBSPATH',
   OUTPUT_TYPE=$OUTPUT_TYPE, 
   PRINT_READ = 0,
   EXPNAME =
 EOF
+
 F=1
-while [ $F -le $NEXP ] ; do
+while [ ${EXP[$F]} ] ; do
   echo \'${EXP[$F]}\', >> fort.10
   F=$( expr $F + 1 ) 
 done
 
-}
-############ functions
-############ functions
-############ functions
-function end_of_namelist {
-cat << EOF >> fort.10
-/
-EOF
-}
-############ functions
-############ functions
-############ functions
-function variables {
+echo '  MODPATH=' >> fort.10
+F=1
+while [ ${MODPATH[$F]} ] ; do
+  echo    \'${MODPATH[$F]}\', >> fort.10
+  F=$( expr $F + 1 ) 
+done
+NEXP=$( expr $F - 1 ) 
+
+NLEV=0
+for LEV in $LEV_LST ; do
+   NLEV=$( expr $NLEV + 1 ) 
+done
+
+NPARVER=$( expr $NLEV \* 6 ) 
+
+LEV_LST=`echo $LEV_LST | sed "s/ /,/g"`
 
 cat << EOF >> fort.10
- NPARVER =          36,
+  NEXP=$NEXP
+ SDATE = $SDATE,
+ EDATE = $EDATE,
+ MAXSTN = 600,
+ STNLIST = 0,
+ STATNAME='Temp.html'
+ FCINT      = 06,
+ OBINT      = 12
+ FCLEN      = 00,12,24,36,48,
+ LFCVER = T,
+ DATA_SOURCE = 'vfld_temp',
+ LPLOT_STAT= T,
+ LSTAT_GEN = T,
+ NPARVER = $NPARVER,
  FF_IND  =          1,
  DD_IND  =          2,
  TT_IND  =          3,
@@ -53,79 +66,24 @@ cat << EOF >> fort.10
  QQ_IND  =          5,
  FI_IND  =          6,
  LTEMP   = T,
- LEV_LST = 850,700,500,300,200,100,
- LQUALITY_CONTROL = T
- QC_LIM = 13.39068    ,   13.11960    ,   14.41789    ,   16.73272    ,   12.92609    ,   11.88875    
- ,  360.,360.,360.,360.,360.,360.,
- ,   5.681776    ,   4.537991    ,   3.996569    ,   4.399463    ,   6.170159    ,   4.673162    
- ,   89.23454    ,   102.9881    ,   93.87140    ,   70.88361    ,   40.92588    ,   10.52063    
- ,   4.092330    ,   3.495025    ,   1.396699    ,  0.1407883    ,  3.2562181E-02 ,  2.2908855E-02
- ,   42.01955    ,   43.00373    ,   52.88125    ,   65.51881    ,   60.46507    72.68517    
+ LEV_LST = $LEV_LST
+ LQUALITY_CONTROL  = T
+ ESTIMATE_QC_LIMIT = T
+ QC_LIM_SCALE = 3.,
+ LPLOT_VERT= T,
+ LPREP_XML = T,
+ LTIMESERIE_STAT= T
+ TIMESERIE_WIND = 30*12,
+ LDIFF =T
+ SHOW_STDV=T
+/
 EOF
 
-}
-############ functions
-############ functions
-############ functions
-
-cd $WRK || exit
-
-rm -f *.ps *.png *.jpg fort.* temp.tar vert.tar
-
-cat << EOF > fort.10
- &NAMVER
- SDATE = $SDATE,
- EDATE = $EDATE,
- MAXSTN = 200,
- STNLIST = 0,
- STATNAME='Temp_LL.html'
- FCINT      = 12,
- OBINT      = 12
- NFCLENGTHS = 2
- FCLEN      = 12,24,
- LFCVER = T,
- DATA_SOURCE = 'vfld_temp',
- LPLOT_STAT= T,
- LSTAT_GEN = T,
-EOF
-
-experiments
-variables
-end_of_namelist
 
 cp fort.10 namelist_temp
 
 $BIN/verobs || exit
 
-cat << EOF > fort.10
- &NAMVER
- SDATE = $SDATE,
- EDATE = $EDATE,
- MAXSTN = 200,
- STNLIST = 0,
- STATNAME='vert_temp_HH.html'
- NTIMVER    = 4
- NFCLENGTHS = 2
- FCLEN      = 12,24,
- FCINT      = 12,
- OBINT      = 12
- LFCVER = F,
- DATA_SOURCE = 'vfld_temp',
- LPLOT_VERT= T,
- LTIMESERIE_STAT= T
- TIMESERIE_WIND = 30*12,
- LDIFF = T,
- LSTAT_GEN = T,
- LPREP_XML = T,
-EOF
-
-experiments
-variables
-end_of_namelist
-
-cp fort.10 namelist_vert
-
-$BIN/verobs || exit
 
 [[ $WEBCALL == ""  ]] && exit
 
@@ -135,18 +93,20 @@ $BIN/verobs || exit
 
 mkdir vert 
 if [ $OUTPUT_TYPE -eq 1 ] ; then
-   mv l*.ps vert
-   $SCR/ps2png 6 6 $NEXP '-resize 75% -rotate 90'
-   tar cvf temp.tar *.png
+   mv L*.ps vert
+   $SCR/ps2png 6 $NLEV $NEXP '-resize 75% -rotate 90'
+   tar cvf temp.tar *.png *.ps
 elif [ $OUTPUT_TYPE -eq 2 ] ; then
-   mv l*.png vert
-   $SCR/png2png 6 6 $NEXP png
+   mv L*.png vert
+   $SCR/png2png 6 $NLEV $NEXP png
    tar cvf temp.tar *.png
 elif [ $OUTPUT_TYPE -eq 3 ] ; then
-   mv l*.jpg vert
-   $SCR/png2png 6 6 $NEXP jpg
+   mv L*.jpg vert
+   $SCR/png2png 6 $NLEV $NEXP jpg
    tar cvf temp.tar *.jpg
 fi
+
+rm -f *.jpg *.ps *.png
 
 #Vertical
 cp $SCR/style.xsl .
@@ -154,17 +114,17 @@ if [ $OUTPUT_TYPE -eq 1 ] ; then
    rm -f *.ps
    mv vert/*.ps .
    $SCR/ps2png 6 1 $NEXP '-resize 75%'
-   tar cvf vert.tar *.png *.xml style.xsl
+   tar cvf vert.tar *.png *.xml style.xsl *.html *.ps
 elif [ $OUTPUT_TYPE -eq 2 ] ; then
    rm -f *.png
    mv vert/*.png .
    $SCR/png2png 6 1 $NEXP png
-   tar cvf vert.tar *.png *.xml style.xsl
+   tar cvf vert.tar *.png *.xml style.xsl *.html
 elif [ $OUTPUT_TYPE -eq 3 ] ; then
    rm -f *.jpg
    mv vert/*.jpg .
    $SCR/png2png 6 1 $NEXP jpg
-   tar cvf vert.tar *.jpg *.xml style.xsl
+   tar cvf vert.tar *.jpg *.xml style.xsl *.html
 fi 
 
 rmdir vert

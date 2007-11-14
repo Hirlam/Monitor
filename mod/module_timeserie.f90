@@ -24,9 +24,8 @@ MODULE timeserie
  SUBROUTINE allocate_timeserie(maxper,timdiff,edate_obs)
 
 
-  USE data, ONLY : time_stat_fclen,fclen,nexp,nparver,  &
-                   sdate,stime,fcint,lallstat,maxstn,   &
-                   maxfclen
+  USE data, ONLY : nuse_fclen,use_fclen,nexp,nparver,   &
+                   sdate,stime,fcint,lallstat,maxstn
 
   USE functions, ONLY : get_maxtim
   IMPLICIT NONE
@@ -55,31 +54,17 @@ MODULE timeserie
     ! Check minimum time_stat_fclen difference
     !
 
-    IF ( ANY( time_stat_fclen /= -1 ))THEN
 
-       time_stat_fclen_diff = -1
-       IF ( time_stat_fclen(1)   /= -1 ) time_stat_fclen_diff = time_stat_fclen(1)
-       IF ( time_stat_fclen_diff ==  0 ) time_stat_fclen_diff = fcint
-       time_stat_fclen_diff = MIN(fcint,time_stat_fclen_diff)
+    time_stat_fclen_diff = -1
+    IF ( use_fclen(1)         /= -1 ) time_stat_fclen_diff = use_fclen(1)
+    IF ( time_stat_fclen_diff ==  0 ) time_stat_fclen_diff = fcint
+    time_stat_fclen_diff = MIN(fcint,time_stat_fclen_diff)
 
-       DO i=2,maxfclen
-          
-          IF ( time_stat_fclen(i) /= -1 ) THEN
-                  IF ( time_stat_fclen_diff >                         &
-                       time_stat_fclen(i) - time_stat_fclen(i-1))     &
-                       time_stat_fclen_diff =                         &
-                       time_stat_fclen(i) - time_stat_fclen(i-1) 
-          ENDIF
-       ENDDO
-    ELSE
-       time_stat_fclen_diff = -1
-    ENDIF
+    DO i=2,nuse_fclen
+       time_stat_fclen_diff = MIN(time_stat_fclen_diff,use_fclen(i) - use_fclen(i-1))
+    ENDDO
 
-    IF ( time_stat_fclen_diff == -1 ) THEN
-       CALL adddtg(cdate,ctime*10000,fclen(1)*3600,wdate,wtime)
-    ELSE
-       CALL adddtg(cdate,ctime*10000,time_stat_fclen_diff*3600,wdate,wtime)
-    ENDIF
+    CALL adddtg(cdate,ctime*10000,time_stat_fclen_diff*3600,wdate,wtime)
 
     wtime = wtime / 10000
     cdate = wdate
@@ -125,11 +110,7 @@ MODULE timeserie
 
        ENDIF
 
-       IF ( time_stat_fclen_diff == -1 ) THEN
-         CALL adddtg(cdate,ctime*10000,timdiff*3600,wdate,wtime)
-       ELSE
-         CALL adddtg(cdate,ctime*10000,time_stat_fclen_diff*3600,wdate,wtime)
-       ENDIF
+       CALL adddtg(cdate,ctime*10000,time_stat_fclen_diff*3600,wdate,wtime)
 
        wtime = wtime / 10000
        cdate = wdate

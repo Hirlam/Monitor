@@ -1,5 +1,9 @@
 #!/bin/ksh
 
+#
+# Run verobs for surface variables
+#
+
 set -axk
 
 ulimit -m unlimited
@@ -15,50 +19,38 @@ ulimit -a
 
 set -axk
 
+cd $WRK || exit
 
-############ functions
-############ functions
-############ functions
-function experiments {
+rm -f *.ps *.png *.dat *.xml *.html fort.10
 
-F=1
-EXPNAME=""
-  echo '  MODPATH=' >> fort.10
-  while [ $F -le $NEXP ] ; do
-  echo    \'${MODPATH[$F]}\', >> fort.10
-  F=$( expr $F + 1 ) 
-done
+# Create namelist
 
-cat << EOF >> fort.10
+cat << EOF > fort.10
+ &NAMVER
  SDATE = $SDATE,
  EDATE = $EDATE,
  OUTPUT_TYPE=$OUTPUT_TYPE
- NEXP=$NEXP
  OBSPATH ='$OBSPATH',
- PRINT_READ = 1,
+ PRINT_READ = 0,
  EXPNAME =
 EOF
+
 F=1
-while [ $F -le $NEXP ] ; do
+while [ ${EXP[$F]} ] ; do
   echo \'${EXP[$F]}\', >> fort.10
   F=$( expr $F + 1 ) 
 done
 
-}
-############ functions
-############ functions
-############ functions
-function end_of_namelist {
-cat << EOF >> fort.10
-/
-EOF
-}
-############ functions
-############ functions
-############ functions
-function variables {
+echo '  MODPATH=' >> fort.10
+F=1
+while [ ${MODPATH[$F]} ] ; do
+  echo    \'${MODPATH[$F]}\', >> fort.10
+  F=$( expr $F + 1 ) 
+done
+NEXP=$( expr $F - 1 ) 
 
 cat << EOF >> fort.10
+ NEXP=$NEXP
  NPARVER = 8,
  FF_IND  = 1,
  DD_IND  = 2,
@@ -68,116 +60,63 @@ cat << EOF >> fort.10
  QQ_IND  = 6,
  NN_IND  = 7,
  PE_IND  = 8,
- LQUALITY_CONTROL = T
- FF_LIM = 14.21227
- DD_LIM = 360.
- PS_LIM = 6.017519
- TT_LIM = 11.53204
- RH_LIM = 56.90424
- QQ_LIM = 6.644235
- NN_LIM = 10.
- PE_LIM = 50.
-EOF
-
-}
-############ functions
-############ functions
-############ functions
-function stations {
-
-cat << EOF >> fort.10
- MAXSTN = 2000,
- STNLIST = 0
-EOF
-}
-############ functions
-############ functions
-############ functions
-
-cd $WRK || exit
-
-rm -f *.ps *.png *.dat *.xml *.html
-
-
-#
-# Verification by forecast length
-#
-
-cat << EOF > fort.10
- &NAMVER
- STATNAME='Surface_LL.html'
- OBINT      = 03
- FCINT      = 12
- NFCLENGTHS = 8,
- FCLEN      = 03,06,09,12,15,18,21,24,
- LFCVER = T,
- DATA_SOURCE = 'vfld',
- LPLOT_STAT= T,
- LSTAT_GEN = T,
- LTIMESERIE_STAT= T,
- TIME_STAT_FCLEN = 15,18,21,24,
- TIMESERIE_WIND  = 7*06,00
- LDIFF = T,
- CONT_PARAM  = 1
- CONT_IND(1) = 8,
- CONT_CLASS(1) = 7,
- CONT_LIM(1,1:7) = 0.1,0.3,1.0,3.0,10.0,30.0,100.0,
-EOF
-
-experiments
-variables
-stations
-end_of_namelist
-
-cp fort.10 namelist_surf_ll
-
-$BIN/verobs || exit
-
-echo DONE Verobs
-
-
-rm -f fort.10 || true
-
-#
-# Verification by time of day
-#
-
-cat << EOF > fort.10
- &NAMVER
- STATNAME='Surface_HH.html'
- OBINT      = 03,
- FCINT      = 12,
- NTIMVER    = 8,
- NFCLENGTHS = 4,
- FCLEN      = 03,06,09,12,
- LFCVER = F,
- LSTAT_GEN = T
- DATA_SOURCE = 'vfld',
- LPLOT_STAT= T,
- LPLOT_FREQ      = T,
- LPLOT_SCAT      = T,
- LDIFF           = F,
- PLOT_BIAS_MAP   = T,
- NMAP_HOURS      = 2,
- MAP_HOURS       = 00,12,
+ LQUALITY_CONTROL  = T
+ ESTIMATE_QC_LIMIT = T
+ QC_LIM_SCALE      = 8*3.0
+ MAXSTN            = 4000,
+ STNLIST           = 0
+ STATNAME          = 'Surface_LL.html'
+ OBINT      = 06,
+ FCINT      = 06,
+ FCLEN      = 00,06,12,18,24,30,36,42,48,
+ LFCVER            = T,
+ DATA_SOURCE       = 'vfld',
+ LPLOT_STAT        = T,
+ LSTAT_GEN         = T,
+ LDIFF             = T,
+ PLOT_BIAS_MAP     = T,
  MAP_BIAS_INTERVAL = -6.,-90.,-1.5,-6.,-15.,-3.,-6.,-6.,-1.,-1.,
                      -4.,-60.,-1.0,-4.,-10.,-2.,-4.,-3.,-1.,-1.,
-		     -2.,-30.,-0.5,-2., -5.,-1.,-2.,-1.,-1.,-1.,
+		             -2.,-30.,-0.5,-2., -5.,-1.,-2.,-1.,-1.,-1.,
                       0.,  0., 0. , 0.,  0., 0., 0., 0.,-1.,-1.,
                       2., 30., 0.5, 2.,  5., 1., 2., 1.,-1.,-1.,
                       4., 60., 1.0, 4., 10., 2., 4., 3.,-1.,-1.,
                       6., 90., 1.5, 6., 15., 3., 6., 6.,-1.,-1.,
- SHOW_OBS        = T,
+ /
+ &NAMVER
+ LSTAT_GEN          = F,
+ ESTIMATE_QC_LIMIT  = F
+ PLOT_BIAS_MAP      = F,
+ LTIMESERIE_STAT    = T,
+ TIMESERIE_WIND     = 7*06,00
+ /
+ &NAMVER
+ LTIMESERIE_STAT = F,
  LPREP_XML       = T,
+ LPLOT_FREQ      = T,
+ LPLOT_SCAT      = T,
+ CONT_PARAM      = 1
+ CONT_IND(1)     = 8,
+ CONT_CLASS(1)   = 7,
+ CONT_LIM(1,1:7) = 0.1,0.3,1.0,3.0,10.0,30.0,100.0,
+ /
+ &NAMVER
+ CONT_IND        = 10*0,
+ LPREP_XML       = F,
+ LPLOT_FREQ      = F,
+ LPLOT_SCAT      = F,
+ LSTAT_GEN       = T
+ STATNAME        = 'Surface_HH.html'
+ LPLOT_STAT      = T,
+ LFCVER          = F,
+ NTIMVER         = 8,
+ USE_FCLEN       = 03,06,09,12,10*-1,
+ SHOW_OBS        = T,
+ LDIFF           = F,
+ /
 EOF
 
-experiments
-variables
-stations
-end_of_namelist
-
-cp fort.10 namelist_surf_hh
-
+cp fort.10 namelist_surf
 
 $BIN/verobs || exit
 
@@ -185,10 +124,11 @@ $BIN/verobs || exit
 [[ $WEBCALL == ""  ]] && exit
 
 # Convert/rename plots
+# usage: ps2png $NPARVER $NLEV $NEXP $ARGUMENT
 
 if [ $OUTPUT_TYPE -eq 1 ] ; then
    $SCR/ps2png 8 1 $NEXP '-resize 75% -rotate 90'
-   tar cvf fig.tar *.png 
+   tar cvf fig.tar *.png  *.ps
 elif [ $OUTPUT_TYPE -eq 2 ] ; then
    $SCR/png2png 8 1 $NEXP png
    tar cvf fig.tar *.png 
@@ -200,7 +140,7 @@ fi
 cp $SCR/style.xsl .
 
 $WEBCALL -e Surface -f fig.tar
-tar cvf xml.tar  *.xml style.xsl
+tar cvf xml.tar  *.xml style.xsl contingency.html Surface_HH.html Surface_LL.html
 $WEBCALL -e Surf_scat -f xml.tar
 
 rm -f *.tar *.png *.ps *.jpg *.xml *.xsl || true

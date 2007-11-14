@@ -1,4 +1,4 @@
-SUBROUTINE do_stat(p1,p2)
+SUBROUTINE do_stat(per_ind,p1,p2)
 
  USE data
  USE timing
@@ -6,7 +6,7 @@ SUBROUTINE do_stat(p1,p2)
  IMPLICIT NONE
 
  ! Input
- INTEGER :: p1(maxstn),p2(maxstn)
+ INTEGER, INTENT (IN) :: per_ind,p1(maxstn),p2(maxstn)
 
  ! Local
  INTEGER :: i,j,k,o,current_month,      &
@@ -52,7 +52,7 @@ SUBROUTINE do_stat(p1,p2)
    vertime(i)=(i-1)*timdiff + time_shift
  ENDDO
 
- IF (lfcver) vertime = fclen(1:ntimver)
+ IF (lfcver) vertime = use_fclen(1:nuse_fclen)
  IF (lfcver) ttype='  LL'
 
  !
@@ -122,9 +122,10 @@ SUBROUTINE do_stat(p1,p2)
     !
 
 #ifdef MAGICS
-    IF (leach_station.AND. lplot_stat ) &
-      CALL plot_stat2(lunout,nexp,nparver,ntimver,                        &
-      stat(i)%s,stat(i)%stnr,p1(i),p2(i),par_active)
+    IF (leach_station.AND. lplot_stat )                   &
+    CALL plot_stat2(lunout,nexp,nparver,ntimver,          &
+    stat(i)%s,stat(i)%stnr,p1(i),p2(i),par_active,        &
+    used_hours(:,per_ind,:),used_fclen(:,per_ind,:))
 
     !
     ! Plot statistics against level for specific
@@ -136,8 +137,9 @@ SUBROUTINE do_stat(p1,p2)
       wrk = 0
       WHERE ( lev_lst > 0 ) wrk = 1 
       nlev = SUM(wrk)
-      CALL plot_vert(lunout,nexp,nlev,nparver,ntimver,                        &
-      stat(i)%s,stat(i)%stnr,p1(i),p2(i),par_active)
+      CALL plot_vert(lunout,nexp,nlev,nparver,ntimver,       &
+      stat(i)%s,stat(i)%stnr,p1(i),p2(i),par_active,         &
+      used_hours(:,per_ind,:),used_fclen(:,per_ind,:))
 
     ENDIF
 #endif
@@ -147,9 +149,9 @@ SUBROUTINE do_stat(p1,p2)
  ENDDO
 
 #ifdef MAGICS
- IF ( plot_bias_map ) CALL plot_map(0,minval(p1),maxval(p2),0,map_type)
- IF ( plot_bias_map ) CALL plot_map(0,minval(p1),maxval(p2),1,map_type)
- IF ( plot_obs_map  ) CALL plot_map(0,minval(p1),maxval(p2),2,map_type)
+ IF ( plot_bias_map ) CALL plot_map(0,minval(p1),maxval(p2),0,map_type,per_ind)
+ IF ( plot_bias_map ) CALL plot_map(0,minval(p1),maxval(p2),1,map_type,per_ind)
+ IF ( plot_obs_map  ) CALL plot_map(0,minval(p1),maxval(p2),2,map_type,per_ind)
 #endif
 
  csi = 1
@@ -177,7 +179,7 @@ SUBROUTINE do_stat(p1,p2)
        count(stat%active),' stations',minval(p1),maxval(p2)
     ENDIF
 
-    IF (nexp.GT.1) WRITE(lunstat,103)expname(1:nexp)
+    IF (nexp > 1) WRITE(lunstat,103)expname(1:nexp)
     WRITE(lunstat,102)'TYPE ',ttype,(text,o=1,nexp)
 
     LOOP_NPARVER : DO j=1,nparver
@@ -186,7 +188,7 @@ SUBROUTINE do_stat(p1,p2)
 
        DO k=1,ntimver
 
-          CALL write_stat(obstype(j),vertime(k),statall(1:nexp,j,k),nexp)
+          CALL write_stat(obstype(j),vertime(k),statall(:,j,k),nexp)
 
           DO o=1,nexp
              CALL acc_stat(onestat(o),statall(o,j,k),1,1,1)
@@ -207,7 +209,8 @@ SUBROUTINE do_stat(p1,p2)
     THEN
       IF (lprint_do_stat) WRITE(6,*)'Call plot_stat'
       CALL plot_stat2(lunout,nexp,nparver,ntimver,     &
-      statall,0,minval(p1),maxval(p2),par_active)
+      statall,0,minval(p1),maxval(p2),par_active,      &
+      used_hours(:,per_ind,:),used_fclen(:,per_ind,:))
     ENDIF
 
     !
@@ -221,7 +224,9 @@ SUBROUTINE do_stat(p1,p2)
        nlev = SUM(wrk)
        CALL plot_vert(lunout,nexp,nlev,nparver,ntimver, &
                       statall,0,MINVAL(p1),MAXVAL(p2),  &
-                      par_active)
+                      par_active,                       &
+                      used_hours(:,per_ind,:),          &
+                      used_fclen(:,per_ind,:))
 
     ENDIF
 #endif

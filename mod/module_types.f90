@@ -47,9 +47,9 @@ MODULE types
 
  TYPE variable
     INTEGER :: ind
-    REAL    :: glim,ulim,llim
-    REAL    :: pmax,pmin
-    CHARACTER(LEN=2 ) :: id ='XX'
+    REAL    :: lim,ulim,llim
+!   REAL    :: pmax,pmin
+    CHARACTER(LEN=09) :: id ='XX'
     CHARACTER(LEN=50) :: name ='XX'
     CHARACTER(LEN=10) :: unit ='XX'
  END TYPE variable

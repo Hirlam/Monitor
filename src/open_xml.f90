@@ -1,7 +1,6 @@
 SUBROUTINE open_xml(lunxml,maxper,periods)
 
  USE data,     ONLY : period_type,nparver,obstype,sdate,edate
- USE mymagics, ONLY : pname,yunit
 
  IMPLICIT NONE
 

@@ -1,7 +1,8 @@
-SUBROUTINE freq_dist(npar,ntim,ncla,				&
-                     mincla,maxcla,classtype,		&
-                     npre_cla,pre_fcla,				&
+SUBROUTINE freq_dist(npar,ntim,ncla,            &
+                     mincla,maxcla,classtype,   &
+                     pre_fcla,                  &
                      data,fdat,fcla)
+
 !
 ! Compute frequency distribution of a serie
 ! The classes are defined as
@@ -16,7 +17,7 @@ SUBROUTINE freq_dist(npar,ntim,ncla,				&
 !
 ! 2. mincla < maxcla, given by user
 !
-! 3. npre_cla > 1
+! 3. ANY(pre_fcla) != 0.
 !    Class definitions are given in pre_fcla
 !
 ! Classtype defines linear(0) or log10(1)
@@ -27,12 +28,13 @@ SUBROUTINE freq_dist(npar,ntim,ncla,				&
  IMPLICIT NONE
 
  ! Input
- INTEGER, INTENT(IN    ) :: npar,ntim,ncla,			&
-                            classtype,npre_cla
+ INTEGER, INTENT(IN    ) :: npar,ntim,ncla,        &
+                            classtype
  REAL,    INTENT(INOUT ) :: mincla,maxcla
- REAL,    INTENT(IN    ) :: data(ntim,npar),		&
-                            pre_fcla(npre_cla)
- REAL,    INTENT(OUT   ) :: fdat(ncla,npar),fcla(ncla)
+ REAL,    INTENT(IN    ) :: data(ntim,npar),       &
+                            pre_fcla(ncla)
+ REAL,    INTENT(OUT   ) :: fdat(ncla,npar),       &
+                            fcla(ncla)
 
  ! Local
 
@@ -46,18 +48,18 @@ SUBROUTINE freq_dist(npar,ntim,ncla,				&
  !
 
  fcla = 0.
- IF (npre_cla > 1 ) THEN
+ IF (ANY(ABS(pre_fcla) > 1.e-6 ) ) THEN
  
     ! Classes defined by user
 
-    IF (ncla /= npre_cla) THEN
-       WRITE(6,*)'npre_cla and nlca does not agree' ,npre_cla,ncla
-    ENDIF
     fcla = pre_fcla
 
  ELSE
 
     IF (mincla > maxcla ) THEN
+
+    ! Find min/max limits from data
+
        mincla =  MINVAL(data)
        maxcla =  MAXVAL(data)
        mincla =  mincla * (1 - SIGN(0.01,mincla))
@@ -107,16 +109,17 @@ SUBROUTINE freq_dist(npar,ntim,ncla,				&
  !
  
  num_rej = 0
- fdat = 0.
+ fdat    = 0.
+
  DO j = 1,npar
     IC : DO i = 1,ntim
     
       IF ( classtype /= 1 ) THEN
-      k = 1
-      IF( data(i,j) < fcla(k) ) THEN
+        k = 1
+        IF( data(i,j) < fcla(k) ) THEN
          num_rej = num_rej + 1
          CYCLE IC
-      ENDIF
+        ENDIF
       ENDIF
 
       KC : DO k = 2,ncla
@@ -139,4 +142,5 @@ SUBROUTINE freq_dist(npar,ntim,ncla,				&
  ENDIF
 
  RETURN
+
 END SUBROUTINE freq_dist

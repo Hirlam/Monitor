@@ -45,6 +45,7 @@ PROGRAM verobs
  ! Cross check options in namelist
  !
 
+ nrun = 1
  CALL check_namelist
 
  timing_id1 = 0
@@ -92,7 +93,6 @@ PROGRAM verobs
     ! Loop over all namelists found
     !
 
-    nrun = nrun + 1
 
     WRITE(6,*)'THIS nrun is nr:', nrun 
 
@@ -104,38 +104,27 @@ PROGRAM verobs
     IF( nrun > 1 ) maxstn = maxstn_save 
 
     CALL selection(1)
+
     IF ( estimate_qc_limit ) CALL quality_control
     IF ( lquality_control  ) CALL quality_control
-
-    IF (lverify) THEN
-
-       !
-       ! Do a station selection and call the main verificaion
-       !
-
-       IF ( use_pos ) THEN
-!         CALL verify_pos
-       ELSE
-          CALL verify
-       ENDIF
-
-    ENDIF
-
-!   IF (lfindplot) THEN
-!      CALL selection(2)
-!      lprint_summary = .FALSE.
-!      CALL station_summary
-!      CALL findplot
-!   ENDIF
+    IF ( lverify           ) CALL verify
 
     !
-    ! Read namelist again
+    ! Re-init namelist and read again
     !
+
+    CALL ini_namelist
 
     READ(10,namver,iostat=ierr)
-    IF (ierr /= 0) EXIT
+    IF (ierr == -1) EXIT
+    IF (ierr /=  0) THEN
+       WRITE(6,*)'Could not read namver correctly, ierr:',ierr
+       CALL abort
+    ENDIF
 
     maxstn_save = maxstn
+    nrun        = nrun + 1
+    CALL check_namelist
 
  ENDDO NAMELIST
 

@@ -57,8 +57,6 @@ For further usage of the namelist variables read the definition in src/module_da
  LSTAT_GEN = T,                            ! Accumulate general statistics
  LPLOT_STAT= T,                            ! Plot general statistics
  LTIMESERIE_STAT= T,                       ! Plot timeserie statistics
- TIME_STAT_FCLEN = 15,18,21,24,            ! Forecast lenghts used for timeserie statistics
-                                           ! TIME_STAT_FCLEN = 0 means all
  TIMESERIE_WIND  = 7*06,00,                ! Time window in hours for average in timeseries
  LDIFF = T,                                ! Plot difference
   NEXP=2                                   ! Number of experiments to verify
@@ -296,6 +294,3 @@ Contingency tables may be created by adding the following to the namelist
  CONT_LIM(1,1:7) = 0.1,0.3,1.0,3.0,10.0,30.0,100.0, Limits of of the classes
 
 The contingency tables are written to a file contingency.dat
-
-
-

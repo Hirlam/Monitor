@@ -30,7 +30,6 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
                   ltiming,                               &
                   show_fc_length,nfclengths,fclen,       &
                   timeserie_wind,sumup_tolerance,obint,  &
-                  time_stat_fclen,                       &
                   copied_obs,copied_mod,                 &
                   show_rmse,show_stdv,show_bias,         &
                   ltemp,lev_lst,window_pos

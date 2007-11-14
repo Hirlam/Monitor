@@ -1,12 +1,16 @@
-SUBROUTINE bin_scat(xval,yval,nobs,minx,maxx,miny,maxy,		&
-                    l_corr,ctitle,obsname,yname,xname,wtext3,wtext4)
+SUBROUTINE bin_scat(xval,yval,nobs,          &
+                    minx,maxx,miny,maxy,     &
+                    nlevels,l_corr,ctitle,   &
+                    obsname,yname,xname,     &
+                    wtext3,wtext4)
 
 USE functions
 
 IMPLICIT NONE
 
  ! Parameters
- INTEGER, PARAMETER :: nlevels      = 23
+ !INTEGER, PARAMETER :: nlevels      = 23
+ INTEGER,INTENT(IN) :: nlevels
  LOGICAL, PARAMETER :: l_level_list = .TRUE.
 
  ! Input
@@ -18,15 +22,15 @@ IMPLICIT NONE
 
  ! Local
   
-  INTEGER :: nbinx,nbiny,			&
-             ibin_x,ibin_y,			&
-             i
+  INTEGER :: nbinx,nbiny,		&
+             ibin_x,ibin_y,		&
+             i,ii,numrej
   REAL                   :: 		&
     bin_min_yx(2)=(/0.,0./)     ,	& ! min for x and y axis
     bin_max_yx(2)=(/100.,100./) ,	& ! max for x and y axis
     bin_inc_yx(2)=(/1,1/),    		& ! inc for x and y axis
     bin_tic_yx(2)=(/100,100/),		& ! tick frequency for x and y axis
-    level(nlevels)=1.,				&
+    level(nlevels),			&
     fac,magn,magn_diff,maxobs,		&
     sumy,sumx,sumyy,sumxx,sumxy,sumxy2,	&
     XMEAN, YMEAN, STDEVX, STDEVY, BIAS, RMSE, STDEVD, CORR
@@ -36,6 +40,7 @@ IMPLICIT NONE
 
 !---------------------------------------------------------------------
 
+  level = 1.
   ! Set bin tic and limits
   bin_tic_yx(1) = tics(miny,maxy)
   bin_max_yx(1) = maxy
@@ -60,10 +65,10 @@ IMPLICIT NONE
   binx(0) = bin_min_yx(2)
   DO i=1,nbiny
     biny(i) = biny(i - 1) + bin_inc_yx(1)
-  enddo
+  ENDDO
   DO i=1,nbinx
     binx(i) = binx(i - 1) + bin_inc_yx(2)
-  enddo
+  ENDDO
 
 !-------------------------------------------------------------------------------
 ! Bin the data
@@ -75,7 +80,15 @@ IMPLICIT NONE
     sumxy  = 0.
     sumxy2 = 0.
 
+    numrej = 0
+
     DO i=1,nobs
+
+       IF ( xval(i) < minx .OR. xval(i) > maxx .OR.     &
+            yval(i) < miny .OR. yval(i) > maxy      ) THEN
+            numrej = numrej + 1 
+            CYCLE
+       ENDIF
 
        ibin_x = int((xval(i) - binx(0))/bin_inc_yx(2)) + 1
        ibin_x = MAX(1,min(nbinx,ibin_x))
@@ -97,18 +110,24 @@ IMPLICIT NONE
   level(1)=1.
   level(2)=2.
   level(3)=5.
+  ii = 3
 
   maxobs=MAXVAL(array)
+
   DO i=4,nlevels,4
      fac = 10.**((i)/4)
      level(i)=1*fac
+     ii = i 
      IF(level(i).GT.maxobs) EXIT
      level(i+1)=2.5*fac
-     IF(level(i).GT.maxobs) EXIT
+     ii = i+1
+     IF(level(i+1).GT.maxobs) EXIT
      level(i+2)=5*fac
-     IF(level(i).GT.maxobs) EXIT
+     ii = i+2
+     IF(level(i+2).GT.maxobs) EXIT
      level(i+3)=7.5*fac
-     IF(level(i).GT.maxobs) EXIT
+     ii = i+3
+     IF(level(i+3).GT.maxobs) EXIT
   ENDDO
   
   CALL PNEW('SUPER_PAGE')
@@ -118,9 +137,11 @@ IMPLICIT NONE
                    bin_min_yx(1),bin_max_yx(1)           ,&
                    nbinx,binx,bin_inc_yx(2),bin_tic_yx(2),&
                    bin_min_yx(2),bin_max_yx(2)           ,&
-                   l_corr,l_level_list,i,level(1:i)            ,&
-                   sumy,sumx,sumyy,sumxx,sumxy,sumxy2,nobs, &
-                   XMEAN, YMEAN, STDEVX, STDEVY, BIAS, RMSE, STDEVD, CORR,	&
+                   l_corr,l_level_list,ii,level(1:ii)    ,&
+                   sumy,sumx,sumyy,sumxx,sumxy,sumxy2    ,&
+                   numrej,nobs                           ,&
+                   XMEAN, YMEAN, STDEVX, STDEVY, BIAS    ,&
+                   RMSE, STDEVD,CORR                     ,&
                    ctitle,obsname,yname,xname,wtext3,wtext4)
 
 
@@ -134,10 +155,11 @@ IMPLICIT NONE
 END SUBROUTINE bin_scat
 
 !-------------------------------------------------------------------------------
-SUBROUTINE mag_scatter(array_plot,nbiny,biny,inc,inc_axis,bin_min,bin_max,&
-                       nbinx,binx,incx,inc_axisx,bin_minx,bin_maxx           ,&
-                       l_corr,l_level_list,nlevels,level, &
-                       sumy,sumx,sumyy,sumxx,sumxy,sumxy2,nobs, &
+SUBROUTINE mag_scatter(array_plot,nbiny,biny,inc,inc_axis,bin_min,bin_max,     &
+                       nbinx,binx,incx,inc_axisx,bin_minx,bin_maxx,            &
+                       l_corr,l_level_list,nlevels,level,                      &
+                       sumy,sumx,sumyy,sumxx,sumxy,sumxy2,                     &         
+                       numrej,nobs,                                            &
                        XMEAN, YMEAN, STDEVX, STDEVY, BIAS, RMSE, STDEVD, CORR, &
                        ctitle,obsname,yname,xname,wtext3,wtext4)
 
@@ -172,7 +194,7 @@ IMPLICIT NONE
     nbinx,nbiny
 
   INTEGER, INTENT(INOUT) :: &
-    nlevels,nobs
+    nlevels,nobs,numrej
 
   REAL, INTENT(IN) :: &
     biny(0:nbiny),inc,bin_min,bin_max ,&
@@ -394,8 +416,14 @@ IMPLICIT NONE
   CALL PSETR ('TEXT_BOX_X_LENGTH', 8.)
   CALL PSETR ('TEXT_BOX_Y_LENGTH', 5.0)
 
-     CALL PSETI ('TEXT_LINE_COUNT', 1)
-  WRITE(cline,'(''Number of obs = '',I7)') nobs
+  CALL PSETI ('TEXT_LINE_COUNT', 1)
+
+  IF ( numrej == 0 ) THEN
+     WRITE(cline,'(''Obs = '',I7)')nobs
+  ELSE
+     WRITE(cline,'(''Obs (outside/total)= '',I7,''/'',I7)')numrej,nobs
+  ENDIF
+
   CALL PSETC ('TEXT_LINE_1', TRIM(cline))
   CALL PSETR ('TEXT_REFERENCE_CHARACTER_HEIGHT', 5.0)
   CALL PSETC ('TEXT_QUALITY', 'HIGH')

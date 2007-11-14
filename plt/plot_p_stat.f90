@@ -1,24 +1,32 @@
 SUBROUTINE plot_p_stat(lunout,ntim,npar,nr,nrun,     &
-                       time_stat,par_active,period1,period2)
+                       time_stat,par_active,         &
+                       period1,period2,uh,uf)
 
  USE types
- USE data, ONLY : ldiff
+ USE data, ONLY : ldiff,maxfclenval
 
  IMPLICIT NONE
 
  INTEGER :: lunout,ntim,npar,nr,nrun,par_active(npar),period1,period2
  TYPE(stat_obs) :: time_stat(ntim)
 
+ LOGICAL :: uh(npar,0:23),uf(npar,0:maxfclenval)
+
  CALL plot_p_stat_diff(lunout,ntim,npar,nr,nrun,     &
-                       time_stat,.false.,par_active,period1,period2)
- IF (ldiff ) CALL plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
-             time_stat,.true.,par_active,period1,period2)
+                       time_stat,.false.,par_active, &
+                       period1,period2,uh,uf)
+
+ IF (ldiff )                                         &
+ CALL plot_p_stat_diff(lunout,ntim,npar,nr,nrun,     &
+                       time_stat,.true.,par_active,  &
+                       period1,period2,uh,uf)
 
  RETURN
 END SUBROUTINE plot_p_stat
 
 SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
-                            time_stat,ldiff,par_active,period1,period2)
+                            time_stat,ldiff,par_active, &
+                            period1,period2,uh,uf)
  ! External modules
 
  USE types
@@ -27,13 +35,13 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
  USE means
  USE data, ONLY : obstype,expname,err_ind,nexp,		 &
                   station_name,csi,	                 &
-                  ltiming,                               &
-                  show_fc_length,nfclengths,fclen,       &
+                  ltiming,tag,maxfclenval,               &
+                  show_fc_length,nuse_fclen,use_fclen,   &
                   timeserie_wind,sumup_tolerance,obint,  &
-                  time_stat_fclen,                       &
                   copied_obs,copied_mod,                 &
                   show_rmse,show_stdv,show_bias,         &
-                  ltemp,lev_lst,window_pos,output_type
+                  ltemp,lev_lst,window_pos,output_type,  &
+                  z_is_pressure
 
  USE functions
 
@@ -44,7 +52,7 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
  INTEGER :: lunout,ntim,npar,nr,nrun,par_active(npar),    &
             period1,period2
  TYPE(stat_obs) :: time_stat(ntim)
- LOGICAL :: ldiff
+ LOGICAL :: ldiff,uh(npar,0:23),uf(npar,0:maxfclenval)
 
  ! local
 
@@ -113,7 +121,7 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
  ! Create filename
  prefix ='ps'
  IF ( ldiff ) prefix='PS'
- CALL make_fname(prefix,period1,nr,nrun,fname,output_type)
+ CALL make_fname(prefix,period1,nr,tag,fname,output_type)
 
  ! Write to timeserie file
 
@@ -347,20 +355,7 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
     ! Line 3
     IF ( show_fc_length ) THEN
 
-       IF (ANY(time_stat_fclen /= -1)) THEN
-          mid = MINLOC(time_stat_fclen)
-          wname='(A,XX(1X,I2.2))'
-          WRITE(wname(4:5),'(I2.2)')mid-1
-          WRITE(wtext,wname)'Forecast length used:',time_stat_fclen(1:mid(1)-1)
-       ELSEIF (nfclengths > 10 ) THEN
-          WRITE(cdum,'(I3)')fclen(nfclengths)
-          WRITE(wname,'(I3,X,I3)')fclen(1:2)
-          WRITE(wtext,*)'Forecast lengths used:'//TRIM(wname)//' ... '//TRIM(cdum)
-       ELSE
-          wname='(A,XX(1X,I2.2))'
-          WRITE(wname(4:5),'(I2.2)')nfclengths
-          WRITE(wtext,wname)'Forecast lengths used:',fclen(1:nfclengths)
-       ENDIF
+       CALL fclen_header(.true.,maxfclenval,uh(j,:),uf(j,:),wtext)
 
        IF ( timeserie_wind(j) /= 0 ) THEN
           wname = ' '

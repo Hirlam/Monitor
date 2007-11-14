@@ -11,7 +11,6 @@ MODULE mymagics
 
  LOGICAL :: plotfcver     = .FALSE.
  LOGICAL :: plotltemp     = .FALSE.
- LOGICAL :: z_is_pressure = .TRUE.
  REAL    :: plottimdiff = 1.
 
  CHARACTER(LEN=20), ALLOCATABLE :: cdate(:)
@@ -28,171 +27,6 @@ MODULE mymagics
 
 
  CONTAINS
-
- !-----------------------------------------------------
- !-----------------------------------------------------
- !-----------------------------------------------------
-
- SUBROUTINE yunit(p,u) 
-
- IMPLICIT NONE
-
- ! Input
- CHARACTER(LEN=*) :: p ! Parameter
-
- ! Output
- CHARACTER(LEN=*) :: u ! Parameter
-
- SELECT CASE(TRIM(p))
-
- CASE('HG')
-   u='m'
- CASE('LA')
-   u='deg'
- CASE('FI')
-   u='m'
- CASE('NN')
-   u='octas'
- CASE('RH')
-   u='%'
- CASE('PS')
-   u='hPa'
- CASE('TT')
-   u='deg C'
- CASE('FF')
-   u='m/s'
- CASE('DD')
-   u='Wind direction'
- CASE('WT','WQ','SW','GS','GR','LW','LU','LD','NR','GC','HB','SU','SD')
-   u='W/m^2'
- CASE('WP')
-   u='kW'
- CASE('WH')
-   u='kWh'
- CASE('QQ')
-   u='g/Kg'
- CASE('UW')
-   u='m^2/s^2'
- CASE('RF','PD')
-   u='mm/day'
- CASE('TU')
-   u='Ks/m'
- CASE('TZ')
-   u='K/s'
- CASE('UZ')
-   u='s^-1'
- CASE('PE')
-   u='mm'
- CASE DEFAULT
- 
- u = p
- 
- END SELECT
- RETURN
-
-END SUBROUTINE yunit
- !-----------------------------------------------------
- !-----------------------------------------------------
- !-----------------------------------------------------
-
- SUBROUTINE pname(p,u)
-
- IMPLICIT NONE
-
- ! Input
- CHARACTER(LEN=6) :: p ! Parameter
-
- ! Output
- CHARACTER(LEN=*) :: u ! Parameter
-
- ! Local
- CHARACTER(LEN=2) :: pp ! Parameter
- CHARACTER(LEN=4) :: ll ! Parameter
-
- pp = p(1:2)
-
- SELECT CASE(pp)
-
- CASE('HG')
-   u='Heigth'
- CASE('LA')
-   u='Latitude'
- CASE('FI')
-   u='Heigth'
- CASE('RH')
-   u='Relative Humidity'
- CASE('PS')
-   u='Surface pressure'
- CASE('NN')
-   u='Cloud cover (octas)'
- CASE('TT')
-   u='Temperature'
- CASE('FF')
-   u='Wind speed'
- CASE('DD')
-   u='Wind direction'
- CASE('WT')
-   u='Sensible heat flux'
- CASE('WQ')
-   u='Latent heat flux'
- CASE('QQ')
-   u='Specific humidity'
- CASE('SW')
-   u='Short wave radiation'
- CASE('UW')
-   u='Momentum flux'
- CASE('NR')
-   u='Net radiation'
- CASE('GR')
-   u='Global radiation'
- CASE('SU')
-   u='Shortwave radiation up'
- CASE('SD')
-   u='Shortwave radiation down'
- CASE('LU')
-   u='Longwave radiation up'
- CASE('LD')
-   u='Longwave radiation down'
- CASE('LW')
-   u='Longwave radiation'
- CASE('GS')
-   u='Ground heat flux'
- CASE('HB')
-   u='Surface heat budget residual'
- CASE('GC')
-   u='Residual ground heat flux'
- CASE('PE','PD')
-   u='Precipitation'
- CASE('RF')
-   u='Runoff'
- CASE('TU')
-   u='dT/dz/dU/dz'
- CASE('UZ')
-   u='dU/dz'
- CASE('TZ')
-   u='dT/dz'
- CASE('WP')
-   u='Wind power'
- CASE('WH')
-   u='Energy'
- CASE DEFAULT
-
- u = p
-
- END SELECT
-
- ll = p(3:6)
- IF (len_trim(ll) > 0 ) THEN
-    IF ( z_is_pressure ) THEN
-       u = TRIM(u) //' '//ll//' hPa'
-    ELSE
-       u = TRIM(u) //' '//ll//' m'
-    ENDIF
- ENDIF
-
- RETURN
-
-END SUBROUTINE pname
 
  !-----------------------------------------------------
  !-----------------------------------------------------
@@ -436,7 +270,7 @@ SUBROUTINE set_cdate(date,time,n,s)
        CALL PSETC ('AXIS_TITLE_TEXT','Height (m)')
     ELSE
        CALL PSETC ('AXIS_TYPE','LOGARITHMIC') 
-       CALL PSETC ('AXIS_TITLE_TEXT','Height (hPa)')
+       CALL PSETC ('AXIS_TITLE_TEXT','Pressure (hPa)')
     ENDIF    
  ELSE
     CALL PSETC ('AXIS_TYPE','REGULAR') 

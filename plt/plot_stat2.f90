@@ -1,12 +1,15 @@
-SUBROUTINE plot_stat2(lunout,nexp,nparver,ntimver,s,stnr,yymm,yymm2,par_active)
+SUBROUTINE plot_stat2(lunout,nexp,nparver,ntimver,   &
+                      s,stnr,yymm,yymm2,par_active,  &
+                      uh,uf)
 
  USE types, ONLY : statistics
  USE mymagics
  USE functions
  USE timing
  USE data, ONLY : obstype,expname,station_name,                 &
-                  csi,fclen,lfcver,nrun,                        &
-                  nfclengths,                     &
+                  csi,use_fclen,lfcver,                         &
+                  maxfclenval,                                  &
+                  nfclengths,nuse_fclen,tag,                    &
                   timdiff,time_shift,show_fc_length,ltiming,    &
                   show_bias,show_rmse,show_stdv,show_obs,       &
                   copied_obs,copied_mod,period_freq,period_type,&
@@ -20,6 +23,8 @@ SUBROUTINE plot_stat2(lunout,nexp,nparver,ntimver,s,stnr,yymm,yymm2,par_active)
  par_active(nparver)
 
  TYPE (statistics), INTENT(IN) :: s(nexp,nparver,ntimver)
+
+ LOGICAL, INTENT(IN) :: uh(nparver,0:23),uf(nparver,0:maxfclenval)
 
 ! Local
 
@@ -35,10 +40,11 @@ SUBROUTINE plot_stat2(lunout,nexp,nparver,ntimver,s,stnr,yymm,yymm2,par_active)
          rcount_max
 
  LOGICAL :: legend_is_on = .FALSE.
+ LOGICAL :: no_data_at_all = .FALSE.
 
  CHARACTER(LEN=100) :: wtext=' '
  CHARACTER(LEN=100) :: wtext1=' '
- CHARACTER(LEN= 30) :: fname=' '
+ CHARACTER(LEN= 50) :: fname=' '
  CHARACTER(LEN= 30) :: wname=' '
  CHARACTER(LEN=  1) :: prefix = ' '
  CHARACTER(LEN=  6) :: ob_short = '      '
@@ -59,15 +65,16 @@ SUBROUTINE plot_stat2(lunout,nexp,nparver,ntimver,s,stnr,yymm,yymm2,par_active)
  prefix = 'v'
  IF (lfcver) prefix = 'V'
  IF (yymm < 999999 ) THEN
-    CALL make_fname(prefix,yymm,stnr,nrun,fname,output_type)
+    CALL make_fname(prefix,yymm,stnr,tag,fname,output_type)
  ELSE
-    CALL make_fname(prefix,0,stnr,nrun,fname,output_type)
+    CALL make_fname(prefix,0,   stnr,tag,fname,output_type)
  ENDIF
+
 
  ! Set number of hours
 
  IF (lfcver) THEN
-   ntimver_l = ntimver
+   ntimver_l = nuse_fclen
  ELSE 
    ntimver_l = ntimver + 1
  ENDIF
@@ -80,7 +87,7 @@ SUBROUTINE plot_stat2(lunout,nexp,nparver,ntimver,s,stnr,yymm,yymm2,par_active)
           hour(ntimver_l))
 
  IF (lfcver) THEN
-    hour(1:ntimver_l)=fclen(1:ntimver_l)
+    hour(1:ntimver_l)=use_fclen(1:ntimver_l)
  ELSE
     DO i=1,ntimver
        hour(i)=(i-1)*timdiff + time_shift
@@ -92,15 +99,23 @@ SUBROUTINE plot_stat2(lunout,nexp,nparver,ntimver,s,stnr,yymm,yymm2,par_active)
  ! Plotting
 
  CALL open_output(fname)
- !CALL popen
- !CALL PSETC ('PS_DEVICE','ps_a4')
- !CALL PSETC ('PS_FILE_NAME',fname)
 
  CALL PSET1R ('GRAPH_CURVE_X_VALUES',hour(1:ntimver_l),ntimver_l)
 
  DO j=1,nparver
 
-    IF (MAXVAL(s(:,j,:)%n) == 0) CYCLE
+    no_data_at_all = (MAXVAL(s(:,j,:)%n) == 0)
+
+
+    IF ( no_data_at_all ) THEN
+       miny = 0.
+       maxy = 1.
+       rnum = 0.
+        obs = 0.
+       bias = 0.
+       rmse = 0.
+       stdv = 0.
+    ELSE
 
     DO i=1,nexp
     DO k=1,ntimver
@@ -136,6 +151,8 @@ SUBROUTINE plot_stat2(lunout,nexp,nparver,ntimver,s,stnr,yymm,yymm2,par_active)
     diff = tics(miny,maxy)
     miny = miny - 0.5*diff
     maxy = maxy + 0.5*diff
+
+    ENDIF ! no_data_at_all
 
     ob_short=obstype(j)
     ob_short(3:6)='    '   
@@ -185,18 +202,9 @@ SUBROUTINE plot_stat2(lunout,nexp,nparver,ntimver,s,stnr,yymm,yymm2,par_active)
     ! Line 3
     IF ( show_fc_length ) THEN
        CALL pname(obstype(j),wtext)
-       IF (.NOT. lfcver) THEN
-          IF (nfclengths > 10 ) THEN
-             wname='(A,2I3.2,A5,I2.2)'
-             WRITE(wtext1,wname)'Forecast lengths used:',   &
-             fclen(1:2),' ... ',fclen(nfclengths)
-          ELSE
-             wname='(A,XX(1X,I2.2))'
-             WRITE(wname(4:5),'(I2.2)')nfclengths
-             WRITE(wtext1,wname)'Forecast lengths used:',fclen(1:nfclengths)
-          ENDIF
-          wtext = TRIM(wtext)//'   '//TRIM(wtext1)
-       ENDIF
+       CALL fclen_header(( .NOT. lfcver .OR. ( nuse_fclen /= nfclengths )), &
+                         maxfclenval,uh(j,:),uf(j,:),wtext1)
+       wtext = TRIM(wtext)//'   '//TRIM(wtext1)
        CALL PSETC('TEXT_LINE_3',wtext)
 
        ! Line 3/4

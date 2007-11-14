@@ -9,7 +9,6 @@ set -ax
 $WEBCALL -e Surface -r
 $WEBCALL -e Surf_scat -r
 $WEBCALL -e Bias_maps -r
-$WEBCALL -e Precip -r
-$WEBCALL -e Precip_maps -r
 $WEBCALL -e Vert -r
 $WEBCALL -e Temp -r
+$WEBCALL -r

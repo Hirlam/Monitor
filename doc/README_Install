@@ -22,8 +22,8 @@ Verobs can be compiled with or without MAGICS, i.e. with or without graphical ou
 Compiling without MAGICS will only give table statistics and station 
 statistics as xml files. This is controlled by MAGICSFLAG in the config file
 
-External libraries needed without magics: eclib
-External libraries needed magics: magics emoslib eclib
+External libraries needed without magics: none
+External libraries needed with magics: magics emoslib
 
 At ecgate
 Make sure ARCH=ecgate in the monitor/Makefile 

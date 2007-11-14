@@ -3,7 +3,7 @@ SUBROUTINE verify
 !
 ! Verify MODEL and observations
 !
-! Ulf Andrae, SMHI, 2002 - 2006
+! Ulf Andrae, SMHI, 2002 - 2007
 ! 
 ! In principle three types of statistic arrays are calculated and accumulated
 ! 
@@ -49,7 +49,7 @@ SUBROUTINE verify
             timing_id_init,                             &
             timing_id_loop,                             &
             timing_id_plot,                             &
-            ind_pe(nfclengths),                         &
+            ind_pe(nparver,nfclengths),                 &
             lyear,year_map(12) = 0,                     &
             cdate,ctime,                                &
             nexp_ver,                                   &
@@ -106,24 +106,34 @@ SUBROUTINE verify
  !
 
  IF (lfcver ) THEN
-    IF ( nfclengths == 1 ) THEN
+    IF ( nuse_fclen == 1 ) THEN
        timdiff = fcint
     ELSE
-       timdiff = fclen(2) - fclen(1)
+       timdiff = use_fclen(2) - use_fclen(1)
     ENDIF
  ELSE
     timdiff = 24 / ntimver
  ENDIF
 
  !
- ! Find PE index locations
+ ! Find accumulation index locations
  !
 
  ind_pe = 0
- DO i=1,nfclengths
-    IF(fclen(i) < pe_interval) CYCLE 
-    ind_pe(i)=TRANSFER(MINLOC(ABS(fclen(1:nfclengths)-(fclen(i)-pe_interval))),ii)
-    IF (fclen(i)-fclen(ind_pe(i)) < pe_interval ) ind_pe(i) = 0
+ DO j=1,nparver
+    IF ( accu_int(j) == 0 ) CYCLE
+    IF (lprint_verif) WRITE(6,*)obstype(j),accu_int(j)
+   DO i=1,nfclengths
+
+    IF ( fclen(i) < accu_int(j) ) CYCLE 
+
+    ind_pe(j,i)=TRANSFER(MINLOC(ABS(fclen(1:nfclengths)-(fclen(i)-accu_int(j)))),ii)
+
+    IF (fclen(i)-fclen(ind_pe(j,i)) < accu_int(j) ) ind_pe(j,i) = 0
+
+    IF (lprint_verif) WRITE(6,*)i,obstype(j),fclen(i),ind_pe(j,i)
+
+   ENDDO
  ENDDO
 
 
@@ -145,8 +155,7 @@ SUBROUTINE verify
     ALLOCATE(periods(maxper+1))
     periods = 0
 
-    ii = get_maxtim(sdate,edate_obs,MIN(timdiff,fcint)) & 
-         * nfclengths / fcint
+    ii = get_maxtim(sdate,edate_obs,fcint) * nuse_fclen 
     len_scat = MAX(ii,maxtim_scat)
 
 
@@ -164,8 +173,7 @@ SUBROUTINE verify
        periods(i) = monincr(periods(i-1),period_freq)
     ENDDO
 
-    ii = 31*period_freq*24/MIN(timdiff,fcint) &
-         * nfclengths / fcint
+    ii = 31*period_freq*24/fcint * nuse_fclen
     len_scat = MAX(ii,maxtim_scat)
 
  CASE(3)
@@ -192,9 +200,9 @@ SUBROUTINE verify
        periods = (/1,2,3,4,0/)
     END SELECT
 
-    ii = 31*period_freq*24/MIN(timdiff,fcint) * &
+    ii = 31*period_freq*24/fcint              * &
          (edate/10000 - sdate/10000 +1)       * &
-         nfclengths / fcint
+         nuse_fclen
     len_scat = MAX(ii,maxtim_scat)
 
  CASE DEFAULT
@@ -267,6 +275,17 @@ SUBROUTINE verify
 
  IF ( ltimeserie_stat .OR. lprint_timeserie_stat ) CALL allocate_timeserie(maxper,timdiff,edate_obs)
 
+ !
+ ! Allocate flags for fclen/hour/time usage
+ ! 
+
+ ALLOCATE(  used_fclen(nparver,maxper,0:maxfclenval),     &
+            used_hours(nparver,maxper,0:23),              &
+          showed_times(nparver,maxper,0:23))
+
+ used_fclen   = .FALSE.
+ used_hours   = .FALSE.
+ showed_times = .FALSE.
 
  !
  ! Prepare xml file for station statistics
@@ -318,7 +337,7 @@ SUBROUTINE verify
 
     IF ( .NOT. hir(i)%obs_is_allocated ) THEN
        WRITE(6,*)'Your model data is not allocated '
-       WRITE(6,*)'Set LRELEASE_MEMORY = F'
+       WRITE(6,*)'Set RELEASE_MEMORY = F'
        CYCLE STATION_CYCLE
     ENDIF
 
@@ -327,7 +346,7 @@ SUBROUTINE verify
        CYCLE STATION_CYCLE
     ENDIF
 
-    IF (hir(i)%stnr.NE.obs(i)%stnr) THEN
+    IF (hir(i)%stnr /= obs(i)%stnr) THEN
        WRITE(6,*)'Your stations does not agree',hir(i)%stnr,obs(i)%stnr
        CALL abort
     ENDIF
@@ -366,6 +385,9 @@ SUBROUTINE verify
 
      found_right_time = .FALSE.
 
+     ! Cycle if this init hour should not be used
+     IF ( .NOT. ANY( ini_hours == hir(i)%o(j)%time ) ) CYCLE J_CYCLE
+
      FC_CYCLE : DO n=1,nfclengths
 
        IF (lprint_verif) THEN
@@ -374,13 +396,6 @@ SUBROUTINE verify
           WRITE(6,*)'FC TIME',fclen(n)
        ENDIF
 
-       !
-       ! Skip this fclength if not all variables are present
-       ! and all_var_present is TRUE
-       !
-
-       IF ( all_var_present .AND. ANY(ABS( hir(i)%o(j)%nal(:,n,:) - err_ind ) < 1.e-6 ))  CYCLE
-       
        !
        ! Step time to verification time 
        ! If we have no observations inside the range then cycle
@@ -414,12 +429,6 @@ SUBROUTINE verify
        IF(obs(i)%o(jj)%date == wdate .AND.	&
           obs(i)%o(jj)%time == wtime ) THEN
 
-          !
-          ! Reject this observation if not all variables are present
-          !
-
-          IF ( all_var_present .AND. ANY(ABS( obs(i)%o(jj)%val - err_ind ) < 1.e-6 ))  CYCLE FC_CYCLE
-
           found_right_time = .TRUE.
 
           IF (lprint_verif) WRITE(6,*)'TIME VER ',wdate,wtime
@@ -433,11 +442,38 @@ SUBROUTINE verify
           jjcheck(n) = jj
 
           !
+          ! Some CYCLING has to be done AFTER jjcheck(n) is updated
+          ! otherwise observations could be missed
+          !
+
+             ! Cycle if this fclen should not be used
+             IF ( .NOT. ANY(use_fclen == fclen(n)) ) CYCLE FC_CYCLE
+
+             !
+             ! Skip this fclength if not all variables are present
+             ! and all_var_present is TRUE
+             !
+
+             IF ( all_var_present .AND. ANY(ABS( hir(i)%o(j)%nal(:,n,:) - err_ind ) < 1.e-6 ))  CYCLE FC_CYCLE
+
+             !
+             ! Reject this observation if not all variables are present
+             !
+
+             IF ( all_var_present .AND. ANY(ABS( obs(i)%o(jj)%val - err_ind ) < 1.e-6 ))  CYCLE FC_CYCLE
+
+
+          !
+          ! End of special cycling
+          !
+       
+
+          !
           ! Find index for daily arrays
           !
 
           IF (lfcver) THEN
-             tim_ind = n
+             tim_ind=TRANSFER(MINLOC(ABS(use_fclen(1:nuse_fclen)-(fclen(n)))),n)
           ELSE
              tim_ind = wtime/timdiff+1
           ENDIF
@@ -460,17 +496,9 @@ SUBROUTINE verify
              ! Loop over all variables
              !
 
-             IF (lprint_verif) WRITE(6,*)'DO VER ',OBSTYPE(k),obs(i)%o(jj)%val(k)
-
-
-             !
-             ! Special windp
-             !
-!            IF (use_kalman .AND. ( k == wp_ind )) THEN
-!                     IF (obs(i)%o(jj)%val(k) < 0.1 ) obs(i)%o(jj)%val(k) = err_ind
-!            ENDIF
-
              IF(ABS(obs(i)%o(jj)%val(k)-err_ind) <= 1.e-6) CYCLE NPARVER_LOOP
+
+             IF (lprint_verif) WRITE(6,*)'DO VER ',OBSTYPE(k),obs(i)%o(jj)%val(k)
 
              !
              ! All EXP should have data, else do not verify
@@ -496,29 +524,32 @@ SUBROUTINE verify
  
              EXP_LOOP : DO o=1,nexp_ver
 
-                IF(k == pe_ind) THEN
+                IF(accu_int(k) /= 0) THEN
 
                    !
-                   ! Special for precipitation
+                   ! Special for accumulated values
                    !
 
-                   IF(fclen(n) == pe_interval) THEN
+                   IF(fclen(n) == accu_int(k)) THEN
                       diff_prep = hir(i)%o( j)%nal(o,n,k)
-                   ELSEIF(fclen(n) > pe_interval .AND. ind_pe(n) > 0 ) THEN
+                   ELSEIF(fclen(n) > accu_int(k) .AND. ind_pe(k,n) > 0 ) THEN
 
-                      IF (ABS(hir(i)%o(j)%nal(o,ind_pe(n),k)-err_ind)<1.e-6) THEN
-                         IF (demand_equal ) hir(i)%o(j)%nal(:,ind_pe(n),k) = err_ind
+                      IF (ABS(hir(i)%o(j)%nal(o,ind_pe(k,n),k)-err_ind)<1.e-6) THEN
+                         IF (demand_equal ) hir(i)%o(j)%nal(:,ind_pe(k,n),k) = err_ind
                          all_exp_verified = .FALSE.
                          CYCLE EXP_LOOP
                       ENDIF
 
                       diff_prep = hir(i)%o(j)%nal(o,n        ,k) - &
-                                  hir(i)%o(j)%nal(o,ind_pe(n),k)
+                                  hir(i)%o(j)%nal(o,ind_pe(k,n),k)
 
                       IF (diff_prep < 0.) THEN
                          WRITE(6,*)'Model precipitation is negative',diff_prep
-                         WRITE(6,'(2A,2I10,2I3)')expname(o),	&
-                         ' station:',hir(i)%stnr,wdate,wtime,fclen(n)
+                         WRITE(6,'(2A,I10)')expname(o),' station:',hir(i)%stnr
+                         WRITE(6,*)hir(i)%stnr,wdate,wtime,fclen(n),   &
+                         hir(i)%o(j)%nal(o,n,k)
+                         WRITE(6,*)hir(i)%stnr,wdate,wtime,fclen(ind_pe(k,n)),   &
+                         hir(i)%o(j)%nal(o,ind_pe(k,n),k)
                          all_exp_verified = .FALSE.
                          CYCLE EXP_LOOP
                       ENDIF
@@ -559,6 +590,14 @@ SUBROUTINE verify
 
                 mindate(i) = MIN(mindate(i),hir(i)%o(j)%date)
                 maxdate(i) = MAX(maxdate(i),hir(i)%o(j)%date)
+
+                !
+                ! Store information about fclen,hours and times really used
+                !
+
+                used_hours(k,per_ind,hir(i)%o(j)%time)              = .TRUE.
+                used_fclen(k,per_ind,fclen(n))                      = .TRUE.
+                IF ( .NOT. lfcver ) showed_times(k,per_ind,tim_ind) = .TRUE.
 
                 IF (use_kalman) THEN
 
@@ -605,9 +644,7 @@ SUBROUTINE verify
                 ! Add timeserie statistics
                 ! 
 
-                IF ( ( ltimeserie_stat .OR. lprint_timeserie_stat ) &
-                    .AND. ( ANY(time_stat_fclen  == fclen(n))       &
-                     .OR.   time_stat_fclen_diff == -1      )) THEN
+                IF ( ltimeserie_stat .OR. lprint_timeserie_stat ) THEN
 
                      CALL add_timeserie(per_ind,i,k,                &
                           obs(i)%o(jj)%date,obs(i)%o(jj)%time,      &
@@ -683,7 +720,8 @@ SUBROUTINE verify
              IF ( ltimeserie_stat ) &
              CALL plot_p_stat(lunout,time_stat_max,nparver,         &
                   obs(i)%stnr,nrun,time_stat(1:time_stat_max),      &
-                  par_active,periods(l),periods(l+1))
+                  par_active,periods(l),periods(l+1),               &
+                  used_hours(:,l,:),used_fclen(:,l,:))
 #endif
           ENDDO
      ENDIF
@@ -727,19 +765,23 @@ SUBROUTINE verify
          ! Plot normal scatterplot
          IF ( lplot_scat .AND. leach_station)                      &
             CALL plot_scat_comp(lunout,nparver,obs(i)%stnr,nrun,   &
-                 scat_data(:,l),periods(l),periods(l+1),par_active,&
-                 lplot_scat)
+                 scat_data(:,l),periods(l),periods(l+1),           &
+                 par_active,lplot_scat,                            &
+                 used_hours(:,l,:),used_fclen(:,l,:))
 
          ! Plot Xcrossplot
          IF ( lplot_comp .AND. leach_station)                      &
             CALL plot_scat_comp(lunout,nparver,obs(i)%stnr,nrun,   &
-                 scat_data(:,l),periods(l),periods(l+1),par_active,.FALSE.)
+                 scat_data(:,l),periods(l),periods(l+1),           &
+                 par_active,.FALSE.,                               &
+                 used_hours(:,l,:),used_fclen(:,l,:))
 
-         ! Plot frequencydistribution
+         ! Plot frequency distribution
          IF ( lplot_freq .AND. leach_station )               &
          CALL plot_freq_new(lunout,nparver,obs(i)%stnr,nrun, &
               scat_data(:,l),                                &
-              periods(l),periods(l+1),par_active)
+              periods(l),periods(l+1),par_active,            &
+              used_hours(:,l,:),used_fclen(:,l,:))
 
 #endif
 
@@ -797,7 +839,9 @@ SUBROUTINE verify
 #ifdef MAGICS
            IF (ltimeserie_stat ) &
            CALL plot_p_stat(lunout,all_time_stat_max,nparver,0,   &
-                nrun,all_time_stat,par_active,periods(l),periods(l+1))
+                nrun,all_time_stat,par_active,                    &
+                periods(l),periods(l+1),                          &
+                used_hours(:,l,:),used_fclen(:,l,:))
 #endif
         ENDDO
 
@@ -831,7 +875,7 @@ SUBROUTINE verify
           maxdate = periods(l+1)
        END SELECT
 
-       CALL do_stat(mindate,maxdate)
+       CALL do_stat(l,mindate,maxdate)
 
     ENDDO
 
@@ -863,20 +907,23 @@ SUBROUTINE verify
        CALL plot_scat_comp(lunout,nparver,0,nrun,    &
             all_scat_data(:,l),                      &
             periods(l),periods(l+1),                 &
-            par_active,lplot_scat)
+            par_active,lplot_scat,                   &
+            used_hours(:,l,:),used_fclen(:,l,:))
 
        ! Plot Xcrossplot
        IF ( lplot_comp)                              &
        CALL plot_scat_comp(lunout,nparver,0,nrun,    &
             all_scat_data(:,l),                      &
             periods(l),periods(l+1),                 &
-            par_active,.FALSE.)
+            par_active,.FALSE.,                      &
+            used_hours(:,l,:),used_fclen(:,l,:))
 
        ! Plot frequency distribution
        IF ( lplot_freq )                         &
        CALL plot_freq_new(lunout,nparver,0,nrun, &
             all_scat_data(:,l),                  &
-            periods(l),periods(l+1),par_active)
+            periods(l),periods(l+1),par_active,  &
+            used_hours(:,l,:),used_fclen(:,l,:))
 
 #endif
        ! Accumulate and print contingency tables
@@ -915,10 +962,12 @@ SUBROUTINE verify
  !
 
  IF ( lcontingency ) CALL clear_cont
- IF ( ALLOCATED(periods))  DEALLOCATE(periods)
- IF ( ALLOCATED(allstat)) DEALLOCATE(allstat)
- IF ( ALLOCATED(stat)) DEALLOCATE(stat)
 
+ IF ( ALLOCATED(periods)) DEALLOCATE(periods)
+ IF ( ALLOCATED(allstat)) DEALLOCATE(allstat)
+ IF ( ALLOCATED(stat)   ) DEALLOCATE(stat)
+
+ DEALLOCATE(used_fclen,used_hours,showed_times)
 
  IF (ltiming) CALL add_timing(timing_id_plot,'Verify_plot')
 

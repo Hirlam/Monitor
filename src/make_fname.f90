@@ -1,20 +1,29 @@
-SUBROUTINE make_fname(prefix,time,id,nrun,fname,output_type)
+SUBROUTINE make_fname(prefix,time,id,tag,fname,output_type)
+
+ !
+ ! Create filenames for output files
+ ! 
+ ! Prefix _ Period _ Station_id + Domain . Ext
+ !
+ ! Ulf Andrae, SMHI, 2007
+ !
 
  IMPLICIT NONE
 
  ! Input
- CHARACTER(LEN=*), INTENT(IN ) :: prefix
- INTEGER,          INTENT(IN ) :: time,id,nrun,output_type
+ CHARACTER(LEN=*), INTENT(IN ) :: prefix,tag
+ INTEGER,          INTENT(IN ) :: time,id,output_type
  CHARACTER(LEN=*), INTENT(OUT) :: fname
 
+ !Local
  CHARACTER(LEN=8) :: ctime
  CHARACTER(LEN=8) :: cid
- CHARACTER(LEN=1) :: cnrun
  CHARACTER(LEN=4) :: ext
+ 
+ !----------------------------------------------------
 
  WRITE(ctime,'(I8.8)')time
  WRITE(cid  ,'(I8.8)')id
- WRITE(cnrun,'(I1.1)')nrun
 
  SELECT CASE(output_type) 
  CASE(0)
@@ -29,7 +38,7 @@ SUBROUTINE make_fname(prefix,time,id,nrun,fname,output_type)
  END SELECT 
 
  fname = ''
- fname = TRIM(prefix)//'_'//ctime//'_'//cid//'_'//cnrun//TRIM(ext)
+ fname = TRIM(prefix)//'_'//ctime//'_'//cid//'_'//TRIM(tag)//TRIM(ext)
 
  WRITE(6,*)'DOING:',TRIM(fname)
 

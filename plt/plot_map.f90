@@ -1,4 +1,4 @@
-SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype)
+SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype,per_ind)
 
  !
  ! Plot maps of station statistics
@@ -7,15 +7,30 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype)
  !
 
  ! Modules
- USE data
  USE mymagics
  USE timing
+ USE data,     ONLY : maxstn,ltiming,lfcver,&
+                      nexp,tag,output_type, &
+                      stat,period_freq,     &
+                      obstype,expname,      &
+                      show_fc_length,ldiff, &
+                      ntimver,map_scale,    &
+                      maxfclenval,nparver,  &
+                      used_hours,used_fclen,&
+                      timdiff,time_shift,   &
+                      use_fclen,show_times, &
+                      map_centre_longitude, &
+                      map_centre_latitude,  &
+                      map_bias_interval,    &
+                      map_rmse_interval,    &
+                      map_obs_interval
+
 
  IMPLICIT NONE
 
  ! Input
 
- INTEGER, INTENT(IN) :: stnr,yymm,yymm2,ptype,mtype
+ INTEGER, INTENT(IN) :: stnr,yymm,yymm2,ptype,mtype,per_ind
 
  ! Local
 
@@ -26,14 +41,15 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype)
             maxn,timing_id,             &
             numstn,                     &
             min_stnr,max_stnr,mid(1),   &
-            nexp_plot
+            nexp_plot,ntimver_out
 
  INTEGER, ALLOCATABLE :: stn(:),mcount(:)
 
  REAL :: lmax,lint,   &
          interval(maxint+1) =(/-6.,-4.,-2.,0.,2.,4.,6./),       &
          min_val,max_val,                                     &
-         symbol_size(maxint)
+         symbol_size(maxint),                                   &
+         rnum,bias,rmse,obs
 
  REAL, ALLOCATABLE :: lat(:),lon(:),dat(:,:),mlat(:),mlon(:),mdat(:)
 
@@ -44,7 +60,7 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype)
  CHARACTER(LEN=100) :: text     = ' ',wtext = ' '
  CHARACTER(LEN=10 ) :: chour    = ' '
  CHARACTER(LEN=50 ) :: cobsname = ' '
- CHARACTER(LEN=30)  :: fname    = ' '
+ CHARACTER(LEN=50)  :: fname    = ' '
  CHARACTER(LEN=30)  :: wname    = ' '
  CHARACTER(LEN=30)  :: mtext    = ' '
  CHARACTER(LEN=50)  :: cunit    = ' '
@@ -91,10 +107,17 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype)
 
 
  IF (yymm < 999999 ) THEN
-    CALL make_fname(prefix,yymm,stnr,nrun,fname,output_type)
+    CALL make_fname(prefix,yymm,stnr,tag,fname,output_type)
  ELSE
-    CALL make_fname(prefix,0   ,stnr,nrun,fname,output_type)
+    CALL make_fname(prefix,0   ,stnr,tag,fname,output_type)
  ENDIF
+
+ IF ( ALL(show_times == -1) ) THEN
+    ntimver_out = 1
+ ELSE
+    ntimver_out = ntimver
+ ENDIF
+
 
  !
  ! Set plotting hours
@@ -102,18 +125,12 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype)
  !
 
  IF (lfcver) THEN
-    hour(1:ntimver)=fclen(1:ntimver)
+    hour(1:ntimver)=use_fclen(1:ntimver)
  ELSE
     DO i=1,ntimver
        hour(i)=(i-1)*timdiff + time_shift
     ENDDO
  ENDIF
-
- IF ( map_hours(1) == -1 ) THEN
-     map_hours(1:ntimver) = hour
-    nmap_hours            = ntimver
- ENDIF
-
 
  !
  ! MAGICS settings
@@ -160,6 +177,7 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype)
     CALL PSETC ('SYMBOL_TABLE_MODE','OFF')
 
  CASE DEFAULT
+    WRITE(6,*)'No such option mtype',mtype
     CALL ABORT
  END SELECT
 
@@ -202,19 +220,13 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype)
 
  PAR_LOOP : DO j=1,nparver
 
-    FC_LOOP  : DO k=1,ntimver
+    FC_LOOP  : DO kk=1,ntimver_out
+
 
        !
        ! Plot only the requested hours
        !
-
-       found_hour = .FALSE.
-       DO kk=1,nmap_hours
-         found_hour = (map_hours(kk) == hour(k))
-         IF ( found_hour ) EXIT
-       ENDDO
-
-       IF ( .NOT. found_hour ) CYCLE
+       IF ( ntimver_out /= 1 .AND. .NOT. ANY( show_times == hour(kk) )) CYCLE
 
        !
        ! Copy data and estimate max/min values 
@@ -227,32 +239,46 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype)
 
          DO l=1,maxstn
 
-            IF ( stat(l)%s(i,j,k)%n == 0 ) CYCLE
+            IF ( ntimver_out == 1 ) THEN
+             rnum = 0.
+             bias = 0.
+             rmse = 0.
+              obs = 0.
+             DO k = 1,ntimver
+               rnum = rnum + FLOAT(stat(l)%s(i,j,k)%n)
+               bias = bias +       stat(l)%s(i,j,k)%bias
+               rmse = rmse +       stat(l)%s(i,j,k)%rmse
+                obs = obs  +       stat(l)%s(i,j,k)%obs
+             ENDDO
+            ELSE
+               rnum = FLOAT(stat(l)%s(i,j,kk)%n)
+               bias =       stat(l)%s(i,j,kk)%bias
+               rmse =       stat(l)%s(i,j,kk)%rmse
+                obs =       stat(l)%s(i,j,kk)%obs
+            ENDIF
+
+            IF ( NINT(rnum) == 0 ) CYCLE
 
             ll = ll + 1
 
             SELECT CASE (ptype)
             CASE(0)
-                dat(i,ll) = stat(l)%s(i,j,k)%bias / FLOAT(stat(l)%s(i,j,k)%n)
+                dat(i,ll) = bias / MAX(rnum,1.)
             CASE(1)
-                dat(i,ll) = stat(l)%s(i,j,k)%bias / FLOAT(stat(l)%s(i,j,k)%n)
-                dat(i,ll) = sqrt (stat(l)%s(i,j,k)%rmse / FLOAT(stat(l)%s(i,j,k)%n))
+                dat(i,ll) = SQRT (rmse / MAX(rnum,1.))
             CASE(2)
 
                IF ( ldiff ) THEN
-                  dat(i,ll) = ( stat(l)%s(i,j,k)%bias +     &
-                                stat(l)%s(i,j,k)%obs    )   &
-                        / FLOAT(stat(l)%s(i,j,k)%n)
+                  dat(i,ll) = ( bias + obs ) / MAX(rnum,1.)
                ELSE
-                  dat(i,ll) =   stat(l)%s(i,j,k)%bias +     &
-                                stat(l)%s(i,j,k)%obs   
+                  dat(i,ll) = ( bias + obs )
                ENDIF
 
                IF ( i == 1 ) THEN
                  IF ( ldiff ) THEN
-                  dat(nexp+1,ll) = stat(l)%s(i,j,k)%obs/FLOAT(stat(l)%s(i,j,k)%n)
+                  dat(nexp+1,ll) = obs / rnum
                  ELSE
-                  dat(nexp+1,ll) = stat(l)%s(i,j,k)%obs
+                  dat(nexp+1,ll) = obs
                  ENDIF
                ENDIF
 
@@ -267,7 +293,7 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype)
                stn(ll) = stat(l)%stnr
             ENDIF
 
-            maxn  = MAX(maxn,stat(l)%s(i,j,k)%n)
+            maxn  = MAX(maxn,NINT(rnum))
             lmax  = MAX(lmax,ABS(dat(i,ll)))
 
          ENDDO
@@ -275,9 +301,6 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype)
          IF ( i == 1 ) numstn = ll
 
        ENDDO 
-
-!      IF ( maxn == 0 ) CYCLE FC_LOOP
-
 
        IF ( ALLOCATED(mlat))  DEALLOCATE(mlat,mlon,mdat,mcount)
        ALLOCATE(mlat(numstn),mlon(numstn),mdat(numstn),mcount(numstn))
@@ -360,12 +383,16 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype)
          ENDIF
 
          text =  TRIM(expname(i))//'  '//TRIM(cobsname)
-         IF (lfcver) THEN
-            WRITE(chour,'(I3.2,X,A1)')hour(k),'H'
-         ELSE
-            WRITE(chour,'(I3.2,X,A3)')hour(k),'UTC'
+
+         IF ( ntimver_out /= 1 ) THEN
+            IF (lfcver) THEN
+               WRITE(chour,'(I3.2,X,A1)')hour(kk),'H'
+            ELSE
+               WRITE(chour,'(I3.2,X,A3)')hour(kk),'UTC'
+            ENDIF
+            text = TRIM(text)//' at '//TRIM(chour)
          ENDIF
-         text = TRIM(text)//' at '//chour   //'  '//TRIM(wtext)
+         text = TRIM(text)//'  '//TRIM(wtext)
 
          CALL PSETC ('TEXT_MODE', 'TITLE')
          CALL PSETC('TEXT_LINE_1',TRIM(text))
@@ -400,11 +427,17 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype)
          CALL PSETC ('TEXT_MODE', 'POSITIONAL')
          CALL PSETC ('TEXT_JUSTIFICATION', 'LEFT')
          CALL PSETC ('TEXT_BORDER', 'OFF')
+         CALL PSETC ('TEXT_BOX_BLANKING','ON')
        
-         CALL PSETR ('TEXT_BOX_Y_POSITION', 14.0)
-         CALL PSETR ('TEXT_BOX_X_POSITION', 18.0)
-         CALL PSETR ('TEXT_BOX_X_LENGTH', 8.)
-         CALL PSETR ('TEXT_BOX_Y_LENGTH', 5.0)
+         !CALL PSETR ('TEXT_BOX_Y_POSITION', 14.0)
+         !CALL PSETR ('TEXT_BOX_X_POSITION', 18.0)
+         !CALL PSETR ('TEXT_BOX_X_LENGTH', 8.)
+         !CALL PSETR ('TEXT_BOX_Y_LENGTH', 5.0)
+
+          CALL PSETR ('TEXT_BOX_Y_POSITION', 15.0)
+          CALL PSETR ('TEXT_BOX_X_POSITION', 17.5)
+          CALL PSETR ('TEXT_BOX_X_LENGTH',   10.0)
+          CALL PSETR ('TEXT_BOX_Y_LENGTH',    3.0)
 
          CALL PSETI ('TEXT_LINE_COUNT', 4)
          IF ( mtype == 0 .AND. user_interval ) THEN
@@ -444,17 +477,21 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype)
          WRITE(wtext,wname)'Highest value:',max_stnr, max_val
          CALL PSETC('TEXT_LINE_3',wtext)
 
-         IF (.NOT. lfcver .AND. show_fc_length ) THEN
-            CALL PSETI ('TEXT_LINE_COUNT', 4)
-            IF (nfclengths > 10 ) THEN
-               wname='(A,2I3.2,A5,I2.2)'
-               WRITE(wtext,wname)'Forecast lengths used:',   &
-               fclen(1:2),' ... ',fclen(nfclengths)
-            ELSE
-               wname='(A,XX(1X,I2.2))'
-               WRITE(wname(4:5),'(I2.2)')nfclengths
-               WRITE(wtext,wname)'Forecast lengths used:',fclen(1:nfclengths)
+         IF ( ntimver_out == 1 ) THEN
+            IF ( show_fc_length ) THEN
+               CALL fclen_header(.TRUE.,maxfclenval,        &
+                                 used_hours(j,per_ind,:),   &
+                                 used_fclen(j,per_ind,:),   &
+                                 wtext)
+               CALL PSETI ('TEXT_LINE_COUNT', 4)
+               CALL PSETC('TEXT_LINE_4',wtext)
             ENDIF
+         ELSE
+            CALL fclen_header(.NOT.lfcver,maxfclenval,   &
+                              used_hours(j,per_ind,:),   &
+                              used_fclen(j,per_ind,:),   &
+                              wtext)
+            CALL PSETI ('TEXT_LINE_COUNT', 4)
             CALL PSETC('TEXT_LINE_4',wtext)
          ENDIF
 

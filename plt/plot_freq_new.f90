@@ -1,4 +1,10 @@
-SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active)
+SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active,uh,uf)
+
+ !
+ ! Plot Frequency distribution
+ !
+ ! Ulf Andrae, SMHI, 2007
+ !
 
  USE types
  USE functions
@@ -6,16 +12,15 @@ SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active)
  USE timing
  USE data, ONLY : nexp,station_name,err_ind,csi,obstype, &
                   expname,gr_ind,pe_ind,pd_ind,          &
-                  fclen,nfclengths,lfcver,show_fc_length,&
-                  ltiming,                               &
-                  ncla,classtype,npre_cla,pre_fcla,      &
+                  lfcver,                                &
+                  show_fc_length,                        &
+                  ltiming,tag,maxfclenval,               &
+                  ncla,classtype,pre_fcla,               &
                   mincla,maxcla,my_ymax,my_ymin,         &
                   mpre_cla,copied_mod,copied_obs,        &
                   period_freq,output_type
 
  IMPLICIT NONE
-
-
 
  REAL,    PARAMETER :: spxl      = 23. ! SUB_PAGE_X_LENGTH
 
@@ -26,17 +31,20 @@ SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active)
 
  TYPE(scatter_type), INTENT(IN) :: scat(nparver)
 
+ LOGICAL,            INTENT(IN) :: uh(nparver,0:23),   &
+                                   uf(nparver,0:maxfclenval)
+
 
  ! Local
- INTEGER :: i,j,k,l,m,n,          		&
+ INTEGER :: i,j,k,l,m,n,ncl,       		&
             timing_id,lnexp,pp1
 
- REAL :: dcla,pcla(ncla),fcla(ncla),	        &
-         fdat_sum,fdat(ncla,nexp+1),	        &
-         bar_width,bfac,			&
-         maxy,miny,zero(ncla-1),zdat(ncla-1)
+ REAL :: dcla,fdat_sum,bar_width,               &
+         bfac,maxy,miny
 
- REAL, ALLOCATABLE :: work(:,:)
+ REAL, ALLOCATABLE :: work(:,:),                &
+                      pcla(:),fcla(:),          &
+                      fdat(:,:),zero(:),zdat(:)
 
  LOGICAL :: reset_class
 
@@ -45,24 +53,7 @@ SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active)
  CHARACTER(LEN=20) :: wname = ''
  CHARACTER(LEN=20) :: cdum  = ''
 
- ! Local copies of namelist variables
- INTEGER :: ncla_l           
- INTEGER :: classtype_l       
- INTEGER :: npre_cla_l         
- REAL    :: pre_fcla_l(mpre_cla)
- REAL    :: maxcla_l        
- REAL    :: mincla_l       
-
-
 !-----------------------------------------------------
- ! Save namelist variables
- ncla_l      = ncla
- classtype_l = classtype
- npre_cla_l  = npre_cla 
- pre_fcla_l  = pre_fcla
- maxcla_l    = maxcla 
- mincla_l    = mincla 
-
  ! Init timing counter
  timing_id = 0
  IF (ltiming) CALL acc_timing(timing_id,'plot_freq')
@@ -73,22 +64,36 @@ SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active)
     lnexp = nexp + 1
  ENDIF
 
+ ! Set filename
  IF ( p1 < 999999 ) THEN
-    CALL make_fname('f',p1,nr,nrun,fname,output_type)
+    CALL make_fname('f',p1,nr,tag,fname,output_type)
  ELSE
-    CALL make_fname('f', 0,nr,nrun,fname,output_type)
+    CALL make_fname('f', 0,nr,tag,fname,output_type)
  ENDIF
 
  CALL open_output(fname)
 
- reset_class = ( mincla > maxcla )
 
- zero = 0.
  
  DO j=1,nparver
+   
+    ncl = ncla(j)
+    ALLOCATE(pcla(ncl),                &
+             fcla(ncl),                &
+             fdat(ncl,nexp+1),         &
+             zero(ncl-1),              &
+             zdat(ncl-1))
+
+    zero = 0.
+
+    reset_class = ( mincla(j) > maxcla(j) )
 
     n = scat(j)%n
-    IF (ALLOCATED(work)) DEALLOCATE(work)
+
+    !
+    ! Copy data to work array
+    !
+
     ALLOCATE(work(n,lnexp))
 
     work(:,lnexp) = scat(j)%dat(1,1:n)
@@ -99,13 +104,13 @@ SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active)
 
     IF ( obstype(j)(1:2) == 'DD' ) THEN
        DO k=1,nexp
-       DO m=1,n
-           IF(work(m,k) > 360. )THEN
-          work(m,k) = work(m,k) - 360.         
-       ELSEIF(work(m,k) <   0. )THEN
-          work(m,k) = work(m,k) + 360.         
-       ENDIF
-       ENDDO
+        DO m=1,n
+          IF(work(m,k) > 360. )THEN
+            work(m,k) = work(m,k) - 360.         
+          ELSEIF(work(m,k) <   0. )THEN
+            work(m,k) = work(m,k) + 360.         
+          ENDIF
+        ENDDO
        ENDDO
     ENDIF
     
@@ -113,24 +118,24 @@ SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active)
        
        IF ( reset_class )THEN
 
-          maxcla = 0.
-          mincla = 1.
+          maxcla(j) = 0.
+          mincla(j) = 1.
 
           IF (j == gr_ind) THEN
-             mincla = 1.
-             maxcla = 1000.
+             mincla(j) = 1.
+             maxcla(j) = 1000.
           ENDIF
 
        ENDIF
   
-       CALL freq_dist(lnexp,n,ncla,                      &
-                      mincla,maxcla,classtype,           &
-                      npre_cla,pre_fcla,                 &
-                      work,fdat,fcla)
+       CALL freq_dist(lnexp,n,ncl,                    &
+                      mincla(j),maxcla(j),classtype(j),   &
+                      pre_fcla(j,1:ncl),work,fdat,fcla)
+
     ELSE
 
        fdat = 0.
-       DO i=1,ncla
+       DO i=1,ncl
           fcla(i) = i
        ENDDO
 
@@ -138,19 +143,19 @@ SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active)
 
     ! Plotting
    
-    dcla      = fcla(ncla) - fcla(ncla-1)
-    bar_width = spxl / float(ncla*lnexp)
-    bfac      = bar_width*dcla*(ncla)/spxl
+    dcla      = fcla(ncl) - fcla(ncl-1)
+    bar_width = spxl / float(ncl*lnexp)
+    bfac      = bar_width*dcla*(ncl)/spxl
 
     DO i=1,lnexp
        fdat_sum  = SUM(fdat(:,i))
        fdat(:,i) = fdat(:,i) / MAX(1.,fdat_sum)
     ENDDO
 
+    ! Rescale lowest precipitation class
     IF ( j == pe_ind .OR. j == pd_ind ) THEN
        fdat(2,:) = 0.1*fdat(2,:)
     ENDIF
-
 
     maxy      = MAXVAL(fdat)
     miny      = 0.
@@ -168,7 +173,6 @@ SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active)
     CALL psetr  ('SUBPAGE_Y_LENGTH',              18.0)
     CALL psetr  ('SUBPAGE_X_LENGTH',              spxl)
 
-
     CALL psetc('TEXT_COLOUR','BLACK')
     CALL psetc('TEXT_QUALITY','HIGH')
     CALL psetc('PAGE_ID_LINE_SYSTEM_PLOT','ON')
@@ -182,7 +186,6 @@ SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active)
    
     CALL psetc ('AXIS_ORIENTATION','VERTICAL') 
     CALL psetc ('AXIS_TITLE_TEXT','Relative frequency')
-!   CALL psetc ('AXIS_TYPE','LOGARITHMIC')
     CALL preset('AXIS_TICK_INTERVAL')
     CALL psetr ('AXIS_MIN_VALUE',miny)
     CALL psetr ('AXIS_MAX_VALUE',maxy)
@@ -192,12 +195,12 @@ SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active)
     CALL psetc ('AXIS_TYPE','REGULAR')
     CALL preset('AXIS_TICK_INTERVAL')
     CALL psetr ('AXIS_MIN_VALUE',fcla(1) )
-    CALL psetr ('AXIS_MAX_VALUE',fcla(ncla) + dcla)
+    CALL psetr ('AXIS_MAX_VALUE',fcla(ncl) + dcla)
 
     wtext =''
     CALL yunit(obstype(j),wtext)
 
-    IF (classtype == 1) wtext = 'log10('//TRIM(wtext)//')'
+    IF (classtype(j) == 1) wtext = 'log10('//TRIM(wtext)//')'
 
     CALL psetc ('AXIS_TITLE_TEXT',wtext)
     CALL paxis
@@ -210,13 +213,13 @@ SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active)
     pcla = fcla - 0.5*dcla + 0.5*bfac
     DO i=lnexp,1,-1
 
-       zdat = fdat(2:ncla,i)
+       zdat = fdat(2:ncl,i)
        CALL psetc  ('LEGEND_USER_TEXT' ,expname(i))
        CALL psetr  ('GRAPH_BAR_WIDTH',1.0*bar_width)
        CALL psetc  ('GRAPH_SHADE_COLOUR',linecolor(i))
-       CALL pset1r ('GRAPH_BAR_X_VALUES',pcla(2:ncla),ncla-1)
-       CALL pset1r ('GRAPH_BAR_Y_LOWER_VALUES',zero,ncla-1)
-       CALL pset1r ('GRAPH_BAR_Y_UPPER_VALUES',zdat,ncla-1)
+       CALL pset1r ('GRAPH_BAR_X_VALUES',pcla(2:ncl),ncl-1)
+       CALL pset1r ('GRAPH_BAR_Y_LOWER_VALUES',zero,ncl-1)
+       CALL pset1r ('GRAPH_BAR_Y_UPPER_VALUES',zdat,ncl-1)
        CALL pgraph
        pcla = pcla + bfac
 
@@ -279,42 +282,27 @@ SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active)
     wname = ''
 
     WRITE(wtext2,'(I)')NINT(fdat_sum)
-    WRITE(wname ,'(I)')ncla-1
-    wtext ='Number of cases'//TRIM(wtext2)//'  Number of classes'//TRIM(wname)
+    WRITE(wname ,'(I2)')ncl-1
+    wtext ='Number of cases'//TRIM(wtext2)//'  Number of classes '//TRIM(wname)
     CALL psetc('TEXT_LINE_3',wtext)
     
     ! Line 4
     IF ( show_fc_length ) THEN
        CALL pseti('TEXT_LINE_COUNT',4)
-       IF (nfclengths > 10 ) THEN
-          WRITE(cdum,'(I3)')fclen(nfclengths)
-          WRITE(wname,'(I3,X,I3)')fclen(1:2)
-          WRITE(wtext,*)'Forecast lengths used:'//TRIM(wname)//' ... '//TRIM(cdum)
-        ELSE
-          wname='(A,XX(1X,I3))'
-          WRITE(wname(4:5),'(I2.2)')nfclengths
-          WRITE(wtext,wname)'Forecast lengths used:',fclen(1:nfclengths)
-        ENDIF
-        CALL PSETC('TEXT_LINE_4',wtext)
+       CALL fclen_header(.TRUE.,maxfclenval,uh(j,:),uf(j,:),wtext)
+       CALL PSETC('TEXT_LINE_4',wtext)
     ENDIF
 
     CALL ptext
+
+    ! Clear memory
+    DEALLOCATE(work,pcla,fcla,fdat,zero,zdat)
    
  ENDDO
 
  CALL pclose
 
  IF (ltiming) CALL acc_timing(timing_id,'plot_freq')
-
- DEALLOCATE(work)
-
- ! Copy back namelist variables
- ncla      = ncla_l
- classtype = classtype_l
- npre_cla  = npre_cla_l
- pre_fcla  = pre_fcla_l
- maxcla    = maxcla_l
- mincla    = mincla_l
 
  RETURN
 END SUBROUTINE plot_freq_new

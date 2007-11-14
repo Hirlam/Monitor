@@ -20,20 +20,19 @@ SUBROUTINE quality_control
  INTEGER :: i,j,k,l,m,n,o,ii,                           &
             jj,jjstart,jjcheck(nfclengths),             &
             wdate,wtime,                                &
-            ind_pe(nfclengths),                         &
-            nver(nparver)
+            ind_pe(nparver,nfclengths),                 &
+            nver(nparver),nexp_found
 
  INTEGER, ALLOCATABLE :: gross_error(:,:),              &
                          total_amount(:,:)
 
  REAL              :: diff(nexp),diff_prep,             &
-                      bias(nparver),rmse(nparver)
+                      bias(nparver),rmse(nparver),      &
+                      stdv
 
- LOGICAL :: all_exp_verified   = .TRUE.
  LOGICAL :: found_right_time   = .FALSE.
  LOGICAL :: lprint_gross_first = .TRUE.
- LOGICAL :: lprecip_qc_only    = .FALSE.
- LOGICAL :: qc_control(nexp) 
+ LOGICAL :: qc_control(nexp)
 
  !----------------------------------------------------------
 
@@ -73,19 +72,28 @@ SUBROUTINE quality_control
        IF(qc_fclen(i) == -1 ) EXIT
        WRITE(6,*)'Quality check forecast length ',qc_fclen(i)
     ENDDO
-    WRITE(6,*)
  ENDIF
 
 
  !
- ! Find PE index locations
+ ! Find accumulation index locations
  !
 
  ind_pe = 0
- DO i=1,nfclengths
-    IF(fclen(i) < pe_interval) CYCLE 
-    ind_pe(i)=TRANSFER(MINLOC(ABS(fclen(1:nfclengths)-(fclen(i)-pe_interval))),ii)
-    IF (fclen(i)-fclen(ind_pe(i)) < pe_interval ) ind_pe(i) = 0
+ DO j=1,nparver
+    IF ( accu_int(j) == 0 ) CYCLE
+    IF (print_qc>1) WRITE(6,*)obstype(j),accu_int(j)
+   DO i=1,nfclengths
+
+    IF ( fclen(i) < accu_int(j) ) CYCLE 
+
+    ind_pe(j,i)=TRANSFER(MINLOC(ABS(fclen(1:nfclengths)-(fclen(i)-accu_int(j)))),ii)
+
+    IF (fclen(i)-fclen(ind_pe(j,i)) < accu_int(j) ) ind_pe(j,i) = 0
+
+    IF (print_qc>1) WRITE(6,*)i,obstype(j),fclen(i),ind_pe(j,i)
+
+   ENDDO
  ENDDO
 
  IF ( .NOT. estimate_qc_limit ) THEN
@@ -146,18 +154,6 @@ SUBROUTINE quality_control
      FC_CYCLE : DO n=1,nfclengths
 
        !
-       ! Cycle if this fc hour should not be user for quality control
-       !
-
-       lprecip_qc_only = (                                      &
-                          ((ind_pe(n) > 0 )            .OR.     &
-                           (fclen(n) == pe_interval )) .AND.    &
-                          (.NOT. ( ANY(qc_fclen == fclen(n))))  &
-                                                              )
-
-       IF (.NOT. ( ANY(qc_fclen == fclen(n)) .OR. lprecip_qc_only )) CYCLE FC_CYCLE
-
-       !
        ! Step time to verification time 
        ! If we have no observations inside the range then cycle
        !
@@ -188,9 +184,15 @@ SUBROUTINE quality_control
 
           jjcheck(n) = jj
 
+
           NPARVER_LOOP : DO k=1,nparver
 
-             IF(k /= pe_ind .AND. lprecip_qc_only ) CYCLE NPARVER_LOOP
+             !
+             ! Cycle if fclen should not be used but ONLY if this is
+             ! NOT an accumulated value
+             !
+
+             IF ( (.NOT.ANY(qc_fclen == fclen(n))) .AND. (accu_int(k) == 0 ) ) CYCLE NPARVER_LOOP
 
              !
              ! Loop over all variables
@@ -204,31 +206,72 @@ SUBROUTINE quality_control
 
              qc_control       = .FALSE.
              diff             = err_ind
+             nexp_found       = 0
 
              EXP_LOOP : DO o=1,nexp
 
+                !IF (ABS(hir(i)%o(j)%nal(o,n,k)-err_ind)<1.e-6) THEN
+                   !WRITE(6,*)'Skip '
+                         !WRITE(6,*)hir(i)%stnr,hir(i)%o(j)%date,      &
+                                   !hir(i)%o(j)%time,fclen(n),         &
+                                   !hir(i)%o(j)%nal(o,n,k)
+                !ENDIF
+               
                 IF (ABS(hir(i)%o(j)%nal(o,n,k)-err_ind)<1.e-6) CYCLE EXP_LOOP
 
-                IF(k == pe_ind) THEN
+                !IF(k == pe_ind) THEN
+                 IF(accu_int(k) /= 0) THEN
 
                    !
                    ! Special for precipitation
                    !
 
                    IF(fclen(n) == pe_interval) THEN
-                      diff_prep = hir(i)%o( j)%nal(o,n,k)
-                   ELSEIF(fclen(n) > pe_interval .AND. ind_pe(n) > 0 ) THEN
 
-                      IF (ABS(hir(i)%o(j)%nal(o,ind_pe(n),k)-err_ind)<1.e-6) CYCLE EXP_LOOP
+                !WRITE(6,*)'Use '
+                         !WRITE(6,*)hir(i)%stnr,hir(i)%o(j)%date,      &
+                                   !hir(i)%o(j)%time,fclen(n),         &
+                                   !hir(i)%o(j)%nal(o,n,k)
+
+                      diff_prep = hir(i)%o( j)%nal(o,n,k)
+
+                   ELSEIF(fclen(n) > pe_interval .AND. ind_pe(k,n) > 0 ) THEN
+
+                !IF (ABS(hir(i)%o(j)%nal(o,ind_pe(k,n),k)-err_ind)<1.e-6) THEN
+                         !WRITE(6,*)'Skip '
+                         !WRITE(6,*)hir(i)%stnr,hir(i)%o(j)%date,      &
+                                   !hir(i)%o(j)%time,fclen(n),         &
+                                   !hir(i)%o(j)%nal(o,n,k)
+                !ENDIF 
+
+                      IF (ABS(hir(i)%o(j)%nal(o,ind_pe(k,n),k)-err_ind)<1.e-6) CYCLE EXP_LOOP
+
+                      !IF ( prin_qc > 2 ) THEN
+                         !WRITE(6,*)'Use '
+                         !WRITE(6,*)hir(i)%stnr,hir(i)%o(j)%date,      &
+                                   !hir(i)%o(j)%time,fclen(n),         &
+                                   !hir(i)%o(j)%nal(o,n,k)
+                         !WRITE(6,*)hir(i)%stnr,hir(i)%o(j)%date,      &
+                                   !hir(i)%o(j)%time,fclen(ind_pe(k,n)), &
+                                   !hir(i)%o(j)%nal(o,ind_pe(k,n),k)
+                      !ENDIF
+
 
                       diff_prep = hir(i)%o(j)%nal(o,n        ,k) - &
-                                  hir(i)%o(j)%nal(o,ind_pe(n),k)
+                                  hir(i)%o(j)%nal(o,ind_pe(k,n),k)
 
                       IF (diff_prep < 0.) THEN
                          WRITE(6,*)'Model precipitation is negative',diff_prep
-                         WRITE(6,'(2A,2I10,2I3)')expname(o),	&
-                         ' station:',hir(i)%stnr,wdate,wtime,fclen(n)
+                         WRITE(6,'(2A,I10)')TRIM(expname(o)),' station:',hir(i)%stnr
+                         WRITE(6,*)hir(i)%stnr,hir(i)%o(j)%date,      &
+                                   hir(i)%o(j)%time,fclen(n),         &
+                                   hir(i)%o(j)%nal(o,n,k)
+                         WRITE(6,*)hir(i)%stnr,hir(i)%o(j)%date,      &
+                                   hir(i)%o(j)%time,fclen(ind_pe(k,n)), &
+                                   hir(i)%o(j)%nal(o,ind_pe(k,n),k)
+
                          CYCLE EXP_LOOP
+
                       ENDIF
 
                    ELSE
@@ -239,7 +282,7 @@ SUBROUTINE quality_control
                 ENDIF
 
                 diff(o) =  diff_prep - obs(i)%o(jj)%val(k)
-
+            
                 !
                 ! Wind direction
                 !
@@ -252,6 +295,8 @@ SUBROUTINE quality_control
                 !
 
                 qc_control(o) = ( ABS(diff(o)) < qc_lim(k) )
+                nexp_found    = nexp_found + 1
+
 
                 IF ( estimate_qc_limit ) THEN
 
@@ -267,23 +312,24 @@ SUBROUTINE quality_control
 
              ENDDO EXP_LOOP
 
-             IF (.NOT. ANY(qc_control).AND. .NOT. estimate_qc_limit) THEN
+             IF ((.NOT. ANY(qc_control).AND. .NOT. estimate_qc_limit )    &
+                  .AND. (nexp_found == nexp)) THEN
 
                 !
                 ! Reject erroneous observations
                 !
 
-                IF (k /= pe_ind ) THEN
+                IF (accu_int(k) == 0 ) THEN
                    IF (print_qc > 1 ) THEN
                       WRITE(6,'(A,2I10,2I3)')'GROSS ERROR station:', &
-                      hir(i)%stnr,wdate,wtime,fclen(n)
+                      hir(i)%stnr,hir(i)%o(j)%date,hir(i)%o(j)%time,fclen(n)
                       WRITE(6,*)obstype(k),qc_lim(k),     &
                       obs(i)%o(jj)%val(k),hir(i)%o(j)%nal(:,n,k)
                    ENDIF
                    gross_error(i,k)    = gross_error(i,k) + 1
                    obs(i)%o(jj)%val(k) = err_ind
-                ELSEIF ( (fclen(n) == pe_interval).OR. &
-                         (fclen(n) >  pe_interval .AND.  ind_pe(n) > 0 )) THEN
+                ELSEIF ( (fclen(n) == accu_int(k)).OR. &
+                         (fclen(n) >  accu_int(k) .AND.  ind_pe(k,n) > 0 )) THEN
                    IF (print_qc > 1 ) THEN
                       IF (lprint_gross_first ) THEN
                          WRITE(6,'(A)')'GROSS ERROR station: stnr, date, time, fclen'
@@ -291,7 +337,7 @@ SUBROUTINE quality_control
                          lprint_gross_first = .FALSE.
                       ENDIF
                       WRITE(6,'(A,2I10,2I3)')'GROSS ERROR station:', &
-                      hir(i)%stnr,wdate,wtime,fclen(n)
+                      hir(i)%stnr,hir(i)%o(j)%date,hir(i)%o(j)%time,fclen(n)
                       WRITE(6,*)obstype(k),qc_lim(k),     &
                       obs(i)%o(jj)%val(k),obs(i)%o(jj)%val(k)+diff
                    ENDIF
@@ -299,6 +345,7 @@ SUBROUTINE quality_control
                    obs(i)%o(jj)%val(k) = err_ind
                 ENDIF
              ENDIF
+
              total_amount(i,k)    = total_amount(i,k) + 1
 
           ENDDO NPARVER_LOOP
@@ -326,16 +373,18 @@ SUBROUTINE quality_control
  IF ( estimate_qc_limit ) THEN
 
     WRITE(6,*)
-    WRITE(6,*)'Qualtiy control limits given by', qc_lim_scale,' times the STDV'
+    WRITE(6,*)' Qualtiy control limits (QC_LIM_SCALE STDV QC_LIM) '
+    WRITE(6,*)
 
     DO k=1,nparver
 
-       IF (ABS(qc_lim (k) - err_ind ) < 1.e-6 )       &
-       qc_lim(k) = qc_lim_scale *                     &
-       sqrt(ABS(rmse(k)/MAX(1.,FLOAT(nver(k)))        &
-              -(bias(k)/MAX(1.,FLOAT(nver(o))))**2))
+       IF (ABS(qc_lim (k) - err_ind ) < 1.e-6 ) THEN
+          stdv = sqrt(ABS(rmse(k)/MAX(1.,FLOAT(nver(k)))        &
+                        -(bias(k)/MAX(1.,FLOAT(nver(k))))**2))
+          qc_lim(k) = qc_lim_scale(k) * stdv
+       ENDIF
 
-       WRITE(6,*)obstype(k),qc_lim(k)
+       WRITE(6,*)obstype(k),qc_lim_scale(k),stdv,qc_lim(k)
     ENDDO
     WRITE(6,*)
 

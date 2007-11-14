@@ -14,7 +14,7 @@ MODULE contingency
 
  ! Parameters
  INTEGER,           PARAMETER :: luncont  = 25
- CHARACTER(LEN=50), PARAMETER :: contfile = 'contingency.dat'
+ CHARACTER(LEN=50), PARAMETER :: contfile = 'contingency.html'
 
  ! Variables
  INTEGER :: ncont_param = 0
@@ -57,7 +57,10 @@ MODULE contingency
   do_ini_cont = .TRUE.
 
   INQUIRE(FILE=contfile,OPENED=is_open)
-  IF ( is_open ) CLOSE(luncont)
+  IF ( is_open ) THEN
+     WRITE(luncont,*)'</pre>'
+     CLOSE(luncont)
+  ENDIF
 
 
  END SUBROUTINE clear_cont
@@ -118,8 +121,9 @@ MODULE contingency
 
   OPEN(UNIT=luncont,FILE=contfile)
 
+  WRITE(luncont,*)'<pre>'
   WRITE(6,*)
-  WRITE(6,*)'Contingency output will go to contingency.dat'
+  WRITE(6,*)'Contingency output will go to ',TRIM(contfile)
   WRITE(6,*)
 
  END SUBROUTINE ini_cont

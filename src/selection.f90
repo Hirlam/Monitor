@@ -13,6 +13,18 @@ SUBROUTINE selection(flag)
 
 !---------------------------------
 
+ ! Fill stationlist if empty
+
+ ii = 0
+ IF ( ALL(stnlist == 0) ) THEN
+    DO i=1,maxstn
+      IF (hir(i)%stnr/=0)  THEN
+         ii = ii + 1
+         stnlist(ii) = hir(i)%stnr
+      ENDIF
+    ENDDO
+ ENDIF
+
  !
  ! Make index array of station numbers
  !
@@ -37,11 +49,12 @@ SUBROUTINE selection(flag)
  ! Reset active stations
  !
 
- WHERE(hir%stnr > 0 ) 
-    hir%active=.TRUE.
- ELSEWHERE
     hir%active=.FALSE.
- ENDWHERE
+!WHERE(hir%stnr > 0 ) 
+!   hir%active=.TRUE.
+!ELSEWHERE
+!   hir%active=.FALSE.
+!ENDWHERE
 
  !
  ! Station list selection 
@@ -49,7 +62,7 @@ SUBROUTINE selection(flag)
 
  IF (sum(stnr(1:)) > 0) THEN 
     DO i=1,maxstn
-      IF (stnr(hir(i)%stnr).EQ.0) hir(i)%active = .FALSE.
+      IF (stnr(hir(i)%stnr)/=0) hir(i)%active = .TRUE.
     ENDDO
  ENDIF
 

@@ -99,11 +99,6 @@ CHARACTER(LEN=2)  :: ci   = ' '
     CALL read_radiation
     CALL read_point
 
- CASE(5)
-
-    CALL read_cabauw
-    CALL read_ddh
-
  CASE(6)
 
     CALL read_bak

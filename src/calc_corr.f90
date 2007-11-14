@@ -1,6 +1,6 @@
 SUBROUTINE calc_corr(nobs,xval,yval,            &
                      xmean,ymean,stdevx,stdevy, &
-                     bias,rmse,corr)
+                     bias,rmse,stdv,corr)
 
  IMPLICIT NONE
 
@@ -8,7 +8,7 @@ SUBROUTINE calc_corr(nobs,xval,yval,            &
  REAL,    INTENT(IN ) :: xval(nobs),yval(nobs)
  REAL,    INTENT(OUT) :: xmean,ymean,          &
                          stdevx,stdevy,        &
-                         bias,rmse,corr
+                         bias,rmse,stdv,corr
 
  ! Local
 
@@ -52,6 +52,7 @@ SUBROUTINE calc_corr(nobs,xval,yval,            &
   YMEAN = SUMY*XPTD
   XMEAN = SUMX*XPTD
   BIAS = YMEAN-XMEAN
+  STDV = SQRT(SUMXY2*XPTD-BIAS**2)
   RMSE = SQRT(SUMXY2*XPTD)
 
     XHELP = XPT*SUMXX-SUMX*SUMX

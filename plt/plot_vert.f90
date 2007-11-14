@@ -1,9 +1,11 @@
 SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
-                     s,stnr,yymm,yymm2,par_active)
+                     s,stnr,yymm,yymm2,par_active,uh,uf)
 
  !
  ! Plot vertical profile of RMS,STD and BIAS 
  ! Vertical coordinate is assumed to be pressure
+ !
+ ! Ulf Andrae, SMHI, 2005
  !
 
  USE types, ONLY : statistics
@@ -11,11 +13,13 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
  USE functions
  USE timing
  USE data, ONLY : obstype,expname,station_name,                 &
-                  csi,fclen,lfcver,nrun,                        &
+                  csi,lfcver,maxfclenval,                       &
                   lev_lst,ltemp,nfclengths,                     &
-                  show_fc_length,ltiming,                       &
+                  show_fc_length,ltiming,tag,                   &
                   show_bias,show_rmse,show_stdv,show_obs,       &
-                  len_lab,period_freq,period_type,output_type
+                  len_lab,period_freq,period_type,output_type,  &
+                  show_times,use_fclen,timdiff,time_shift,      &
+                  z_is_pressure
 
 
  IMPLICIT NONE
@@ -25,9 +29,12 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
                                   par_active(nparver)
  TYPE (statistics), INTENT(IN) :: s(nexp,nparver,ntimver)
 
+ LOGICAL,           INTENT(IN) :: uh(nparver,0:23),uf(nparver,0:maxfclenval)
+
 ! Local
 
- INTEGER :: i,j,jj,j_ind,k,timing_id
+ INTEGER :: i,j,jj,j_ind,k,kk,timing_id,    &
+            ntimver_out,hour(ntimver)
 
  REAL    :: bias(nexp,nlev),       &
             rmse(nexp,nlev),       &
@@ -45,6 +52,9 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
  CHARACTER(LEN=len_lab  ) :: ob_short=''
  CHARACTER(LEN=7  ) :: cnum_case = '       '
  CHARACTER(LEN=1  ) :: prefix    = ' '
+ CHARACTER(LEN=10 ) :: chour    = ' '
+
+ LOGICAL, ALLOCATABLE :: ldum(:)
 
 !------------------------------------------
  ! Init timing counter
@@ -57,6 +67,24 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
     show_stdv = .FALSE.
  ENDIF
 
+ IF ( ALL(show_times == -1) ) THEN
+   ntimver_out = 1
+ ELSE
+   ntimver_out = ntimver
+ ENDIF
+
+ !
+ ! Set plotting hours
+ ! If map_hours not given (-1) plot all
+ !
+
+ IF (lfcver) THEN
+    hour(1:ntimver)=use_fclen(1:ntimver)
+ ELSE
+    DO i=1,ntimver
+       hour(i)=(i-1)*timdiff + time_shift
+    ENDDO
+ ENDIF
 
  !
  ! Set output filename
@@ -65,9 +93,9 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
  prefix = 'l'
  IF (lfcver) prefix = 'L'
  IF (yymm < 999999 ) THEN
-    CALL make_fname(prefix,yymm,stnr,nrun,fname,output_type)
+    CALL make_fname(prefix,yymm,stnr,tag,fname,output_type)
  ELSE
-    CALL make_fname(prefix,   0,stnr,nrun,fname,output_type)
+    CALL make_fname(prefix,   0,stnr,tag,fname,output_type)
  ENDIF
 
  ! Set vertical levels
@@ -80,6 +108,9 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
 
 
  DO j=nlev,nparver,nlev
+  DO kk=1,ntimver_out
+
+    IF ( ntimver_out /= 1 .AND. .NOT. ANY( show_times == hour(kk) )) CYCLE
 
     rnum = 0.
     bias = 0.
@@ -89,12 +120,19 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
     DO i = 1,nexp
     DO jj= 1,nlev
        j_ind = (j/nlev-1)*nlev + jj
-       DO k = 1,ntimver
+       IF ( ntimver_out == 1 ) THEN
+        DO k = 1,ntimver
           rnum(i,jj) = rnum(i,jj) + float(s(i,j_ind,k)%n)
           bias(i,jj) = bias(i,jj) +       s(i,j_ind,k)%bias
           rmse(i,jj) = rmse(i,jj) +       s(i,j_ind,k)%rmse
            obs(i,jj) =  obs(i,jj) +       s(i,j_ind,k)%obs
-       ENDDO
+        ENDDO
+       ELSE
+          rnum(i,jj) = rnum(i,jj) + float(s(i,j_ind,kk)%n)
+          bias(i,jj) = bias(i,jj) +       s(i,j_ind,kk)%bias
+          rmse(i,jj) = rmse(i,jj) +       s(i,j_ind,kk)%rmse
+           obs(i,jj) =  obs(i,jj) +       s(i,j_ind,kk)%obs
+       ENDIF
     ENDDO
     ENDDO
 
@@ -102,15 +140,14 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
 
     rnum = MAX(1.,rnum)
 
+    stdv = SQRT(ABS(rmse/rnum - (bias/rnum)**2))
     IF ( show_obs ) THEN
        bias = (  bias + obs ) / rnum
        obs  = obs / rnum
     ELSE
        bias = bias / rnum
     ENDIF
-
     rmse = SQRT(rmse/rnum)
-    stdv = SQRT(ABS(rmse/rnum - (bias/rnum)**2))
 
     miny = MINVAL(bias)
     maxy = MAXVAL(bias)
@@ -118,9 +155,19 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
     IF (show_obs ) THEN
        miny = MIN(miny,MINVAL(obs))
        maxy = MAX(maxy,MAXVAL(obs))
-    ELSEIF(show_rmse) THEN
-       miny = MIN(miny,MINVAL(rmse))
-       maxy = MAX(maxy,MAXVAL(rmse))
+    ELSE
+       IF(show_bias) THEN
+          miny = MIN(miny,MINVAL(bias))
+          maxy = MAX(maxy,MAXVAL(bias))
+       ENDIF
+       IF(show_rmse) THEN
+          miny = MIN(miny,MINVAL(rmse))
+          maxy = MAX(maxy,MAXVAL(rmse))
+       ENDIF
+       IF(show_stdv) THEN
+          miny = MIN(miny,MINVAL(stdv))
+          maxy = MAX(maxy,MAXVAL(stdv))
+       ENDIF
     ENDIF
 
     diff = tics(miny,maxy)
@@ -150,7 +197,7 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
        WRITE(wtext,'(A25,I8)')'Statistics for area ',stnr
     ENDIF
 
-    IF (stnr.EQ.0) THEN
+    IF (stnr == 0) THEN
        wtext='Statistics for      stations'
        WRITE(wtext(16:19),'(I4)')par_active(j)
     ENDIF
@@ -163,7 +210,7 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
     CALL pname(ob_short,wtext)
      
     ! Line 2
-    IF (yymm == 0 ) THEN
+    IF ( yymm == 0 ) THEN
     ELSEIF(yymm < 13) THEN
 
        SELECT CASE(period_freq) 
@@ -194,21 +241,28 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
     CALL PSETC('TEXT_LINE_3',wtext)
 
     ! Line 4
-    IF ( show_fc_length ) THEN
-          wtext =''
-          IF (nfclengths > 10 ) THEN
-             wname='(A,2I3.2,A5,I2.2)'
-             WRITE(wtext1,wname)'Forecast lengths used:',   &
-             fclen(1:2),' ... ',fclen(nfclengths)
-          ELSE
-             wname='(A,XX(1X,I2.2))'
-             WRITE(wname(4:5),'(I2.2)')nfclengths
-             WRITE(wtext1,wname)'Forecast lengths used:',fclen(1:nfclengths)
-          ENDIF
-          wtext = TRIM(wtext)//' '//TRIM(wtext1)
-       CALL PSETC('TEXT_LINE_4',wtext)
+    IF ( ntimver_out == 1 ) THEN
+       IF ( show_fc_length ) THEN
+          CALL PSETI('TEXT_LINE_COUNT',4)
+          CALL fclen_header(.TRUE.,maxfclenval,uh(j,:),uf(j,:),wtext)
+          CALL PSETC('TEXT_LINE_4',wtext)
+       ENDIF
+    ELSE
+       IF (lfcver) THEN
+          ALLOCATE(ldum(0:hour(kk)))
+          ldum           = .FALSE.
+          ldum(hour(kk)) = .TRUE.
+          CALL fclen_header(.TRUE.,hour(kk),uh(j,:),ldum,wtext)
+          DEALLOCATE(ldum)
+       ELSE
+          WRITE(chour,'(I3.2,X,A3)')hour(kk),'UTC'
+          CALL fclen_header(.TRUE.,maxfclenval,uh(j,:),uf(j,:),wtext)
+          wtext = 'Statistics at '//chour   //'  '//TRIM(wtext)
+       ENDIF
        CALL PSETI('TEXT_LINE_COUNT',4)
+       CALL PSETC('TEXT_LINE_4',wtext)
     ENDIF
+
 
     CALL ptext
 
@@ -259,7 +313,6 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
        legend_is_on = .TRUE.
     ENDIF
 
-
     DO i=1,nexp
        CALL PSETC  ('GRAPH_LINE_STYLE','DOT')
        CALL plot_y_data(stdv(i,1:nlev),nlev,linecolor(i),expname(i),1)
@@ -285,6 +338,7 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
     CALL PSETC ('GRAPH_LINE_STYLE','DASH')
     CALL plot_y_data(rnum(1,1:nlev),nlev,'GREY','OBS',1)
 
+ ENDDO
  ENDDO
 
  CALL pclose

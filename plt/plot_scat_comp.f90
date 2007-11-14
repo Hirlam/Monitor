@@ -1,5 +1,6 @@
 SUBROUTINE plot_scat_comp(lunout,nparver,nr,nrun,    &
-           scat,p1,p2,par_active,full_scatter)
+           scat,p1,p2,par_active,full_scatter,       &
+           uh,uf)
 
  !
  ! X scatter plots
@@ -10,10 +11,10 @@ SUBROUTINE plot_scat_comp(lunout,nparver,nr,nrun,    &
  USE types
  USE timing
  USE data, ONLY : obstype,expname,err_ind,nexp,station_name,csi, &
-                  fclen,nfclengths,                              &
-                  show_fc_length,output_type,                    &
+                  tag,show_fc_length,output_type,                &
                   mparver,corr_pairs,flag_pairs,exp_pairs,       &
-                  period_freq
+                  period_freq,maxfclenval,                       &
+                  scat_min,scat_max,scat_magn
  USE mymagics
  USE functions
 
@@ -24,7 +25,8 @@ SUBROUTINE plot_scat_comp(lunout,nparver,nr,nrun,    &
  INTEGER,            INTENT(IN) :: lunout,nparver,nr,nrun,p1,p2
  INTEGER,            INTENT(IN) :: par_active(nparver)
  TYPE(scatter_type), INTENT(IN) :: scat(nparver)
- LOGICAL,            INTENT(IN) :: full_scatter
+ LOGICAL,            INTENT(IN) :: full_scatter,uh(nparver,0:23), &
+                                   uf(nparver,0:maxfclenval)
 
  ! LOCAL
 
@@ -83,9 +85,9 @@ SUBROUTINE plot_scat_comp(lunout,nparver,nr,nrun,    &
 
  ! Set filename
  IF ( p1 < 999999 ) THEN
-    CALL make_fname(prefix,p1,nr,nrun,fname,output_type)
+    CALL make_fname(prefix,p1,nr,tag,fname,output_type)
  ELSE
-    CALL make_fname(prefix, 0,nr,nrun,fname,output_type)
+    CALL make_fname(prefix, 0,nr,tag,fname,output_type)
  ENDIF
 
  ! Open ps file
@@ -149,6 +151,14 @@ SUBROUTINE plot_scat_comp(lunout,nparver,nr,nrun,    &
 
 
     ! Find min and max
+
+    IF ( scat_min(lcorr_pairs(j,1)) < scat_max(lcorr_pairs(j,1)) ) THEN
+
+    minax = scat_min(lcorr_pairs(j,1))
+    maxax = scat_max(lcorr_pairs(j,1))
+    kk = scat(lcorr_pairs(j,1))%n
+
+    ELSE
 
     minax = 0.
     maxax = 1.
@@ -228,18 +238,14 @@ SUBROUTINE plot_scat_comp(lunout,nparver,nr,nrun,    &
 
     ENDIF ! kk > 0
 
-    IF ( show_fc_length ) THEN
-       IF (nfclengths > 10 ) THEN
-          wname='(A,2I3.2,A5,I2.2)'
-          WRITE(wtext3,wname)'Forecast lengths used:',   &
-          fclen(1:2),' ... ',fclen(nfclengths)
-       ELSE
-          wname='(A,XX(1X,I2.2))'
-          WRITE(wname(4:5),'(I2.2)')nfclengths
-          WRITE(wtext3,wname)'Forecast lengths used:',fclen(1:nfclengths)
-          CALL PSETC('TEXT_LINE_4',wtext)
-       ENDIF
-    ENDIF
+    ENDIF ! scat_min < scat_max
+
+
+    IF ( show_fc_length )                      &
+    CALL fclen_header(.TRUE.,maxfclenval,      &
+                      uh(lcorr_pairs(j,1),:),  &
+                      uf(lcorr_pairs(j,1),:),  &
+                      wtext3)
 
     nexp_plot = 1
     IF( ALL(lexp_pairs(j,:) == 0 ) ) nexp_plot = nexp
@@ -310,6 +316,7 @@ SUBROUTINE plot_scat_comp(lunout,nparver,nr,nrun,    &
         call bin_scat(val(1,1:kk),val(2,1:kk),kk,     &
                       minax(1),maxax(1),              &
                       minax(2),maxax(2),              &
+                      scat_magn(lcorr_pairs(j,1)),    &
                       scatflag,                       &
                       title,wtext,axist(2),axist(1),  &
                       wtext3,wtext4)
