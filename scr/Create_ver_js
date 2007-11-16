@@ -16,7 +16,8 @@ MYEXP="["
 I=1
 while [ ${EXP[$I]} ] ; do
 	echo EXP ${EXP[$I]}
-   II="${II},${I}"
+   J=$( expr $I - 1 )
+   II="${II},${J}"
    H=${EXP[$I]}
    MYEXP="${MYEXP},'${EXP[$I]}'"
    I=$( expr $I + 1 )
@@ -136,7 +137,7 @@ t[5] = [$SURFVAR]
 v[6] =[0] ;
 t[6] =[0]
 v[7] =$II
-t[7] = [$MYEXP]
+t[7] =$MYEXP
 
 mname = ["Type","Error","Period","Station","dum","Parameter","Hour","Exp"]
 loc =['l','l','t','l','l','l','l','l']
