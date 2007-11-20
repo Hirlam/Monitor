@@ -38,7 +38,11 @@ SUBROUTINE quality_control
 
  IF ( print_qc > 0 ) THEN
     WRITE(6,*)
-    WRITE(6,*)'--QUALTITY CONTROL--'
+    IF ( estimate_qc_limit ) THEN
+       WRITE(6,*)'--ESTIMATE QC LIMITS--'
+    ELSE
+       WRITE(6,*)'--QUALTITY CONTROL--'
+    ENDIF
     WRITE(6,*)
  ENDIF
 
@@ -79,6 +83,7 @@ SUBROUTINE quality_control
  ! Find accumulation index locations
  !
 
+ IF (print_qc>1) WRITE(6,*)'Accumulation index'
  ind_pe = 0
  DO j=1,nparver
     IF ( accu_int(j) == 0 ) CYCLE
@@ -210,58 +215,28 @@ SUBROUTINE quality_control
 
              EXP_LOOP : DO o=1,nexp
 
-                !IF (ABS(hir(i)%o(j)%nal(o,n,k)-err_ind)<1.e-6) THEN
-                   !WRITE(6,*)'Skip '
-                         !WRITE(6,*)hir(i)%stnr,hir(i)%o(j)%date,      &
-                                   !hir(i)%o(j)%time,fclen(n),         &
-                                   !hir(i)%o(j)%nal(o,n,k)
-                !ENDIF
-               
                 IF (ABS(hir(i)%o(j)%nal(o,n,k)-err_ind)<1.e-6) CYCLE EXP_LOOP
 
-                !IF(k == pe_ind) THEN
-                 IF(accu_int(k) /= 0) THEN
+                IF(accu_int(k) /= 0) THEN
 
                    !
                    ! Special for precipitation
                    !
 
-                   IF(fclen(n) == pe_interval) THEN
-
-                !WRITE(6,*)'Use '
-                         !WRITE(6,*)hir(i)%stnr,hir(i)%o(j)%date,      &
-                                   !hir(i)%o(j)%time,fclen(n),         &
-                                   !hir(i)%o(j)%nal(o,n,k)
+                   IF(fclen(n) == accu_int(k)) THEN
 
                       diff_prep = hir(i)%o( j)%nal(o,n,k)
 
-                   ELSEIF(fclen(n) > pe_interval .AND. ind_pe(k,n) > 0 ) THEN
-
-                !IF (ABS(hir(i)%o(j)%nal(o,ind_pe(k,n),k)-err_ind)<1.e-6) THEN
-                         !WRITE(6,*)'Skip '
-                         !WRITE(6,*)hir(i)%stnr,hir(i)%o(j)%date,      &
-                                   !hir(i)%o(j)%time,fclen(n),         &
-                                   !hir(i)%o(j)%nal(o,n,k)
-                !ENDIF 
+                   ELSEIF(fclen(n) > accu_int(k) .AND. ind_pe(k,n) > 0 ) THEN
 
                       IF (ABS(hir(i)%o(j)%nal(o,ind_pe(k,n),k)-err_ind)<1.e-6) CYCLE EXP_LOOP
 
-                      !IF ( prin_qc > 2 ) THEN
-                         !WRITE(6,*)'Use '
-                         !WRITE(6,*)hir(i)%stnr,hir(i)%o(j)%date,      &
-                                   !hir(i)%o(j)%time,fclen(n),         &
-                                   !hir(i)%o(j)%nal(o,n,k)
-                         !WRITE(6,*)hir(i)%stnr,hir(i)%o(j)%date,      &
-                                   !hir(i)%o(j)%time,fclen(ind_pe(k,n)), &
-                                   !hir(i)%o(j)%nal(o,ind_pe(k,n),k)
-                      !ENDIF
-
-
-                      diff_prep = hir(i)%o(j)%nal(o,n        ,k) - &
+                      diff_prep = hir(i)%o(j)%nal(o,n          ,k) - &
                                   hir(i)%o(j)%nal(o,ind_pe(k,n),k)
 
                       IF (diff_prep < 0.) THEN
-                         WRITE(6,*)'Model precipitation is negative',diff_prep
+                         WRITE(6,*)'Accumulated model value difference is negative',diff_prep
+                         WRITE(6,*)TRIM(obstype(k)),diff_prep
                          WRITE(6,'(2A,I10)')TRIM(expname(o)),' station:',hir(i)%stnr
                          WRITE(6,*)hir(i)%stnr,hir(i)%o(j)%date,      &
                                    hir(i)%o(j)%time,fclen(n),         &
@@ -270,7 +245,9 @@ SUBROUTINE quality_control
                                    hir(i)%o(j)%time,fclen(ind_pe(k,n)), &
                                    hir(i)%o(j)%nal(o,ind_pe(k,n),k)
 
-                         CYCLE EXP_LOOP
+                         !hir(i)%o(j)%nal(o,ind_pe(k,n),k) = hir(i)%o(j)%nal(o,n,k)
+                         diff_prep = 0.0
+                         !CYCLE EXP_LOOP
 
                       ENDIF
 

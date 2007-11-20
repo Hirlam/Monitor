@@ -42,7 +42,7 @@ SUBROUTINE read_vfld
 
 !----------------------------------------------------------
 
- 999 format(1x,i5.5,2F8.3,f5.0,f5.0,f6.1,f6.1,f6.1,f7.1,f6.1,en13.3e2)
+ !999 format(1x,i5.5,2F8.3,f5.0,f5.0,f6.1,f6.1,f6.1,f7.1,f6.1,en13.3e2)
 
  stations       = 0
  max_found_stat = 0
@@ -92,7 +92,7 @@ SUBROUTINE read_vfld
        READ_STATION_MOD : DO k=1,num_stat
 
           val = -99.
-          READ(lunin,999,iostat=ierr)istnr,lat,lon,val
+          READ(lunin,*,iostat=ierr)istnr,lat,lon,val
           IF (ierr.ne.0) CYCLE READ_STATION_MOD
 
           !

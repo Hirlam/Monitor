@@ -540,18 +540,22 @@ SUBROUTINE verify
                          CYCLE EXP_LOOP
                       ENDIF
 
-                      diff_prep = hir(i)%o(j)%nal(o,n        ,k) - &
+                      diff_prep = hir(i)%o(j)%nal(o,n          ,k) - &
                                   hir(i)%o(j)%nal(o,ind_pe(k,n),k)
 
                       IF (diff_prep < 0.) THEN
-                         WRITE(6,*)'Model precipitation is negative',diff_prep
+                         WRITE(6,*)'Accumulated model value is negative'
+                         WRITE(6,*)TRIM(obstype(k)),diff_prep
                          WRITE(6,'(2A,I10)')expname(o),' station:',hir(i)%stnr
                          WRITE(6,*)hir(i)%stnr,wdate,wtime,fclen(n),   &
                          hir(i)%o(j)%nal(o,n,k)
                          WRITE(6,*)hir(i)%stnr,wdate,wtime,fclen(ind_pe(k,n)),   &
                          hir(i)%o(j)%nal(o,ind_pe(k,n),k)
-                         all_exp_verified = .FALSE.
-                         CYCLE EXP_LOOP
+
+                         hir(i)%o(j)%nal(o,ind_pe(k,n),k) = hir(i)%o(j)%nal(o,n,k)
+                         diff_prep = 0.0
+                         !all_exp_verified = .FALSE.
+                         !CYCLE EXP_LOOP
                       ENDIF
 
                    ELSE
