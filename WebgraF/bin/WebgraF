@@ -274,8 +274,20 @@ if ( $ADDFILE =~ /true/ ) {
       # This is a project
       #
      
+      $WRK = $PROJECT ;
+      $WRK =~ s/ //g ;
+      mkdir "___tmp___" ;
+      chdir "___tmp___";
       system("tar xf $FILE") ;
-      print "Added $FILE as $PROJECT\n";
+      if ( -s "../$WRK" ) {
+         chdir "../$WRK" ;
+         system("cp -r ../___tmp___/$TMP[0]/* .") ;
+      } else {
+         system("mv $TMP[0] ../$WRK") ;
+      };
+      chdir $BASE or die "Could not change dir to $BASE \n" ;
+      system("rm -rf ___tmp___");
+      print "Added $FILE as $WRK\n";
       &make_index() ;
 
    } elsif ( $len == 3 ){
@@ -369,7 +381,7 @@ if ( $RENAME =~ /true/ ) {
         if ( ! -s $WRK   ) { die "ENTRY $WRK does not exist \n"; } ;
         if ( -s $NEWNAME ) { die "$NEWNAME does already exist \n"; } ;
 	rename $WRK,$NEWNAME ; 
-	rmdir "$WRK.js";
+	system("rm -f $WRK.js");
 	symlink "$NEWNAME/input.js","$NEWNAME.js";
 	print "Moved  $WRK to $NEWNAME \n"; 
 	print "Remember to update pdir in $NEWNAME \n"; 
@@ -431,8 +443,7 @@ if ( $DELETE =~ /true/ ) {
  		chdir $WRK or die "Could not change dir to $PROJECT \n" ;
 		$WRK = $ENTRY ;
 		$WRK =~ s/ //g ;
-		rmdir $WRK ;
-		rmdir "$WRK.js" ;
+		system("rm -rf $WRK $WRK.js") ;
 		print " Removed entry $WRK \n" ;
 		&update_input_list(&get_dir) ;
 		chdir ".." ;
@@ -443,7 +454,7 @@ if ( $DELETE =~ /true/ ) {
                  if ( ! -s $BASENTRY ) { die " $BASENTRY does not exist \n"; } ;
 	         $WRK = $PROJECT ;
 	         $WRK =~ s/ //g ;
-	         rmdir "$BASENTRY/$WRK.html" ;
+	         system("rm -f $BASENTRY/$WRK.html") ;
 	         $WRK=$BASE."/".$PROJECT."/info.txt" ;
 	         $WRK =~ s/ //g ;
 	         open OFILE, "> $WRK";
