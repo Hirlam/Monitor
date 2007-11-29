@@ -170,7 +170,8 @@ MODULE contingency
            DO l=1,nexp
               mc = 0
               DO m=1,cont_table(i)%nclass
-                 IF ( dat(j)%dat(l+1,k) <= cont_table(i)%limit(m)) THEN
+                 IF ( dat(j)%dat(l+1,k) +    &
+                      dat(j)%dat(  1,k) <= cont_table(i)%limit(m)) THEN
                     mc = m
                     EXIT
                  ENDIF

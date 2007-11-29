@@ -38,11 +38,11 @@ SUBROUTINE print_cont
        DO l=1,nexp
           WRITE(luncont,*)'Experiment ',TRIM(expname(l))
           DO m=1,cont_table(i)%nclass
-             WRITE(luncont,cform)cont_table(i)%table(l,1:,m), &
-                                 cont_table(i)%table(l,0 ,m)
+             WRITE(luncont,cform)cont_table(i)%table(l,m,1:), &
+                                 cont_table(i)%table(l,m,0 )
           ENDDO
-          WRITE(luncont,cform)cont_table(i)%table(l,1:,0), &
-                              cont_table(i)%table(l,0 ,0)
+          WRITE(luncont,cform)cont_table(i)%table(l,0,1:), &
+                              cont_table(i)%table(l,0,0 )
        ENDDO
 
     ENDDO
