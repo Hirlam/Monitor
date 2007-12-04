@@ -62,7 +62,7 @@ cat << EOF >> fort.10
  PE_IND  = 8,
  LQUALITY_CONTROL  = T
  ESTIMATE_QC_LIMIT = T
- QC_LIM_SCALE      = 8*3.0
+ QC_LIM_SCALE      = 8*5.0
  MAXSTN            = 4000,
  STNLIST           = 0
  STATNAME          = 'Surface_LL.html'
@@ -120,6 +120,11 @@ cp fort.10 namelist_surf
 
 $BIN/verobs || exit
 
+# Quality control information
+echo '<pre>'   > quality.html
+cat fort.48   >> quality.html
+echo '</pre>' >> quality.html
+
 
 [[ $WEBCALL == ""  ]] && exit
 
@@ -140,7 +145,7 @@ fi
 cp $SCR/style.xsl .
 
 $WEBCALL -e Surface -f fig.tar
-tar cvf xml.tar  *.xml style.xsl contingency.html Surface_HH.html Surface_LL.html
+tar cvf xml.tar  *.xml style.xsl *.html
 $WEBCALL -e Surf_scat -f xml.tar
 
-rm -f *.tar *.png *.ps *.jpg *.xml *.xsl || true
+rm -f *.tar *.png *.ps *.jpg *.xml *.xsl *.html || true

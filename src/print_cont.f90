@@ -8,7 +8,10 @@ SUBROUTINE print_cont
 
  INTEGER :: i,j,k,l,m
 
- CHARACTER(LEN=  6) :: cform='(XXI9)'
+ INTEGER, ALLOCATABLE :: sumcol(:)
+
+ CHARACTER(LEN= 25) :: cform='(A10,XXI9,X,A1,X,I9)'
+ CHARACTER(LEN= 25) :: hform='(XXX,A)'
  CHARACTER(LEN= 20) :: ctmp = '',ctmp2 = ''
  CHARACTER(LEN=100) :: cwrk = ''
 
@@ -19,6 +22,9 @@ SUBROUTINE print_cont
     DO j=1,nparver
 
        IF ( j /= cont_table(i)%ind ) CYCLE
+
+       ALLOCATE(sumcol(0:cont_table(i)%nclass))
+
        cwrk = 'Contingency table for '
        CALL pname(obstype(j),ctmp)
        cwrk = TRIM(cwrk)//' '//TRIM(ctmp)
@@ -29,21 +35,37 @@ SUBROUTINE print_cont
 
        WRITE(luncont,*)TRIM(cwrk)
        WRITE(luncont,*)'Limits ',cont_table(i)%limit(1:cont_table(i)%nclass)
-       WRITE(luncont,*)'Each class is data < limit, the very last > last limit'
-       WRITE(luncont,*)'In table x=obs, y=fc'
+       WRITE(luncont,*)'Each class is data <= limit, the very last > last limit'
        WRITE(luncont,*)'Total number of values',cont_table(i)%nval
 
-       WRITE(cform(2:3),'(I2.2)')cont_table(i)%nclass+1
+       WRITE(hform(2:3),'(I2.2)')(cont_table(i)%nclass/2+1)*9+10
+       WRITE(cform(6:7),'(I2.2)')cont_table(i)%nclass+1
+
 
        DO l=1,nexp
-          WRITE(luncont,*)'Experiment ',TRIM(expname(l))
-          DO m=1,cont_table(i)%nclass
-             WRITE(luncont,cform)cont_table(i)%table(l,m,1:), &
-                                 cont_table(i)%table(l,m,0 )
+
+          DO m=0,cont_table(i)%nclass
+             sumcol(m) = SUM(cont_table(i)%table(l,m,:))
           ENDDO
-          WRITE(luncont,cform)cont_table(i)%table(l,0,1:), &
-                              cont_table(i)%table(l,0,0 )
+
+          !WRITE(luncont,*)'Experiment ',TRIM(expname(l))
+          WRITE(luncont,hform)'OBSERVATION'
+          DO m=0,cont_table(i)%nclass
+             IF ( m == cont_table(i)%nclass/2 ) THEN
+                WRITE(luncont,cform)TRIM(expname(l)),             &
+                                    cont_table(i)%table(l,:,m),   &
+                            '|',SUM(cont_table(i)%table(l,:,m))
+             ELSE
+                WRITE(luncont,cform)'          ',                 &
+                                    cont_table(i)%table(l,:,m),   &
+                            '|',SUM(cont_table(i)%table(l,:,m))
+             ENDIF
+          ENDDO
+          WRITE(luncont,*)
+          WRITE(luncont,cform)'SUM       ',sumcol,'|',SUM(sumcol)
        ENDDO
+
+       DEALLOCATE(sumcol)
 
     ENDDO
     WRITE(luncont,*)

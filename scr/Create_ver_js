@@ -105,8 +105,8 @@ pdir ="Surface/"
 ext='png'
 help = "${HELP}"; hide_help = false ;
 do_send = true ;
-my_xml_txt = ['Statistics','Contingency table',$SURFVAR]
-my_xml = ['Surface_LL.html','contingency.html','FF_00000000','DD_00000000','PS_00000000','TT_00000000','RH_00000000','QQ_00000000','NN_00000000','PE_00000000']
+my_xml_txt = ['Statistics','Quality control','Contingency table',$SURFVAR]
+my_xml = ['Surface_LL.html','quality.html','contingency.html','FF_00000000','DD_00000000','PS_00000000','TT_00000000','RH_00000000','QQ_00000000','NN_00000000','PE_00000000']
 EOF
 
 $WEBCALL -e Surf_scat -f input.js
@@ -237,7 +237,7 @@ for LEV in $LEV_LST ; do
 	echo "'${VAR}${LEV4}'",  >> input.js
 done
 done
-echo "'Statistics']" >> input.js
+echo "'Quality','Statistics']" >> input.js
 
 echo "my_xml = [" >> input.js
 for VAR in FF DD RH QQ FI ; do
@@ -246,7 +246,7 @@ for LEV in $LEV_LST ; do
 	echo "'${VAR}${LEV4}_00000000'",  >> input.js
 done
 done
-echo "'Temp.html']" >> input.js
+echo "'quality.html','Temp.html']" >> input.js
 echo "my_xml.reverse()" >> input.js
 echo "my_xml_txt.reverse()" >> input.js
 

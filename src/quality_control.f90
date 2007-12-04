@@ -37,13 +37,13 @@ SUBROUTINE quality_control
  !----------------------------------------------------------
 
  IF ( print_qc > 0 ) THEN
-    WRITE(6,*)
+    WRITE(lunqc,*)
     IF ( estimate_qc_limit ) THEN
-       WRITE(6,*)'--ESTIMATE QC LIMITS--'
+       WRITE(lunqc,*)'--ESTIMATE QC LIMITS--'
     ELSE
-       WRITE(6,*)'--QUALTITY CONTROL--'
+       WRITE(lunqc,*)'--QUALTITY CONTROL--'
     ENDIF
-    WRITE(6,*)
+    WRITE(lunqc,*)
  ENDIF
 
  bias = 0.
@@ -62,7 +62,7 @@ SUBROUTINE quality_control
 
     ii = 0
     DO i=1,nfclengths
-       IF ( fclen(i) <= fcint ) THEN
+       IF ( fclen(i) <= 2*fcint ) THEN
           ii = ii + 1
           qc_fclen(ii) = fclen(i)
        ENDIF
@@ -71,10 +71,10 @@ SUBROUTINE quality_control
  ENDIF
 
  IF ( print_qc > 0 ) THEN
-    WRITE(6,*)
+    WRITE(lunqc,*)
     DO i=1,nfclengths
        IF(qc_fclen(i) == -1 ) EXIT
-       WRITE(6,*)'Quality check forecast length ',qc_fclen(i)
+       WRITE(lunqc,*)'Quality check forecast length ',qc_fclen(i)
     ENDDO
  ENDIF
 
@@ -83,11 +83,11 @@ SUBROUTINE quality_control
  ! Find accumulation index locations
  !
 
- IF (print_qc>1) WRITE(6,*)'Accumulation index'
+ IF (print_qc>1) WRITE(lunqc,*)'Accumulation index'
  ind_pe = 0
  DO j=1,nparver
     IF ( accu_int(j) == 0 ) CYCLE
-    IF (print_qc>1) WRITE(6,*)obstype(j),accu_int(j)
+    IF (print_qc>1) WRITE(lunqc,*)obstype(j),accu_int(j)
    DO i=1,nfclengths
 
     IF ( fclen(i) < accu_int(j) ) CYCLE 
@@ -96,7 +96,7 @@ SUBROUTINE quality_control
 
     IF (fclen(i)-fclen(ind_pe(j,i)) < accu_int(j) ) ind_pe(j,i) = 0
 
-    IF (print_qc>1) WRITE(6,*)i,obstype(j),fclen(i),ind_pe(j,i)
+    IF (print_qc>1) WRITE(lunqc,*)i,obstype(j),fclen(i),ind_pe(j,i)
 
    ENDDO
  ENDDO
@@ -298,9 +298,9 @@ SUBROUTINE quality_control
 
                 IF (accu_int(k) == 0 ) THEN
                    IF (print_qc > 1 ) THEN
-                      WRITE(6,'(A,2I10,2I3)')'GROSS ERROR station:', &
+                      WRITE(lunqc,'(A,2I10,2I3)')'GROSS ERROR station:', &
                       hir(i)%stnr,hir(i)%o(j)%date,hir(i)%o(j)%time,fclen(n)
-                      WRITE(6,*)obstype(k),qc_lim(k),     &
+                      WRITE(lunqc,*)obstype(k),qc_lim(k),     &
                       obs(i)%o(jj)%val(k),hir(i)%o(j)%nal(:,n,k)
                    ENDIF
                    gross_error(i,k)    = gross_error(i,k) + 1
@@ -309,13 +309,13 @@ SUBROUTINE quality_control
                          (fclen(n) >  accu_int(k) .AND.  ind_pe(k,n) > 0 )) THEN
                    IF (print_qc > 1 ) THEN
                       IF (lprint_gross_first ) THEN
-                         WRITE(6,'(A)')'GROSS ERROR station: stnr, date, time, fclen'
-                         WRITE(6,'(A)')'Obstype, qc limit, obs, model'
+                         WRITE(lunqc,'(A)')'GROSS ERROR station: stnr, date, time, fclen'
+                         WRITE(lunqc,'(A)')'Obstype, qc limit, obs, model'
                          lprint_gross_first = .FALSE.
                       ENDIF
-                      WRITE(6,'(A,2I10,2I3)')'GROSS ERROR station:', &
+                      WRITE(lunqc,'(A,2I10,2I3)')'GROSS ERROR station:', &
                       hir(i)%stnr,hir(i)%o(j)%date,hir(i)%o(j)%time,fclen(n)
-                      WRITE(6,*)obstype(k),qc_lim(k),     &
+                      WRITE(lunqc,*)obstype(k),qc_lim(k),     &
                       obs(i)%o(jj)%val(k),obs(i)%o(jj)%val(k)+diff
                    ENDIF
                    gross_error(i,k)    = gross_error(i,k) + 1
@@ -349,9 +349,9 @@ SUBROUTINE quality_control
 
  IF ( estimate_qc_limit ) THEN
 
-    WRITE(6,*)
-    WRITE(6,*)' Qualtiy control limits (QC_LIM_SCALE STDV QC_LIM) '
-    WRITE(6,*)
+    WRITE(lunqc,*)
+    WRITE(lunqc,*)' Qualtiy control limits (QC_LIM_SCALE STDV QC_LIM) '
+    WRITE(lunqc,*)
 
     DO k=1,nparver
 
@@ -361,14 +361,14 @@ SUBROUTINE quality_control
           qc_lim(k) = qc_lim_scale(k) * stdv
        ENDIF
 
-       WRITE(6,*)obstype(k),qc_lim_scale(k),stdv,qc_lim(k)
+       WRITE(lunqc,*)obstype(k),qc_lim_scale(k),stdv,qc_lim(k)
     ENDDO
-    WRITE(6,*)
+    WRITE(lunqc,*)
 
     estimate_qc_limit = .FALSE.
 
  ELSE
-    IF ( print_qc > 1 ) CALL sumup_gross(gross_error,total_amount)
+    IF ( print_qc > 0 ) CALL sumup_gross(gross_error,total_amount)
     DEALLOCATE(gross_error)
  ENDIF
  DEALLOCATE(total_amount)

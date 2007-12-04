@@ -84,6 +84,10 @@ cp fort.10 namelist_temp
 
 $BIN/verobs || exit
 
+# Quality control information
+echo '<pre>'   > quality.html
+cat fort.48   >> quality.html
+echo '</pre>' >> quality.html
 
 [[ $WEBCALL == ""  ]] && exit
 

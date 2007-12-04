@@ -182,7 +182,9 @@ SUBROUTINE read_vfld_hirvda_y4
           if (nn_ind /= 0 ) hir(stat_i)%o(i)%nal(l,j,nn_ind) = val(1)
           if (dd_ind /= 0 ) hir(stat_i)%o(i)%nal(l,j,dd_ind) = val(2)
           if (ff_ind /= 0 ) hir(stat_i)%o(i)%nal(l,j,ff_ind) = val(3)
-          if (tt_ind /= 0 ) hir(stat_i)%o(i)%nal(l,j,tt_ind) = val(4) - tzero
+          if (tt_ind /= 0 ) then
+             if ( ABS(val(4) - err_ind )> 1.e-6 ) hir(stat_i)%o(i)%nal(l,j,tt_ind) = val(4) - tzero
+          endif
           if (rh_ind /= 0 ) hir(stat_i)%o(i)%nal(l,j,rh_ind) = val(5)
           if (ps_ind /= 0 ) hir(stat_i)%o(i)%nal(l,j,ps_ind) = val(6)
           if (pe_ind /= 0 ) hir(stat_i)%o(i)%nal(l,j,pe_ind) = val(7)

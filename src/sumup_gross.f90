@@ -1,7 +1,7 @@
 SUBROUTINE sumup_gross(gross_error,total_amount)
 
  USE types
- USE data, ONLY : obs,hir,maxstn,nparver,obstype
+ USE data, ONLY : obs,hir,maxstn,nparver,obstype,lunqc
 
  IMPLICIT NONE
 
@@ -27,17 +27,17 @@ SUBROUTINE sumup_gross(gross_error,total_amount)
          SUM(gross_error(gross_pos(1),:)) == 0 ) EXIT GROSS_LOOP
 
     IF ( j == 0 ) THEN
-       WRITE(6,*)
-       WRITE(6,*)'Quality control summary'
-       WRITE(6,*)
+       WRITE(lunqc,*)
+       WRITE(lunqc,*)'Quality control summary'
+       WRITE(lunqc,*)
     ENDIF
 
-    WRITE(6,*)'Station :',hir(gross_pos(1))%stnr,&
+    WRITE(lunqc,*)'Station :',hir(gross_pos(1))%stnr,&
                           hir(gross_pos(1))%lat ,&
                           hir(gross_pos(1))%lon
     DO i=1,nparver
        IF ( gross_error(gross_pos(1),i) > 0 ) &
-       WRITE(6,*)'Variable ',obstype(i),gross_error(gross_pos(1),i)
+       WRITE(lunqc,*)'Variable ',obstype(i),gross_error(gross_pos(1),i)
     ENDDO
 
     gross_sum = gross_sum + gross_error(gross_pos(1),:)
@@ -51,11 +51,11 @@ SUBROUTINE sumup_gross(gross_error,total_amount)
  ! Print total
  !
 
- WRITE(6,*)
- WRITE(6,*) 'Rejection statistics (rejected,total)'
+ WRITE(lunqc,*)
+ WRITE(lunqc,*) 'Rejection statistics (rejected,total)'
  DO j=1,nparver
     total_sum = SUM(total_amount(:,j))
-    WRITE(6,'(A8,2I8)')obstype(j),gross_sum(j),total_sum
+    WRITE(lunqc,'(A8,2I8)')obstype(j),gross_sum(j),total_sum
  ENDDO
 
  RETURN

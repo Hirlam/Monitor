@@ -93,19 +93,19 @@ SUBROUTINE set_qc_lim
     WRITE( cform(6:7),'(I2.2)')nlev
     WRITE(cform2(6:7),'(I2.2)')nlev
 
-    WRITE(6,cform2)'Levels are',lev_lst(1:nlev)
+    WRITE(lunqc,cform2)'Levels are',lev_lst(1:nlev)
     DO k=1,nparver,nlev
-       WRITE(6,cform)obstype(k)(1:2),' is ',qc_lim(k:k+nlev-1)
+       WRITE(lunqc,cform)obstype(k)(1:2),' is ',qc_lim(k:k+nlev-1)
     ENDDO
 
  ELSE
 
     DO k=1,nparver
-       WRITE(6,*)obstype(k),' limit is ',qc_lim(k)
+       WRITE(lunqc,*)obstype(k),' limit is ',qc_lim(k)
     ENDDO
 
  ENDIF
  
- WRITE(6,*)
+ WRITE(lunqc,*)
 
 END SUBROUTINE set_qc_lim

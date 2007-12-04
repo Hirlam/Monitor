@@ -17,6 +17,7 @@ MODULE data
  INTEGER, PARAMETER :: lunout  = 14
  INTEGER, PARAMETER :: lunstat = 15
  INTEGER, PARAMETER :: lunxml  = 47
+ INTEGER, PARAMETER :: lunqc   = 48
  INTEGER, PARAMETER :: len_lab = 6
  INTEGER, PARAMETER :: maxexp  = 5	! Max experiments
  INTEGER, PARAMETER :: mparver = 100	! Max parameters to verify
