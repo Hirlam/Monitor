@@ -62,6 +62,10 @@ if [[ $FTYPE == "M" ]] || [[ $FTYPE == "m" ]] ; then
       NM=$( expr $PAR \* $NXP )
       MLEV=$( expr $IEND / $NM )
    fi
+elif [[ $FTYPE == "L" ]] || [[ $FTYPE == "l" ]]; then
+      IEND=`ls $FF.png* | wc `
+      IEND=`echo $IEND | cut -c1-2`
+      MLEV=$( expr $IEND / $PAR )
 fi
 
 I=1

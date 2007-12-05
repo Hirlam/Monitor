@@ -203,7 +203,7 @@ cat > input.js << EOF
 title = "Vertical temp"
 framec="Tomato"
 
-v[0] = ['L']
+v[0] = ['l']
 t[0] = ['diff']
 v[1] = ['00000000']
 t[1] = v[1] ;
@@ -213,11 +213,11 @@ v[3] =[1] ;
 t[3] = v[3] ;
 v[4] = ['calc',0,5]
 t[4] = [$TEMPVAR]
-v[5] =[0] ;
-t[5] =[0]
+v[5] =[0,1] ;
+t[5] =['00','12']
 v[6] =[0] ;
 t[6] =[0] ;
-mname = ["Type","Period","Station","dum","Parameter","Level","Exp"]
+mname = ["Type","Period","Station","dum","Parameter","Time (UTC)","Exp"]
 
 loc = ['l','t','l','l','l','l','l']
 $DOWNLOAD
@@ -247,8 +247,6 @@ for LEV in $LEV_LST ; do
 done
 done
 echo "'quality.html','Temp.html']" >> input.js
-echo "my_xml.reverse()" >> input.js
-echo "my_xml_txt.reverse()" >> input.js
 
 $WEBCALL -e Vert -f input.js
 

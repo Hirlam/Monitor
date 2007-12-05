@@ -9,7 +9,9 @@ SUBROUTINE fclen_header(lfclen,nuf,uh,uf,txt)
  
  ! Local
 
- INTEGER :: i,ii,fclen(nuf)
+ INTEGER :: i,ii
+
+ INTEGER, ALLOCATABLE :: fclen(:)
 
  LOGICAL :: lfirst = .TRUE.
  
@@ -39,12 +41,19 @@ SUBROUTINE fclen_header(lfclen,nuf,uh,uf,txt)
  IF ( lfclen ) THEN
 
     ii=0      
-    DO i=1,nuf
-       IF (uf(i)) THEN
-          ii = ii + 1
-          fclen(ii) = i
-       ENDIF
-    ENDDO
+    IF ( nuf == 0 ) THEN
+       ALLOCATE(fclen(1))
+       fclen(1) = 0
+       ii=1
+    ELSE
+       ALLOCATE(fclen(nuf))
+       DO i=0,nuf
+          IF (uf(i)) THEN
+             ii = ii + 1
+             fclen(ii) = i
+          ENDIF
+       ENDDO
+    ENDIF
     txt =''
     IF (ii > 10 ) THEN
        wname='(2I3.2,A5,I2.2)'
@@ -59,5 +68,6 @@ SUBROUTINE fclen_header(lfclen,nuf,uh,uf,txt)
     txt = 'Hours: '//TRIM(whour)
  ENDIF
 
+ IF (lfclen ) DEALLOCATE(fclen)
 
 END SUBROUTINE fclen_header

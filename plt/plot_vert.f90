@@ -136,8 +136,6 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
     ENDDO
     ENDDO
 
-    IF ( SUM(rnum) < 1.e-6 ) CYCLE
-
     rnum = MAX(1.,rnum)
 
     stdv = SQRT(ABS(rmse/rnum - (bias/rnum)**2))
