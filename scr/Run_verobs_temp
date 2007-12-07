@@ -129,17 +129,17 @@ cp $SCR/style.xsl .
 if [ $OUTPUT_TYPE -eq 1 ] ; then
    rm -f *.ps
    mv vert/*.ps .
-   $SCR/ps2png 6 1 $NEXP '-resize 75%'
+   $SCR/ps2png 6 2 $NEXP '-resize 75%'
    tar cvf vert.tar *.png *.xml style.xsl *.html *.ps
 elif [ $OUTPUT_TYPE -eq 2 ] ; then
    rm -f *.png
    mv vert/*.png .
-   $SCR/png2png 6 1 $NEXP png
+   $SCR/png2png 6 2 $NEXP png
    tar cvf vert.tar *.png *.xml style.xsl *.html
 elif [ $OUTPUT_TYPE -eq 3 ] ; then
    rm -f *.jpg
    mv vert/*.jpg .
-   $SCR/png2png 6 1 $NEXP jpg
+   $SCR/png2png 6 2 $NEXP jpg
    tar cvf vert.tar *.jpg *.xml style.xsl *.html
 fi 
 
