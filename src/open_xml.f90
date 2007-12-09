@@ -39,9 +39,9 @@ SUBROUTINE open_xml(lunxml,maxper,periods)
         WRITE(lunxml,'(3A)')'<VAR>',TRIM(cname),'</VAR>'
         WRITE(lunxml,'(3A)')'<UNIT>',TRIM(cunit),'</UNIT>'
         IF ( periods(i) == 0 ) THEN
-           WRITE(lunxml,'(A,I,A,I,A)')'<PERIOD>',sdate,'-',edate,'</PERIOD>'
+           WRITE(lunxml,'(A,I8,A,I8,A)')'<PERIOD>',sdate,'-',edate,'</PERIOD>'
         ELSE
-           WRITE(lunxml,'(A,I,A)')'<PERIOD>',periods(i),'</PERIOD>'
+           WRITE(lunxml,'(A,I8,A)')'<PERIOD>',periods(i),'</PERIOD>'
         ENDIF
 
         CLOSE(lunxml)

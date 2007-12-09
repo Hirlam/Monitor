@@ -281,7 +281,7 @@ SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active,uh,uf)
     wtext2 ='' 
     wname = ''
 
-    WRITE(wtext2,'(I)')NINT(fdat_sum)
+    WRITE(wtext2,'(I2)')NINT(fdat_sum)
     WRITE(wname ,'(I2)')ncl-1
     wtext ='Number of cases'//TRIM(wtext2)//'  Number of classes '//TRIM(wname)
     CALL psetc('TEXT_LINE_3',wtext)
