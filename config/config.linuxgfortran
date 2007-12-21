@@ -13,7 +13,7 @@ CC      := gcc
 CCFLAGS := -O3 -g  $(MACHINECPP) 
 
 # Fortran
-FC := ifort
+FC := gfortran
 MYFCFLAGS := -O3 -fbacktrace -g
 
 # Modules
