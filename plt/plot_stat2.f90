@@ -39,7 +39,7 @@ SUBROUTINE plot_stat2(lunout,nexp,nparver,ntimver,   &
  REAL :: miny,maxy,diff,           &
          rcount_max
 
- LOGICAL :: legend_is_on = .FALSE.
+ LOGICAL :: legend_done    = .FALSE.
  LOGICAL :: no_data_at_all = .FALSE.
 
  CHARACTER(LEN=100) :: wtext=' '
@@ -228,57 +228,47 @@ SUBROUTINE plot_stat2(lunout,nexp,nparver,ntimver,   &
     
 
     ! Do the plotting
-    legend_is_on = .FALSE.
+    legend_done = .FALSE.
+    CALL PSETC  ('LEGEND','ON')
 
     IF ( show_obs ) THEN
-    CALL PSETC  ('LEGEND','ON')
-    CALL PSETC  ('GRAPH_LINE_STYLE','SOLID')
-    IF (.NOT. copied_mod ) CALL plot_data( obs(1,:),ntimver_l,linecolor(nexp+1),'OBS',1)
-    IF (.NOT. copied_obs ) THEN
-    DO i=1,nexp
-       CALL plot_data(bias(i,:),ntimver_l,linecolor(i),expname(i),1)
-    ENDDO
-    legend_is_on = .TRUE.
-    ENDIF
+       IF ( legend_done ) CALL PSETC  ('LEGEND','OFF')
+       CALL PSETC  ('GRAPH_LINE_STYLE','SOLID')
+       IF (.NOT. copied_mod ) &
+       CALL plot_data( obs(1,:),ntimver_l,linecolor(nexp+1),'OBS',1)
+       IF (.NOT. copied_obs ) THEN
+          DO i=1,nexp
+             CALL plot_data(bias(i,:),ntimver_l,linecolor(i),expname(i),1)
+          ENDDO
+       ENDIF
+       legend_done = .TRUE.
     ENDIF
 
     IF ( show_rmse ) THEN
-    CALL PSETC  ('LEGEND','ON')
-    DO i=1,nexp
-       CALL PSETC  ('GRAPH_LINE_STYLE','SOLID')
-       CALL plot_data( rmse(i,:),ntimver_l,linecolor(i),expname(i),1)
-    ENDDO
-    legend_is_on = .TRUE.
+       IF ( legend_done ) CALL PSETC  ('LEGEND','OFF')
+       DO i=1,nexp
+          CALL PSETC  ('GRAPH_LINE_STYLE','SOLID')
+          CALL plot_data( rmse(i,:),ntimver_l,linecolor(i),expname(i),1)
+       ENDDO
+       legend_done = .TRUE.
     ENDIF
 
     IF ( show_bias ) THEN
-
-       IF ( legend_is_on ) THEN
-          CALL PSETC  ('LEGEND','OFF')
-       ELSE
-          CALL PSETC  ('LEGEND','ON')
-       ENDIF
-       legend_is_on = .TRUE.
-
-    DO i=1,nexp
-       CALL PSETC  ('GRAPH_LINE_STYLE','DASH')
-       CALL plot_data(bias(i,:),ntimver_l,linecolor(i),expname(i),1)
-    ENDDO
+       IF ( legend_done ) CALL PSETC  ('LEGEND','OFF')
+       DO i=1,nexp
+          CALL PSETC  ('GRAPH_LINE_STYLE','DASH')
+          CALL plot_data(bias(i,:),ntimver_l,linecolor(i),expname(i),1)
+       ENDDO
+       legend_done = .TRUE.
     ENDIF
 
     IF ( show_stdv ) THEN
-       IF ( legend_is_on ) THEN
-          CALL PSETC  ('LEGEND','OFF')
-       ELSE
-          CALL PSETC  ('LEGEND','ON')
-       ENDIF
-       legend_is_on = .TRUE.
-
+       IF ( legend_done ) CALL PSETC  ('LEGEND','OFF')
        DO i=1,nexp
        CALL PSETC  ('GRAPH_LINE_STYLE','DOT')
           CALL plot_data(stdv(i,:),ntimver_l,linecolor(i),expname(i),1)
        ENDDO
-
+       legend_done = .TRUE.
     ENDIF
 
     ! Plot number of observations

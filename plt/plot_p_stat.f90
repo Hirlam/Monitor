@@ -52,7 +52,8 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
  INTEGER :: lunout,ntim,npar,nr,nrun,par_active(npar),    &
             period1,period2
  TYPE(stat_obs) :: time_stat(ntim)
- LOGICAL :: ldiff,uh(npar,0:23),uf(npar,0:maxfclenval)
+ LOGICAL :: ldiff,uh(npar,0:23),uf(npar,0:maxfclenval),   &
+            legend_done
 
  ! local
 
@@ -367,14 +368,22 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
 
        ! Line 3/4
        IF (ldiff) THEN
-          wtext = 'Solid RMS; Dashed BIAS; Dashed grey is number of cases'
+          wtext =''
+          IF (show_rmse) wtext = TRIM(wtext)//'Solid RMS; '
+          IF (show_stdv) wtext = TRIM(wtext)//' Dotted STDV; '
+          IF (show_bias) wtext = TRIM(wtext)//' Dashed BIAS;'
+          wtext = TRIM(wtext)//' Dashed grey is number of cases'
        ELSE
           wtext = ''
        ENDIF
        CALL PSETC('TEXT_LINE_4',wtext)
     ELSE
        IF (ldiff) THEN
-          wtext = 'Solid RMS; Dashed BIAS; Dashed grey is number of cases'
+          wtext =''
+          IF (show_rmse) wtext = TRIM(wtext)//'Solid RMS; '
+          IF (show_stdv) wtext = TRIM(wtext)//' Dotted STDV; '
+          IF (show_bias) wtext = TRIM(wtext)//' Dashed BIAS;'
+          wtext = TRIM(wtext)//' Dashed grey is number of cases'
        ELSE
           wtext = ''
        ENDIF
@@ -385,31 +394,36 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
 
     IF ( ldiff ) THEN
 
+      legend_done = .FALSE.
+      CALL PSETC  ('LEGEND','ON')
       IF ( show_rmse ) THEN
-        CALL PSETC  ('LEGEND','ON')
+        IF ( legend_done ) CALL PSETC  ('LEGEND','OFF')
         CALL PSETC  ('GRAPH_LINE_STYLE','SOLID')
         DO k=1,nexp
            CALL set_cdate(ndate(1:ntim_use),ntime(1:ntim_use),ntim_use,1)
            CALL plot_data(rmse(1:ntim_use,k),ntim_use,linecolor(k),expname(k),1)
         ENDDO
+        legend_done = .TRUE.
       ENDIF
 
       IF ( show_stdv ) THEN
-        CALL PSETC  ('LEGEND','OFF')
+        IF ( legend_done ) CALL PSETC  ('LEGEND','OFF')
         CALL PSETC  ('GRAPH_LINE_STYLE','DOT')
         DO k=1,nexp
            CALL set_cdate(ndate(1:ntim_use),ntime(1:ntim_use),ntim_use,1)
            CALL plot_data(stdv(1:ntim_use,k),ntim_use,linecolor(k),expname(k),1)
         ENDDO
+        legend_done = .TRUE.
       ENDIF
 
       IF ( show_bias ) THEN
-        CALL PSETC  ('LEGEND','OFF')
+        IF ( legend_done ) CALL PSETC  ('LEGEND','OFF')
         CALL PSETC  ('GRAPH_LINE_STYLE','DASH')
         DO k=1,nexp
            CALL set_cdate(ndate(1:ntim_use),ntime(1:ntim_use),ntim_use,1)
            CALL plot_data(bias(1:ntim_use,k),ntim_use,linecolor(k),expname(k),1)
         ENDDO
+        legend_done = .TRUE.
       ENDIF
 
     ELSE
@@ -433,7 +447,7 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
         CALL PSETC  ('LEGEND','ON')
         CALL PSETC  ('GRAPH_LINE_STYLE','SOLID')
         CALL set_cdate(ndate(1:ntim_use),ntime(1:ntim_use),ntim_use,1)
-        IF (.NOT. copied_mod ) CALL plot_data(obs(1:ntim_use),ntim_use,linecolor(nexp+1),'OBS',1)
+        IF ( .NOT. copied_mod ) CALL plot_data(obs(1:ntim_use),ntim_use,linecolor(nexp+1),'OBS',1)
         IF ( .NOT. copied_obs) THEN
         DO k=1,nexp
            CALL set_cdate(ndate(1:ntim_use),ntime(1:ntim_use),ntim_use,1)
@@ -441,24 +455,10 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
         ENDDO
         ENDIF
 
-!       DO k=1,ntim_use
-!          WRITE(6,'(I4,I10,I3,3f9.2)')k,ndate(k),ntime(k),obs(k),bias(k,:)
-!       ENDDO
-
-!       IF ( .FALSE. ) THEN
-!          CALL PSETC  ('LEGEND','OFF')
-!          CALL PSETC  ('GRAPH_LINE_STYLE','DASH')
-!          CALL kalman_filter(ntim_use,nexp,obs(1:ntim_use),bias(1:ntim_use,:))
-!          DO k=1,nexp
-!             CALL plot_data(bias(1:ntim_use,k),ntim_use,linecolor(k),expname(k),1)
-!          ENDDO
-!       ENDIF
-
     ENDIF
 
 
     ! Plot number of observations
-
 
 
     rcount_max = MAX(1.,MAXVAL(rnum(1:ntim_use,1)))

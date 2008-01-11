@@ -23,7 +23,15 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype,per_ind)
                       map_centre_latitude,  &
                       map_bias_interval,    &
                       map_rmse_interval,    &
-                      map_obs_interval
+                      map_obs_interval,     &
+                      map_projection,       &
+                      map_area_definition,  &
+                      map_centre_latitude,         &
+                      map_centre_longitude,        &
+                      map_lower_left_latitude,     &
+                      map_lower_left_longitude,    &
+                      map_upper_right_latitude,    &
+                      map_upper_right_longitude
 
 
  IMPLICIT NONE
@@ -185,11 +193,17 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype,per_ind)
  CALL PSETC ('MAP_COASTLINE_COLOUR','BLACK') 
  CALL PSETC ('MAP_COASTLINE_RESOLUTION','HIGH') 
  CALL PSETC ('MAP_GRID_COLOUR','BLACK') 
- CALL PSETC ('SUBPAGE_MAP_PROJECTION','POLAR_STEREOGRAPHIC')
- CALL PSETC ('SUBPAGE_MAP_AREA_DEFINITION','CENTRE')
+ CALL PSETC ('SUBPAGE_MAP_PROJECTION',     map_projection     )
+ CALL PSETC ('SUBPAGE_MAP_AREA_DEFINITION',map_area_definition)
+
  CALL PSETR ('SUBPAGE_MAP_VERTICAL_LONGITUDE',0.)
- CALL PSETR ('SUBPAGE_MAP_CENTRE_LATITUDE' ,MAP_CENTRE_LATITUDE )
- CALL PSETR ('SUBPAGE_MAP_CENTRE_LONGITUDE',MAP_CENTRE_LONGITUDE)
+ CALL PSETR ('SUBPAGE_MAP_CENTRE_LATITUDE'  ,map_centre_latitude       )
+ CALL PSETR ('SUBPAGE_MAP_CENTRE_LONGITUDE' ,map_centre_longitude      )
+ CALL PSETR ('SUBPAGE_LOWER_LEFT_LATITUDE'  ,map_lower_left_latitude   )
+ CALL PSETR ('SUBPAGE_LOWER_LEFT_LONGITUDE' ,map_lower_left_longitude  )
+ CALL PSETR ('SUBPAGE_UPPER_RIGHT_LATITUDE' ,map_upper_right_latitude  )
+ CALL PSETR ('SUBPAGE_UPPER_RIGHT_LONGITUDE',map_upper_right_longitude )
+
  CALL PSETR ('SUBPAGE_MAP_SCALE',map_scale)
 
  ! Id line

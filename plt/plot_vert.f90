@@ -34,7 +34,7 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
 ! Local
 
  INTEGER :: i,j,jj,j_ind,k,kk,timing_id,    &
-            ntimver_out,hour(ntimver)
+            ntimver_out,hour(ntimver),jl(1)
 
  REAL    :: bias(nexp,nlev),       &
             rmse(nexp,nlev),       &
@@ -45,7 +45,7 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
             lev(nlev),             &
             rcount_max
 
- LOGICAL :: legend_is_on = .FALSE.
+ LOGICAL :: legend_done = .FALSE.
 
  CHARACTER(LEN=100      ) :: wtext =' ',wtext1=' '
  CHARACTER(LEN=30       ) :: fname =' ',wname =' '
@@ -197,7 +197,9 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
 
     IF (stnr == 0) THEN
        wtext='Statistics for      stations'
-       WRITE(wtext(16:19),'(I4)')par_active(j)
+       j_ind = (j/nlev-1)*nlev + 1
+       jj = MAXVAL(par_active(j_ind:j_ind+nlev-1))
+       WRITE(wtext(16:19),'(I4)')jj
     ENDIF
 
     CALL PSETC('TEXT_LINE_1',wtext)
@@ -239,10 +241,13 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
     CALL PSETC('TEXT_LINE_3',wtext)
 
     ! Line 4
+    ! First find corret index for fclenth usage
+    j_ind = (j/nlev-1)*nlev + 1
+    jl    = MAXLOC(par_active(j_ind:j_ind+nlev-1)) + j_ind - 1
     IF ( ntimver_out == 1 ) THEN
        IF ( show_fc_length ) THEN
           CALL PSETI('TEXT_LINE_COUNT',4)
-          CALL fclen_header(.TRUE.,maxfclenval,uh(j,:),uf(j,:),wtext)
+          CALL fclen_header(.TRUE.,maxfclenval,uh(jl,:),uf(jl,:),wtext)
           CALL PSETC('TEXT_LINE_4',wtext)
        ENDIF
     ELSE
@@ -250,11 +255,11 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
           ALLOCATE(ldum(0:hour(kk)))
           ldum           = .FALSE.
           ldum(hour(kk)) = .TRUE.
-          CALL fclen_header(.TRUE.,hour(kk),uh(j,:),ldum,wtext)
+          CALL fclen_header(.TRUE.,hour(kk),uh(jl,:),ldum,wtext)
           DEALLOCATE(ldum)
        ELSE
           WRITE(chour,'(I3.2,X,A3)')hour(kk),'UTC'
-          CALL fclen_header(.TRUE.,maxfclenval,uh(j,:),uf(j,:),wtext)
+          CALL fclen_header(.TRUE.,maxfclenval,uh(jl,:),uf(jl,:),wtext)
           wtext = 'Statistics at '//chour   //'  '//TRIM(wtext)
        ENDIF
        CALL PSETI('TEXT_LINE_COUNT',4)
@@ -266,55 +271,44 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
 
     ! Do the plotting
 
-    legend_is_on = .FALSE.
+    legend_done = .FALSE.
+    CALL PSETC  ('LEGEND','ON')
 
     IF ( show_obs ) THEN
-    CALL PSETC  ('LEGEND','ON')
-    legend_is_on = .TRUE.
-    CALL plot_y_data(  obs(1,1:nlev),nlev,linecolor(nexp+i),'OBS',1)
-    DO i=1,nexp
-       CALL PSETC  ('GRAPH_LINE_STYLE','SOLID')
-       CALL plot_y_data( bias(i,1:nlev),nlev,linecolor(i),expname(i),1)
-    ENDDO
+       IF ( legend_done ) CALL PSETC  ('LEGEND','OFF')
+       CALL plot_y_data(  obs(1,1:nlev),nlev,linecolor(nexp+i),'OBS',1)
+       DO i=1,nexp
+          CALL PSETC  ('GRAPH_LINE_STYLE','SOLID')
+          CALL plot_y_data( bias(i,1:nlev),nlev,linecolor(i),expname(i),1)
+       ENDDO
+       legend_done = .TRUE.
     ENDIF
 
     IF ( show_rmse ) THEN
-    CALL PSETC  ('LEGEND','ON')
-    legend_is_on = .TRUE.
-    DO i=1,nexp
-       CALL PSETC  ('GRAPH_LINE_STYLE','SOLID')
-       CALL plot_y_data( rmse(i,1:nlev),nlev,linecolor(i),expname(i),1)
-    ENDDO
+       IF ( legend_done ) CALL PSETC  ('LEGEND','OFF')
+       DO i=1,nexp
+          CALL PSETC  ('GRAPH_LINE_STYLE','SOLID')
+          CALL plot_y_data( rmse(i,1:nlev),nlev,linecolor(i),expname(i),1)
+       ENDDO
+       legend_done = .TRUE.
     ENDIF
 
     IF ( show_bias ) THEN
-
-    IF ( legend_is_on ) THEN
-       CALL PSETC  ('LEGEND','OFF')
-    ELSE
-       CALL PSETC  ('LEGEND','ON')
-       legend_is_on = .TRUE.
-    ENDIF
-
-    DO i=1,nexp
-       CALL PSETC  ('GRAPH_LINE_STYLE','DASH')
-       CALL plot_y_data(bias(i,1:nlev),nlev,linecolor(i),expname(i),1)
-    ENDDO
+       IF ( legend_done ) CALL PSETC  ('LEGEND','OFF')
+       DO i=1,nexp
+          CALL PSETC  ('GRAPH_LINE_STYLE','DASH')
+          CALL plot_y_data(bias(i,1:nlev),nlev,linecolor(i),expname(i),1)
+       ENDDO
+       legend_done = .TRUE.
     ENDIF
 
     IF ( show_stdv ) THEN
-
-    IF ( legend_is_on ) THEN
-       CALL PSETC  ('LEGEND','OFF')
-    ELSE
-       CALL PSETC  ('LEGEND','ON')
-       legend_is_on = .TRUE.
-    ENDIF
-
-    DO i=1,nexp
-       CALL PSETC  ('GRAPH_LINE_STYLE','DOT')
-       CALL plot_y_data(stdv(i,1:nlev),nlev,linecolor(i),expname(i),1)
-    ENDDO
+       IF ( legend_done ) CALL PSETC  ('LEGEND','OFF')
+       DO i=1,nexp
+          CALL PSETC  ('GRAPH_LINE_STYLE','DOT')
+          CALL plot_y_data(stdv(i,1:nlev),nlev,linecolor(i),expname(i),1)
+       ENDDO
+       legend_done = .TRUE.
     ENDIF
 
     ! Plot observations
@@ -345,7 +339,6 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
  plotltemp     = .FALSE.
 
  IF (ltiming) CALL acc_timing(timing_id,'plot_vert')
-
 
  RETURN
 

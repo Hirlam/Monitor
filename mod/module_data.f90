@@ -286,9 +286,20 @@ MODULE data
  LOGICAL :: use_pos  = .FALSE.          ! CALL verify_pos
 
  ! Parameters for bias_map
- REAL    :: map_scale              = 2.0e7    ! Map scale
- REAL    :: MAP_CENTRE_LATITUDE    = 55.      ! Map centre lat
- REAL    :: MAP_CENTRE_LONGITUDE   = 25.      ! Map centre lon
+ REAL    :: map_scale                 = 2.0e7    ! Map scale
+ REAL    :: MAP_CENTRE_LATITUDE       = 55.      ! Map centre lat
+ REAL    :: MAP_CENTRE_LONGITUDE      = 25.      ! Map centre lon
+ REAL    :: MAP_LOWER_LEFT_LATITUDE   = 40.
+ REAL    :: MAP_LOWER_LEFT_LONGITUDE  = 10.
+ REAL    :: MAP_UPPER_RIGHT_LATITUDE  = 70.
+ REAL    :: MAP_UPPER_RIGHT_LONGITUDE = 50.
+
+ ! POLAR_STEREOGRAPHIC and MERCATOR is tested
+ CHARACTER(LEN=50) :: MAP_PROJECTION      = 'POLAR_STEREOGRAPHIC'
+
+ ! Use CENTRE or CORNER
+ CHARACTER(LEN=50) :: MAP_AREA_DEFINITION = 'CENTRE'
+
  LOGICAL :: plot_bias_map          = .FALSE.  ! Plot map with biases
  LOGICAL :: plot_obs_map           = .FALSE.  ! Plot map with observations
  REAL    :: map_obs_interval(10,7) = -1.      ! Set your own obs interval 
@@ -402,6 +413,12 @@ MODULE data
                  map_bias_interval,map_type,            &
                  MAP_CENTRE_LATITUDE,                   &
                  MAP_CENTRE_LONGITUDE,                  &
+                 MAP_LOWER_LEFT_LATITUDE,               &
+                 MAP_LOWER_LEFT_LONGITUDE,              &
+                 MAP_UPPER_RIGHT_LATITUDE,              &
+                 MAP_UPPER_RIGHT_LONGITUDE,             &
+                 MAP_PROJECTION,                        &
+                 MAP_AREA_DEFINITION,                   &
                  lprint_selection,                      &
                  lprint_summary,                        &
                  lprint_read,print_read,                &
