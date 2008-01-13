@@ -31,14 +31,24 @@ MODULE scatter
 
  INTEGER, INTENT(IN) :: len_scat,maxper
 
- INTEGER :: i,j
+ INTEGER :: i,j,allocate_status
 
  ! All station scatter plot array 
- ALLOCATE(scat_data(nparver,maxper))
+ ALLOCATE(scat_data(nparver,maxper),STAT=allocate_status)
+ IF ( allocate_status /= 0 ) THEN
+    WRITE(6,*)'Could not allocate scat_data',allocate_status
+    WRITE(6,*)'Reduce use_fclen',use_fclen(1:nuse_fclen)
+    CALL abort
+ ENDIF
 
  DO j=1,maxper
     DO i=1,nparver
-       ALLOCATE(scat_data(i,j)%dat(nexp+1,len_scat))
+       ALLOCATE(scat_data(i,j)%dat(nexp+1,len_scat),STAT=allocate_status)
+       IF ( allocate_status /= 0 ) THEN
+          WRITE(6,*)'Could not allocate scat_data(i,j)',i,j,allocate_status
+          WRITE(6,*)'Reduce use_fclen',use_fclen(1:nuse_fclen)
+          CALL abort
+       ENDIF
     ENDDO
  ENDDO
  scat_data%n = 0
@@ -47,7 +57,12 @@ MODULE scatter
     ALLOCATE(all_scat_data(nparver,maxper))
     DO j=1,maxper
        DO i=1,nparver
-          ALLOCATE(all_scat_data(i,j)%dat(nexp+1,active_stations*len_scat))
+          ALLOCATE(all_scat_data(i,j)%dat(nexp+1,active_stations*len_scat),STAT=allocate_status)
+          IF ( allocate_status /= 0 ) THEN
+             WRITE(6,*)'Could not allocate all_scat_data(i,j)',i,j,allocate_status
+             WRITE(6,*)'Reduce use_fclen',use_fclen(1:nuse_fclen)
+             CALL abort
+          ENDIF
        ENDDO
     ENDDO
     all_scat_data%n = 0
