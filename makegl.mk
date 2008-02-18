@@ -26,25 +26,25 @@ SRCS := $(SRCSF90) $(SRCSF) $(SRCSC)
 $(MAKECMDGOALS): $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
 
-.c.o:
+%.o: %.c
 	$(CC) $(CCFLAGS) -c $<
 
-.F90.o:
+%.o: %.F90
 	$(CPP) $(CPPFLAGS) $< $(*F)_pp.f90
 	$(FC) $(FCFLAGS) $(FREE) -c $(*F)_pp.f90
 	$(MV) $(*F)_pp.o $(*F).o
 
-.f90.o:
+%.o: %.f90
 	$(CPP) $(CPPFLAGS) $< $(*F)_pp.f90
 	$(FC) $(FCFLAGS) $(FREE) -c $(*F)_pp.f90
 	$(MV) $(*F)_pp.o $(*F).o
 
-.F.o:
+%.o: %.F
 	$(CPP) $(CPPFLAGS) $< $(*F)_pp.f
 	$(FC) $(FCFLAGS) $(FIXED) -c $(*F)_pp.f
 	$(MV) $(*F)_pp.o $(*F).o
 
-.f.o:
+%.o: %.f
 	$(CPP) $(CPPFLAGS) $< $(*F)_pp.f
 	$(FC) $(FCFLAGS) $(FIXED) -c $(*F)_pp.f
 	$(MV) $(*F)_pp.o $(*F).o
