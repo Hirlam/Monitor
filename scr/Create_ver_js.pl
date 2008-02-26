@@ -382,7 +382,7 @@ t[4] = [$expname]
 v[5] = [$partext]
 t[5] = [$text]
 v[6] = [$lev_lst]
-v[6] = [6].reverse()
+v[6] = v[6].reverse()
 t[6] = [$lev_lst]
 
 mname = ['Type','Period','Station','Area','Exp','Parameter','Level']
