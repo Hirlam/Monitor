@@ -66,14 +66,9 @@ SUBROUTINE plot_scat_comp(lunout,nparver,nr,nrun,    &
     lcorr_pairs = 0 
     lflag_pairs = 1
      lexp_pairs = 0
-    k = 0
     DO i=1,nparver
-       DO j=1,nexp
-          k = k + 1
-          lcorr_pairs(k,:) = i
-          lflag_pairs(k,:) = (/-1,1/)
-           !lexp_pairs(k,:) = j
-       ENDDO
+       lcorr_pairs(i,:) = i
+       lflag_pairs(i,:) = (/-1,1/)
     ENDDO
     len_loop = nparver
  ELSE
