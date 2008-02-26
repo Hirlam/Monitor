@@ -1,4 +1,7 @@
-SUBROUTINE make_fname(prefix,time,id,tag,fname,output_type)
+SUBROUTINE make_fname(prefix,time,id,tag,        &
+                      param,level,               &
+                      output_mode,output_type,   &
+                      fname)
 
  !
  ! Create filenames for output files
@@ -11,19 +14,26 @@ SUBROUTINE make_fname(prefix,time,id,tag,fname,output_type)
  IMPLICIT NONE
 
  ! Input
- CHARACTER(LEN=*), INTENT(IN ) :: prefix,tag
- INTEGER,          INTENT(IN ) :: time,id,output_type
+ CHARACTER(LEN=*), INTENT(IN ) :: prefix,tag,param,level
+ INTEGER,          INTENT(IN ) :: time,id,output_type,output_mode
  CHARACTER(LEN=*), INTENT(OUT) :: fname
 
  !Local
- CHARACTER(LEN=8) :: ctime
- CHARACTER(LEN=8) :: cid
+
+ INTEGER :: i
+ CHARACTER(LEN=8) :: ctime,clevel,cid
  CHARACTER(LEN=4) :: ext
  
  !----------------------------------------------------
 
- WRITE(ctime,'(I8.8)')time
- WRITE(cid  ,'(I8.8)')id
+ WRITE(ctime ,'(I8.8)')time
+ WRITE(cid   ,'(I8.8)')id
+
+ IF ( LEN(TRIM(level)) == 0 ) THEN
+    clevel = '0'
+ ELSE
+    clevel = TRIM(level)
+ ENDIF
 
  SELECT CASE(output_type) 
  CASE(0)
@@ -38,7 +48,24 @@ SUBROUTINE make_fname(prefix,time,id,tag,fname,output_type)
  END SELECT 
 
  fname = ''
- fname = TRIM(prefix)//'_'//ctime//'_'//cid//'_'//TRIM(tag)//TRIM(ext)
+
+ SELECT CASE (output_mode)
+ CASE(1)
+ fname = TRIM(prefix)//'_'//         &
+                ctime//'_'//         &
+                  cid//'_'//         &
+            TRIM(tag)//TRIM(ext)
+ CASE(2)
+ fname = TRIM(prefix)//'_'//         &
+                ctime//'_'//         &
+                  cid//'_'//         &
+            TRIM(tag)//'_'//         &
+                param//'_'//         &
+         TRIM(clevel)//TRIM(ext)
+ CASE DEFAULT
+    WRITE(6,*)'No option coded for this output_mode',output_mode
+    CALL abort
+ END SELECT
 
  WRITE(6,*)'DOING:',TRIM(fname)
 

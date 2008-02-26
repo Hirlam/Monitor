@@ -17,9 +17,10 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
                   lev_lst,ltemp,nfclengths,                     &
                   show_fc_length,ltiming,tag,                   &
                   show_bias,show_rmse,show_stdv,show_obs,       &
-                  len_lab,period_freq,period_type,output_type,  &
+                  len_lab,period_freq,period_type,              &
+                  output_type,output_mode,                      &
                   show_times,use_fclen,timdiff,time_shift,      &
-                  z_is_pressure
+                  z_is_pressure,len_lab
 
 
  IMPLICIT NONE
@@ -34,7 +35,8 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
 ! Local
 
  INTEGER :: i,j,jj,j_ind,k,kk,timing_id,    &
-            ntimver_out,hour(ntimver),jl(1)
+            ntimver_out,hour(ntimver),      &
+            period,jl(1)
 
  REAL    :: bias(nexp,nlev),       &
             rmse(nexp,nlev),       &
@@ -47,8 +49,8 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
 
  LOGICAL :: legend_done = .FALSE.
 
- CHARACTER(LEN=100      ) :: wtext =' ',wtext1=' '
- CHARACTER(LEN=30       ) :: fname =' ',wname =' '
+ CHARACTER(LEN=100      ) :: wtext =' ',wtext1=' ',my_tag
+ CHARACTER(LEN=100      ) :: fname =' ',wname =' '
  CHARACTER(LEN=len_lab  ) :: ob_short=''
  CHARACTER(LEN=7  ) :: cnum_case = '       '
  CHARACTER(LEN=1  ) :: prefix    = ' '
@@ -93,9 +95,9 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
  prefix = 'l'
  IF (lfcver) prefix = 'L'
  IF (yymm < 999999 ) THEN
-    CALL make_fname(prefix,yymm,stnr,tag,fname,output_type)
+    period = yymm
  ELSE
-    CALL make_fname(prefix,   0,stnr,tag,fname,output_type)
+    period = 0
  ENDIF
 
  ! Set vertical levels
@@ -103,8 +105,14 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
 
  ! Plotting
 
- CALL open_output(fname)
- CALL PSET1R ('GRAPH_CURVE_Y_VALUES',lev,nlev)
+ IF ( output_mode == 1 ) THEN
+    CALL make_fname(prefix,period,stnr,tag,  &
+                    prefix,'0',              &
+                    output_mode,output_type, &
+                    fname)
+    CALL open_output(fname)
+ ENDIF
+
 
 
  DO j=nlev,nparver,nlev
@@ -180,6 +188,25 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
     plotltemp     = ltemp
     z_is_pressure = ( lev_lst(1) > lev_lst(nlev) )
 
+    IF ( output_mode == 2 ) THEN
+
+       IF ( ntimver_out == 1 ) THEN
+          my_tag = TRIM(tag)//'_ALL'
+       ELSE
+          chour = ' '
+          WRITE(chour,'(I2.2)')hour(kk)
+          my_tag = TRIM(tag)//'_'//TRIM(chour)
+       ENDIF
+       CALL make_fname(prefix,period,stnr,my_tag,    &
+                       obstype(j)(1:2),'0',          &
+                       output_mode,output_type,      &
+                       fname)
+
+       CALL open_output(fname)
+
+    ENDIF
+
+    CALL PSET1R ('GRAPH_CURVE_Y_VALUES',lev,nlev)
     CALL new_page(0,0,0,0,miny,maxy,lev_lst(1),lev_lst(nlev))
 
     !
@@ -330,10 +357,12 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
     CALL PSETC ('GRAPH_LINE_STYLE','DASH')
     CALL plot_y_data(rnum(1,1:nlev),nlev,'GREY','OBS',1)
 
+    IF ( output_mode == 2 ) CALL pclose
+
  ENDDO
  ENDDO
 
- CALL pclose
+ IF ( output_mode == 1 ) CALL pclose
 
  z_is_pressure = .FALSE.
  plotltemp     = .FALSE.

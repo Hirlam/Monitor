@@ -336,7 +336,6 @@ SUBROUTINE set_cdate(date,time,n,s)
     CALL psetc ('AXIS_DATE_MAX_VALUE',wdate)
     CALL preset('AXIS_TICK_INTERVAL')
 
-!EC    CALL daydiff(ey,em,ed,sy,sm,sd,diff,ierr)
     diff = difdtg((sy*100+sm)*100+sd,0,(ey*100+em)*100+ed,0)/86400
 
     CALL PRESET  ('AXIS_HOURS_LABEL')

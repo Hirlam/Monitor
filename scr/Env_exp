@@ -1,42 +1,136 @@
-# Project name
-PROJECT=monitor
+#
+# Main definition file for HARMONIE verification package
+#
+
+# Project name, will be the name on the web page
+PROJECT=monitor 
 
 # Path to this project
-BASE=$SCRATCH/monitor
+BASE=/scratch/ms/se/snh/developement/monitor_new
 
-# Bin
-BIN=$BASE/bin/
-SCR=$BASE/scr/
-WRK=$BASE/wrk/
+# Definition of BIN,SCR and WRK directory
+BIN=$BASE/bin
+SCR=$BASE/scr
+WRK=$BASE/wrk
 
 # MAG_HOME for magics, not needed at ecgate
 # export MAG_HOME=
+
+#
+# Experiment names and paths,should be space separated
 #
 
-# Experiment
-EXP[1]=al00_31t0
-EXP[2]=ALD
+DBASE=/scratch/ms/dk/nhz/oprint
+EXP="RCR C22 EC5"
+OBSPATH=$DBASE/OBS2/
+P1=$DBASE/RCR/
+P2=$DBASE/C22/
+P3=$DBASE/EC5/
+MODPATH="$P1 $P2 $P3"
 
-   OBSPATH=$BASE/../dat/obs/
-MODPATH[1]=$BASE/../dat/${EXP[1]}/
-MODPATH[2]=$BASE/../dat/${EXP[2]}/
+######################
+# Surface parameters #
+######################
+#
+# Change in the file plotdefs.pm for text and limits
+#
+# PS : Mslp
+# TT : T2m
+# TD : Td2m
+# FF : Wind speed
+# DD : Wind direction
+# QQ : Specific humidity
+# RH : Relative humidity
+# PE : Precipitation
+# NN : Total Cloud cover
+# VI : Visibility, not in vfld files yet
+#
+
+# Active parameters
+SURFPAR="PS FF DD TT RH QQ NN PE"
+
+# Things to plot:
+# GEN  : General forcast length statistics
+# TIME : Timeserie statistics
+# SCAT : Scatterplot
+# MAP  : Bias maps
+# FREQ : Frequency plots
+# STN  : Single station statistics
+# DAYV : Daily variation
+# XML  : Station statistics in xml format
+# CONT : Contingency tables
+# VERT : Vertical profiles only available for TEMP data
+# 
+
+SURFPLOT="GEN TIME MAP FREQ SCAT CONT XML DAYVAR"
+
+# Areas for surface verification as defined in areas.pm
+# Note that XML stastitics will be defined for the
+# first area only
+SURFAREAS="ALL NORTH_OF_60"
+
+# Interval in hours between observations
+OBINT_SURF=06
+
+# Assimilation cycle interval
+FCINT_SURF=06
+
+# Forecast lengths used for verification
+FCLEN_SURF="00 06 12 18 24 30 36 42 48"
+
+# Forecast lengths used in daily variation calculations
+FCLEN_DAYVAR="12 24 36 48"
+
+# Forecast lengths used in scatter/frequency plots
+# and contingency tables. Keep the number of used forecast
+# lengths reasonable
+FCLEN_SCAT="12 24 36 48"
+
+########################
+# Upper air parameters #
+########################
+#
+# Change in the file plotdefs.pm for text and limits
+#
+# TT : Temperature
+# TD : Dew point temperature
+# FF : Wind speed
+# DD : Wind direction
+# QQ : Specific humidity
+# RH : Relative humidity
+# FI : Geopotential
+#
+
+TEMPPAR="TT FF DD FI RH QQ"
+
+TEMPPLOT="SCAT GEN TIME VERT XML"
+
+# Interval in hours between observations
+OBINT_TEMP=12
+# Assimilation cycle interval
+FCINT_TEMP=12
+# Forecast lengths used for verification
+FCLEN_TEMP="00 06 12 18 24 36 48"
+# TEMP levels to be verified
+LEV_LST="925 850 700 500 300 200 100 50"
+
+# Areas for TEMP verification
+# Note that XML stastitics will be defined for the
+# first area only
+TEMPAREAS="ALL"
 
 # Select output_type
 # 1  Postscript
 # 2  PNG
 # 3  JPEG
 
-OUTPUT_TYPE=1
+OUTPUT_TYPE=2
 
 # Date
-INITIAL_DATE=20061126
-SDATE=$INITIAL_DATE
-EDATE=20061205
+SDATE=20080101
+EDATE=20080131
 
-# Setup number of TEMP levels
-LEV_LST="925 850 700 500 300 200 100"
-
-# WebgraF call, set empty if not used
+# WebgraF call, set WEBCALL empty if not used
 WEBGRAF_BASE=$BASE/WebgraF
 WEBCALL="$BASE/WebgraF/bin/WebgraF -p $PROJECT"
 
@@ -45,7 +139,14 @@ HELP="HIRALD ALADIN experiments \
       <br> al00_31t0 : 11km, 60 levels, SMHI ALADIN CY31t0 \
       <br> ALD       : 11km, 40 levels, FMI ALADIN  CY30t1 "
 
-export PROJECT WEBCALL WEBGRAF_BASE BASE BIN MYEXP SDATE EDATE HELP OUTPUT_TYPE INITIAL_DATE SCR WRK
-export LEV_LST
 
+# Export all variables
+export PROJECT WEBCALL WEBGRAF_BASE BASE BIN MYEXP SDATE EDATE HELP OUTPUT_TYPE INITIAL_DATE SCR WRK
+export LEV_LST SURFPAR TEMPPAR AREAS
+export OBINT_SURF FCINT_SURF FCLEN_SURF FCLEN_DAYVAR FCLEN_SCAT
+export OBINT_TEMP FCINT_TEMP FCLEN_TEMP  
+export SURFPLOT TEMPPLOT
+
+###########################
+# End of definitions
 ###########################

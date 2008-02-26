@@ -14,12 +14,13 @@ MODULE contingency
 
  ! Parameters
  INTEGER,           PARAMETER :: luncont  = 25
- CHARACTER(LEN=50), PARAMETER :: contfile = 'contingency.html'
 
  ! Variables
  INTEGER :: ncont_param = 0
 
  TYPE (contingency_type), ALLOCATABLE ::  cont_table(:)
+
+ CHARACTER(LEN=50)            :: contfile = 'contingency'
 
  LOGICAL :: do_ini_cont = .TRUE.
 
@@ -41,8 +42,6 @@ MODULE contingency
   INTEGER :: i
   LOGICAL :: is_open
 
- 
-
   DO i=1,ncont_param
      IF ( ASSOCIATED(cont_table(i)%table) ) DEALLOCATE(cont_table(i)%table)
      IF ( ASSOCIATED(cont_table(i)%limit) ) DEALLOCATE(cont_table(i)%limit)
@@ -57,10 +56,7 @@ MODULE contingency
   do_ini_cont = .TRUE.
 
   INQUIRE(FILE=contfile,OPENED=is_open)
-  IF ( is_open ) THEN
-     WRITE(luncont,*)'</pre>'
-     CLOSE(luncont)
-  ENDIF
+  IF ( is_open ) CLOSE(luncont)
 
 
  END SUBROUTINE clear_cont
@@ -72,7 +68,7 @@ MODULE contingency
  SUBROUTINE ini_cont(nexp,                      &
                      xcont_mclass,xcont_mparam, &
                      xcont_class,xcont_param,   &
-                     xcont_ind,xcont_lim)
+                     xcont_ind,xcont_lim,tag)
 
   IMPLICIT NONE
 
@@ -85,9 +81,13 @@ MODULE contingency
   INTEGER, INTENT (IN) :: xcont_ind(xcont_mparam)
   REAL,    INTENT (IN) :: xcont_lim(xcont_mparam,xcont_mclass)
 
+  CHARACTER(LEN=*), INTENT(IN) :: tag
+
   ! Local
 
   INTEGER :: i
+
+  LOGICAL :: found_file
 
   !------------------------------------------------------------------
 
@@ -118,13 +118,20 @@ MODULE contingency
   ENDDO
 
   do_ini_cont = .FALSE.
+  
+  contfile = 'contingency_'//TRIM(tag)//'.html'
 
-  OPEN(UNIT=luncont,FILE=contfile)
+  INQUIRE(FILE=contfile,EXIST=found_file)
 
-  WRITE(luncont,*)'<pre>'
-  WRITE(6,*)
-  WRITE(6,*)'Contingency output will go to ',TRIM(contfile)
-  WRITE(6,*)
+  IF ( found_file ) THEN
+     OPEN(UNIT=luncont,FILE=contfile,POSITION='APPEND')
+  ELSE
+     OPEN(UNIT=luncont,FILE=contfile)
+     WRITE(luncont,*)'<pre>'
+     WRITE(6,*)
+     WRITE(6,*)'Contingency output will go to ',TRIM(contfile)
+     WRITE(6,*)
+  ENDIF
 
  END SUBROUTINE ini_cont
 

@@ -49,12 +49,7 @@ SUBROUTINE selection(flag)
  ! Reset active stations
  !
 
-    hir%active=.FALSE.
-!WHERE(hir%stnr > 0 ) 
-!   hir%active=.TRUE.
-!ELSEWHERE
-!   hir%active=.FALSE.
-!ENDWHERE
+ hir%active=.FALSE.
 
  !
  ! Station list selection 

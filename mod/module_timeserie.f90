@@ -33,15 +33,20 @@ MODULE timeserie
   INTEGER, INTENT(IN) :: maxper,timdiff,edate_obs
                 
 
-  INTEGER :: i,ii,cdate,ctime,wdate,wtime
+  INTEGER :: i,ii,cdate,ctime,wdate,wtime,ierr
 
  !
  ! Allocate array for timeserie statistics
  !
 
+
     ii = get_maxtim(sdate,edate_obs,MIN(timdiff,fcint))
 
-    ALLOCATE(time_stat(ii),all_time_stat(ii))
+    ALLOCATE(time_stat(ii),all_time_stat(ii),STAT=ierr)
+
+    IF ( ierr /= 0 ) THEN
+       WRITE(6,*)'Could not allocate time_stat data',ierr
+    ENDIF
 
         time_stat_max    = 0
     all_time_stat_max    = 0
@@ -53,7 +58,6 @@ MODULE timeserie
     !
     ! Check minimum time_stat_fclen difference
     !
-
 
     time_stat_fclen_diff = -1
     IF ( use_fclen(1)         /= -1 ) time_stat_fclen_diff = use_fclen(1)
@@ -125,6 +129,26 @@ MODULE timeserie
 
     ALLOCATE(tim_par_active(maxper,maxstn,nparver))
     tim_par_active = 0
+
+    ! Nullify unused pointers
+
+    DO i=all_time_stat_max+1,ii
+
+       NULLIFY(time_stat(i)%obs,  &
+          time_stat(i)%bias,      &
+          time_stat(i)%rmse,      &
+          time_stat(i)%n,         &
+          time_stat(i)%date,      &
+          time_stat(i)%time)
+
+       NULLIFY(all_time_stat(i)%obs,  &
+          all_time_stat(i)%bias,      &
+          all_time_stat(i)%rmse,      &
+          all_time_stat(i)%n,         &
+          all_time_stat(i)%date,      &
+          all_time_stat(i)%time)
+
+    ENDDO
 
  END SUBROUTINE allocate_timeserie
 
@@ -248,5 +272,55 @@ MODULE timeserie
 
 
  END SUBROUTINE add_all_time_stat
+
+ !
+ ! --------------------------------------------------------
+ !
+
+ SUBROUTINE clear_timeserie
+
+    IMPLICIT NONE
+
+    INTEGER :: i
+
+    IF ( ALLOCATED(time_stat) ) THEN
+  
+       DO i=1,SIZE(time_stat)
+
+          IF ( .NOT. ASSOCIATED(time_stat(i)%date) ) CYCLE
+     
+          DEALLOCATE(time_stat(i)%obs,     &
+                     time_stat(i)%bias,    &
+                     time_stat(i)%rmse,    &
+                     time_stat(i)%n,       &
+                     time_stat(i)%date,    &
+                     time_stat(i)%time)
+       ENDDO
+
+       DEALLOCATE(time_stat)
+
+    ENDIF
+
+    IF ( ALLOCATED(all_time_stat) ) THEN
+  
+       DO i=1,SIZE(all_time_stat)
+
+          IF ( .NOT. ASSOCIATED(all_time_stat(i)%date) ) CYCLE
+
+          DEALLOCATE(all_time_stat(i)%obs,     &
+                     all_time_stat(i)%bias,    &
+                     all_time_stat(i)%rmse,    &
+                     all_time_stat(i)%n,       &
+                     all_time_stat(i)%date,    &
+                     all_time_stat(i)%time)
+       ENDDO
+
+       DEALLOCATE(all_time_stat)
+
+    ENDIF
+
+    IF ( ALLOCATED(tim_par_active) ) DEALLOCATE(tim_par_active)
+
+ END SUBROUTINE clear_timeserie
 
 END MODULE timeserie

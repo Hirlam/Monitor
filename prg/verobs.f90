@@ -105,8 +105,8 @@ PROGRAM verobs
 
     CALL selection(1)
 
-    IF ( estimate_qc_limit ) CALL quality_control
-    IF ( lquality_control  ) CALL quality_control
+    IF ( estimate_qc_limit ) CALL new_quality_control
+    IF ( lquality_control  ) CALL new_quality_control
     IF ( lverify           ) CALL verify
 
     !
@@ -118,7 +118,7 @@ PROGRAM verobs
     READ(10,namver,iostat=ierr)
     IF (ierr == -1) EXIT
     IF (ierr /=  0) THEN
-       WRITE(6,*)'Could not read namver correctly, ierr:',ierr
+       WRITE(6,*)'Could not read namver correctly, read nr,ierr:',nrun+1,ierr
        CALL abort
     ENDIF
 

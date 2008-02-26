@@ -21,10 +21,11 @@ SUBROUTINE read_vobs_temp
             my_temp_lev,		&
             stations(100000),	&
             max_found_stat,		&
-            timing_id,wrk(mparver)
+            timing_id,wrk(mparver), &
+            version_flag
  
  
- REAL :: lat,lon,val(7)
+ REAL :: lat,lon,hgt,val(8)
 
  LOGICAL :: allocated_this_time(maxstn),	&
             found_any_time,use_stnlist
@@ -87,13 +88,19 @@ SUBROUTINE read_vobs_temp
 
        ENDIF
 
-       IF ( print_read > 0 ) WRITE(6,*)'READ ',fname
+       IF ( print_read > 0 ) WRITE(6,*)'READ ',TRIM(fname)
 
-       READ(lunin,*)num_stat,num_temp
+       version_flag = 0
+
+       READ(lunin,'(1x,3I6)',IOSTAT=ierr)num_stat,num_temp,version_flag
+       IF ( ierr /= 0 ) THEN
+         WRITE(6,*)'Error reading first line of vobs file'
+         CALL abort
+       ENDIF
        READ(lunin,*)num_temp_lev
 
        IF (num_temp == 0 ) THEN
-           IF(print_read>1) WRITE(6,*)'SKIP',cdate,ctime
+          IF(print_read>1) WRITE(6,*)'SKIP',cdate,ctime
           i = i - 1
           CLOSE(lunin)
           wdate = cdate
@@ -109,7 +116,16 @@ SUBROUTINE read_vobs_temp
 
        READ_STATION_OBS : DO k=1,num_temp
 
-          READ(lunin,*,iostat=ierr)istnr,lat,lon
+          SELECT CASE(version_flag)
+          CASE(0)
+             READ(lunin,*,iostat=ierr)istnr,lat,lon
+             hgt = -99.
+          CASE(1)
+             READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt
+          CASE DEFAULT
+             WRITE(6,*)'Cannot handle this vobs-file version',version_flag
+             CALL abort
+          END SELECT 
 
           IF(print_read>1) WRITE(6,*)istnr,lat,lon,ierr
 
@@ -173,8 +189,15 @@ SUBROUTINE read_vobs_temp
 
           READ_LEV_OBS : DO kk=1,num_temp_lev
 
-          1001 format(1x,f5.0,f6.0,f6.1,f6.1,f5.0,f5.0,en13.3e2)
-          READ(lunin,1001,iostat=ierr)val
+          val = -99.
+          SELECT CASE(version_flag)
+          CASE(0)
+             1001 format(1x,f5.0,f6.0,f6.1,f6.1,f5.0,f5.0,en13.3e2)
+             READ(lunin,1001,iostat=ierr)val(1:7)
+          CASE(1)
+             READ(lunin,*,iostat=ierr)val
+          END SELECT 
+
           IF (ierr /= 0 ) CYCLE READ_LEV_OBS
 
           kk_lev = 0
@@ -198,6 +221,8 @@ SUBROUTINE read_vobs_temp
           obs(stat_i)%o(i)%val(kk_lev+ my_temp_lev*(ff_ind-1)) = val(6)
           IF ((qq_ind /= 0 ) .AND. qca(val(7),-99.)) &
           obs(stat_i)%o(i)%val(kk_lev+ my_temp_lev*(qq_ind-1)) = val(7) * 1.e3
+          IF ((td_ind /= 0 ) .AND. qca(val(8),-99.)) &
+          obs(stat_i)%o(i)%val(kk_lev+ my_temp_lev*(td_ind-1)) = val(8)
 
        ENDDO READ_LEV_OBS
 
@@ -227,6 +252,8 @@ SUBROUTINE read_vobs_temp
  lev_typ((ff_ind-1)* my_temp_lev + 1:ff_ind* my_temp_lev) = ff_ind
  if (qq_ind /= 0 ) &
  lev_typ((qq_ind-1)* my_temp_lev + 1:qq_ind* my_temp_lev) = qq_ind
+ if (td_ind /= 0 ) &
+ lev_typ((td_ind-1)* my_temp_lev + 1:td_ind* my_temp_lev) = td_ind
 
  WRITE(6,*) 'FOUND TIMES OBS',MAXVAL(obs(:)%ntim)
 

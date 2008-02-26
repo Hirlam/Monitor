@@ -11,10 +11,10 @@ SUBROUTINE plot_scat_comp(lunout,nparver,nr,nrun,    &
  USE types
  USE timing
  USE data, ONLY : obstype,expname,err_ind,nexp,station_name,csi, &
-                  tag,show_fc_length,output_type,                &
+                  tag,show_fc_length,output_type,output_mode,    &
                   mparver,corr_pairs,flag_pairs,exp_pairs,       &
                   period_freq,maxfclenval,                       &
-                  scat_min,scat_max,scat_magn
+                  scat_min,scat_max,scat_magn,len_lab
  USE mymagics
  USE functions
 
@@ -31,22 +31,24 @@ SUBROUTINE plot_scat_comp(lunout,nparver,nr,nrun,    &
  ! LOCAL
 
  INTEGER :: i,j,jj,k,kk,x,y,l,       &
-            nexp_plot,pp1,           &
+            nexp_plot,pp1,ierr,      &
+            period,len_loop,         &
             lcorr_pairs(mparver,2),  &
             lflag_pairs(mparver,2),  &
              lexp_pairs(mparver,2)
 
- CHARACTER(LEN= 10) :: cnum    =' '
- CHARACTER(LEN= 40) :: fname   =' '
- CHARACTER(LEN=100) :: wtext   =' ', &
-                       axist(2)=' ', &
-                       wtext2  =' ', &
-                       wtext3  =' ', &
-                       wtext4  =' ', &
-                       wname   =' ', &
-                       titln   =' '
- CHARACTER(LEN=  1) :: prefix  =' '
- CHARACTER(LEN= 80) :: title   =' '
+ CHARACTER(LEN= 10) :: cnum     =' '
+ CHARACTER(LEN=100) :: fname    =' '
+ CHARACTER(LEN= 50) :: my_tag   =' '
+ CHARACTER(LEN=100) :: wtext    =' ', &
+                       axist(2) =' ', &
+                       wtext2   =' ', &
+                       wtext3   =' ', &
+                       wtext4   =' ', &
+                       wname    =' ', &
+                       titln    =' '
+ CHARACTER(LEN=  1) :: prefix   =' '
+ CHARACTER(LEN= 80) :: title    =' '
 
  REAL :: minax(2),maxax(2),rtmp
 
@@ -57,6 +59,7 @@ SUBROUTINE plot_scat_comp(lunout,nparver,nr,nrun,    &
  !
  !-----------------------------------------------------
  !
+
  IF ( full_scatter ) THEN
     prefix ='s'
     titln = 'Scatterplot'
@@ -69,41 +72,51 @@ SUBROUTINE plot_scat_comp(lunout,nparver,nr,nrun,    &
           k = k + 1
           lcorr_pairs(k,:) = i
           lflag_pairs(k,:) = (/-1,1/)
-           lexp_pairs(k,:) = j
+           !lexp_pairs(k,:) = j
        ENDDO
     ENDDO
+    len_loop = nparver
  ELSE
     prefix ='x'
     titln = 'Xcrossplot'
     lcorr_pairs = corr_pairs
     lflag_pairs = flag_pairs
      lexp_pairs =  exp_pairs
+    len_loop = mparver
+    IF ( output_mode /= 1 ) THEN
+       WRITE(6,*)'output_mode has to be 1 when doing Xcrossplots'
+       CALL abort
+    ENDIF
+ ENDIF
+
+ ! Set filename period
+ IF ( p1 < 999999 ) THEN
+    period = p1
+ ELSE
+    period = 0
  ENDIF
 
  ! Allocate working data
- ALLOCATE(val(2,MAXVAL(scat%n)))
-
- ! Set filename
- IF ( p1 < 999999 ) THEN
-    CALL make_fname(prefix,p1,nr,tag,fname,output_type)
- ELSE
-    CALL make_fname(prefix, 0,nr,tag,fname,output_type)
+ ALLOCATE(val(2,MAXVAL(scat%n)),STAT=ierr)
+ IF ( ierr /= 0 ) THEN
+    WRITE(6,*)'could not allocated val',MAXVAL(scat%n)
+    CALL abort
  ENDIF
 
- ! Open ps file
- CALL open_output(fname)
+ IF ( output_mode == 1 ) THEN
 
- CALL PSETC ('TEXT_COLOUR','BLACK')
+    CALL make_fname(prefix,period,nr,tag,          &
+                    prefix,'0',                    &
+                    output_mode,output_type,fname)
 
- CALL psetc('PAGE_ID_LINE_SYSTEM_PLOT','ON'  )
- CALL psetc('PAGE_ID_LINE_ERRORS_PLOT','OFF' )
- CALL psetc('PAGE_ID_LINE_DATE_PLOT'  ,'ON'  )
- CALL psetc('PAGE_ID_LINE_QUALITY'    ,'HIGH')
- CALL psetc('PAGE_ID_LINE_LOGO_PLOT'  ,'OFF' )
+    ! Open output file
+    CALL open_output(fname)
 
- DO j=1,mparver
-  
-    ! Cycle is nothing is to be done
+ ENDIF
+   
+ DO j=1,len_loop
+
+    ! Cycle if nothing is to be done
     IF ( ALL(lcorr_pairs(j,:) == 0 ) ) CYCLE
 
     IF ( ANY(lcorr_pairs(j,:) == 0 ) ) THEN
@@ -168,6 +181,7 @@ SUBROUTINE plot_scat_comp(lunout,nparver,nr,nrun,    &
     ! all n should be equal and we only have 
     ! to test 1 case
     !
+
     kk = scat(lcorr_pairs(j,1))%n
 
     IF (kk > 0 )THEN
@@ -252,8 +266,29 @@ SUBROUTINE plot_scat_comp(lunout,nparver,nr,nrun,    &
 
     DO jj=1,nexp_plot
 
-        ! Copy the data
-        DO k=1,2
+       IF ( output_mode == 2 ) THEN
+          ! Set filename
+          i = lcorr_pairs(j,2)
+
+          my_tag = TRIM(tag)//'_'//TRIM(expname(jj))
+          CALL make_fname(prefix,period,nr,my_tag,          &
+                          obstype(i)(1:2),                  &
+                          obstype(i)(3:len_lab),            &
+                          output_mode,output_type,fname)
+
+          ! Open output file
+          CALL open_output(fname)
+       ENDIF
+
+       CALL PSETC ('TEXT_COLOUR','BLACK')
+       CALL psetc('PAGE_ID_LINE_SYSTEM_PLOT','ON'  )
+       CALL psetc('PAGE_ID_LINE_ERRORS_PLOT','OFF' )
+       CALL psetc('PAGE_ID_LINE_DATE_PLOT'  ,'ON'  )
+       CALL psetc('PAGE_ID_LINE_QUALITY'    ,'HIGH')
+       CALL psetc('PAGE_ID_LINE_LOGO_PLOT'  ,'OFF' )
+
+       ! Copy the data
+       DO k=1,2
 
            i = lcorr_pairs(j,k)
            CALL pname(obstype(i),wtext) 
@@ -313,7 +348,7 @@ SUBROUTINE plot_scat_comp(lunout,nparver,nr,nrun,    &
         IF( full_scatter ) &
         CALL pname(obstype(lcorr_pairs(j,1)),wtext)
 
-        call bin_scat(val(1,1:kk),val(2,1:kk),kk,     &
+        CALL bin_scat(val(1,1:kk),val(2,1:kk),kk,     &
                       minax(1),maxax(1),              &
                       minax(2),maxax(2),              &
                       scat_magn(lcorr_pairs(j,1)),    &
@@ -321,11 +356,13 @@ SUBROUTINE plot_scat_comp(lunout,nparver,nr,nrun,    &
                       title,wtext,axist(2),axist(1),  &
                       wtext3,wtext4)
 
+                      IF ( output_mode == 2 ) CALL PCLOSE
+
      ENDDO
 
   ENDDO
 
-  CALL PCLOSE
+  IF ( output_mode == 1 ) CALL PCLOSE
 
   DEALLOCATE(val)
 

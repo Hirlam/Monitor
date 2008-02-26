@@ -11,6 +11,7 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype,per_ind)
  USE timing
  USE data,     ONLY : maxstn,ltiming,lfcver,&
                       nexp,tag,output_type, &
+                      output_mode,len_lab,  &
                       stat,period_freq,     &
                       obstype,expname,      &
                       show_fc_length,ldiff, &
@@ -47,7 +48,7 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype,per_ind)
  INTEGER :: i,j,k,kk,l,ll,m,            &
             hour(ntimver),              &
             maxn,timing_id,             &
-            numstn,                     &
+            numstn,period,              &
             min_stnr,max_stnr,mid(1),   &
             nexp_plot,ntimver_out
 
@@ -55,7 +56,7 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype,per_ind)
 
  REAL :: lmax,lint,   &
          interval(maxint+1) =(/-6.,-4.,-2.,0.,2.,4.,6./),       &
-         min_val,max_val,                                     &
+         min_val,max_val,                                       &
          symbol_size(maxint),                                   &
          rnum,bias,rmse,obs
 
@@ -66,9 +67,10 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype,per_ind)
  LOGICAL :: mask(maxstn)
 
  CHARACTER(LEN=100) :: text     = ' ',wtext = ' '
+ CHARACTER(LEN=100) :: my_tag   = ' '
  CHARACTER(LEN=10 ) :: chour    = ' '
  CHARACTER(LEN=50 ) :: cobsname = ' '
- CHARACTER(LEN=50)  :: fname    = ' '
+ CHARACTER(LEN=100) :: fname    = ' '
  CHARACTER(LEN=30)  :: wname    = ' '
  CHARACTER(LEN=30)  :: mtext    = ' '
  CHARACTER(LEN=50)  :: cunit    = ' '
@@ -80,7 +82,6 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype,per_ind)
  ! Init timing
  timing_id = 0
  IF (ltiming) CALL acc_timing(timing_id,'plot_map')
-
 
  !
  ! Set specific settings depending on ptype
@@ -113,11 +114,10 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype,per_ind)
     CALL abort
  END SELECT 
 
-
  IF (yymm < 999999 ) THEN
-    CALL make_fname(prefix,yymm,stnr,tag,fname,output_type)
+    period = yymm
  ELSE
-    CALL make_fname(prefix,0   ,stnr,tag,fname,output_type)
+    period = 0
  ENDIF
 
  IF ( ALL(show_times == -1) ) THEN
@@ -125,7 +125,6 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype,per_ind)
  ELSE
     ntimver_out = ntimver
  ENDIF
-
 
  !
  ! Set plotting hours
@@ -140,82 +139,16 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype,per_ind)
     ENDDO
  ENDIF
 
- !
- ! MAGICS settings
- !
+ IF ( output_mode == 1 ) THEN
+    CALL make_fname(prefix,period,stnr,      &
+                    tag,prefix,'0',          &
+                    output_mode,output_type, &
+                    fname)
+    CALL open_output(fname)
 
- CALL open_output(fname)
-
- CALL PSETR ('SUPER_PAGE_X_LENGTH',29.7)
- CALL PSETR ('SUPER_PAGE_Y_LENGTH',21.0)
-
- SELECT CASE(mtype)
- CASE(0)
-    ! Symbols
-    CALL PSETC ('SYMBOL_TYPE','MARKER') 
-    CALL PSET1I ('SYMBOL_MARKER_TABLE',(/15,15,15,15,15,15/),maxint) 
-    CALL PSET1R ('SYMBOL_HEIGHT_TABLE',symbol_size,maxint) 
-    CALL PSET1R ('SYMBOL_MAX_TABLE',interval(2:maxint+1),maxint)
-    CALL PSET1R ('SYMBOL_MIN_TABLE',interval(1:maxint  ),maxint)
-    CALL PSET1C ('SYMBOL_COLOUR_TABLE',&
-    (/'MARINE','BLUE  ','CYAN  ','YELLOW','ORANGE','RED   '/),maxint)
-
-    ! Legend
-    CALL PSETC ('SYMBOL_TABLE_MODE','ON') 
-    CALL PSETC ('LEGEND','ON') 
-    CALL PSETC ('LEGEND_ENTRY','ON') 
-    CALL PSETC ('LEGEND_ENTRY_PLOT_DIRECTION','COLUMN')
-    CALL PSETR('LEGEND_BOX_X_POSITION',20.0)
-    CALL PSETR('LEGEND_BOX_Y_POSITION',2.0)
-    CALL PSETR('LEGEND_BOX_X_LENGTH',9.5)
-    CALL PSETR('LEGEND_BOX_Y_LENGTH',10.0)
-    CALL PSETR('LEGEND_ENTRY_MINIMUM_HEIGHT',0.5)
-    CALL PSETR('LEGEND_ENTRY_MAXIMUM_HEIGHT',2.0)
-    CALL PSETR('LEGEND_ENTRY_MAXIMUM_WIDTH',6.5)
-    CALL PSETR('LEGEND_ENTRY_MINIMUM_WIDTH',1.5)
-    CALL PSETC('LEGEND_BOX_MODE','POSITIONAL')
-    CALL PSETC('LEGEND_BORDER','OFF')
-    CALL PSETC('LEGEND_TITLE','ON')
-    CALL PSETC('LEGEND_TEXT_COLOUR','BLACK')
-    CALL PSETC('LEGEND_TEXT_QUALITY','HIGH')
-
- CASE(1)
-    ! Numbers
-    CALL PSETC ('SYMBOL_TYPE','NUMBER') 
-    CALL PSETC ('SYMBOL_TABLE_MODE','OFF')
-
- CASE DEFAULT
-    WRITE(6,*)'No such option mtype',mtype
-    CALL ABORT
- END SELECT
-
- ! Map
- CALL PSETC ('MAP_COASTLINE_COLOUR','BLACK') 
- CALL PSETC ('MAP_COASTLINE_RESOLUTION','HIGH') 
- CALL PSETC ('MAP_GRID_COLOUR','BLACK') 
- CALL PSETC ('SUBPAGE_MAP_PROJECTION',     map_projection     )
- CALL PSETC ('SUBPAGE_MAP_AREA_DEFINITION',map_area_definition)
-
- CALL PSETR ('SUBPAGE_MAP_VERTICAL_LONGITUDE',0.)
- CALL PSETR ('SUBPAGE_MAP_CENTRE_LATITUDE'  ,map_centre_latitude       )
- CALL PSETR ('SUBPAGE_MAP_CENTRE_LONGITUDE' ,map_centre_longitude      )
- CALL PSETR ('SUBPAGE_LOWER_LEFT_LATITUDE'  ,map_lower_left_latitude   )
- CALL PSETR ('SUBPAGE_LOWER_LEFT_LONGITUDE' ,map_lower_left_longitude  )
- CALL PSETR ('SUBPAGE_UPPER_RIGHT_LATITUDE' ,map_upper_right_latitude  )
- CALL PSETR ('SUBPAGE_UPPER_RIGHT_LONGITUDE',map_upper_right_longitude )
-
- CALL PSETR ('SUBPAGE_MAP_SCALE',map_scale)
-
- ! Id line
- CALL psetc('PAGE_ID_LINE_SYSTEM_PLOT','ON')
- CALL psetc('PAGE_ID_LINE_ERRORS_PLOT','OFF')
- CALL psetc('PAGE_ID_LINE_DATE_PLOT','ON')
- CALL psetc('PAGE_ID_LINE_QUALITY','HIGH')
- CALL psetc('PAGE_ID_LINE_LOGO_PLOT','OFF')
-
- ! Text
- CALL psetc('TEXT_COLOUR','BLACK')
- CALL psetc('TEXT_QUALITY','HIGH')
+    CALL PSETR ('SUPER_PAGE_X_LENGTH',29.7)
+    CALL PSETR ('SUPER_PAGE_Y_LENGTH',21.0)
+ ENDIF
 
  !
  ! Allocate 
@@ -236,7 +169,6 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype,per_ind)
 
     FC_LOOP  : DO kk=1,ntimver_out
 
-
        !
        ! Plot only the requested hours
        !
@@ -245,6 +177,7 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype,per_ind)
        !
        ! Copy data and estimate max/min values 
        !
+
        maxn = 0
        lmax = 0.
        DO i=1,nexp 
@@ -325,11 +258,11 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype,per_ind)
 
        SELECT CASE(ptype)
        CASE(0)
-          user_interval = ( ABS(map_bias_interval(j,1) - map_bias_interval(j,maxint+1) ) > 1.e-6 )
+          user_interval = ( ABS(map_bias_interval(1,j) - map_bias_interval(maxint+1,j) ) > 1.e-6 )
        CASE(1)
-          user_interval = ( ABS(map_rmse_interval(j,1) - map_rmse_interval(j,maxint+1) ) > 1.e-6 )
+          user_interval = ( ABS(map_rmse_interval(1,j) - map_rmse_interval(maxint+1,j) ) > 1.e-6 )
        CASE(2)
-          user_interval = ( ABS( map_obs_interval(j,1) -  map_obs_interval(j,maxint+1) ) > 1.e-6 )
+          user_interval = ( ABS( map_obs_interval(1,j) -  map_obs_interval(maxint+1,j) ) > 1.e-6 )
        END SELECT
 
 
@@ -354,11 +287,11 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype,per_ind)
 
           SELECT CASE(ptype)
           CASE(0)
-             interval = map_bias_interval(j,:)
+             interval = map_bias_interval(:,j)
           CASE(1)
-             interval = map_rmse_interval(j,:)
+             interval = map_rmse_interval(:,j)
           CASE(2)
-             interval = map_obs_interval(j,:)
+             interval = map_obs_interval(:,j)
           END SELECT
 
        ENDIF
@@ -368,6 +301,92 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype,per_ind)
        !
 
        EXP_LOOP : DO i=1,nexp_plot 
+
+         IF ( output_mode == 2 ) THEN
+            IF ( ntimver_out == 1 ) THEN
+               my_tag = TRIM(tag)//'_ALL'
+            ELSE
+               chour = ' '
+               WRITE(chour,'(I2.2)')hour(kk)
+               my_tag = TRIM(tag)//'_'//TRIM(chour)
+            ENDIF
+            my_tag = TRIM(my_tag)//'_'//TRIM(expname(i))
+            CALL make_fname(prefix,period,stnr,     &
+                 my_tag,obstype(j)(1:2),            &
+                 obstype(j)(3:len_lab),             &
+                 output_mode,output_type,           &
+                 fname)
+            CALL open_output(fname)
+            CALL PSETR ('SUPER_PAGE_X_LENGTH',29.7)
+            CALL PSETR ('SUPER_PAGE_Y_LENGTH',21.0)
+         ENDIF
+
+ SELECT CASE(mtype)
+ CASE(0)
+    ! Symbols
+    CALL PSETC ('SYMBOL_TYPE','MARKER') 
+    CALL PSET1I ('SYMBOL_MARKER_TABLE',(/15,15,15,15,15,15/),maxint) 
+    CALL PSET1R ('SYMBOL_HEIGHT_TABLE',symbol_size,maxint) 
+    CALL PSET1R ('SYMBOL_MAX_TABLE',interval(2:maxint+1),maxint)
+    CALL PSET1R ('SYMBOL_MIN_TABLE',interval(1:maxint  ),maxint)
+    CALL PSET1C ('SYMBOL_COLOUR_TABLE',&
+    (/'MARINE','BLUE  ','CYAN  ','YELLOW','ORANGE','RED   '/),maxint)
+    ! Legend
+    CALL PSETC ('SYMBOL_TABLE_MODE','ON') 
+    CALL PSETC ('LEGEND','ON') 
+    CALL PSETC ('LEGEND_ENTRY','ON') 
+    CALL PSETC ('LEGEND_ENTRY_PLOT_DIRECTION','COLUMN')
+    CALL PSETR('LEGEND_BOX_X_POSITION',20.0)
+    CALL PSETR('LEGEND_BOX_Y_POSITION',2.0)
+    CALL PSETR('LEGEND_BOX_X_LENGTH',9.5)
+    CALL PSETR('LEGEND_BOX_Y_LENGTH',10.0)
+    CALL PSETR('LEGEND_ENTRY_MINIMUM_HEIGHT',0.5)
+    CALL PSETR('LEGEND_ENTRY_MAXIMUM_HEIGHT',2.0)
+    CALL PSETR('LEGEND_ENTRY_MAXIMUM_WIDTH',6.5)
+    CALL PSETR('LEGEND_ENTRY_MINIMUM_WIDTH',1.5)
+    CALL PSETC('LEGEND_BOX_MODE','POSITIONAL')
+    CALL PSETC('LEGEND_BORDER','OFF')
+    CALL PSETC('LEGEND_TITLE','ON')
+    CALL PSETC('LEGEND_TEXT_COLOUR','BLACK')
+    CALL PSETC('LEGEND_TEXT_QUALITY','HIGH')
+    CALL PSETC ('LEGEND_BOX_BLANKING','ON')
+
+ CASE(1)
+    ! Numbers
+    CALL PSETC ('SYMBOL_TYPE','NUMBER') 
+    CALL PSETC ('SYMBOL_TABLE_MODE','OFF')
+
+ CASE DEFAULT
+    WRITE(6,*)'No such option mtype',mtype
+    CALL ABORT
+ END SELECT
+ ! Map
+ CALL PSETC ('MAP_COASTLINE_COLOUR','BLACK') 
+ CALL PSETC ('MAP_COASTLINE_RESOLUTION','HIGH') 
+ CALL PSETC ('MAP_GRID_COLOUR','BLACK') 
+ CALL PSETC ('SUBPAGE_MAP_PROJECTION',     map_projection     )
+ CALL PSETC ('SUBPAGE_MAP_AREA_DEFINITION',map_area_definition)
+
+ CALL PSETR ('SUBPAGE_MAP_VERTICAL_LONGITUDE',0.)
+ CALL PSETR ('SUBPAGE_MAP_CENTRE_LATITUDE'  ,map_centre_latitude       )
+ CALL PSETR ('SUBPAGE_MAP_CENTRE_LONGITUDE' ,map_centre_longitude      )
+ CALL PSETR ('SUBPAGE_LOWER_LEFT_LATITUDE'  ,map_lower_left_latitude   )
+ CALL PSETR ('SUBPAGE_LOWER_LEFT_LONGITUDE' ,map_lower_left_longitude  )
+ CALL PSETR ('SUBPAGE_UPPER_RIGHT_LATITUDE' ,map_upper_right_latitude  )
+ CALL PSETR ('SUBPAGE_UPPER_RIGHT_LONGITUDE',map_upper_right_longitude )
+
+ CALL PSETR ('SUBPAGE_MAP_SCALE',map_scale)
+
+ ! Id line
+ CALL psetc('PAGE_ID_LINE_SYSTEM_PLOT','ON')
+ CALL psetc('PAGE_ID_LINE_ERRORS_PLOT','OFF')
+ CALL psetc('PAGE_ID_LINE_DATE_PLOT','ON')
+ CALL psetc('PAGE_ID_LINE_QUALITY','HIGH')
+ CALL psetc('PAGE_ID_LINE_LOGO_PLOT','OFF')
+
+ ! Text
+ CALL psetc('TEXT_COLOUR','BLACK')
+ CALL psetc('TEXT_QUALITY','HIGH')
 
          CALL PNEW('SUPER_PAGE')
 
@@ -443,15 +462,10 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype,per_ind)
          CALL PSETC ('TEXT_BORDER', 'OFF')
          CALL PSETC ('TEXT_BOX_BLANKING','ON')
        
-         !CALL PSETR ('TEXT_BOX_Y_POSITION', 14.0)
-         !CALL PSETR ('TEXT_BOX_X_POSITION', 18.0)
-         !CALL PSETR ('TEXT_BOX_X_LENGTH', 8.)
-         !CALL PSETR ('TEXT_BOX_Y_LENGTH', 5.0)
-
-          CALL PSETR ('TEXT_BOX_Y_POSITION', 15.0)
-          CALL PSETR ('TEXT_BOX_X_POSITION', 17.5)
-          CALL PSETR ('TEXT_BOX_X_LENGTH',   10.0)
-          CALL PSETR ('TEXT_BOX_Y_LENGTH',    3.0)
+         CALL PSETR ('TEXT_BOX_Y_POSITION', 15.0)
+         CALL PSETR ('TEXT_BOX_X_POSITION', 17.5)
+         CALL PSETR ('TEXT_BOX_X_LENGTH',   10.0)
+         CALL PSETR ('TEXT_BOX_Y_LENGTH',    3.0)
 
          CALL PSETI ('TEXT_LINE_COUNT', 4)
          IF ( mtype == 0 .AND. user_interval ) THEN
@@ -510,12 +524,13 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype,per_ind)
          ENDIF
 
          CALL PTEXT
+         IF ( output_mode == 2 ) CALL PCLOSE
 
        ENDDO EXP_LOOP
     ENDDO FC_LOOP  
  ENDDO PAR_LOOP 
 
- CALL PCLOSE
+ IF ( output_mode == 1 ) CALL PCLOSE
 
  IF ( ALLOCATED(mlat))  DEALLOCATE(mlat,mlon,mdat,mcount)
  DEALLOCATE(lat,lon,stn,dat)

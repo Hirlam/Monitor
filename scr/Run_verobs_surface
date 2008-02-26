@@ -1,151 +1,72 @@
 #!/bin/ksh
 
+set -ax
+
 #
 # Run verobs for surface variables
 #
-
-set -axk
-
-ulimit -m unlimited
-ulimit -f unlimited
-ulimit -t unlimited
-ulimit -s unlimited
-
-ulimit -a
 
 # Spec
 
 . Env_exp
 
-set -axk
+cd $SCR || exit
 
-cd $WRK || exit
 
-rm -f *.ps *.png *.dat *.xml *.html fort.10
 
-# Create namelist
+# Generate namelists
 
-cat << EOF > fort.10
- &NAMVER
- SDATE = $SDATE,
- EDATE = $EDATE,
- OUTPUT_TYPE=$OUTPUT_TYPE
- OBSPATH ='$OBSPATH',
- PRINT_READ = 0,
- EXPNAME =
-EOF
+DIR=SURF
 
-F=1
-while [ ${EXP[$F]} ] ; do
-  echo \'${EXP[$F]}\', >> fort.10
-  F=$( expr $F + 1 ) 
+mkdir $WRK/${DIR}_$$ || exit
+
+
+for F in $SURFPAR ; do
+   Build_namelist.pl -t ${DIR} -p $F > $WRK/${DIR}_$$/namelist_$F || exit
 done
 
-echo '  MODPATH=' >> fort.10
-F=1
-while [ ${MODPATH[$F]} ] ; do
-  echo    \'${MODPATH[$F]}\', >> fort.10
-  F=$( expr $F + 1 ) 
+cd $WRK/${DIR}_$$ || exit
+
+# Run verobs for the different variables
+for F in $SURFPAR ; do
+   cp namelist_$F fort.10
+   $BIN/verobs || exit
 done
-NEXP=$( expr $F - 1 ) 
 
-cat << EOF >> fort.10
- NEXP=$NEXP
- NPARVER = 8,
- FF_IND  = 1,
- DD_IND  = 2,
- PS_IND  = 3,
- TT_IND  = 4,
- RH_IND  = 5,
- QQ_IND  = 6,
- NN_IND  = 7,
- PE_IND  = 8,
- LQUALITY_CONTROL  = T
- ESTIMATE_QC_LIMIT = T
- QC_LIM_SCALE      = 8*5.0
- MAXSTN            = 4000,
- STNLIST           = 0
- STATNAME          = 'Surface_LL.html'
- OBINT      = 06,
- FCINT      = 06,
- FCLEN      = 00,06,12,18,24,30,36,42,48,
- LFCVER            = T,
- DATA_SOURCE       = 'vfld',
- LPLOT_STAT        = T,
- LSTAT_GEN         = T,
- LDIFF             = T,
- PLOT_BIAS_MAP     = T,
- MAP_BIAS_INTERVAL = -6.,-90.,-1.5,-6.,-15.,-3.,-6.,-6.,-1.,-1.,
-                     -4.,-60.,-1.0,-4.,-10.,-2.,-4.,-3.,-1.,-1.,
-		             -2.,-30.,-0.5,-2., -5.,-1.,-2.,-1.,-1.,-1.,
-                      0.,  0., 0. , 0.,  0., 0., 0., 0.,-1.,-1.,
-                      2., 30., 0.5, 2.,  5., 1., 2., 1.,-1.,-1.,
-                      4., 60., 1.0, 4., 10., 2., 4., 3.,-1.,-1.,
-                      6., 90., 1.5, 6., 15., 3., 6., 6.,-1.,-1.,
- /
- &NAMVER
- LSTAT_GEN          = F,
- ESTIMATE_QC_LIMIT  = F
- PLOT_BIAS_MAP      = F,
- LTIMESERIE_STAT    = T,
- TIMESERIE_WIND     = 7*06,00
- /
- &NAMVER
- LTIMESERIE_STAT = F,
- LPREP_XML       = T,
- LPLOT_FREQ      = T,
- LPLOT_SCAT      = T,
- CONT_PARAM      = 1
- CONT_IND(1)     = 8,
- CONT_CLASS(1)   = 7,
- CONT_LIM(1,1:7) = 0.1,0.3,1.0,3.0,10.0,30.0,100.0,
- /
- &NAMVER
- CONT_IND        = 10*0,
- LPREP_XML       = F,
- LPLOT_FREQ      = F,
- LPLOT_SCAT      = F,
- LSTAT_GEN       = T
- STATNAME        = 'Surface_HH.html'
- LPLOT_STAT      = T,
- LFCVER          = F,
- NTIMVER         = 8,
- USE_FCLEN       = 03,06,09,12,10*-1,
- SHOW_OBS        = T,
- LDIFF           = F,
- /
-EOF
-
-cp fort.10 namelist_surf
-
-$BIN/verobs || exit
+[[ $WEBCALL == ""  ]] && exit
 
 # Quality control information
 echo '<pre>'   > quality.html
 cat fort.48   >> quality.html
 echo '</pre>' >> quality.html
 
-
-[[ $WEBCALL == ""  ]] && exit
-
-# Convert/rename plots
-# usage: ps2png $NPARVER $NLEV $NEXP $ARGUMENT
+# Generate browser friendly graphics and gather files
 
 if [ $OUTPUT_TYPE -eq 1 ] ; then
-   $SCR/ps2png 8 1 $NEXP '-resize 75% -rotate 90'
+   for F in $( ls -1 *.ps ) ; do
+      FF=$( basename $F .ps )
+      convert -resize 75% -rotate 90 $FF.ps $FF.png
+   done
    tar cvf fig.tar *.png  *.ps
 elif [ $OUTPUT_TYPE -eq 2 ] ; then
-   $SCR/png2png 8 1 $NEXP png
    tar cvf fig.tar *.png 
 elif [ $OUTPUT_TYPE -eq 3 ] ; then
-   $SCR/png2png 8 1 $NEXP jpg
    tar cvf fig.tar *.jpg
 fi
 
 cp $SCR/style.xsl .
 
-$WEBCALL -e Surface -f fig.tar
 tar cvf xml.tar  *.xml style.xsl *.html
-$WEBCALL -e Surf_scat -f xml.tar
 
-rm -f *.tar *.png *.ps *.jpg *.xml *.xsl *.html || true
+# Send data to WebgraF
+$WEBCALL -e Surface -f fig.tar xml.tar
+$WEBCALL -e Surface -f xml.tar
+
+cd $SCR 
+
+# Clean
+rm -rf $WRK/${DIR}_$$
+
+# Create WebgraF interface
+Create_ver_js.pl SURF
+

@@ -54,7 +54,7 @@ SUBROUTINE verify
             cdate,ctime,                                &
             nexp_ver,                                   &
             par_active(nparver),                        &
-            len_scat,per_ind
+            len_scat,per_ind,iscat
 
  INTEGER, ALLOCATABLE :: periods(:)
 
@@ -66,8 +66,10 @@ SUBROUTINE verify
  LOGICAL :: demand_equal     = .TRUE.
  LOGICAL :: do_kalman        = .TRUE.
  LOGICAL :: lscat_array      = .FALSE.
+ LOGICAL :: stat_file_found  = .FALSE.
 
  CHARACTER(LEN=50) :: fname = '',cmon=''
+ CHARACTER(LEN=50) :: otag = ''
 
  TYPE (statpar), ALLOCATABLE :: allstat(:,:)
 
@@ -267,7 +269,7 @@ SUBROUTINE verify
 
  IF ( lcontingency ) CALL ini_cont(nexp,mpre_cla,mparver,   &
                                    cont_class,cont_param,   &
-                                   cont_ind,cont_lim)
+                                   cont_ind,cont_lim,tag)
 
  !
  ! Allocate array for timeserie statistics
@@ -304,24 +306,21 @@ SUBROUTINE verify
 
 
  IF ( lstat_gen ) THEN
-    OPEN(lunstat,file=statname)
 
-    !
-    ! Create filename
-    !
+    INQUIRE(FILE=statname,EXIST=stat_file_found)
 
-    WRITE(lunstat,*)'<html><pre>'
-    WRITE(lunstat,*)'Verification for ',trim(name)
-
-    IF (lfcver) THEN
-       WRITE(lunstat,*)'Verification by forecast length'
+    IF  ( stat_file_found ) THEN
+       OPEN(UNIT=lunstat,FILE=statname,POSITION='APPEND')
     ELSE
-       WRITE(lunstat,*)'Verification by time of day'
+       OPEN(UNIT=lunstat,FILE=statname)
+
+       WRITE(lunstat,*)'<html><pre>'
+       WRITE(lunstat,*)'Verification for ',trim(tag)
+       WRITE(lunstat,*)'Verification by forecast length'
+       WRITE(lunstat,*)
     ENDIF
-    WRITE(lunstat,*)
 
  ENDIF 
-
 
  !
  ! Loop over all stations
@@ -707,7 +706,7 @@ SUBROUTINE verify
   
    ENDIF
 
-   IF ( (lprint_timeserie_stat .OR. ltimeserie_stat ) .AND.(lallstat .OR. leach_station )) THEN
+   IF ( (lprint_timeserie_stat .OR. ltimeserie_stat ) .AND. (lallstat .OR. leach_station )) THEN
 
      !
      ! Plot statistics for this station if requested
@@ -821,13 +820,11 @@ SUBROUTINE verify
  IF (ltiming) CALL add_timing(timing_id_plot,'Verify_plot')
 
 
- IF ( ( lprint_timeserie_stat .OR. ltimeserie_stat ) .AND.(lallstat .OR. leach_station )) THEN
+ IF ( ( lprint_timeserie_stat .OR. ltimeserie_stat ) .AND. (lallstat .OR. leach_station )) THEN
 
     !
     ! Printout timeserie statistics all stations
     !
-
-    DEALLOCATE(time_stat)
 
     IF ( lallstat ) THEN
 
@@ -849,11 +846,10 @@ SUBROUTINE verify
 #endif
         ENDDO
 
-     DEALLOCATE(all_time_stat)
 
-   ENDIF
+    ENDIF
 
-   DEALLOCATE(tim_par_active)
+    CALL clear_timeserie
 
  ENDIF
 
@@ -885,6 +881,7 @@ SUBROUTINE verify
 
  ENDIF
 
+
  IF ( lscat_array ) THEN
 
     IF ( lallstat ) THEN
@@ -907,6 +904,7 @@ SUBROUTINE verify
 #ifdef MAGICS
 
        ! Plot normal scatterplot
+       
        IF ( lplot_scat)                              &
        CALL plot_scat_comp(lunout,nparver,0,nrun,    &
             all_scat_data(:,l),                      &
@@ -915,6 +913,7 @@ SUBROUTINE verify
             used_hours(:,l,:),used_fclen(:,l,:))
 
        ! Plot Xcrossplot
+
        IF ( lplot_comp)                              &
        CALL plot_scat_comp(lunout,nparver,0,nrun,    &
             all_scat_data(:,l),                      &
@@ -946,6 +945,7 @@ SUBROUTINE verify
 
  CLOSE(lunstat)
 
+
  IF ( lprep_xml ) THEN
  
     IF ( period_type == 1 ) periods = 0
@@ -968,8 +968,24 @@ SUBROUTINE verify
  IF ( lcontingency ) CALL clear_cont
 
  IF ( ALLOCATED(periods)) DEALLOCATE(periods)
- IF ( ALLOCATED(allstat)) DEALLOCATE(allstat)
- IF ( ALLOCATED(stat)   ) DEALLOCATE(stat)
+ IF ( ALLOCATED(allstat)) THEN
+    DO j=1,maxper
+    DO i=1,maxstn
+       DEALLOCATE(allstat(i,j)%s)
+       DEALLOCATE(allstat(i,j)%par_active)
+    ENDDO
+    ENDDO
+    DEALLOCATE(allstat)
+ ENDIF
+
+ IF ( ALLOCATED(stat) ) THEN
+    DO i=1,maxstn
+       DEALLOCATE(stat(i)%s)
+       DEALLOCATE(stat(i)%par_active)
+    ENDDO
+    DEALLOCATE(stat)
+ ENDIF
+ IF ( ALLOCATED(tmpdiff)) DEALLOCATE(tmpdiff)
 
  DEALLOCATE(used_fclen,used_hours,showed_times)
 

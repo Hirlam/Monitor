@@ -14,7 +14,7 @@
 
  SELECT CASE(TRIM(p))
 
- CASE('HG')
+ CASE('HG','VI')
    u='m'
  CASE('LA')
    u='deg'
@@ -26,7 +26,7 @@
    u='%'
  CASE('PS')
    u='hPa'
- CASE('TT')
+ CASE('TT','TD')
    u='deg C'
  CASE('FF')
    u='m/s'

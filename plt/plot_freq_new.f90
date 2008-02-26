@@ -12,13 +12,13 @@ SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active,uh,uf)
  USE timing
  USE data, ONLY : nexp,station_name,err_ind,csi,obstype, &
                   expname,gr_ind,pe_ind,pd_ind,          &
-                  lfcver,                                &
+                  lfcver,output_mode,                    &
                   show_fc_length,                        &
                   ltiming,tag,maxfclenval,               &
                   ncla,classtype,pre_fcla,               &
                   mincla,maxcla,my_ymax,my_ymin,         &
                   mpre_cla,copied_mod,copied_obs,        &
-                  period_freq,output_type
+                  period_freq,output_type,len_lab
 
  IMPLICIT NONE
 
@@ -37,7 +37,7 @@ SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active,uh,uf)
 
  ! Local
  INTEGER :: i,j,k,l,m,n,ncl,       		&
-            timing_id,lnexp,pp1
+            timing_id,lnexp,pp1,period
 
  REAL :: dcla,fdat_sum,bar_width,               &
          bfac,maxy,miny
@@ -48,7 +48,7 @@ SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active,uh,uf)
 
  LOGICAL :: reset_class
 
- CHARACTER(LEN=40) :: fname = ''
+ CHARACTER(LEN=100) :: fname = ''
  CHARACTER(LEN=90) :: wtext = '',wtext2 = ''
  CHARACTER(LEN=20) :: wname = ''
  CHARACTER(LEN=20) :: cdum  = ''
@@ -66,16 +66,28 @@ SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active,uh,uf)
 
  ! Set filename
  IF ( p1 < 999999 ) THEN
-    CALL make_fname('f',p1,nr,tag,fname,output_type)
+    period = p1
  ELSE
-    CALL make_fname('f', 0,nr,tag,fname,output_type)
+    period = 0
  ENDIF
 
- CALL open_output(fname)
-
-
+ IF ( output_mode == 1 ) THEN
+    CALL make_fname('f',period,nr,tag,'f','0',&
+                    output_mode,output_type,  &
+                    fname)
+    CALL open_output(fname)
+ ENDIF
  
  DO j=1,nparver
+
+    IF ( output_mode == 2 ) THEN
+       CALL make_fname('f',period,nr,tag,          &
+                       obstype(j)(1:2),            &
+                       obstype(j)(3:len_lab),      &
+                       output_mode,output_type,    &
+                       fname)
+       CALL open_output(fname)
+    ENDIF
    
     ncl = ncla(j)
     ALLOCATE(pcla(ncl),                &
@@ -281,7 +293,7 @@ SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active,uh,uf)
     wtext2 ='' 
     wname = ''
 
-    WRITE(wtext2,'(I2)')NINT(fdat_sum)
+    WRITE(wtext2,'(I6)')NINT(fdat_sum)
     WRITE(wname ,'(I2)')ncl-1
     wtext ='Number of cases'//TRIM(wtext2)//'  Number of classes '//TRIM(wname)
     CALL psetc('TEXT_LINE_3',wtext)
@@ -294,13 +306,14 @@ SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active,uh,uf)
     ENDIF
 
     CALL ptext
+    IF ( output_mode == 2 ) CALL pclose
 
     ! Clear memory
     DEALLOCATE(work,pcla,fcla,fdat,zero,zdat)
    
  ENDDO
 
- CALL pclose
+ IF ( output_mode == 1 ) CALL pclose
 
  IF (ltiming) CALL acc_timing(timing_id,'plot_freq')
 

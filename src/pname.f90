@@ -19,19 +19,23 @@
  SELECT CASE(pp)
 
  CASE('HG')
-   u='Heigth'
+   u='Height'
  CASE('LA')
    u='Latitude'
  CASE('FI')
-   u='Heigth'
+   u='Height'
  CASE('RH')
    u='Relative Humidity'
  CASE('PS')
    u='Surface pressure'
  CASE('NN')
    u='Cloud cover (octas)'
+ CASE('TD')
+   u='Dew point temperature'
  CASE('TT')
    u='Temperature'
+ CASE('VI')
+   u='Visibility'
  CASE('FF')
    u='Wind speed'
  CASE('DD')

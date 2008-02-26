@@ -27,10 +27,11 @@ SUBROUTINE read_vfld
             num_temp_lev,		&
             stations(100000),	&
             max_found_stat,		&
-            timing_id,aerr
+            timing_id,aerr,     &
+            version_flag
  
  
- REAL :: lat,lon,val(8),qq
+ REAL :: lat,lon,hgt,val(10)
 
  LOGICAL :: allocated_this_time(maxstn),	&
             found_any_time,use_stnlist
@@ -81,18 +82,34 @@ SUBROUTINE read_vfld
 
        OPEN(lunin,file=fname,status='old',iostat=ierr)
        IF (ierr.NE.0) THEN
-               IF (print_read > 0 ) WRITE(6,*)'Could not open ',TRIM(fname)
-           CYCLE EXP_LOOP
+          IF (print_read > 0 ) WRITE(6,*)'Could not open ',TRIM(fname)
+          CYCLE EXP_LOOP
        ENDIF
        IF (print_read > 0 ) WRITE(6,*)'READ ',TRIM(fname)
 
-       READ(lunin,*)num_stat,num_temp
+       version_flag = 0
+
+       READ(lunin,'(1x,3I6)',IOSTAT=ierr)num_stat,num_temp,version_flag
+       IF ( ierr /= 0 ) THEN
+         WRITE(6,*)'Error reading first line of vfld file'
+         CALL abort
+       ENDIF
        READ(lunin,*)num_temp_lev
 
        READ_STATION_MOD : DO k=1,num_stat
 
           val = -99.
-          READ(lunin,*,iostat=ierr)istnr,lat,lon,val
+          SELECT CASE(version_flag)
+ 
+          CASE(0)
+             READ(lunin,*,iostat=ierr)istnr,lat,lon,val(1:8)
+          CASE(1)
+             READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val
+          CASE DEFAULT
+             WRITE(6,*)'Cannot handle this vfld-file version',version_flag
+             CALL abort
+          END SELECT
+
           IF (ierr.ne.0) CYCLE READ_STATION_MOD
 
           !
@@ -121,6 +138,7 @@ SUBROUTINE read_vfld
              hir(max_found_stat)%stnr   = istnr
              hir(max_found_stat)%lat    = lat 
              hir(max_found_stat)%lon    = lon 
+             hir(max_found_stat)%hgt    = hgt 
 
              IF (max_found_stat > maxstn) THEN
                 WRITE(6,*)'Increase maxstn',max_found_stat
@@ -138,8 +156,11 @@ SUBROUTINE read_vfld
           ! this is a new time
           !
          
-          IF (print_read > 1 .AND. hir(stat_i)%ntim > 0 ) WRITE(6,*)'BOUND 1',istnr,UBOUND( hir(stat_i)%o(hir(stat_i)%ntim)%nal )
-          IF (print_read > 1 .AND. hir(stat_i)%ntim > 0 ) WRITE(6,*)'TEST',istnr,allocated_this_time(stat_i)
+          IF (print_read > 1 .AND. hir(stat_i)%ntim > 0 ) &
+          WRITE(6,*)'BOUND 1',istnr,UBOUND( hir(stat_i)%o(hir(stat_i)%ntim)%nal )
+          IF (print_read > 1 .AND. hir(stat_i)%ntim > 0 ) &
+          WRITE(6,*)'TEST',istnr,allocated_this_time(stat_i)
+
           IF ( .NOT. allocated_this_time(stat_i) ) THEN 
 
              hir(stat_i)%ntim =  hir(stat_i)%ntim + 1
@@ -201,6 +222,12 @@ SUBROUTINE read_vfld
           IF (qq_ind /= 0 .AND. qca(val(8),-99.)  .AND. &
                                 qcl(val(8),qq_ind) .AND. &
                                 qcu(val(8),qq_ind)) hir(stat_i)%o(i)%nal(l,j,qq_ind) = val(8) * 1.e3
+          IF (vi_ind /= 0 .AND. qca(val(9),-99.)  .AND. &
+                                qcl(val(9),vi_ind) .AND. &
+                                qcu(val(9),vi_ind)) hir(stat_i)%o(i)%nal(l,j,vi_ind) = val(9)
+          IF (td_ind /= 0 .AND. qca(val(10),-99.)  .AND. &
+                                qcl(val(10),td_ind) .AND. &
+                                qcu(val(10),td_ind)) hir(stat_i)%o(i)%nal(l,j,td_ind) = val(10)
 
           IF (la_ind /= 0 ) hir(stat_i)%o(i)%nal(l,j,la_ind) = hir(stat_i)%lat
           IF (hg_ind /= 0 ) hir(stat_i)%o(i)%nal(l,j,hg_ind) = hir(stat_i)%hgt

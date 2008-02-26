@@ -2,7 +2,7 @@
 
 set -ax
 
-Create_ver_js      || exit
+Clean_ver_js       || exit
 Run_verobs_surface || exit
 Run_verobs_temp    || exit
 

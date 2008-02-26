@@ -8,7 +8,7 @@ SUBROUTINE plot_stat2(lunout,nexp,nparver,ntimver,   &
  USE timing
  USE data, ONLY : obstype,expname,station_name,                 &
                   csi,use_fclen,lfcver,                         &
-                  maxfclenval,                                  &
+                  maxfclenval,len_lab,output_mode,              &
                   nfclengths,nuse_fclen,tag,                    &
                   timdiff,time_shift,show_fc_length,ltiming,    &
                   show_bias,show_rmse,show_stdv,show_obs,       &
@@ -28,7 +28,9 @@ SUBROUTINE plot_stat2(lunout,nexp,nparver,ntimver,   &
 
 ! Local
 
- INTEGER :: i,j,k,timing_id,ntimver_l
+ INTEGER :: i,j,k,timing_id,ntimver_l, &
+            period
+
  REAL, ALLOCATABLE ::        &
             bias(:,:),       &
              obs(:,:),       &
@@ -44,7 +46,7 @@ SUBROUTINE plot_stat2(lunout,nexp,nparver,ntimver,   &
 
  CHARACTER(LEN=100) :: wtext=' '
  CHARACTER(LEN=100) :: wtext1=' '
- CHARACTER(LEN= 50) :: fname=' '
+ CHARACTER(LEN=100) :: fname=' '
  CHARACTER(LEN= 30) :: wname=' '
  CHARACTER(LEN=  1) :: prefix = ' '
  CHARACTER(LEN=  6) :: ob_short = '      '
@@ -65,9 +67,9 @@ SUBROUTINE plot_stat2(lunout,nexp,nparver,ntimver,   &
  prefix = 'v'
  IF (lfcver) prefix = 'V'
  IF (yymm < 999999 ) THEN
-    CALL make_fname(prefix,yymm,stnr,tag,fname,output_type)
+    period = yymm
  ELSE
-    CALL make_fname(prefix,0,   stnr,tag,fname,output_type)
+    period = 0
  ENDIF
 
 
@@ -98,11 +100,27 @@ SUBROUTINE plot_stat2(lunout,nexp,nparver,ntimver,   &
 
  ! Plotting
 
- CALL open_output(fname)
+ IF ( output_mode == 1 ) THEN
+    CALL make_fname(prefix,0,stnr,tag,      &
+                    prefix,'0',             &
+                    output_mode,output_type,&
+                    fname)
+    CALL open_output(fname)
+ ENDIF
 
- CALL PSET1R ('GRAPH_CURVE_X_VALUES',hour(1:ntimver_l),ntimver_l)
 
  DO j=1,nparver
+
+    IF ( output_mode == 2 ) THEN
+       CALL make_fname(prefix,0,stnr,tag,          &
+                       obstype(j)(1:2),            &
+                       obstype(j)(3:len_lab),      &
+                       output_mode,output_type,    &
+                       fname)
+       CALL open_output(fname)
+    ENDIF
+
+    CALL PSET1R ('GRAPH_CURVE_X_VALUES',hour(1:ntimver_l),ntimver_l)
 
     no_data_at_all = (MAXVAL(s(:,j,:)%n) == 0)
 
@@ -292,10 +310,11 @@ SUBROUTINE plot_stat2(lunout,nexp,nparver,ntimver,   &
     CALL plot_data(rnum(i,:),ntimver_l,'GREY','Number of cases',1) 
     ENDDO
 
+    IF ( output_mode == 2 ) CALL pclose
 
  ENDDO
 
- CALL pclose
+ IF ( output_mode == 1 ) CALL pclose
 
  IF (ltiming) CALL acc_timing(timing_id,'plot_stat2')
 

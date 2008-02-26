@@ -20,7 +20,7 @@ MODULE data
  INTEGER, PARAMETER :: lunqc   = 48
  INTEGER, PARAMETER :: len_lab = 6
  INTEGER, PARAMETER :: maxexp  = 5	! Max experiments
- INTEGER, PARAMETER :: mparver = 100	! Max parameters to verify
+ INTEGER, PARAMETER :: mparver = 200	! Max parameters to verify
  INTEGER, PARAMETER :: maxfclen= 48	! Maximum number of forecast lengths
  INTEGER, PARAMETER :: maxfclenval= 240	! Maximum forecast length value in hours
 
@@ -82,6 +82,7 @@ MODULE data
                                     !  0 gives all 
  TYPE (box) :: cbox                 ! Area box (S,W,N,E) corners
  LOGICAL    :: lpoly = .FALSE.      ! Area selection by polygon
+ CHARACTER(LEN=100 )  :: polyfile ='poly.dat'
 
  ! Experiment and name
  INTEGER           :: nexp = 1			! Number of experiments
@@ -134,6 +135,8 @@ MODULE data
  ! Parameters to verify
  INTEGER :: nparver = mparver
  INTEGER :: tt_ind = 0 ! Temperature
+ INTEGER :: td_ind = 0 ! Dew point temperature
+ INTEGER :: vi_ind = 0 ! Visibility
  INTEGER :: ff_ind = 0 ! Wind speed
  INTEGER :: dd_ind = 0 ! Wind direction
  INTEGER :: uw_ind = 0 ! momentum flux
@@ -173,6 +176,8 @@ MODULE data
  ! Gross Error limits
  REAL :: fi_lim = 500. 
  REAL :: tt_lim = 50. 
+ REAL :: td_lim = 50. 
+ REAL :: vi_lim = 500000. 
  REAL :: ff_lim = 50. 
  REAL :: dd_lim = 720. 
  REAL :: rh_lim = 100. 
@@ -195,7 +200,9 @@ MODULE data
 
  ! Upper limits
  REAL :: fi_ulim = 1.e9
- REAL :: tt_ulim = 200.
+ REAL :: tt_ulim = 400.
+ REAL :: td_ulim = 400.
+ REAL :: vi_ulim = 1.e12
  REAL :: ff_ulim = 200.
  REAL :: dd_ulim = 360.
  REAL :: rh_ulim = 100.
@@ -219,6 +226,8 @@ MODULE data
  ! Lower limits
  REAL :: fi_llim = 0.
  REAL :: tt_llim = -200.
+ REAL :: td_llim = -200.
+ REAL :: vi_llim = 0.
  REAL :: ff_llim = 0.
  REAL :: dd_llim = 0.
  REAL :: rh_llim = 0.
@@ -302,10 +311,10 @@ MODULE data
 
  LOGICAL :: plot_bias_map          = .FALSE.  ! Plot map with biases
  LOGICAL :: plot_obs_map           = .FALSE.  ! Plot map with observations
- REAL    :: map_obs_interval(10,7) = -1.      ! Set your own obs interval 
- REAL    :: map_bias_interval(10,7)= -1.      ! Set your own bias interval
- REAL    :: map_rmse_interval(10,7)= -1.      ! Set your own rmse interval
- INTEGER :: map_type               =  0       ! 0 plots symbols, 1 plots numbers
+ REAL    ::  map_obs_interval(7,mparver)= -1.      ! Set your own obs interval 
+ REAL    :: map_bias_interval(7,mparver)= -1.      ! Set your own bias interval
+ REAL    :: map_rmse_interval(7,mparver)= -1.      ! Set your own rmse interval
+ INTEGER :: map_type                    =  0       ! 0 plots symbols, 1 plots numbers
 
 
  ! What to plot on verification plots
@@ -328,6 +337,8 @@ MODULE data
 
  ! Output type
  INTEGER :: output_type = 1                   ! 1 = ps, 2 = png, 3 = jpg
+ INTEGER :: output_mode = 1                   ! 1 = multi page, 2 = single page
+
 
  ! Special precipitation thing
  INTEGER :: pe_interval = 12
@@ -382,15 +393,15 @@ MODULE data
                  nexp,expname,tag,                      &
                  nparver,                               &
                  tt_ind,ff_ind,dd_ind,uw_ind,wt_ind,	&
-                 sw_ind,lw_ind,lu_ind,ld_ind,		&
-                 su_ind,sd_ind,				&
-                 ps_ind,pe_ind,pd_ind,rh_ind,		&
+                 sw_ind,lw_ind,lu_ind,ld_ind,	    	&
+                 su_ind,sd_ind,td_ind,vi_ind,			&
+                 ps_ind,pe_ind,pd_ind,rh_ind,	    	&
                  nn_ind,fi_ind,rf_ind,nr_ind,wq_ind,    &
                  qq_ind,gs_ind,gc_ind,gr_ind,hb_ind,	&
                  tz_ind,uz_ind,tu_ind,la_ind,hg_ind,    &
-                 wp_ind,wh_ind,       			&
+                 wp_ind,wh_ind,       		         	&
                  lev_typ,lev_lst,                       &
-                 name,statname,				&
+                 name,statname,                         &
                  obspath,modpath,                       &
                  lfcver,leach_station,ltiming,          &
                  lallstat,                              &
@@ -423,23 +434,24 @@ MODULE data
                  lprint_summary,                        &
                  lprint_read,print_read,                &
                  lprint_verif,lprint_findp,   	        &
-                 lprint_do_stat,                		&
+                 lprint_do_stat,                	&
                  release_memory,lplot_freq,             &
-                 cbox,lpoly,data_to_verify,data_source, &
+                 cbox,lpoly,polyfile,                   &
+                 data_to_verify,data_source,            &
                  ltemp,                                 &
                  use_database,                          &
                  fi_lim,tt_lim,ff_lim,dd_lim,rh_lim,    &
                  ps_lim,pe_lim,sw_lim,lw_lim,lu_lim,    &
                  ld_lim,qq_lim,su_lim,sd_lim,           &
                  uw_lim,wt_lim,nr_lim,gr_lim,wq_lim,    &
-                 nn_lim,                                &
+                 nn_lim,td_lim,vi_lim,                  &
                  ff_llim,                               &
                  sumup_tolerance,			&
                  my_xmin,my_xmax,my_ymin,my_ymax,	&
                  lspecial_cond,special_flag,		&
                  gap_filled_data,ldiff,lnorm,           &
                  show_fc_length,all_var_present,        &
-                 use_pos,output_type,                   &
+                 use_pos,output_type,output_mode,       &
                  ncla,classtype,pre_fcla,               &
                  maxcla,mincla,                         &
                  show_bias,show_rmse,show_stdv,show_obs,&
@@ -449,7 +461,8 @@ MODULE data
                  estimate_qc_limit,qc_lim_scale,        &
                  corr_pairs,flag_pairs,exp_pairs,       &
                  scat_min,scat_max,scat_magn,           &
-                 cont_ind,cont_class,cont_lim,cont_param
+                 cont_ind,cont_class,cont_lim,          &
+                 cont_param
 
 CONTAINS
 
@@ -486,6 +499,8 @@ LOGICAL FUNCTION qc(diff,k)
        diff_lim = fi_lim
     ELSEIF (lev_typ(k).EQ.ff_ind) THEN
        diff_lim = ff_lim
+    ELSEIF (lev_typ(k).EQ.td_ind) THEN
+       diff_lim = td_lim
     ELSEIF (lev_typ(k).EQ.tt_ind) THEN
        diff_lim = tt_lim
     ELSEIF (lev_typ(k).EQ.rh_ind) THEN
@@ -508,6 +523,10 @@ LOGICAL FUNCTION qc(diff,k)
        diff_lim = rh_lim
     ELSEIF (k.EQ.tt_ind) THEN
        diff_lim = tt_lim
+    ELSEIF (k.EQ.td_ind) THEN
+       diff_lim = td_lim
+    ELSEIF (k.EQ.vi_ind) THEN
+       diff_lim = vi_lim
     ELSEIF (k.EQ.ff_ind) THEN
        diff_lim = ff_lim
     ELSEIF (k.EQ.dd_ind) THEN
@@ -562,6 +581,8 @@ LOGICAL FUNCTION qcl(diff,k)
        diff_lim = fi_llim
     ELSEIF (lev_typ(k).EQ.ff_ind) THEN
        diff_lim = ff_llim
+    ELSEIF (lev_typ(k).EQ.td_ind) THEN
+       diff_lim = td_llim
     ELSEIF (lev_typ(k).EQ.tt_ind) THEN
        diff_lim = tt_llim
     ELSEIF (lev_typ(k).EQ.rh_ind) THEN
@@ -584,6 +605,10 @@ LOGICAL FUNCTION qcl(diff,k)
        diff_lim = rh_llim
     ELSEIF (k.EQ.tt_ind) THEN
        diff_lim = tt_llim
+    ELSEIF (k.EQ.td_ind) THEN
+       diff_lim = td_llim
+    ELSEIF (k.EQ.vi_ind) THEN
+       diff_lim = vi_llim
     ELSEIF (k.EQ.ff_ind) THEN
        diff_lim = ff_llim
     ELSEIF (k.EQ.dd_ind) THEN
@@ -640,6 +665,8 @@ LOGICAL FUNCTION qcu(diff,k)
        diff_lim = ff_ulim
     ELSEIF (lev_typ(k).EQ.tt_ind) THEN
        diff_lim = tt_ulim
+    ELSEIF (lev_typ(k).EQ.td_ind) THEN
+       diff_lim = td_ulim
     ELSEIF (lev_typ(k).EQ.rh_ind) THEN
        diff_lim = rh_ulim
     ELSEIF (lev_typ(k).EQ.qq_ind) THEN
@@ -660,6 +687,10 @@ LOGICAL FUNCTION qcu(diff,k)
        diff_lim = rh_ulim
     ELSEIF (k.EQ.tt_ind) THEN
        diff_lim = tt_ulim
+    ELSEIF (k.EQ.td_ind) THEN
+       diff_lim = td_ulim
+    ELSEIF (k.EQ.vi_ind) THEN
+       diff_lim = vi_ulim
     ELSEIF (k.EQ.ff_ind) THEN
        diff_lim = ff_ulim
     ELSEIF (k.EQ.dd_ind) THEN
@@ -731,6 +762,7 @@ END FUNCTION qcu
 
  DO k = 1,maxstn
     ALLOCATE(hir(k)%o(maxtim))
+    NULLIFY(hir(k)%pos)
  ENDDO
    
  hir%ntim       = 0
@@ -779,6 +811,8 @@ SUBROUTINE allocate_obs
     IF ( use_pos ) THEN
        ALLOCATE(obs(k)%pos(si:ei))
        obs(k)%pos = 0
+    ELSE
+       NULLIFY(obs(k)%pos)
     ENDIF
  ENDDO
    

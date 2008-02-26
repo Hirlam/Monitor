@@ -60,7 +60,7 @@ SUBROUTINE fclen_header(lfclen,nuf,uh,uf,txt)
        WRITE(txt,wname)fclen(1:2),' ... ',fclen(ii)
     ELSE
        wname='(XX(1X,I2.2))'
-       WRITE(wname(2:3),'(I2.2)')ii
+       WRITE(wname(2:3),'(I2.2)')MAX(ii,1)
        WRITE(txt,wname)fclen(1:ii)
     ENDIF
     txt = 'At '//TRIM(whour)//' +'//TRIM(txt)

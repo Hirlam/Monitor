@@ -33,6 +33,10 @@ MODULE scatter
 
  INTEGER :: i,j,allocate_status
 
+ !-----------------------------------------------
+
+ WRITE(6,*)'ALLOCATE SCATTER ARRAY'
+
  ! All station scatter plot array 
  ALLOCATE(scat_data(nparver,maxper),STAT=allocate_status)
  IF ( allocate_status /= 0 ) THEN
@@ -85,8 +89,26 @@ MODULE scatter
 
   INTEGER :: i,j
   
-  IF (ALLOCATED(scat_data))      DEALLOCATE(scat_data     )
-  IF (ALLOCATED(all_scat_data))  DEALLOCATE(all_scat_data )
+  IF (ALLOCATED(scat_data)) THEN
+
+     DO j=1,maxper
+        DO i=1,nparver
+           DEALLOCATE(scat_data(i,j)%dat)
+        ENDDO
+     ENDDO
+     DEALLOCATE(scat_data)
+
+  ENDIF
+
+  IF (ALLOCATED(all_scat_data)) THEN
+    DO j=1,maxper
+       DO i=1,nparver
+          DEALLOCATE(all_scat_data(i,j)%dat)
+       ENDDO
+    ENDDO
+    DEALLOCATE(all_scat_data )
+  ENDIF
+
   IF (ALLOCATED(all_par_active)) DEALLOCATE(all_par_active)
 
   RETURN

@@ -1,14 +1,23 @@
 #!/bin/ksh
 
-set -ax
-
 . Env_exp
 
 [[ $WEBCALL == "" ]] && exit
 
-$WEBCALL -e Surface -r
-$WEBCALL -e Surf_scat -r
-$WEBCALL -e Bias_maps -r
-$WEBCALL -e Vert -r
-$WEBCALL -e Temp -r
-$WEBCALL -r
+if [ $# -eq 1 ] ; then
+   echo 
+   echo "Remove all plots from $PROJECT/$1"
+   echo
+   $WEBCALL -e $1 -r
+else
+  echo 
+  echo " Removed all plots from $PROJECT"
+  echo 
+  $WEBCALL -r
+fi
+
+echo 
+echo " Your new WebgraF content"
+echo 
+
+$WEBCALL -l

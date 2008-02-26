@@ -20,11 +20,12 @@ SUBROUTINE read_vobs
             num_temp_lev,		&
             stations(100000),	&
             max_found_stat,		&
-            timing_id
+            timing_id,          &
+            version_flag
             
  
  
- REAL :: lat,lon,height,val(8)
+ REAL :: lat,lon,hgt,val(10)
 
  CHARACTER(LEN=100) :: fname =' '
  CHARACTER(LEN= 10) :: ndate =' '
@@ -83,20 +84,32 @@ SUBROUTINE read_vobs
 
        IF (print_read > 0 ) WRITE(6,*)'READ ',TRIM(fname)
 
-       READ(lunin,*)num_stat,num_temp
+       version_flag = 0
+
+       READ(lunin,'(1x,3I6)',IOSTAT=ierr)num_stat,num_temp,version_flag
+       IF ( ierr /= 0 ) THEN
+          WRITE(6,*)'Error reading firrst line of vobs file',ierr
+          CALL abort
+       ENDIF
+      
        READ(lunin,*)num_temp_lev
 
        READ_STATION_OBS : DO k=1,num_stat
 
-          READ(lunin,*,iostat=ierr)istnr,lat,lon,	&
-          height,val
+          val = -99.
+          SELECT CASE(version_flag)
+ 
+          CASE(0)
+             READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val(1:8)
+          CASE(1)
+             READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val(1:10)
+          CASE DEFAULT
+             WRITE(6,*)'Cannot handle this vobs-file version',version_flag
+             CALL abort
 
-      !    IF (print_read > 1 ) WRITE(6,*)'READ'
-      !    IF (print_read > 1 ) WRITE(6,*)istnr,lat,lon,height,val
-      !    IF (print_read > 1 ) WRITE(6,*)
+          END SELECT
 
           IF (ierr  /= 0) CYCLE READ_STATION_OBS
-
           IF (istnr == 0) CYCLE READ_STATION_OBS
 
           !
@@ -125,7 +138,7 @@ SUBROUTINE read_vobs
              obs(max_found_stat)%stnr   = istnr
              obs(max_found_stat)%lat    = lat
              obs(max_found_stat)%lon    = lon
-             obs(max_found_stat)%hgt    = height
+             obs(max_found_stat)%hgt    = hgt
 
              IF (max_found_stat > maxstn) THEN
                 WRITE(6,*)'Increase maxstn',max_found_stat
@@ -154,30 +167,26 @@ SUBROUTINE read_vobs
           IF ( use_pos ) obs(stat_i)%pos(cdate * 100 + ctime/10000 ) = i
           obs(stat_i)%o(i)%val  = err_ind
 
-          if (nn_ind /= 0 .AND. qca(val(1),-999.) .AND.                 &
-                                qco(val(1)).AND.qcl(val(1),nn_ind).AND. &
+          if (nn_ind /= 0 .AND. qco(val(1)).AND.qcl(val(1),nn_ind).AND. &
                                 qcu(val(1),nn_ind)) obs(stat_i)%o(i)%val(nn_ind) = val(1)
-          if (dd_ind /= 0 .AND. qca(val(1),-999.) .AND.                 &
-                                qco(val(2)).AND.qcl(val(2),dd_ind).AND. &
+          if (dd_ind /= 0 .AND. qco(val(2)).AND.qcl(val(2),dd_ind).AND. &
                                 qcu(val(2),dd_ind)) obs(stat_i)%o(i)%val(dd_ind) = val(2)
-          if (ff_ind /= 0 .AND. qca(val(1),-999.) .AND.                 &
-                                qco(val(3)).AND.qcl(val(3),ff_ind).AND. &
+          if (ff_ind /= 0 .AND. qco(val(3)).AND.qcl(val(3),ff_ind).AND. &
                                 qcu(val(3),ff_ind)) obs(stat_i)%o(i)%val(ff_ind) = val(3)
-          if (tt_ind /= 0 .AND. qca(val(1),-999.) .AND.                       &
-                                qco(val(4)).AND.qcl(val(4)-tzero,tt_ind).AND. &
+          if (tt_ind /= 0 .AND. qco(val(4)).AND.qcl(val(4)-tzero,tt_ind).AND. &
                                 qcu(val(4)-tzero,tt_ind)) obs(stat_i)%o(i)%val(tt_ind) = val(4) - tzero
-          if (rh_ind /= 0 .AND. qca(val(1),-999.) .AND.                 &
-                                qco(val(5)).AND.qcl(val(5),rh_ind).AND. &
+          if (rh_ind /= 0 .AND. qco(val(5)).AND.qcl(val(5),rh_ind).AND. &
                                 qcu(val(5),rh_ind)) obs(stat_i)%o(i)%val(rh_ind) = val(5)
-          if (ps_ind /= 0 .AND. qca(val(1),-999.) .AND.                 &
-                                qco(val(6)).AND.qcl(val(6),ps_ind).AND. &
+          if (ps_ind /= 0 .AND. qco(val(6)).AND.qcl(val(6),ps_ind).AND. &
                                 qcu(val(6),ps_ind)) obs(stat_i)%o(i)%val(ps_ind) = val(6)
-          if (pe_ind /= 0 .AND. qca(val(1),-999.) .AND.                 &
-                                qco(val(7)).AND.qcl(val(7),pe_ind).AND. &
+          if (pe_ind /= 0 .AND. qco(val(7)).AND.qcl(val(7),pe_ind).AND. &
                                 qcu(val(7),pe_ind)) obs(stat_i)%o(i)%val(pe_ind) = val(7)
-          if (qq_ind /= 0 .AND. qca(val(1),-999.) .AND.                 &
-                                qco(val(8)).AND.qcl(val(8),qq_ind).AND. &
+          if (qq_ind /= 0 .AND. qco(val(8)).AND.qcl(val(8),qq_ind).AND. &
                                 qcu(val(8),qq_ind)) obs(stat_i)%o(i)%val(qq_ind) = val(8) * 1.e3
+          if (vi_ind /= 0 .AND. qco(val(9)).AND.qcl(val(9),vi_ind).AND. &
+                                qcu(val(9),vi_ind)) obs(stat_i)%o(i)%val(vi_ind) = val(9) 
+          if (td_ind /= 0 .AND. qco(val(10)).AND.qcl(val(10),td_ind).AND. &
+                                qcu(val(10),td_ind)) obs(stat_i)%o(i)%val(td_ind) = val(10) 
 
           if (la_ind /= 0 ) obs(stat_i)%o(i)%val(la_ind) = obs(stat_i)%lat
           if (hg_ind /= 0 ) obs(stat_i)%o(i)%val(hg_ind) = obs(stat_i)%hgt

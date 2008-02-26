@@ -462,12 +462,14 @@ var p = arguments[0]
 // Number axis
    if ( p[0] == 'calc' ) {
 
+
       if ( p[1] < p[2] ) { mstart = p[1] ; mstop = p[2] ; reverse = false }
                     else { mstart = p[2] ; mstop = p[1] ; reverse = true  }
 
       if ( p[3] == undefined ) { mm_inc = 1 } else { mm_inc = Math.abs(p[3]) }
 
-       
+      clean(p)
+
       mm = mstart
       jj = 0
       do {

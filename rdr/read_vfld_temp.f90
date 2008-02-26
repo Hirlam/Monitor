@@ -27,10 +27,10 @@ SUBROUTINE read_vfld_temp
             num_temp_lev,my_temp_lev,   &
             stations(100000),	        &
             max_found_stat,		&
-            timing_id,wrk(mparver)
+            timing_id,wrk(mparver),     &
+            version_flag
  
- 
- REAL :: lat,lon,val(7)
+ REAL :: lat,lon,hgt,val(8)
 
  LOGICAL :: allocated_this_time(maxstn),	&
             found_any_time,use_stnlist
@@ -45,7 +45,7 @@ SUBROUTINE read_vfld_temp
 
  stations       = 0
  max_found_stat = 0
- use_stnlist = ( MAXVAL(stnlist) > 0 ) 
+ use_stnlist    = ( MAXVAL(stnlist) > 0 ) 
 
  CALL allocate_mod
 
@@ -85,9 +85,15 @@ SUBROUTINE read_vfld_temp
        OPEN(lunin,file=fname,status='old',iostat=ierr)
        IF (ierr.NE.0 .AND. print_read > 0 ) WRITE(6,*)'COULD NOT READ ',fname
        IF (ierr.NE.0) CYCLE EXP_LOOP
-       IF (print_read > 0 ) WRITE(6,*)'READ ',fname
+       IF (print_read > 0 ) WRITE(6,*)'READ ',TRIM(fname)
 
-       READ(lunin,*)num_stat,num_temp
+       version_flag = 0
+
+       READ(lunin,'(1x,3I6)',IOSTAT=ierr)num_stat,num_temp,version_flag
+       IF ( ierr /= 0 ) THEN
+         WRITE(6,*)'Error reading first line of vfld file'
+         CALL abort
+       ENDIF
        READ(lunin,*)num_temp_lev
 
        DO k=1,num_stat
@@ -96,7 +102,14 @@ SUBROUTINE read_vfld_temp
 
        READ_STATION_MOD : DO k=1,num_temp
 
-          READ(lunin,999,iostat=ierr)istnr,lat,lon
+          SELECT CASE (version_flag)
+          CASE(0)
+             READ(lunin,*,iostat=ierr)istnr,lat,lon
+          CASE(1)
+             READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt
+          CASE DEFAULT
+          END SELECT 
+
           IF (ierr.ne.0) CYCLE READ_STATION_MOD
 
           !
@@ -136,6 +149,7 @@ SUBROUTINE read_vfld_temp
              hir(max_found_stat)%stnr   = istnr
              hir(max_found_stat)%lat    = lat
              hir(max_found_stat)%lon    = lon
+             hir(max_found_stat)%hgt    = hgt
 
 
           ENDIF
@@ -175,7 +189,15 @@ SUBROUTINE read_vfld_temp
 
           READ_LEV_MOD : DO kk=1,num_temp_lev
 
-          READ(lunin,*,iostat=ierr)val
+          val = -99.
+
+          SELECT CASE(version_flag)
+          CASE(0)
+             READ(lunin,*,iostat=ierr)val(1:7)
+          CASE(1)
+             READ(lunin,*,iostat=ierr)val(1:8)
+          END SELECT 
+
           IF (ierr /= 0 ) CYCLE READ_LEV_MOD
 
           kk_lev = 0
@@ -185,24 +207,24 @@ SUBROUTINE read_vfld_temp
           ENDDO
 
           IF (kk_lev == 0 ) CYCLE READ_LEV_MOD
+
           IF (lprint_read) WRITE(6,*)'KK_LEV',kk_lev,val(1),lev_lst(kk_lev)
 
-          WHERE(abs(val+99.).lt.1.e-6)
-             val = err_ind
-          END WHERE
-
-          IF((fi_ind /= 0 ) .AND. qca(val(2),-999.)) &
+          IF((fi_ind /= 0 ) .AND. qca(val(2),-99.)) &
           hir(stat_i)%o(i)%nal(l,j,kk_lev+ my_temp_lev*(fi_ind-1)) = val(2)
-          IF((tt_ind /= 0 ) .AND. qca(val(3),-999.)) &
+          IF((tt_ind /= 0 ) .AND. qca(val(3),-99.)) &
           hir(stat_i)%o(i)%nal(l,j,kk_lev+ my_temp_lev*(tt_ind-1)) = val(3) - tzero
-          IF((rh_ind /= 0 ) .AND. qca(val(4),-999.)) &
+          IF((rh_ind /= 0 ) .AND. qca(val(4),-99.)) &
           hir(stat_i)%o(i)%nal(l,j,kk_lev+ my_temp_lev*(rh_ind-1)) = val(4)
-          IF((dd_ind /= 0 ) .AND. qca(val(5),-999.)) &
+          IF((dd_ind /= 0 ) .AND. qca(val(5),-99.)) &
           hir(stat_i)%o(i)%nal(l,j,kk_lev+ my_temp_lev*(dd_ind-1)) = val(5)
-          IF((ff_ind /= 0 ) .AND. qca(val(6),-999.)) &
+          IF((ff_ind /= 0 ) .AND. qca(val(6),-99.)) &
           hir(stat_i)%o(i)%nal(l,j,kk_lev+ my_temp_lev*(ff_ind-1)) = val(6)
-          IF((qq_ind /= 0 ) .AND. qca(val(7),-999.)) &
+          IF((qq_ind /= 0 ) .AND. qca(val(7),-99.)) &
           hir(stat_i)%o(i)%nal(l,j,kk_lev+ my_temp_lev*(qq_ind-1)) = val(7) * 1.e3
+          IF((td_ind /= 0 ) .AND. qca(val(8),-99.)) &
+          hir(stat_i)%o(i)%nal(l,j,kk_lev+ my_temp_lev*(td_ind-1)) = val(8)
+
 
        ENDDO READ_LEV_MOD
 
@@ -233,6 +255,8 @@ SUBROUTINE read_vfld_temp
  lev_typ((ff_ind-1)* my_temp_lev + 1:ff_ind* my_temp_lev) = ff_ind
  if (qq_ind /= 0 ) &
  lev_typ((qq_ind-1)* my_temp_lev + 1:qq_ind* my_temp_lev) = qq_ind
+ if (td_ind /= 0 ) &
+ lev_typ((td_ind-1)* my_temp_lev + 1:td_ind* my_temp_lev) = td_ind
 
  WRITE(6,*) 'FOUND TIMES MODEL',MAXVAL(hir(:)%ntim)
 

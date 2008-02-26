@@ -41,7 +41,7 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
                   copied_obs,copied_mod,                 &
                   show_rmse,show_stdv,show_bias,         &
                   ltemp,lev_lst,window_pos,output_type,  &
-                  z_is_pressure
+                  z_is_pressure,output_mode,len_lab
 
  USE functions
 
@@ -86,7 +86,7 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
  CHARACTER(LEN=3  ) :: cdum='   '
  CHARACTER(LEN=6  ) :: ob_short='      '
  CHARACTER(LEN=2  ) :: prefix=' '
- CHARACTER(LEN=30 ) :: fname=' '
+ CHARACTER(LEN=100) :: fname=' '
  CHARACTER(LEN=120) :: wtext,wname
 
 
@@ -122,13 +122,16 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
  ! Create filename
  prefix ='ps'
  IF ( ldiff ) prefix='PS'
- CALL make_fname(prefix,period1,nr,tag,fname,output_type)
-
- ! Write to timeserie file
 
  z_is_pressure = ( ltemp .AND. ( lev_lst(1) > lev_lst(2) ))
 
- CALL open_output(fname)
+ IF ( output_mode == 1 ) THEN
+    CALL make_fname(prefix,period1,nr,tag,   &
+                    prefix,'0',              &
+                    output_mode,output_type, &
+                    fname)
+    CALL open_output(fname)
+ ENDIF
 
  ytitle = ' '
 
@@ -154,6 +157,15 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
            rnum(maxtim,nexp))
 
  NPAR_LOOP : DO j=1,npar
+
+    IF ( output_mode == 2 ) THEN
+       CALL make_fname(prefix,period1,nr,tag,     &
+                       obstype(j)(1:2),           &
+                       obstype(j)(3:len_lab),     &
+                       output_mode,output_type,   &
+                       fname)
+       CALL open_output(fname)
+    ENDIF
 
     rnum = 0.
     bias = 0.
@@ -327,7 +339,7 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
        maxy = 0.
     ENDIF
 
-    CALL new_page(ndate(1),ntime(1),				&
+    CALL new_page(ndate(1),ntime(1),				    &
                   ndate(ntim_use),ntime(ntim_use),		&
                   0.,0.,miny,maxy)
 
@@ -485,9 +497,11 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
 
     ENDIF
 
+    IF (output_mode == 2 ) CALL pclose
+
  ENDDO NPAR_LOOP
 
- CALL pclose
+ IF (output_mode == 1 ) CALL pclose
  
  DEALLOCATE(ndate,ntime,date,time,obs,bias,rmse,stdv,rnum)
 

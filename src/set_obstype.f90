@@ -4,13 +4,16 @@ SUBROUTINE set_obstype
 
  IMPLICIT NONE
 
- INTEGER :: i,ii,               &
-            wrk(mparver),nlev
+ INTEGER :: i,ii,magn,wrk(mparver),nlev
+
+ CHARACTER(LEN=4) :: cform = '(IX)'
+ CHARACTER(LEN=9) :: clev = ' '
 
  ! ---------------------------------------------------------------------
 
  ALLOCATE(obstype(0:nparver))
  obstype='XXXXXX'
+ cform = '(IX)'
 
  IF (ltemp ) THEN
 
@@ -22,34 +25,28 @@ SUBROUTINE set_obstype
 
     IF ( fi_ind /= 0 ) lev_typ((fi_ind-1)*nlev + 1:fi_ind*nlev) = fi_ind
     IF ( tt_ind /= 0 ) lev_typ((tt_ind-1)*nlev + 1:tt_ind*nlev) = tt_ind
+    IF ( td_ind /= 0 ) lev_typ((td_ind-1)*nlev + 1:td_ind*nlev) = td_ind
     IF ( rh_ind /= 0 ) lev_typ((rh_ind-1)*nlev + 1:rh_ind*nlev) = rh_ind
     IF ( dd_ind /= 0 ) lev_typ((dd_ind-1)*nlev + 1:dd_ind*nlev) = dd_ind
     IF ( ff_ind /= 0 ) lev_typ((ff_ind-1)*nlev + 1:ff_ind*nlev) = ff_ind
     IF ( qq_ind /= 0 ) lev_typ((qq_ind-1)*nlev + 1:qq_ind*nlev) = qq_ind
 
-
     DO i=1,mparver
 
        ii = MOD(i,nlev) 
        IF (ii == 0 ) ii = nlev
+       magn=FLOOR(LOG10(lev_lst(ii)))+1
 
-       IF(tt_ind > 0 .AND. lev_typ(i) == tt_ind) &
-       WRITE(obstype(i),'(A2,I4.4)')  'TT',NINT(lev_lst(ii))
+       WRITE(cform(3:3),'(I1)')magn
+       WRITE(clev,cform)NINT(lev_lst(ii))
 
-       IF(qq_ind > 0 .AND. lev_typ(i) == qq_ind) &
-       WRITE(obstype(i),'(A2,I4.4)')  'QQ',NINT(lev_lst(ii))
-
-       IF(ff_ind > 0 .AND. lev_typ(i) == ff_ind) &
-       WRITE(obstype(i),'(A2,I4.4)')  'FF',NINT(lev_lst(ii))
-
-       IF(dd_ind > 0 .AND. lev_typ(i) == dd_ind) &
-       WRITE(obstype(i),'(A2,I4.4)')  'DD',NINT(lev_lst(ii))
-
-       IF(fi_ind > 0 .AND. lev_typ(i) == fi_ind) &
-       WRITE(obstype(i),'(A2,I4.4)')  'FI',NINT(lev_lst(ii))
-
-       IF(rh_ind > 0 .AND. lev_typ(i) == rh_ind) &
-       WRITE(obstype(i),'(A2,I4.4)')  'RH',NINT(lev_lst(ii))
+       IF(tt_ind > 0 .AND. lev_typ(i) == tt_ind) obstype(i) = 'TT'//TRIM(clev)
+       IF(td_ind > 0 .AND. lev_typ(i) == td_ind) obstype(i) = 'TD'//TRIM(clev)
+       IF(qq_ind > 0 .AND. lev_typ(i) == qq_ind) obstype(i) = 'QQ'//TRIM(clev)
+       IF(ff_ind > 0 .AND. lev_typ(i) == ff_ind) obstype(i) = 'FF'//TRIM(clev)
+       IF(dd_ind > 0 .AND. lev_typ(i) == dd_ind) obstype(i) = 'DD'//TRIM(clev)
+       IF(fi_ind > 0 .AND. lev_typ(i) == fi_ind) obstype(i) = 'FI'//TRIM(clev)
+       IF(rh_ind > 0 .AND. lev_typ(i) == rh_ind) obstype(i) = 'RH'//TRIM(clev)
 
     ENDDO
 
@@ -60,6 +57,8 @@ SUBROUTINE set_obstype
     IF(wp_ind.GT.0) obstype(wp_ind) = 'WP'
     IF(wh_ind.GT.0) obstype(wh_ind) = 'WH'
     IF(tt_ind.GT.0) obstype(tt_ind) = 'TT'
+    IF(td_ind.GT.0) obstype(td_ind) = 'TD'
+    IF(vi_ind.GT.0) obstype(vi_ind) = 'VI'
     IF(ff_ind.GT.0) obstype(ff_ind) = 'FF'
     IF(dd_ind.GT.0) obstype(dd_ind) = 'DD'
     IF(uw_ind.GT.0) obstype(uw_ind) = 'UW'

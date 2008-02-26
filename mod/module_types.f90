@@ -117,7 +117,7 @@ MODULE types
     TYPE (statistics), POINTER :: s(:,:,:) 
 
     ! (nparver,ntimver)
-    REAL, POINTER :: o(:,:) 
+!   REAL, POINTER :: o(:,:) 
  END TYPE statpar
 
  ! 

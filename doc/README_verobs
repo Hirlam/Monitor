@@ -1,6 +1,6 @@
 ###########################
 # Instructions for verobs #
-# Ulf Andrae, SMHI, 2007  #
+# Ulf Andrae, SMHI, 2008  #
 ###########################
 
 This verification setup will produce
@@ -17,23 +17,16 @@ Edit to fit your needs
 
 The script Run_verobs_all will : 
 
-Create a WebgraF webpage for you verification ( Create_ver_js )
 Run a synop station verification              ( Run_verobs_surface )
 Run a temp  station verification              ( Run_verobs_temp )
 
 All scripts can be run alone
 
-The script Run_verobs_all_month will do the same
-but accumulate statistics monthvise.
-
 #####################################
-A test data set can be downloaded from:
+Test data is available on ecgate, see the default Env_exp
 
-https://hirlam.org/contrib/ulf/aladin/dat.tar.gz
-
-On ecgate you may unpack the data in your monitor directory and you will be able to test the program directly. 
-Pack the WebgraF directory, download it, unpack it and browse it at home to get a feeling of what the verification
-produces.
+Pack the WebgraF directory, download it, unpack it and browse it at home 
+to get a feeling of what the verification produces.
 
 Below follows an explanation of the namelists created by the scripts in scr
 For further usage of the namelist variables read the definition in src/module_data.f90

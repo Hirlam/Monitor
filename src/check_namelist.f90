@@ -69,6 +69,7 @@ SUBROUTINE check_namelist
  ! Check use_fclen
 
  IF ( use_fclen(1) == -1 ) THEN
+    use_fclen = -1
     use_fclen(1:nfclengths)=fclen(1:nfclengths)
     nuse_fclen = nfclengths
     WRITE(6,*)'  Changed USE_FCLEN to', use_fclen(1:nuse_fclen)
@@ -131,7 +132,6 @@ SUBROUTINE check_namelist
  ENDIF
 
 
-
  ! Adjust last obs date and time according to forecast length
  CALL adddtg(edate,etime,3600*MAXVAL(fclen),edate_obs,etime_obs)
 
@@ -142,7 +142,7 @@ SUBROUTINE check_namelist
 
 
  ! Contingency settings
- lcontingency = ANY( cont_ind /= 0 ) 
+ lcontingency = ( cont_param /= 0 )
 
 
  ! More to come ....

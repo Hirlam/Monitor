@@ -22,4 +22,11 @@ SUBROUTINE ini_namelist
  lquality_control   = .FALSE.
  estimate_qc_limit  = .FALSE.
 
+ ! Clear use_fclen
+ use_fclen = -1
+ 
+ ! Contingency 
+ lcontingency = .FALSE.
+ cont_ind     = 0
+
 END SUBROUTINE ini_namelist
