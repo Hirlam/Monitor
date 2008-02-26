@@ -383,7 +383,7 @@ v[5] = [$partext]
 t[5] = [$text]
 v[6] = [$lev_lst]
 v[6] = v[6].reverse()
-t[6] = [$lev_lst]
+t[6] = v[6]
 
 mname = ['Type','Period','Station','Area','Exp','Parameter','Level']
 loc = ['l','t','l','t','l','l','t']
