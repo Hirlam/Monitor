@@ -260,11 +260,9 @@ MODULE timeserie
               EXIT TIME_STAT_LOOP 
 
             ELSEIF ( all_time_stat(o)%date <  time_stat(oo)%date ) THEN
-              EXIT
+              EXIT TIME_STAT_LOOP
             ELSEIF ( all_time_stat(o)%date >  time_stat(oo)%date ) THEN
               EXIT ALL_TIME_STAT_LOOP
-            ELSE
-              EXIT TIME_STAT_LOOP
             ENDIF
 
          ENDDO TIME_STAT_LOOP

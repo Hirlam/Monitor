@@ -13,6 +13,7 @@
     'STNLIST'          => 0,
     'LVERIFY'          => 'F',
     'PRINT_READ'       => 0,
+    'PERIOD_TYPE'      => $ENV{PERIOD_TYPE},
     'OUTPUT_TYPE'      => $ENV{OUTPUT_TYPE},
     'OUTPUT_MODE'      => 2,
  },
@@ -35,7 +36,6 @@
      'LDIFF'         => 'T',
      'SHOW_OBS'      => 'F',
      'STNLIST'       => 0,
-     'STNLIST_BL'    => 11083,
      'LPOLY'         => 'F',
      'CBOX%ACTIVE'   => 'F',
   },
@@ -79,8 +79,6 @@
   'LPLOT_VERT' => 'T',
   'LSTAT_GEN'  => 'T',
   'LFCVER'     => 'F',
-  'NTIMVER'    =>  2,
-  'SHOW_TIMES' =>'00,12',
  },
 
 );

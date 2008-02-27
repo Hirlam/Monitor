@@ -7,6 +7,7 @@
  $TYPE=$ARGV[0]  or die "Please give SURF or TEMP as argument \n";
 
  use plotdefs ;
+ use maindefs ;
 
  #
  # Define which things to plot
@@ -30,6 +31,11 @@
  # Area
  @areas = split(' ',$ENV{$TYPE.'AREAS'});
  $areas ='\''.join('\',\'',@areas).'\'';
+
+ # Time handling
+ $period_type = $ENV{PERIOD_TYPE}; 
+ @period_v = ('','\'00000000\'','\'gen_date\',\'00YYYYMM\',\'00'.$ENV{EDATE}.'\',\'00'.$ENV{IDATE}.'\'');
+ @period_t = ('','\'00000000\'','\'gen_date\',\'YYYYMM\',\''.$ENV{EDATE}.'\',\''.$ENV{IDATE}.'\'');
  
  # Download button
  $download="do_debug = false ;" ;
@@ -50,11 +56,7 @@
  $npar = scalar(@par) -1 ;
 
  @text = ();
- @xml  = ();
- foreach $par ( @par ) {
-       	@text = (@text,$plotdefs{$par}{'TEXT'}) ; 
-       	@xml  = (@xml,'../Surface/'.$par.'_00000000.xml');
- } ;
+ foreach $par ( @par ) { @text = (@text,$plotdefs{$par}{'TEXT'}) ; } ;
  $text='\''.join('\',\'',@text).'\'';
 
 
@@ -79,11 +81,17 @@
 	 @plottype_txt = (@plottype_txt,'Fc length ver') ; } ;
 
  # Build xml text
- if ( exists $plots{'XML'} ) { 
-   @xml     = ('../Surface/quality.html',@xml) ;
-   @xml_txt = ('Quality control',@text);
+ @xml     = ();
+ @xml_txt = ();
 
-   foreach ( @areas ) {
+ if ( exists $plots{'XML'} ) { 
+    foreach $par ( @par ) {
+       	@xml  = (@xml,'../Surface/'.$par.'_00000000.xml');
+    } ;
+   @xml_txt = @text;
+ } ;
+
+ foreach ( @areas ) {
       if ( exists $plots{'CONT'} ) {
          @xml     = ('../Surface/contingency_'.$_.'.html',@xml);
          @xml_txt = ('Cont '.$_,@xml_txt);
@@ -92,14 +100,13 @@
          @xml     = ('../Surface/SURF_LL_'.$_.'.html',@xml);
          @xml_txt = ('Stat '.$_,@xml_txt);
       };
-   } ;
-
-   $xml     ='my_xml=[\''.join('\',\'',@xml).'\']';
-   $xml_txt ='my_xml_txt=[\''.join('\',\'',@xml_txt).'\']';
- } else {
-   $xml     = '';
-   $xml_txt = '';
  } ;
+
+@xml     = ('../Surface/quality.html',@xml) ;
+@xml_txt = ('Quality control',@xml_txt);
+
+$xml     ='my_xml=[\''.join('\',\'',@xml).'\']';
+$xml_txt ='my_xml_txt=[\''.join('\',\'',@xml_txt).'\']';
 
 $plottype     ='\''.join('\',\'',@plottype).'\'';
 $plottype_txt ='\''.join('\',\'',@plottype_txt).'\'';
@@ -130,8 +137,6 @@ if ( exists $plots{'MAP'}  ) { &map ;     };
  $type ="Temp" ;
  $pdir = $type ;
  @text = ();
- @xml = ();
- @xml_txt = ();
 
  @lev = split(' ',$ENV{LEV_LST});
  $nlev = scalar(@lev) -1 ;
@@ -140,6 +145,29 @@ if ( exists $plots{'MAP'}  ) { &map ;     };
  @par=split(' ',$ENV{TEMPPAR});
  $partext='\''.join('\',\'',@par).'\'';
  $npar = scalar(@par) -1 ;
+ foreach $par ( @par ) { @text = (@text,$plotdefs{$par}{'TEXT_TEMP'}) ; } ;
+ $text='\''.join('\',\'',@text).'\'';
+
+ @plottype     =();
+ @plottype_txt =();
+
+ if ( exists $plots{'TIME'} ) {
+	@plottype =(@plottype,'PS','ps');
+       	@plottype_txt =(@plottype_txt,'Timeserie stat','Timeserie'); } ;
+ if ( exists $plots{'DAYVAR'} ) { 
+	@plottype =(@plottype,'v') ;
+	@plottype_txt =(@plottype_txt,'Dayvar') ; } ;
+ if ( exists $plots{'FREQ'} ) { 
+	@plottype =(@plottype,'F') ;
+	@plottype_txt =(@plottype_txt,'Freq dist.') ; } ;
+ if ( exists $plots{'GEN'} ) { 
+	@plottype =(@plottype,'V');
+	@plottype_txt =(@plottype_txt,'Fc length ver') ; } ;
+
+ @xml     = ();
+ @xml_txt = ();
+
+if ( exists $plots{'XML'} ) { 
  foreach $par ( @par ) {
    @text = (@text,$plotdefs{$par}{'TEXT_TEMP'}) ; 
    foreach $lev ( @lev ) {
@@ -147,30 +175,9 @@ if ( exists $plots{'MAP'}  ) { &map ;     };
       @xml_txt = (@xml_txt,$par.$lev);
    } ;
  } ;
+} ;
 
- $text='\''.join('\',\'',@text).'\'';
-
-@plottype     =();
-@plottype_txt =();
-
-if ( exists $plots{'TIME'} ) {
-	@plottype =(@plottype,'PS','ps');
-       	@plottype_txt =(@plottype_txt,'Timeserie stat','Timeserie'); } ;
-if ( exists $plots{'DAYVAR'} ) { 
-	@plottype =(@plottype,'v') ;
-	@plottype_txt =(@plottype_txt,'Dayvar') ; } ;
-if ( exists $plots{'FREQ'} ) { 
-	@plottype =(@plottype,'F') ;
-	@plottype_txt =(@plottype_txt,'Freq dist.') ; } ;
-if ( exists $plots{'GEN'} ) { 
-	@plottype =(@plottype,'V');
-	@plottype_txt =(@plottype_txt,'Fc length ver') ; } ;
-
-if ( exists $plots{'XML'} ) { 
-   @xml     = ('../Prof_Temp/quality.html',@xml) ;
-   @xml_txt = ('Quality control',@xml_txt);
-
-   foreach ( @areas ) {
+foreach ( @areas ) {
       if ( exists $plots{'CONT'} ) {
          @xml     = ('../Prof_Temp/contingency_'.$_.'.html',@xml);
          @xml_txt = ('Cont '.$_,@xml_txt);
@@ -179,14 +186,13 @@ if ( exists $plots{'XML'} ) {
          @xml     = ('../Prof_Temp/TEMP_LL_'.$_.'.html',@xml);
          @xml_txt = ('Stat '.$_,@xml_txt);
       };
-   } ;
-
-   $xml     ='my_xml=[\''.join('\',\'',@xml).'\']';
-   $xml_txt ='my_xml_txt=[\''.join('\',\'',@xml_txt).'\']';
-} else {
-   $xml     = '';
-   $xml_txt = '';
 } ;
+
+@xml     = ('../Prof_Temp/quality.html',@xml) ;
+@xml_txt = ('Quality control',@xml_txt);
+
+$xml     ='my_xml=[\''.join('\',\'',@xml).'\']';
+$xml_txt ='my_xml_txt=[\''.join('\',\'',@xml_txt).'\']';
 
 $plottype     ='\''.join('\',\'',@plottype).'\'';
 $plottype_txt ='\''.join('\',\'',@plottype_txt).'\'';
@@ -210,6 +216,13 @@ sub profile {
 # Vert
 #
 
+if ( exists $arealoop{'VERT'}{'SHOW_TIMES'} ) {
+ $prof_hours ='\''.join('\',\'',split(',',$arealoop{'VERT'}{'SHOW_TIMES'})).'\'';
+} else {
+$prof_hours = '\'ALL\'';
+ }; 
+
+
 open INPUT, "> input.js" ;
 print INPUT "
 // Input file
@@ -219,14 +232,14 @@ framec='Tomato'
 
 v[0] = ['l']
 t[0] = ['diff']
-v[1] = ['00000000']
-t[1] = v[1] ;
+v[1] = [$period_v[$period_type]]
+t[1] = [$period_t[$period_type]]
 v[2] = ['00000000']
 t[2] = v[2] ;
 v[3] =[$areas] ;
 t[3] = v[3] ;
-v[4] =['00','12'] ;
-t[4] =['00','12']
+v[4] =[$prof_hours] ;
+t[4] =v[4]
 v[5] = [$partext]
 t[5] = [$text]
 v[6] =[0] ;
@@ -272,8 +285,8 @@ v[0] = ['M']
 t[0] = ['By time of day']
 v[1] = ['b','r']
 t[1] = ['Bias','Rmse']
-v[2] = ['00000000']
-t[2] = v[2]
+v[2] = [$period_v[$period_type]]
+t[2] = [$period_t[$period_type]]
 v[3] = ['00000000']
 t[3] = v[3] ;
 v[4] =[$areas] ;
@@ -322,8 +335,8 @@ framec='Goldenrod'
 
 v[0] = [$plottype];
 t[0] = [$plottype_txt];
-v[1] = ['00000000']
-t[1] = v[1]
+v[1] = [$period_v[$period_type]]
+t[1] = [$period_t[$period_type]]
 v[2] = ['00000000']
 t[2] = v[2]
 v[3] =[$areas] ;
@@ -371,8 +384,8 @@ framec='lightcoral'
 
 v[0] = ['s']
 t[0] = ['Full scatter']
-v[1] = ['00000000']
-t[1] = v[1]
+v[1] = [$period_v[$period_type]]
+t[1] = [$period_t[$period_type]]
 v[2] = ['00000000']
 t[2] = v[2] ;
 v[3] =  [$areas] ;

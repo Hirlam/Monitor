@@ -6,4 +6,4 @@ set -a
 
 [[ $WEBCALL == "" ]] && exit
 
-Create_ver_js.pl SURF
+Create_ver_js.pl TEMP

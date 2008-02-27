@@ -3,10 +3,10 @@
 #
 
 # Project name, will be the name on the web page
-PROJECT=monitor 
+PROJECT=monitor
 
 # Path to this project
-BASE=/scratch/ms/se/snh/developement/monitor_new
+BASE=$SCRATCH/monitor
 
 # Definition of BIN,SCR and WRK directory
 BIN=$BASE/bin
@@ -21,12 +21,13 @@ WRK=$BASE/wrk
 #
 
 DBASE=/scratch/ms/dk/nhz/oprint
-EXP="RCR C22 EC5"
+EXP="T15 RCR C22 EC5"
 OBSPATH=$DBASE/OBS2/
-P1=$DBASE/RCR/
-P2=$DBASE/C22/
-P3=$DBASE/EC5/
-MODPATH="$P1 $P2 $P3"
+P1=$DBASE/T15/
+P2=$DBASE/RCR/
+P3=$DBASE/C22/
+P4=$DBASE/EC5/
+MODPATH="$P1 $P2 $P3 $P4"
 
 ######################
 # Surface parameters #
@@ -47,6 +48,7 @@ MODPATH="$P1 $P2 $P3"
 #
 
 # Active parameters
+SURFPAR="PS FF DD TT TD RH QQ NN PE"
 SURFPAR="PS FF DD TT RH QQ NN PE"
 
 # Things to plot:
@@ -65,9 +67,9 @@ SURFPAR="PS FF DD TT RH QQ NN PE"
 SURFPLOT="GEN TIME MAP FREQ SCAT CONT XML DAYVAR"
 
 # Areas for surface verification as defined in areas.pm
-# Note that XML stastitics will be defined for the
+# Note that XML statistics will be defined for the
 # first area only
-SURFAREAS="ALL NORTH_OF_60"
+SURFAREAS="ALL EWGLAM Scandinavia Greenland Denmark Finland Ireland_England Netherland Norway Spain_Portugal Sweden"
 
 # Interval in hours between observations
 OBINT_SURF=06
@@ -79,12 +81,12 @@ FCINT_SURF=06
 FCLEN_SURF="00 06 12 18 24 30 36 42 48"
 
 # Forecast lengths used in daily variation calculations
-FCLEN_DAYVAR="12 24 36 48"
+FCLEN_DAYVAR="24 48"
 
 # Forecast lengths used in scatter/frequency plots
 # and contingency tables. Keep the number of used forecast
 # lengths reasonable
-FCLEN_SCAT="12 24 36 48"
+FCLEN_SCAT="06 18 30 42"
 
 ########################
 # Upper air parameters #
@@ -101,9 +103,9 @@ FCLEN_SCAT="12 24 36 48"
 # FI : Geopotential
 #
 
-TEMPPAR="TT FF DD FI RH QQ"
+TEMPPAR="TT TD FF DD FI RH QQ"
 
-TEMPPLOT="SCAT GEN TIME VERT XML"
+TEMPPLOT="GEN TIME VERT"
 
 # Interval in hours between observations
 OBINT_TEMP=12
@@ -112,12 +114,12 @@ FCINT_TEMP=12
 # Forecast lengths used for verification
 FCLEN_TEMP="00 06 12 18 24 36 48"
 # TEMP levels to be verified
-LEV_LST="925 850 700 500 300 200 100 50"
+LEV_LST="1000 925 850 700 500 300 250 200 100 50"
 
 # Areas for TEMP verification
-# Note that XML stastitics will be defined for the
+# Note that XML statistics will be defined for the
 # first area only
-TEMPAREAS="ALL"
+TEMPAREAS="ALL EWGLAM"
 
 # Select output_type
 # 1  Postscript
@@ -127,21 +129,30 @@ TEMPAREAS="ALL"
 OUTPUT_TYPE=2
 
 # Date
-SDATE=20080101
-EDATE=20080131
+# PERIOD_TYPE 1 : SDATE - EDATE, 2 : SDATE - EDATE in monthly pieces
+# 
+# IDATE is the very first date for PERIOD_TYPE=2
+#
+PERIOD_TYPE=2
+IDATE=20080101
+SDATE=20080201
+EDATE=20080228
 
 # WebgraF call, set WEBCALL empty if not used
 WEBGRAF_BASE=$BASE/WebgraF
 WEBCALL="$BASE/WebgraF/bin/WebgraF -p $PROJECT"
 
 # Explanation on webpage
-HELP="HIRALD ALADIN experiments \
-      <br> al00_31t0 : 11km, 60 levels, SMHI ALADIN CY31t0 \
-      <br> ALD       : 11km, 40 levels, FMI ALADIN  CY30t1 "
-
+HELP="Observation verification comparison between \
+      <br> DMI(T15) \
+      <br> FMI(RCR) \
+      <br> SMHI(C22) \
+      <br> ECMWF(data resolution 0.5 D) \
+     "
 
 # Export all variables
-export PROJECT WEBCALL WEBGRAF_BASE BASE BIN MYEXP SDATE EDATE HELP OUTPUT_TYPE INITIAL_DATE SCR WRK
+export PROJECT WEBCALL WEBGRAF_BASE BASE BIN MYEXP IDATE SDATE EDATE HELP SCR WRK
+export OUTPUT_TYPE PERIOD_TYPE
 export LEV_LST SURFPAR TEMPPAR AREAS
 export OBINT_SURF FCINT_SURF FCLEN_SURF FCLEN_DAYVAR FCLEN_SCAT
 export OBINT_TEMP FCINT_TEMP FCLEN_TEMP  
