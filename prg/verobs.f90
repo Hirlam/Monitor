@@ -105,8 +105,8 @@ PROGRAM verobs
 
     CALL selection(1)
 
-    IF ( estimate_qc_limit ) CALL new_quality_control
-    IF ( lquality_control  ) CALL new_quality_control
+    IF ( estimate_qc_limit ) CALL quality_control
+    IF ( lquality_control  ) CALL quality_control
     IF ( lverify           ) CALL verify
 
     !
