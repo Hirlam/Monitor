@@ -8,7 +8,7 @@ set -ax
 
 # Spec
 
-. Env_exp
+. ./Env_exp
 
 
 cd $SCR || exit
@@ -17,7 +17,7 @@ mkdir $WRK/${DIR}_$$ || exit
 
 # Generate namelists
 for F in $TEMPPAR ; do
-   Build_namelist.pl -t ${DIR} -p $F > $WRK/${DIR}_$$/namelist_$F || exit
+   ./Build_namelist.pl -t ${DIR} -p $F > $WRK/${DIR}_$$/namelist_$F || exit
 done
 
 cd $WRK/${DIR}_$$ || exit
@@ -88,4 +88,4 @@ cd $SCR
 rm -rf $WRK/${DIR}_$$ || exit
 
 # Create WebgraF interface
-Create_ver_js.pl TEMP
+./Create_ver_js.pl TEMP

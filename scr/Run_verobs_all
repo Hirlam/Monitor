@@ -2,7 +2,7 @@
 
 set -ax
 
-Clean_ver_js       || exit
-Run_verobs_surface || exit
-Run_verobs_temp    || exit
-
+./Clean_ver_js       || exit
+./Run_verobs_surface || exit
+./Run_verobs_temp    || exit
+./Transport_ver      || exit

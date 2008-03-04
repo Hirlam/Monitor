@@ -49,7 +49,6 @@ MODPATH="$P1 $P2 $P3 $P4"
 
 # Active parameters
 SURFPAR="PS FF DD TT TD RH QQ NN PE"
-SURFPAR="PS FF DD TT RH QQ NN PE"
 
 # Things to plot:
 # GEN  : General forcast length statistics
@@ -134,9 +133,9 @@ OUTPUT_TYPE=2
 # IDATE is the very first date for PERIOD_TYPE=2
 #
 PERIOD_TYPE=2
-IDATE=20080101
+IDATE=20080201
 SDATE=20080201
-EDATE=20080228
+EDATE=20080229
 
 # WebgraF call, set WEBCALL empty if not used
 WEBGRAF_BASE=$BASE/WebgraF

@@ -87,7 +87,7 @@ MODULE data
  ! Experiment and name
  INTEGER           :: nexp = 1			! Number of experiments
  CHARACTER(LEN=30) :: expname(maxexp)='OBS'     ! Name of experiments
- CHARACTER(LEN=30) :: statname='hirlamX.dat'    ! Name of output statistics file
+ CHARACTER(LEN=30) :: statname='statistics.html'    ! Name of output statistics file
  CHARACTER(LEN=50) :: name='Unknown'		! Station name
  CHARACTER(LEN=50) :: tag='#'		        ! Tag on plot
  CHARACTER(LEN=99) :: obspath        ='../'	! Path to observation data

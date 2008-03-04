@@ -23,7 +23,7 @@ SUBROUTINE quality_control
             ind_pe(nparver,nfclengths),                 &
             nver(nparver)
 
- INTEGER, ALLOCATABLE :: gross_error(:,:),              &
+ INTEGER, ALLOCATABLE :: gross_error(:,:,:),            &
                          total_amount(:,:)
 
  REAL              :: diff(nexp),diff_prep,             &
@@ -125,7 +125,7 @@ SUBROUTINE quality_control
     ! Gross error tracking
     !
 
-    ALLOCATE(gross_error(maxstn,nparver))
+    ALLOCATE(gross_error(2,maxstn,nparver))
     gross_error  = 0
 
  ENDIF
@@ -169,7 +169,14 @@ SUBROUTINE quality_control
       found_right_time = .FALSE.
      par_is_checked(:) = .FALSE.
 
+       IF ( print_qc > 2 ) WRITE(lunqc,*)'DATE IS',&
+       obs(i)%o(j)%date,obs(i)%o(j)%time,obs(i)%o(j)%val
+
+       IF(ALL(ABS(obs(i)%o(j)%val-err_ind) < 1.e-6)) CYCLE J_CYCLE
+
      FC_CYCLE : DO n=1,nfclengths
+
+       IF ( print_qc > 2 ) WRITE(lunqc,*)'Check fclen',fclen(n)
 
        IF ( ALL(par_is_checked) ) EXIT FC_CYCLE
 
@@ -198,10 +205,16 @@ SUBROUTINE quality_control
        MOD_TEST : IF(hir(i)%o(jj)%date == wdate .AND.	&
                      hir(i)%o(jj)%time == wtime ) THEN
 
+          IF ( print_qc > 2 ) WRITE(lunqc,*)&
+          'Found right time',wdate,wtime,'+',fclen(n)
+
           found_right_time  = .TRUE.
                  jjcheck(n) = jj
 
           NPARVER_LOOP : DO k=1,nparver
+
+             IF ( print_qc > 2 ) WRITE(lunqc,*)'PAR IS CHECKED', &
+             par_is_checked(k),obstype(k)
 
              IF ( par_is_checked(k) ) CYCLE NPARVER_LOOP
 
@@ -211,16 +224,23 @@ SUBROUTINE quality_control
 
              IF ( (.NOT.ANY(qc_fclen == fclen(n))) .AND. (accu_int(k) == 0 ) ) CYCLE NPARVER_LOOP
 
+             IF ( print_qc > 2 ) WRITE(lunqc,*)'PASSED qc_fclen test', &
+             obs(i)%o(j)%val(k)
+
              !
              ! Loop over all variables
              !
 
              IF(ABS(obs(i)%o(j)%val(k)-err_ind) < 1.e-6) CYCLE NPARVER_LOOP
+             IF ( print_qc > 2 ) WRITE(lunqc,*)'PASSED err_ind test '
 
              qc_control = .FALSE.
              diff       = err_ind
 
              EXP_LOOP : DO o=1,nexp
+ 
+                IF ( print_qc > 2 ) WRITE(lunqc,*)'EXP',o, &
+                hir(i)%o(jj)%nal(o,n,k)
 
                 IF (ABS(hir(i)%o(jj)%nal(o,n,k)-err_ind)<1.e-6) CYCLE EXP_LOOP
 
@@ -236,19 +256,25 @@ SUBROUTINE quality_control
 
                    ELSEIF(fclen(n) > accu_int(k) .AND. ind_pe(k,n) > 0 ) THEN
 
+                      IF ( print_qc > 2 ) WRITE(lunqc,*)'EXP fclen -acc_int',o,ind_pe(k,n), &
+                      hir(i)%o(jj)%nal(o,ind_pe(k,n),k)
+
                       IF (ABS(hir(i)%o(jj)%nal(o,ind_pe(k,n),k)-err_ind)<1.e-6) CYCLE EXP_LOOP
 
                       diff_prep = hir(i)%o(jj)%nal(o,n          ,k) - &
                                   hir(i)%o(jj)%nal(o,ind_pe(k,n),k)
 
+                      IF ( print_qc > 2 ) WRITE(lunqc,*) &
+                      'ACCU_PAR CHECKED',ind_pe(k,n),diff_prep
+
                       IF (diff_prep < 0.) THEN
-                         WRITE(6,*)'Accumulated model value difference is negative',diff_prep
-                         WRITE(6,*)TRIM(obstype(k)),diff_prep
-                         WRITE(6,'(2A,I10)')TRIM(expname(o)),' station:',hir(i)%stnr
-                         WRITE(6,*)hir(i)%stnr,hir(i)%o(jj)%date,      &
+                         WRITE(lunqc,*)'Accumulated model value difference is negative',diff_prep
+                         WRITE(lunqc,*)TRIM(obstype(k)),diff_prep
+                         WRITE(lunqc,'(2A,I10)')TRIM(expname(o)),' station:',hir(i)%stnr
+                         WRITE(lunqc,*)hir(i)%stnr,hir(i)%o(jj)%date,      &
                                    hir(i)%o(jj)%time,fclen(n),         &
                                    hir(i)%o(jj)%nal(o,n,k)
-                         WRITE(6,*)hir(i)%stnr,hir(i)%o(jj)%date,      &
+                         WRITE(lunqc,*)hir(i)%stnr,hir(i)%o(jj)%date,      &
                                    hir(i)%o(jj)%time,fclen(ind_pe(k,n)), &
                                    hir(i)%o(jj)%nal(o,ind_pe(k,n),k)
 
@@ -293,7 +319,9 @@ SUBROUTINE quality_control
 
              ENDDO EXP_LOOP
 
-             IF ((.NOT. ANY(qc_control).AND. .NOT. estimate_qc_limit ) ) THEN
+             IF ( par_is_checked(k).AND.     &
+                  .NOT. ANY(qc_control).AND. &
+                  .NOT. estimate_qc_limit      ) THEN
 
                 !
                 ! Reject erroneous observations
@@ -306,8 +334,10 @@ SUBROUTINE quality_control
                       WRITE(lunqc,*)obstype(k),qc_lim(k),     &
                       obs(i)%o(j)%val(k),hir(i)%o(jj)%nal(:,n,k)
                    ENDIF
-                   gross_error(i,k)    = gross_error(i,k) + 1
+
+                   gross_error(1,i,k)   = gross_error(1,i,k) + 1
                    obs(i)%o(j)%val(k) = err_ind
+
                 ELSEIF ( (fclen(n) == accu_int(k)).OR. &
                          (fclen(n) >  accu_int(k) .AND.  ind_pe(k,n) > 0 )) THEN
                    IF (print_qc > 1 ) THEN
@@ -319,14 +349,19 @@ SUBROUTINE quality_control
                       WRITE(lunqc,'(A,2I10,2I3)')'GROSS ERROR station:', &
                       hir(i)%stnr,hir(i)%o(jj)%date,hir(i)%o(jj)%time,fclen(n)
                       WRITE(lunqc,*)obstype(k),qc_lim(k),     &
-                      obs(i)%o(j)%val(k),obs(i)%o(j)%val(k)+diff
+                      obs(i)%o(j)%val(k),obs(i)%o(j)%val(k)+diff(1)
                    ENDIF
-                   gross_error(i,k)   = gross_error(i,k) + 1
+
+                   gross_error(1,i,k)   = gross_error(1,i,k) + 1
                    obs(i)%o(j)%val(k) = err_ind
+
                 ENDIF
+
+
              ENDIF
 
-             total_amount(i,k) = total_amount(i,k) + 1
+             IF ( par_is_checked(k) ) total_amount(i,k) = total_amount(i,k) + 1
+
 
           ENDDO NPARVER_LOOP
 
@@ -348,30 +383,35 @@ SUBROUTINE quality_control
 
      ENDIF
 
+     
      !
      ! Reject non quality controled observations
      !
 
-     IF ( .NOT. ALL(par_is_checked) .AND. print_qc > 1 ) THEN
-        WRITE(lunqc,'(A,2I10,I3)')'Could not control station:', &
-        obs(i)%stnr,obs(i)%o(j)%date,obs(i)%o(j)%time
-     ENDIF
+     IF (.NOT. estimate_qc_limit ) THEN
 
-     DO k=1,nparver
- 
-        IF ( par_is_checked(k) ) CYCLE
-
-        IF ( ABS(obs(i)%o(j)%val(k)-err_ind) > 1.e-6 ) THEN
-
-           IF (print_qc > 1 ) WRITE(lunqc,*)obstype(k),obs(i)%o(j)%val(k)
-
-           obs(i)%o(j)%val(k) = err_ind
-             IF (.NOT. estimate_qc_limit ) &
-             gross_error(i,k) =  gross_error(i,k) + 1
-            total_amount(i,k) = total_amount(i,k) + 1
-
+        IF ( .NOT. ALL(par_is_checked) .AND. print_qc > 1 ) THEN
+           WRITE(lunqc,'(A,2I10,I3)')'Could not control station:', &
+           obs(i)%stnr,obs(i)%o(j)%date,obs(i)%o(j)%time
         ENDIF
-     ENDDO
+
+        DO k=1,nparver
+ 
+           IF ( par_is_checked(k) ) CYCLE
+
+           IF ( ABS(obs(i)%o(j)%val(k)-err_ind) > 1.e-6 ) THEN
+
+              IF (print_qc > 1 ) WRITE(lunqc,*)obstype(k),obs(i)%o(j)%val(k)
+              obs(i)%o(j)%val(k) = err_ind
+   
+              gross_error(2,i,k) = gross_error(2,i,k) + 1
+               total_amount(i,k) =  total_amount(i,k) + 1
+
+           ENDIF
+
+        ENDDO
+
+     ENDIF
 
     ENDDO J_CYCLE
 
@@ -399,9 +439,12 @@ SUBROUTINE quality_control
     estimate_qc_limit = .FALSE.
 
  ELSE
+
     IF ( print_qc > 0 ) CALL sumup_gross(gross_error,total_amount)
     DEALLOCATE(gross_error)
+
  ENDIF
+
  DEALLOCATE(total_amount)
 
  RETURN

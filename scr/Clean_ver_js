@@ -1,6 +1,6 @@
 #!/bin/ksh
 
-. Env_exp
+. ./Env_exp
 
 [[ $WEBCALL == "" ]] && exit
 

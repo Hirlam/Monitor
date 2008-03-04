@@ -101,7 +101,7 @@ SUBROUTINE plot_stat2(lunout,nexp,nparver,ntimver,   &
  ! Plotting
 
  IF ( output_mode == 1 ) THEN
-    CALL make_fname(prefix,0,stnr,tag,      &
+    CALL make_fname(prefix,period,stnr,tag,      &
                     prefix,'0',             &
                     output_mode,output_type,&
                     fname)
@@ -112,7 +112,7 @@ SUBROUTINE plot_stat2(lunout,nexp,nparver,ntimver,   &
  DO j=1,nparver
 
     IF ( output_mode == 2 ) THEN
-       CALL make_fname(prefix,0,stnr,tag,          &
+       CALL make_fname(prefix,period,stnr,tag,          &
                        obstype(j)(1:2),            &
                        obstype(j)(3:len_lab),      &
                        output_mode,output_type,    &
