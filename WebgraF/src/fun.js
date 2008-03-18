@@ -1117,11 +1117,22 @@ function dow_body( ) {
 //--------------------------------------------------------------------------------------------------------------------
 function xml_update(loc) { 
  tmp = my_xml[loc]
+
+ // Add URL
  if ( tmp.lastIndexOf("http") < 0 ) {
-    tmp =  baseURL.substr(0,baseURL.lastIndexOf("index.html")) 
+    tmp =  baseURL.substr(0,baseURL.lastIndexOf("index.html"))
     tmp += input_text[choice_ind]+'/'+ my_xml[loc]
  }
+    
  if ( tmp.lastIndexOf(".") < 0 ) { tmp += '.xml' }
+ 
+ // Expand [] arguments
+ while ( tmp.search("\\[") != -1 ) {
+     i1= tmp.search("\\[")
+     i2= tmp.search("\\]")
+     i3= tmp.substr(i1+1,i2-i1-1)
+    tmp = tmp.replace(tmp.substr(i1,i2-i1+1),v[i3][pos[i3]])
+ } ;
  parent.frames['Pic'].location = tmp
 }
 //--------------------------------------------------------------------------------------------------------------------
