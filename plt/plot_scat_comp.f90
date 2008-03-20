@@ -132,6 +132,7 @@ SUBROUTINE plot_scat_comp(lunout,nparver,nr,nrun,    &
     ELSE
       WRITE(cnum,'(I4)')par_active(lcorr_pairs(j,1))
       title = TRIM(titln)//' for '//TRIM(cnum)//' stations'
+      IF ( TRIM(tag) /= '#' ) title=TRIM(title)//' Area: '//TRIM(tag)
     ENDIF
 
     ! Line 2, time period

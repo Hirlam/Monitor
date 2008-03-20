@@ -119,20 +119,6 @@ MODULE contingency
 
   do_ini_cont = .FALSE.
   
-  contfile = 'contingency_'//TRIM(tag)//'.html'
-
-  INQUIRE(FILE=contfile,EXIST=found_file)
-
-  IF ( found_file ) THEN
-     OPEN(UNIT=luncont,FILE=contfile,POSITION='APPEND')
-  ELSE
-     OPEN(UNIT=luncont,FILE=contfile)
-     WRITE(luncont,*)'<pre>'
-     WRITE(6,*)
-     WRITE(6,*)'Contingency output will go to ',TRIM(contfile)
-     WRITE(6,*)
-  ENDIF
-
  END SUBROUTINE ini_cont
 
  !------------------------------------------------------

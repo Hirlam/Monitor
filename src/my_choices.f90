@@ -213,11 +213,6 @@ CHARACTER(LEN=2)  :: ci   = ' '
     CALL read_auto
     CALL read_vfld
 
- CASE(30)
-
-    CALL read_vv_obs
-    CALL read_vfld
-
  CASE DEFAULT
     WRITE(6,*)'No such option ',data_to_verify
     CALL abort

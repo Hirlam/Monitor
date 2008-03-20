@@ -1,4 +1,4 @@
-#ARCH   := hpce
+ARCH   := ecgate
 
 .DELETE_ON_ERROR:
 

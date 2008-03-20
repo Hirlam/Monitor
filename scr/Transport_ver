@@ -5,3 +5,4 @@
 [[ $WEBCALL == "" ]] && exit
 
 $WEBCALL -t
+md5sum ${PROJECT}___transport.tar > ${PROJECT}___transport.tar_md5sum

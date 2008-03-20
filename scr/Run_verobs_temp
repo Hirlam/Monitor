@@ -22,6 +22,8 @@ done
 
 cd $WRK/${DIR}_$$ || exit
 
+ln -s $SCR/*.poly .
+
 # Run verobs for the different parameters
 for F in $TEMPPAR ; do
    cp namelist_$F fort.10
@@ -89,3 +91,5 @@ rm -rf $WRK/${DIR}_$$ || exit
 
 # Create WebgraF interface
 ./Create_ver_js.pl TEMP
+
+rm -f input.js

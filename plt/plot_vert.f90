@@ -217,16 +217,19 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
 
     ! Line 1
     IF(ALLOCATED(station_name)) THEN
-       WRITE(wtext,'(A20,A)')'Statistics for ',trim(station_name(csi))
+       wtext='Station: '//trim(station_name(csi))
     ELSE
-       WRITE(wtext,'(A25,I8)')'Statistics for area ',stnr
+       WRITE(wtext(1:8),'(I8)')stnr
+       wtext='Station: '//trim(wtext(1:8))
     ENDIF
 
     IF (stnr == 0) THEN
        wtext='Statistics for      stations'
        j_ind = (j/nlev-1)*nlev + 1
        jj = MAXVAL(par_active(j_ind:j_ind+nlev-1))
-       WRITE(wtext(16:19),'(I4)')jj
+       WRITE(wtext(1:4),'(I4)')jj
+       wtext=TRIM(wtext(1:4))//' stations'
+       IF ( TRIM(tag) /= '#' ) wtext=TRIM(wtext)//' Area: '//TRIM(tag)
     ENDIF
 
     CALL PSETC('TEXT_LINE_1',wtext)

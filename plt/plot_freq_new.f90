@@ -245,14 +245,15 @@ SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active,uh,uf)
 
     ! Line 1
     IF(ALLOCATED(station_name)) THEN
-       WRITE(wtext,'(2A)')'Frequency distribution for ',  &
-       trim(station_name(csi))
+       wtext='Station: '//TRIM(station_name(csi))
     ELSE
-       WRITE(wtext,'(A,I8)')'Frequency distribution for station ',nr
+       WRITE(wtext2(1:8),'(I8)')nr
+       wtext='Station: '//TRIM(wtext2(1:8))
     ENDIF
     IF (nr == 0) THEN
        WRITE(wtext(1:4),'(I4)')par_active(j)
-       wtext='Frequency distribution for '//TRIM(wtext(1:4))//' stations'
+       wtext=TRIM(wtext(1:4))//' stations'
+       IF ( TRIM(tag) == '#' ) wtext=TRIM(wtext)//' Area: '//TRIM(tag)
     ENDIF
     CALL psetc('TEXT_LINE_1',wtext)
 

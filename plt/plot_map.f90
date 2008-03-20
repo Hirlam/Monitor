@@ -20,13 +20,12 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype,per_ind)
                       used_hours,used_fclen,&
                       timdiff,time_shift,   &
                       use_fclen,show_times, &
-                      map_centre_longitude, &
-                      map_centre_latitude,  &
                       map_bias_interval,    &
                       map_rmse_interval,    &
                       map_obs_interval,     &
                       map_projection,       &
                       map_area_definition,  &
+                      map_vertical_longitude,      &
                       map_centre_latitude,         &
                       map_centre_longitude,        &
                       map_lower_left_latitude,     &
@@ -367,7 +366,7 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype,per_ind)
  CALL PSETC ('SUBPAGE_MAP_PROJECTION',     map_projection     )
  CALL PSETC ('SUBPAGE_MAP_AREA_DEFINITION',map_area_definition)
 
- CALL PSETR ('SUBPAGE_MAP_VERTICAL_LONGITUDE',0.)
+ CALL PSETR ('SUBPAGE_MAP_VERTICAL_LONGITUDE',map_vertical_longitude   )
  CALL PSETR ('SUBPAGE_MAP_CENTRE_LATITUDE'  ,map_centre_latitude       )
  CALL PSETR ('SUBPAGE_MAP_CENTRE_LONGITUDE' ,map_centre_longitude      )
  CALL PSETR ('SUBPAGE_LOWER_LEFT_LATITUDE'  ,map_lower_left_latitude   )

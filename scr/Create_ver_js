@@ -6,4 +6,4 @@ set -a
 
 [[ $WEBCALL == "" ]] && exit
 
-Create_ver_js.pl TEMP
+Create_ver_js.pl $1

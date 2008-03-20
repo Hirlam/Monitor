@@ -1,4 +1,4 @@
-SUBROUTINE print_cont
+SUBROUTINE print_cont(p1,p2)
 
  USE data
  USE contingency
@@ -6,26 +6,44 @@ SUBROUTINE print_cont
 
  IMPLICIT NONE
 
- INTEGER :: i,j,k,l,m
+ INTEGER, INTENT(IN) :: p1,p2
+
+ INTEGER :: i,j,k,l,m,period
 
  INTEGER, ALLOCATABLE :: sumcol(:)
+
+ LOGICAL :: found_file
 
  CHARACTER(LEN= 25) :: cform='(A10,XXI9,X,A1,X,I9)'
  CHARACTER(LEN= 25) :: hform='(XXX,A)'
  CHARACTER(LEN= 20) :: ctmp = '',ctmp2 = ''
  CHARACTER(LEN=100) :: cwrk = ''
+ CHARACTER(LEN=  8) :: cperiod = ''
 
  !----------------------------------------------------------------
+ ! Set filename
+ IF ( p1 < 999999 ) THEN
+    period = p1
+ ELSE
+    period = 0
+ ENDIF
 
- WRITE(luncont,*)
+ WRITE(cperiod,'(I8.8)')period
+
  DO i=1,ncont_param
     DO j=1,nparver
 
        IF ( j /= cont_table(i)%ind ) CYCLE
 
+       contfile = 'contingency_'//TRIM(tag)//'_'//TRIM(cperiod)//'_'//TRIM(obstype(j))//'.html'
+
+       OPEN(UNIT=luncont,FILE=contfile)
+       WRITE(luncont,*)'<pre>'
+       WRITE(luncont,*)
+
        ALLOCATE(sumcol(0:cont_table(i)%nclass))
 
-       cwrk = 'Contingency table for '
+       cwrk = 'Contingency table for '//TRIM(tag)//' '
        CALL pname(obstype(j),ctmp)
        cwrk = TRIM(cwrk)//' '//TRIM(ctmp)
        ctmp = obstype(j)
@@ -70,6 +88,8 @@ SUBROUTINE print_cont
     ENDDO
     WRITE(luncont,*)
  ENDDO
+
+ CLOSE(luncont)
 
  RETURN
 

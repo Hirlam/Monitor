@@ -87,7 +87,7 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
  CHARACTER(LEN=6  ) :: ob_short='      '
  CHARACTER(LEN=2  ) :: prefix=' '
  CHARACTER(LEN=100) :: fname=' '
- CHARACTER(LEN=120) :: wtext,wname
+ CHARACTER(LEN=120) :: wtext,wname,wtext1
 
 
 !-----------------------------------------------------
@@ -351,14 +351,16 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
 
     ! Line 1
     IF(ALLOCATED(station_name).AND. nr > 0 ) THEN
-       WRITE(wtext,'(A20,A)')'Statistics for ',trim(station_name(csi))
+       wtext='Station: '//trim(station_name(csi))
     ELSE
-       WRITE(wtext,'(A25,I8)')'Statistics for station ',nr
+       WRITE(wtext1(1:8),'(I8)')nr
+       wtext='Station: '//trim(wtext1(1:8))
     ENDIF
-    IF (nr.EQ.0) THEN
+    IF (nr == 0) THEN
        wname=''
        WRITE(wname(1:5),'(I5)')par_active(j)
-       wtext='Statistics for '//TRIM(wname)//' stations'
+       wtext=TRIM(wname)//' stations'
+       IF ( TRIM(tag) /= '#' ) wtext=TRIM(wtext)//' Area: '//TRIM(tag)
     ENDIF
     CALL PSETC('TEXT_LINE_1',wtext)
 

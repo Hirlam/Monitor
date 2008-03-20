@@ -932,7 +932,7 @@ SUBROUTINE verify
        ! Accumulate and print contingency tables
        IF ( lcontingency ) THEN
           CALL acc_cont(nexp,nparver,all_scat_data(:,l))
-          CALL print_cont
+          CALL print_cont(periods(l),periods(l+1))
           CALL clear_cont
        ENDIF
     ENDDO

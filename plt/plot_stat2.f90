@@ -185,14 +185,18 @@ SUBROUTINE plot_stat2(lunout,nexp,nparver,ntimver,   &
 
     ! Line 1
     IF(ALLOCATED(station_name)) THEN
-       WRITE(wtext,'(A20,A)')'Statistics for ',trim(station_name(csi))
+       wtext='Station: '//TRIM(station_name(csi))
     ELSE
-       WRITE(wtext,'(A25,I8)')'Statistics for station ',stnr
+       WRITE(wtext(1:8),'(I8)')stnr
+       wtext='Station: '//TRIM(wtext(1:8))
     ENDIF
-    IF (stnr.EQ.0) THEN
-       wtext='Statistics for      stations'
-       WRITE(wtext(16:19),'(I4)')par_active(j)
+
+    IF (stnr == 0) THEN
+       wtext='     stations'
+       WRITE(wtext(1:4),'(I4)')par_active(j)
+       IF ( TRIM(tag) /= '#' ) wtext = TRIM(wtext)//' Area:'//TRIM(tag)
     ENDIF
+    
     CALL PSETC('TEXT_LINE_1',wtext)
 
     ! Line 2

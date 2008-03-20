@@ -296,6 +296,7 @@ MODULE data
 
  ! Parameters for bias_map
  REAL    :: map_scale                 = 2.0e7    ! Map scale
+ REAL    :: MAP_VERTICAL_LONGITUDE    = 0.0
  REAL    :: MAP_CENTRE_LATITUDE       = 55.      ! Map centre lat
  REAL    :: MAP_CENTRE_LONGITUDE      = 25.      ! Map centre lon
  REAL    :: MAP_LOWER_LEFT_LATITUDE   = 40.
@@ -422,6 +423,7 @@ MODULE data
                  map_obs_interval,                      &
                  map_rmse_interval,                     &
                  map_bias_interval,map_type,            &
+                 MAP_VERTICAL_LONGITUDE,                &
                  MAP_CENTRE_LATITUDE,                   &
                  MAP_CENTRE_LONGITUDE,                  &
                  MAP_LOWER_LEFT_LATITUDE,               &
@@ -434,7 +436,7 @@ MODULE data
                  lprint_summary,                        &
                  lprint_read,print_read,                &
                  lprint_verif,lprint_findp,   	        &
-                 lprint_do_stat,                	&
+                 lprint_do_stat,                     	&
                  release_memory,lplot_freq,             &
                  cbox,lpoly,polyfile,                   &
                  data_to_verify,data_source,            &

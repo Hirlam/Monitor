@@ -67,40 +67,36 @@
  @plottype     =();
  @plottype_txt =();
 
- if ( exists $plots{'TIME'} ) { 
-	 @plottype     = (@plottype,'PS','ps');
-	 @plottype_txt = (@plottype_txt,'Timeserie stat','Timeserie'); } ;
- if ( exists $plots{'DAYVAR'} ) {
-	 @plottype     = (@plottype,'v') ;
-	 @plottype_txt = (@plottype_txt,'Dayvar') ; } ;
- if ( exists $plots{'FREQ'} ) { 
-	 @plottype     = (@plottype,'f') ;
-	 @plottype_txt = (@plottype_txt,'Freq dist.') ; } ;
  if ( exists $plots{'GEN'} ) {
 	 @plottype     = (@plottype,'V');
 	 @plottype_txt = (@plottype_txt,'Fc length ver') ; } ;
+ if ( exists $plots{'TIME'} ) { 
+	 @plottype     = (@plottype,'PS','ps');
+	 @plottype_txt = (@plottype_txt,'Timeserie stat','Timeserie'); } ;
+ if ( exists $plots{'FREQ'} ) { 
+	 @plottype     = (@plottype,'f') ;
+	 @plottype_txt = (@plottype_txt,'Freq dist.') ; } ;
+ if ( exists $plots{'DAYVAR'} ) {
+	 @plottype     = (@plottype,'v') ;
+	 @plottype_txt = (@plottype_txt,'Dayvar') ; } ;
 
  # Build xml text
  @xml     = ();
  @xml_txt = ();
 
  if ( exists $plots{'XML'} ) { 
-    foreach $par ( @par ) {
-       	@xml  = (@xml,'../Surface/'.$par.'_00000000.xml');
-    } ;
-   @xml_txt = @text;
+   @xml  = (@xml,'../Surface/[4]_[1].xml');
+   @xml_txt = ('Stations');
  } ;
 
- foreach ( @areas ) {
-      if ( exists $plots{'CONT'} ) {
-         @xml     = ('../Surface/contingency_'.$_.'.html',@xml);
-         @xml_txt = ('Cont '.$_,@xml_txt);
-      };
-      if ( exists $plots{'GEN'} ) {
-         @xml     = ('../Surface/SURF_LL_'.$_.'.html',@xml);
-         @xml_txt = ('Stat '.$_,@xml_txt);
-      };
- } ;
+ if ( exists $plots{'CONT'} ) {
+    @xml     = ('../Surface/contingency_[3]_[1]_[4].html',@xml);
+    @xml_txt = ('Cont '.$_,@xml_txt);
+ };
+ if ( exists $plots{'GEN'} ) {
+    @xml     = ('../Surface/SURF_LL_[3].html',@xml);
+    @xml_txt = ('Stat '.$_,@xml_txt);
+ };
 
 @xml     = ('../Surface/quality.html',@xml) ;
 @xml_txt = ('Quality control',@xml_txt);
@@ -151,42 +147,35 @@ if ( exists $plots{'MAP'}  ) { &map ;     };
  @plottype     =();
  @plottype_txt =();
 
- if ( exists $plots{'TIME'} ) {
-	@plottype =(@plottype,'PS','ps');
-       	@plottype_txt =(@plottype_txt,'Timeserie stat','Timeserie'); } ;
- if ( exists $plots{'DAYVAR'} ) { 
-	@plottype =(@plottype,'v') ;
-	@plottype_txt =(@plottype_txt,'Dayvar') ; } ;
- if ( exists $plots{'FREQ'} ) { 
-	@plottype =(@plottype,'F') ;
-	@plottype_txt =(@plottype_txt,'Freq dist.') ; } ;
  if ( exists $plots{'GEN'} ) { 
 	@plottype =(@plottype,'V');
 	@plottype_txt =(@plottype_txt,'Fc length ver') ; } ;
+ if ( exists $plots{'TIME'} ) {
+	@plottype =(@plottype,'PS','ps');
+    @plottype_txt =(@plottype_txt,'Timeserie stat','Timeserie'); } ;
+ if ( exists $plots{'FREQ'} ) { 
+	@plottype =(@plottype,'F') ;
+	@plottype_txt =(@plottype_txt,'Freq dist.') ; } ;
+ if ( exists $plots{'DAYVAR'} ) { 
+	@plottype =(@plottype,'v') ;
+	@plottype_txt =(@plottype_txt,'Dayvar') ; } ;
 
  @xml     = ();
  @xml_txt = ();
 
-if ( exists $plots{'XML'} ) { 
- foreach $par ( @par ) {
-   @text = (@text,$plotdefs{$par}{'TEXT_TEMP'}) ; 
-   foreach $lev ( @lev ) {
-      @xml     = (@xml,'../Prof_Temp/'.$par.$lev.'_00000000.xml');
-      @xml_txt = (@xml_txt,$par.$lev);
-   } ;
+ if ( exists $plots{'XML'} ) { 
+   @xml  = (@xml,'../Prof_Temp/[4]_[1].xml');
+   @xml_txt = ('Stations');
  } ;
-} ;
 
-foreach ( @areas ) {
-      if ( exists $plots{'CONT'} ) {
-         @xml     = ('../Prof_Temp/contingency_'.$_.'.html',@xml);
-         @xml_txt = ('Cont '.$_,@xml_txt);
-      };
-      if ( exists $plots{'GEN'} ) {
-         @xml     = ('../Prof_Temp/TEMP_LL_'.$_.'.html',@xml);
-         @xml_txt = ('Stat '.$_,@xml_txt);
-      };
-} ;
+ if ( exists $plots{'CONT'} ) {
+   @xml     = ('../Prof_Temp/contingency_[3].html',@xml);
+   @xml_txt = ('Cont '.$_,@xml_txt);
+ };
+ if ( exists $plots{'GEN'} ) {
+   @xml     = ('../Prof_Temp/TEMP_LL_[3].html',@xml);
+   @xml_txt = ('Stat '.$_,@xml_txt);
+ };
 
 @xml     = ('../Prof_Temp/quality.html',@xml) ;
 @xml_txt = ('Quality control',@xml_txt);
@@ -283,25 +272,27 @@ framec='Teal'
 
 v[0] = ['M']
 t[0] = ['By time of day']
-v[1] = ['b','r']
-t[1] = ['Bias','Rmse']
-v[2] = [$period_v[$period_type]]
-t[2] = [$period_t[$period_type]]
-v[3] = ['00000000']
+v[1] = [$period_v[$period_type]]
+t[1] = [$period_t[$period_type]]
+v[2] = ['00000000']
+t[2] = v[2] ;
+v[3] =[$areas] ;
 t[3] = v[3] ;
-v[4] =[$areas] ;
-t[4] = v[4] ;
-v[5] =['ALL'] ;
-t[5] = v[4] ;
+v[4] = [$partext]
+t[4] = [$text]
+v[5] =[$lev_lst]
+v[5] =v[5].reverse()
+t[5] =v[5]
 v[6] =[$expname]
 t[6] =v[6]
-v[7] = [$partext]
-t[7] = [$text]
-v[8] =[$lev_lst]
-v[8] =v[8].reverse()
-t[8] =v[8]
+v[7] =['ALL'] ;
+t[7] = v[7] ;
+v[8] = ['b','r']
+t[8] = ['Bias','Rmse']
 
-mname = ['Type','Error','Period','Station','Area','Hour','Exp','Parameter','Level']
+spec_name =[0,8,1,2,3,7,6,4,5]
+
+mname = ['Type','Period','Station','Area','Parameter','Level','Exp','Hour','Error']
 loc =['l','l','t','l','t','l','l','t']
 $download
 pdir ='$pdir/'
@@ -390,16 +381,17 @@ v[2] = ['00000000']
 t[2] = v[2] ;
 v[3] =  [$areas] ;
 t[3] = v[3] ;
-v[4] = [$expname]
-t[4] = [$expname]
-v[5] = [$partext]
-t[5] = [$text]
-v[6] = [$lev_lst]
-v[6] = v[6].reverse()
-t[6] = v[6]
+v[4] = [$partext]
+t[4] = [$text]
+v[5] = [$lev_lst]
+v[5] = v[5].reverse()
+t[5] = v[5]
+v[6] = [$expname]
+t[6] = [$expname]
 
-mname = ['Type','Period','Station','Area','Exp','Parameter','Level']
+mname = ['Type','Period','Station','Area','Parameter','Level','Exp']
 loc = ['l','t','l','t','l','l','t']
+spec_name =[0,1,2,3,6,4,5]
 $download
 pdir ='$type/'
 ext='$EXT'

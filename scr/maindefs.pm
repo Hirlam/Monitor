@@ -12,7 +12,7 @@
     'MAXSTN'           => 4000,
     'STNLIST'          => 0,
     'LVERIFY'          => 'F',
-    'PRINT_READ'       => 0,
+    'PRINT_READ'       => 1,
     'PERIOD_TYPE'      => $ENV{PERIOD_TYPE},
     'OUTPUT_TYPE'      => $ENV{OUTPUT_TYPE},
     'OUTPUT_MODE'      => 2,

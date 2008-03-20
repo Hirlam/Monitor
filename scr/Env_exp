@@ -21,13 +21,11 @@ WRK=$BASE/wrk
 #
 
 DBASE=/scratch/ms/dk/nhz/oprint
-EXP="T15 RCR C22 EC5"
+EXP="RCR C22"
 OBSPATH=$DBASE/OBS2/
-P1=$DBASE/T15/
-P2=$DBASE/RCR/
-P3=$DBASE/C22/
-P4=$DBASE/EC5/
-MODPATH="$P1 $P2 $P3 $P4"
+P1=$DBASE/RCR/
+P2=$DBASE/C22/
+MODPATH="$P1 $P2"
 
 ######################
 # Surface parameters #
@@ -51,23 +49,22 @@ MODPATH="$P1 $P2 $P3 $P4"
 SURFPAR="PS FF DD TT TD RH QQ NN PE"
 
 # Things to plot:
-# GEN  : General forcast length statistics
-# TIME : Timeserie statistics
-# SCAT : Scatterplot
-# MAP  : Bias maps
-# FREQ : Frequency plots
-# STN  : Single station statistics
-# DAYV : Daily variation
-# XML  : Station statistics in xml format
-# CONT : Contingency tables
-# VERT : Vertical profiles only available for TEMP data
+# GEN    : General forcast length statistics
+# TIME   : Timeserie statistics
+# SCAT   : Scatterplot
+# MAP    : Bias maps
+# FREQ   : Frequency plots
+# DAYVAR : Daily variation
+# XML    : Station statistics in xml format
+# CONT   : Contingency tables
+# VERT   : Vertical profiles only available for TEMP data
 # 
-
 SURFPLOT="GEN TIME MAP FREQ SCAT CONT XML DAYVAR"
 
 # Areas for surface verification as defined in areas.pm
 # Note that XML statistics will be defined for the
 # first area only
+#
 SURFAREAS="ALL EWGLAM Scandinavia Greenland Denmark Finland Ireland_England Netherland Norway Spain_Portugal Sweden"
 
 # Interval in hours between observations
@@ -113,7 +110,7 @@ FCINT_TEMP=12
 # Forecast lengths used for verification
 FCLEN_TEMP="00 06 12 18 24 36 48"
 # TEMP levels to be verified
-LEV_LST="1000 925 850 700 500 300 250 200 100 50"
+LEV_LST="925 850 700 500 300 250 200 100 50"
 
 # Areas for TEMP verification
 # Note that XML statistics will be defined for the
@@ -121,21 +118,24 @@ LEV_LST="1000 925 850 700 500 300 250 200 100 50"
 TEMPAREAS="ALL EWGLAM"
 
 # Select output_type
-# 1  Postscript
+# 1  Postscript + PNG
 # 2  PNG
 # 3  JPEG
 
-OUTPUT_TYPE=2
+OUTPUT_TYPE=1
 
 # Date
 # PERIOD_TYPE 1 : SDATE - EDATE, 2 : SDATE - EDATE in monthly pieces
 # 
-# IDATE is the very first date for PERIOD_TYPE=2
+# IDATE is the very first date for PERIOD_TYPE=2 it determines the 
+# lentght of the date menu in WebgraF
 #
-PERIOD_TYPE=2
-IDATE=20080201
-SDATE=20080201
-EDATE=20080229
+
+PERIOD_TYPE=1
+
+SDATE=20080301
+EDATE=20080331
+IDATE=$SDATE
 
 # WebgraF call, set WEBCALL empty if not used
 WEBGRAF_BASE=$BASE/WebgraF
@@ -143,10 +143,8 @@ WEBCALL="$BASE/WebgraF/bin/WebgraF -p $PROJECT"
 
 # Explanation on webpage
 HELP="Observation verification comparison between \
-      <br> DMI(T15) \
       <br> FMI(RCR) \
       <br> SMHI(C22) \
-      <br> ECMWF(data resolution 0.5 D) \
      "
 
 # Export all variables

@@ -1,6 +1,6 @@
 SUBROUTINE open_xml(lunxml,maxper,periods)
 
- USE data,     ONLY : period_type,nparver,obstype,sdate,edate
+ USE data,     ONLY : period_type,nparver,obstype,sdate,edate,tag
 
  IMPLICIT NONE
 
@@ -36,6 +36,7 @@ SUBROUTINE open_xml(lunxml,maxper,periods)
         WRITE(lunxml,'(A)')'<?xml version="1.0"?>'
         WRITE(lunxml,'(A)')'<?xml-stylesheet type="text/xsl" href="style.xsl"?>'
         WRITE(lunxml,'(A)')'<STAT>'
+        WRITE(lunxml,'(3A)')'<TAG>',TRIM(tag),'</TAG>'
         WRITE(lunxml,'(3A)')'<VAR>',TRIM(cname),'</VAR>'
         WRITE(lunxml,'(3A)')'<UNIT>',TRIM(cunit),'</UNIT>'
         IF ( periods(i) == 0 ) THEN

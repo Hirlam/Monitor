@@ -3,11 +3,12 @@
 	<xsl:template match="/">
 	<html>
 	<body>
-		<h1> Station statistics of 
+		<h1> Station statistics for area: <xsl:value-of select="STAT/TAG"/></h1>
+		<h1> Period <xsl:value-of select="STAT/PERIOD"/>  </h1>
+		<h1> Parameter: 
 		     <xsl:value-of select="STAT/VAR"/> 
 		     (<xsl:value-of select="STAT/UNIT"/>)
 		     sorted by RMSE </h1>
-		<h1> Period <xsl:value-of select="STAT/PERIOD"/>  </h1>
 	<table border="1">
         <tr>
         <th>STATION</th>

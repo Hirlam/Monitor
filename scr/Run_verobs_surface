@@ -20,12 +20,13 @@ DIR=SURF
 
 mkdir $WRK/${DIR}_$$ || exit
 
-
 for F in $SURFPAR ; do
    ./Build_namelist.pl -t ${DIR} -p $F > $WRK/${DIR}_$$/namelist_$F || exit
 done
 
 cd $WRK/${DIR}_$$ || exit
+
+ln -s $SCR/*.poly .
 
 # Run verobs for the different variables
 for F in $SURFPAR ; do
