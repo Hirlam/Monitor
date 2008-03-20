@@ -71,14 +71,23 @@
  #
 
  if ( $type =~ /TEMP/ ) {
+
     @lev = split(' ',$ENV{LEV_LST});
     $nlev = scalar(@lev);
     $nameread{'read_section'}{'LEV_LST'} = join(',',@lev);
     $nameread{'read_section'}{'LTEMP'} = 'T';
-    $nameread{'read_section'}{'DATA_SOURCE'} = '\'vfld_temp\'',
+    $nameread{'read_section'}{'DATA_SOURCE'} = '\'vfld_temp\'';
+
  } else {
-    $nlev = 1,
-    $nameread{'read_section'}{'DATA_SOURCE'} = '\'vfld\'',
+
+    $nlev = 1;
+
+    if ( $ENV{DATA_SOURCE} ) {
+       $nameread{'read_section'}{'DATA_SOURCE'} = '\''.$ENV{DATA_SOURCE}.'\''; 
+    } else {
+       $nameread{'read_section'}{'DATA_SOURCE'} = '\'vfld\'';
+    };
+
  };
 
  foreach ( split(' ',$inpar) ) {

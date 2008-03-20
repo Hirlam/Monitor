@@ -3,10 +3,13 @@
 #
 
 # Project name, will be the name on the web page
-PROJECT=monitor
+PROJECT=mastverif
+
+export DATA_SOURCE='mastdata'
+export STNLIST_PLOT='1,2,3,4,5,6'
 
 # Path to this project
-BASE=$SCRATCH/monitor
+BASE=$SCRATCH/mastverif/monitor
 
 # Definition of BIN,SCR and WRK directory
 BIN=$BASE/bin
@@ -20,12 +23,13 @@ WRK=$BASE/wrk
 # Experiment names and paths,should be space separated
 #
 
-DBASE=/scratch/ms/dk/nhz/oprint
-EXP="RCR C22"
-OBSPATH=$DBASE/OBS2/
-P1=$DBASE/RCR/
-P2=$DBASE/C22/
-MODPATH="$P1 $P2"
+DBASE=/scratch/ms/se/snh/mastverif/dat
+EXP="FIPR FRAR FI15"
+OBSPATH=$DBASE/
+P1=$DBASE/
+P2=$DBASE/
+P3=$DBASE/
+MODPATH="$P1 $P2 $P3"
 
 ######################
 # Surface parameters #
@@ -46,7 +50,7 @@ MODPATH="$P1 $P2"
 #
 
 # Active parameters
-SURFPAR="PS FF DD TT TD RH QQ NN PE"
+SURFPAR="TT RH FF LU GR UW WT WQ TZ"
 
 # Things to plot:
 # GEN    : General forcast length statistics
@@ -59,30 +63,29 @@ SURFPAR="PS FF DD TT TD RH QQ NN PE"
 # CONT   : Contingency tables
 # VERT   : Vertical profiles only available for TEMP data
 # 
-SURFPLOT="GEN TIME MAP FREQ SCAT CONT XML DAYVAR"
+SURFPLOT="GEN TIME FREQ SCAT"
 
 # Areas for surface verification as defined in areas.pm
 # Note that XML statistics will be defined for the
 # first area only
-#
-SURFAREAS="ALL EWGLAM Scandinavia Greenland Denmark Finland Ireland_England Netherland Norway Spain_Portugal Sweden"
+SURFAREAS="ALL"
 
 # Interval in hours between observations
-OBINT_SURF=06
+OBINT_SURF=01
 
 # Assimilation cycle interval
-FCINT_SURF=06
+FCINT_SURF=12
 
 # Forecast lengths used for verification
-FCLEN_SURF="00 06 12 18 24 30 36 42 48"
+FCLEN_SURF="00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24"
 
 # Forecast lengths used in daily variation calculations
-FCLEN_DAYVAR="24 48"
+FCLEN_DAYVAR=$FCLEN_SURF
 
 # Forecast lengths used in scatter/frequency plots
 # and contingency tables. Keep the number of used forecast
 # lengths reasonable
-FCLEN_SCAT="06 18 30 42"
+FCLEN_SCAT=$FCLEN_SURF
 
 ########################
 # Upper air parameters #
@@ -133,8 +136,8 @@ OUTPUT_TYPE=1
 
 PERIOD_TYPE=1
 
-SDATE=20080301
-EDATE=20080331
+SDATE=20080310
+EDATE=20080319
 IDATE=$SDATE
 
 # WebgraF call, set WEBCALL empty if not used
@@ -142,10 +145,7 @@ WEBGRAF_BASE=$BASE/WebgraF
 WEBCALL="$BASE/WebgraF/bin/WebgraF -p $PROJECT"
 
 # Explanation on webpage
-HELP="Observation verification comparison between \
-      <br> FMI(RCR) \
-      <br> SMHI(C22) \
-     "
+HELP=""
 
 # Export all variables
 export PROJECT WEBCALL WEBGRAF_BASE BASE BIN MYEXP IDATE SDATE EDATE HELP SCR WRK
@@ -154,7 +154,6 @@ export LEV_LST SURFPAR TEMPPAR AREAS
 export OBINT_SURF FCINT_SURF FCLEN_SURF FCLEN_DAYVAR FCLEN_SCAT
 export OBINT_TEMP FCINT_TEMP FCLEN_TEMP  
 export SURFPLOT TEMPPLOT
-export STNLIST_PLOT=-1
 
 ###########################
 # End of definitions

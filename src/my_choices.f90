@@ -24,10 +24,10 @@ CHARACTER(LEN=2)  :: ci   = ' '
        CALL read_windp_oper_obs2_custom
        CALL read_windp_oper_mod_custom
 
-    CASE('sodaflux')
+    CASE('mastdata')
    
-       CALL read_soda
-       CALL read_mod_soda
+       CALL read_obs_mast
+       CALL read_mod_mast
 
     CASE('wind_test','WIND_TEST')
    

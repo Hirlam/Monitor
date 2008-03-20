@@ -11,6 +11,7 @@
     'ESTIMATE_QC_LIMIT'=> 'T',
     'MAXSTN'           => 4000,
     'STNLIST'          => 0,
+    'STNLIST_PLOT'     => $ENV{STNLIST_PLOT},
     'LVERIFY'          => 'F',
     'PRINT_READ'       => 1,
     'PERIOD_TYPE'      => $ENV{PERIOD_TYPE},

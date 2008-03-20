@@ -47,7 +47,7 @@
  CASE('TU')
    u='Ks/m'
  CASE('TZ')
-   u='K/s'
+   u='deg C/m'
  CASE('UZ')
    u='s^-1'
  CASE('PE')
