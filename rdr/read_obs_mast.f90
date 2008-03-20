@@ -274,4 +274,11 @@ SUBROUTINE read_obs_mast
 
  ENDDO STATION_LOOP
 
+ ! Set station names
+ ALLOCATE(station_name(maxstn))
+
+ DO i=1,maxstn
+   station_name(i)=stname(obs(i)%stnr)
+ ENDDO
+
 END SUBROUTINE read_obs_mast
