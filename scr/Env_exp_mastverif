@@ -9,7 +9,7 @@ export DATA_SOURCE='mastdata'
 export STNLIST_PLOT='1,2,3,4,5,6'
 
 # Path to this project
-BASE=$SCRATCH/mastverif/monitor
+BASE=$SCRATCH/monitor
 
 # Definition of BIN,SCR and WRK directory
 BIN=$BASE/bin
