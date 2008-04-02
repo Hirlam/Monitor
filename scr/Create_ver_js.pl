@@ -262,6 +262,20 @@ sub map {
  # Bias maps
  #
 
+ if ( exists $arealoop{'MAP'}{'SHOW_TIMES'} ) {
+    $map_hours ='\''.join('\',\'',split(',',$arealoop{'MAP'}{'SHOW_TIMES'})).'\'';
+ } else {
+    $map_hours = '\'ALL\'';
+ }; 
+
+ if ( $arealoop{'MAP'}{'LFCVER'} eq 'T' ) {
+    $map_prefix ='\'M\'' ;
+    $map_hour_title ='\'Fclen\'' ;
+ } else {
+    $map_prefix ='\'m\'' ;
+    $map_hour_title ='\'Hour\'' ;
+ } ;
+
  open INPUT, "> input.js" ;
  print INPUT "
 // Input file
@@ -270,8 +284,8 @@ title = '$type bias maps'
 
 framec='Teal'
 
-v[0] = ['M']
-t[0] = ['By time of day']
+v[0] = [$map_prefix]
+t[0] = v[0]
 v[1] = [$period_v[$period_type]]
 t[1] = [$period_t[$period_type]]
 v[2] = ['00000000']
@@ -285,14 +299,14 @@ v[5] =v[5].reverse()
 t[5] =v[5]
 v[6] =[$expname]
 t[6] =v[6]
-v[7] =['ALL'] ;
+v[7] =[$map_hours] ;
 t[7] = v[7] ;
 v[8] = ['b','r']
 t[8] = ['Bias','Rmse']
 
 spec_name =[0,8,1,2,3,7,6,4,5]
 
-mname = ['Type','Period','Station','Area','Parameter','Level','Exp','Hour','Error']
+mname = ['Type','Period','Station','Area','Parameter','Level','Exp',$map_hour_title,'Error']
 loc =['l','l','t','l','t','l','l','t']
 $download
 pdir ='$pdir/'

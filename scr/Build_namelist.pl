@@ -67,10 +67,14 @@
  %tmp =();
 
  #
- # Defined TEMP specific things
+ # Define TEMP specific things
  #
 
  if ( $type =~ /TEMP/ ) {
+
+    #
+    # Define TEMP specific things
+    #
 
     @lev = split(' ',$ENV{LEV_LST});
     $nlev = scalar(@lev);
@@ -79,6 +83,10 @@
     $nameread{'read_section'}{'DATA_SOURCE'} = '\'vfld_temp\'';
 
  } else {
+
+    #
+    # Define SURF specific things
+    #
 
     $nlev = 1;
 
@@ -90,22 +98,29 @@
 
  };
 
- foreach ( split(' ',$inpar) ) {
-	 $i++ ;
-	 $par = $_.'_IND';
-	 $nameread{'read_section'}{$par} = $i;
+ # Define variable specific things
 
+ foreach ( split(' ',$inpar) ) {
+
+      $i++ ;
+      $par = $_.'_IND';
+      $nameread{'read_section'}{$par} = $i;
+
+      # Copy the default values
       for $role ( sort keys %{ $plotdefs{'def'} } ) {
           $tmp{$_}{$role}=$plotdefs{'def'}{$role};
       } ;
 
+      # Remove Web stuff
       delete $tmp{$_}{'TEXT'} ;
       delete $tmp{$_}{'TEXT_TEMP'} ;
 
+      # Copy the values for this parameter
       for $role ( sort keys %{ $plotdefs{$_} } ) {
           $tmp{$_}{$role}=$plotdefs{$_}{$role};
       } ;
 
+      # Add information for each level
       $ilev = 1 ;
       while ( $ilev le $nlev ) {
 	 $k = ($i-1)*$nlev + $ilev ;
@@ -117,7 +132,7 @@
          } ;
 
          if ( exists $plots{'MAP'} ) {
-		 $arealoop{'map_ver'}{'MAP_BIAS_INTERVAL(1:7,'.$k.')'}=$tmp{$_}{'MAP_BIAS_INTERVAL'}; 
+		 $arealoop{'MAP'}{'MAP_BIAS_INTERVAL(1:7,'.$k.')'}=$tmp{$_}{'MAP_BIAS_INTERVAL'}; 
 	 } ;
 
          $arealoop{'TIME'}{'TIMESERIE_WIND('.$k.')'}=$tmp{$_}{'TWIND_'.$type};
@@ -125,6 +140,7 @@
 
          $ilev++ ;
       } ;
+
  } ;
 
  if ( $j gt 0 ) { $arealoop{'scat_ver'}{'CONT_PARAM'}=$j; } ;
@@ -161,7 +177,7 @@
 
    for $role ( keys %{ $areas{$area} } ) {
       if ( $role =~/MAP/ && exists $plots{'MAP'} ) {
-        ${$default}{'map_ver'}{$role}=$areas{$area}{$role};
+        ${$default}{'MAP'}{$role}=$areas{$area}{$role};
       } else {
          for $key ( keys %${default} ) {
             ${$default}{$key}{$role}=$areas{$area}{$role};
@@ -175,12 +191,10 @@
       $def{'def'}{'STNLIST'}=~ s/,,/,/g ;
    } ;
 
-   ${$default}{'map_ver'}{'STATNAME'} = '\''.$type.'_LL_'.$area.'.html\'' ;
+   ${$default}{'GEN'}{'STATNAME'} = '\''.$type.'_LL_'.$area.'.html\'' ;
    ${$default}{'DAYVAR'}{'STATNAME'} = '\''.$type.'_HH_'.$area.'.html\'' ;
    ${$default}{'VERT'}{'STATNAME'}   = '\''.$type.'_VV_'.$area.'.html\'' ;
 
-   unless ( exists $plots{'GEN'}  ) { ${$default}{'map_ver' }{'LPLOT_STAT'   } = 'F' ; } ;
-   unless ( exists $plots{'MAP'}  ) { ${$default}{'map_ver' }{'PLOT_BIAS_MAP'} = 'F' ; } ;
    unless ( exists $plots{'SCAT'} ) { ${$default}{'scat_ver'}{'LPLOT_SCAT'   } = 'F' ; } ;
    unless ( exists $plots{'FREQ'} ) { ${$default}{'scat_ver'}{'LPLOT_FREQ'   } = 'F' ; } ;
    unless ( exists $plots{'XML'}  ) { ${$default}{'scat_ver'}{'LPREP_XML'    } = 'F' ; } ;
@@ -193,15 +207,15 @@
    # Remove things not asked for
    #
 
-   unless ( exists $plots{'VERT'} ) { delete ${$default}{'VERT'} ; } ;
+   unless ( exists $plots{'VERT'}   ) { delete ${$default}{'VERT'} ;   } ;
    unless ( exists $plots{'DAYVAR'} ) { delete ${$default}{'DAYVAR'} ; } ;
-   unless ( exists $plots{'TIME'}   ) { delete ${$default}{'TIME'} ; } ;
-   unless ( exists $plots{'GEN'} ||
-	    exists $plots{'MAP'}    ) { delete ${$default}{'map_ver'} ;};
+   unless ( exists $plots{'TIME'}   ) { delete ${$default}{'TIME'} ;   } ;
+   unless ( exists $plots{'GEN'}    ) { delete ${$default}{'GEN'} ;    };
+   unless ( exists $plots{'MAP'}    ) { delete ${$default}{'MAP'} ;    };
    unless ( exists $plots{'SCAT'} || 
-	        exists $plots{'XML'}  ||
-	        exists $plots{'FREQ'} ||
-	        exists $plots{'CONT'}    ) { delete ${$default}{'scat_ver'} ;};
+	    exists $plots{'XML'}  ||
+	    exists $plots{'FREQ'} ||
+	    exists $plots{'CONT'}    ) { delete ${$default}{'scat_ver'} ;};
 
    &print_list ;
 

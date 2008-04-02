@@ -44,13 +44,19 @@
 
 
 %arealoop=(
- # Map and fclen plots
- 'map_ver' => {
- 'PLOT_BIAS_MAP' =>'T',
+ 'GEN' => {
+ # Fclen plots
  'LSTAT_GEN'  => 'T',
  'LPLOT_STAT' => 'T',
  'SHOW_BIAS' => 'T',
  'SHOW_RMSE' => 'T',
+ },
+
+ 'MAP' => {
+ # Map plots
+ 'PLOT_BIAS_MAP' =>'T',
+ 'LSTAT_GEN'  => 'T',
+ 'LPLOT_STAT' => 'F',
  },
 
  'TIME' => {

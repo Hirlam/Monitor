@@ -2,8 +2,8 @@
 
 set -a
 
-. Env_exp
+. ./Env_exp
 
 [[ $WEBCALL == "" ]] && exit
 
-Create_ver_js.pl $1
+./Create_ver_js.pl $1
