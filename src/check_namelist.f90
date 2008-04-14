@@ -25,8 +25,8 @@ SUBROUTINE check_namelist
  IF ( pe_ind /= 0 ) THEN
     IF ( accu_int(pe_ind) == 0 ) accu_int(pe_ind) = pe_interval
     WRITE(6,*)'  Changed precipitation accumulation period to ',pe_interval
+    pe_interval = accu_int(pe_ind)
  ENDIF 
- pe_interval = accu_int(pe_ind)
 
  !
  ! Check scat_nlev
@@ -80,6 +80,15 @@ SUBROUTINE check_namelist
     ENDDO
     WRITE(6,*)'  Changed NUSE_FCLEN to', nuse_fclen
  ENDIF
+
+ ! Check that use_fclen is increasing
+
+ DO i=2,nuse_fclen
+    IF ( (use_fclen(i)-use_fclen(i-1)) <= 0)THEN
+       WRITE(6,*)'use_fclen should increase ',use_fclen(1:nuse_fclen) 
+       CALL abort
+    ENDIF
+ ENDDO
 
 
  ! Check ntimver

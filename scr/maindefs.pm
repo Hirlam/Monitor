@@ -54,9 +54,10 @@
 
  'MAP' => {
  # Map plots
- 'PLOT_BIAS_MAP' =>'T',
- 'LSTAT_GEN'  => 'T',
- 'LPLOT_STAT' => 'F',
+ 'PLOT_BIAS_MAP' => 'T',
+ 'LSTAT_GEN'     => 'T',
+ 'LPLOT_STAT'    => 'F',
+ 'LFCVER'        => 'T',
  },
 
  'TIME' => {

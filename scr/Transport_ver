@@ -4,5 +4,10 @@
 
 [[ $WEBCALL == "" ]] && exit
 
-$WEBCALL -t
-md5sum ${PROJECT}___transport.tar > ${PROJECT}___transport.tar_md5sum
+$WEBCALL -x
+
+echo "Your verification results are stored in $PWD/${EXP}_export.tar"
+echo "Copy to your local machine, untar and open ${EXP}_export/index.html in your browser"
+
+#$WEBCALL -t
+#md5sum ${PROJECT}___transport.tar > ${PROJECT}___transport.tar_md5sum
