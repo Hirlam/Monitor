@@ -158,7 +158,7 @@ void search_includedir(char* filename,char* objectfilename,
 		 modules,nomodules);
   }
   if (!found){
-    printf("Warning: %s included in %s not found !\n",
+    printf("File %s included in %s not found.\n",
 	   includefilename,filename);
   }
   free(namebuf);
@@ -175,49 +175,35 @@ void search_moduledir(char* filename,char *objectfilename,
 
   /* Search modules directories for a file containing modname module */
 
-  int i,j,found,skip;
+  int i,j,found;
   char *tmpbuf;
 
   tmpbuf=(char*)malloc(sizeof(char)*256);
   found=0;
-  skip=0;
   for (i=0;i<nomodules;i++){
     if (strcmp(modules[i].modulename,modname)==0) {
       found=1;
       sprintf(tmpbuf,"%s/%s",modules[i].moduledirname,filename);
       if (strcmp(tmpbuf,modules[i].modulefullfilename)==0) {
-	skip=1;
       } else {
 	strcpy(tmpbuf,modules[i].modulefullfilename);
-	for (j=(strlen(tmpbuf)-2);j>0;j--) {
+	for (j=(strlen(tmpbuf)-1);j>0;j--) {
 	  if (tmpbuf[j-1]=='.') {
 	    tmpbuf[j]='o';
 	    tmpbuf[j+1]='\0';
 	    break;
 	  }
 	}
-	/* towil REMOVED:
-	fprintf(fpout,"%s : %s\n",objectfilename,
-		modules[i].modulefullfilename); 
-	*/
 	fprintf(fpout,"%s : %s\n",objectfilename,tmpbuf);
       }
       break;
     }
   }
   
-  if (found){
-    if (!skip) {
-      process_file(modules[i].modulefullfilename,objectfilename,
-		   moduledirs,nomoduledirs,
-		   includedirs,noincludedirs,
-		   exts,noexts,
-		   verbose,fpout,
-		   modules,nomodules);
-    }
-  } else {
-    printf("Warning: module %s in %s not found !\n",modname,filename);
+  if (!found){
+    printf("Module %s in %s not found.\n",modname,filename);
   }
+
   free(tmpbuf);
 }
 
@@ -268,8 +254,9 @@ scan_module_dirs(char ** moduledirs,int nomoduledirs,
 	stat(mfilename,&statbuf);
 	if (verbose) 
 	  printf("Input module file size = %i\n",(int)statbuf.st_size);
-	fp=fopen(mfilename,"r");
-	mbuffer=(char*)malloc(sizeof(char)*(statbuf.st_size+1));
+	if ( (fp=fopen(mfilename,"r")) == NULL ) continue;
+	if (statbuf.st_size <= 1) continue;
+        mbuffer=(char*)malloc(sizeof(char)*(statbuf.st_size+1));
 	fread(mbuffer,sizeof(char),statbuf.st_size,fp);
 	mbuffer[statbuf.st_size]='\0';
 	fclose(fp); 
@@ -315,8 +302,7 @@ scan_module_dirs(char ** moduledirs,int nomoduledirs,
 	    strcpy(modules[*nomodules].moduledirname,moduledirs[i]);
 	    (*nomodules)++;
 	    if ((*nomodules)>MAXMODULES) {
-	      printf("Too many modules\n");
-	      printf("Increase MAXMODULES in source code\n");
+	      printf("Too many modules! Increase MAXMODULES in depf90mod.c\n");
 	      exit(1);
 	    }
 	  }
@@ -374,112 +360,116 @@ void process_file(char* filename,char * objectfilename,
   for(i=0;i<statbuf.st_size;i++) {
     if (buffer[i]=='\n') nlines++;
   }
-  lines=(char**)malloc(sizeof(char*)*nlines);
-  lines[0]=&buffer[0];
-  j=0;
-  for(i=0;i<statbuf.st_size;i++) {
-    if (buffer[i]=='\n') {
-      buffer[i]='\0';
-      j++;
-      if (j<nlines) {
-	lines[j]=&buffer[i+1];
-      }
-    };
-  }
-  for (j=0;j<nlines;j++) {
-    for (;lines[j][0]==' ';lines[j]++);
-  }
+
   if (verbose) printf("Input file has %i lines\n",nlines);
 
-  /* Loop over lines and count number of include files and modules */
-  nmod=0;
-  ninc=0;
-  modlines=(int*)calloc(nlines,sizeof(int));
-  inclines=(int*)calloc(nlines,sizeof(int));
-  for(i=0;i<nlines;i++){
-    if (strlen(lines[i])>strlen("#include")) {
-      if (strncmp(lines[i],"#include",strlen("#include"))==0) {
-	inclines[ninc]=i;
-	ninc++;
-      }
+  if (nlines>0) {
+    lines=(char**)malloc(sizeof(char*)*nlines);
+    lines[0]=&buffer[0];
+    j=0;
+    for(i=0;i<statbuf.st_size;i++) {
+      if (buffer[i]=='\n') {
+	buffer[i]='\0';
+	j++;
+	if (j<nlines) {
+	  lines[j]=&buffer[i+1];
+	}
+      };
     }
-    if (strlen(lines[i])>strlen("include")) {
-      strncpy(first7,lines[i],7);
-      first7[7]=0;
-      if (strncmp(lines[i],"include",strlen("include"))==0) {
-	inclines[ninc]=i;
-	ninc++;
-      }
+    for (j=0;j<nlines;j++) {
+      for (;lines[j][0]==' ';lines[j]++);
     }
-    if (strlen(lines[i])>strlen("use")) {
-      strncpy(first4,lines[i],4);
-      first4[4]=0;
-      for(j=0;j<4;j++) first4[j]=tolower(first4[j]);
-      if (strcmp(first4,"use ")==0){
-	modlines[nmod]=i;
-	nmod++;
-      }
-    }
-  }
-  if (verbose) printf("File has %i include files and %i use statements\n",
-		      ninc,nmod);
 
-  /* Extract include filenames */
-  incnames=(char**)malloc(sizeof(char*)*ninc);
-  for (i=0;i<ninc;i++) {
-    if (lines[inclines[i]][0]=='#'){
-      incnames[i]=lines[inclines[i]]+8;
-    } else {
-      incnames[i]=lines[inclines[i]]+7;
+    /* Loop over lines and count number of include files and modules */
+    nmod=0;
+    ninc=0;
+    modlines=(int*)calloc(nlines,sizeof(int));
+    inclines=(int*)calloc(nlines,sizeof(int));
+    for(i=0;i<nlines;i++){
+      if (strlen(lines[i])>strlen("#include")) {
+	if (strncmp(lines[i],"#include",strlen("#include"))==0) {
+	  inclines[ninc]=i;
+	  ninc++;
+	}
+      }
+      if (strlen(lines[i])>strlen("include")) {
+	strncpy(first7,lines[i],7);
+	first7[7]=0;
+	if (strncmp(lines[i],"include",strlen("include"))==0) {
+	  inclines[ninc]=i;
+	  ninc++;
+	}
+      }
+      if (strlen(lines[i])>strlen("use")) {
+	strncpy(first4,lines[i],4);
+	first4[4]=0;
+	for(j=0;j<4;j++) first4[j]=tolower(first4[j]);
+	if (strcmp(first4,"use ")==0){
+	  modlines[nmod]=i;
+	  nmod++;
+	}
+      }
     }
-    compress_incname(incnames[i]);
-  }
-  if ((verbose)&&(ninc>0)) {
-    printf("List of include files:\n");
+    if (verbose) printf("File has %i include files and %i use statements\n",
+			ninc,nmod);
+    
+    /* Extract include filenames */
+    incnames=(char**)malloc(sizeof(char*)*ninc);
     for (i=0;i<ninc;i++) {
-      printf("%s\n",incnames[i]);
+      if (lines[inclines[i]][0]=='#'){
+	incnames[i]=lines[inclines[i]]+8;
+      } else {
+	incnames[i]=lines[inclines[i]]+7;
+      }
+      compress_incname(incnames[i]);
     }
-  }
-
-  /* Extract module names */
-  modnames=(char**)malloc(sizeof(char*)*nmod);
-  for (i=0;i<nmod;i++) {
-    modnames[i]=lines[modlines[i]]+3;
-    compress_modname(modnames[i]);
-  }
-  if ((verbose)&&(nmod>0)) {
-    printf("List of modules:\n");
+    if ((verbose)&&(ninc>0)) {
+      printf("List of include files:\n");
+      for (i=0;i<ninc;i++) {
+	printf("%s\n",incnames[i]);
+      }
+    }
+    
+    /* Extract module names */
+    modnames=(char**)malloc(sizeof(char*)*nmod);
     for (i=0;i<nmod;i++) {
-      printf("%s\n",modnames[i]);
+      modnames[i]=lines[modlines[i]]+3;
+      compress_modname(modnames[i]);
     }
+    if ((verbose)&&(nmod>0)) {
+      printf("List of modules:\n");
+      for (i=0;i<nmod;i++) {
+	printf("%s\n",modnames[i]);
+      }
+    }
+    
+
+    /* Search module directories for modules and print match */
+    for (i=0;i<nmod;i++) {
+      search_moduledir(filename,objectfilename,
+		       modnames[i],moduledirs,nomoduledirs,
+		       exts,noexts,
+		       includedirs,noincludedirs,
+		       verbose,fpout,
+		       modules,nomodules);
+    }
+    
+    /* Search include directories for include files and print match */
+    for (i=0;i<ninc;i++) {
+      search_includedir(filename,objectfilename,
+			incnames[i],includedirs,noincludedirs,	
+			moduledirs,nomoduledirs,
+			exts,noexts,verbose,fpout,
+			modules,nomodules);
+    }
+
+    /* Cleanup */
+    free(modnames);
+    free(incnames);
+    free(modlines);
+    free(inclines);
+    free(lines);
   }
-
-
-  /* Search module directories for modules and print match */
-  for (i=0;i<nmod;i++) {
-    search_moduledir(filename,objectfilename,
-		     modnames[i],moduledirs,nomoduledirs,
-		     exts,noexts,
-		     includedirs,noincludedirs,
-		     verbose,fpout,
-		     modules,nomodules);
-  }
-
-  /* Search include directories for include files and print match */
-  for (i=0;i<ninc;i++) {
-    search_includedir(filename,objectfilename,
-		      incnames[i],includedirs,noincludedirs,	
-		      moduledirs,nomoduledirs,
-		      exts,noexts,verbose,fpout,
-		      modules,nomodules);
-  }
-
-  /* Cleanup */
-  free(modnames);
-  free(incnames);
-  free(modlines);
-  free(inclines);
-  free(lines);
   free(buffer);
 }
 
