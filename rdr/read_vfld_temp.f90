@@ -52,7 +52,7 @@ SUBROUTINE read_vfld_temp
  ! Copy time
 
  cdate = sdate
- ctime = stime
+ ctime = stime*10000
 
  wrk = 0
  WHERE( lev_lst > 0 ) wrk = 1
@@ -239,7 +239,7 @@ SUBROUTINE read_vfld_temp
     wtime = ctime
     CALL adddtg(wdate,wtime,fcint*3600,cdate,ctime)
     IF(cdate > edate) EXIT TIME_LOOP
-    IF(cdate >= edate .AND. ctime/10000 > etime) EXIT TIME_LOOP
+    IF(cdate == edate .AND. ctime/10000 > etime) EXIT TIME_LOOP
 
  ENDDO TIME_LOOP
  
