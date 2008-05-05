@@ -493,10 +493,8 @@ var p = arguments[0]
 
       if ( p[1] < p[2] ) { jj = 1} else { jj = -1} 
 
-      delete(p[1])
-      delete(p[2])
-      p.length = 1
-       
+      clean(p)
+
       mm = is % 100
       my = ( is - mm ) / 100
       ii = 0
@@ -527,10 +525,7 @@ var p = arguments[0]
 
       if ( p[1] < p[2] ) { jj = 1} else { jj = -1}
 
-      delete(p[1])
-      delete(p[2])
-      p.length = 1
-
+      clean(p)
       mm = is % 100
       my = ( is - mm ) / 100
       ii = 0
@@ -573,6 +568,8 @@ var p = arguments[0]
       }
       add = add.reverse()
 
+      clean(p)
+
       mm = mstart
       jj = 0
       do {
@@ -595,6 +592,7 @@ var p = arguments[0]
                        else { mstart = p[2] ; mstop = p[1] ; reverse = true  }
       }
 
+      clean(p)
       jj = 0
       for ( mm=mstart ; mm <= mstop ; mm++ ) {
          p[(jj)] =  months[pre_lan][(mm-1)]
