@@ -1,0 +1,54 @@
+ARCH=bore
+
+# Magics flag
+# If this is not set only tables will be produced
+MAGICSFLAG :=
+
+# CPP
+MACHINECPP :=
+CPP        := /lib/cpp -E -traditional
+
+# C
+CC      := gcc 
+CCFLAGS := -O2 -xP -g  $(MACHINECPP) 
+
+# Fortran
+FC := ifort
+MYFCFLAGS := -O3 -xW -traceback -g -checkbounds
+
+# Modules
+MODNAME = $(shell echo $(*F) | tr "[:upper:]" "[:lower:]")
+MODEXT := mod
+
+# Link
+LD          := $(FC)
+ifeq ($(MAGICSFLAG),-DMAGICS)
+LDFLAGS     := -O3 -xW -I/usr/lib -lglib-2.0 -traceback -g -checkbounds
+else
+LDFLAGS     := -O3 -xW -I/usr/lib -lglib-2.0 -traceback -g 
+endif
+#-Bstatic -static
+
+# AR
+AR      := ar
+ARFLAGS := rv
+MV      := mv
+RM      := rm -f
+MKDIR   := mkdir
+RMDIR   := rmdir
+
+# Flags
+FCFLAGS := $(MYFCFLAGS) -I$(ROOTDIR)/inc -module $(ROOTDIR)/$(ARCH)/mod
+CPPFLAGS := -I$(ROOTDIR)/inc $(MAGICSFLAG)
+
+# depf90mod.x search extensions ( -f is default )
+MODEXTS=-E F90 -E F -E f90 -E -f 
+
+# MAGICS
+ifeq ($(MAGICSFLAG),-DMAGICS)
+EXTLIB := 
+else
+EXTLIB :=
+endif
+
+
