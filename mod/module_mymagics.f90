@@ -1,7 +1,7 @@
 MODULE mymagics
 
 
- USE data, ONLY : err_ind
+ USE data, ONLY : err_ind,maxexp
 
  IMPLICIT NONE
 
@@ -16,11 +16,17 @@ MODULE mymagics
  CHARACTER(LEN=20), ALLOCATABLE :: cdate(:)
  CHARACTER(LEN=20) :: ytitle = ''
 
- CHARACTER(LEN=20), DIMENSION(5) :: linecolor=(/'RED        ',            &
+ CHARACTER(LEN=20), DIMENSION(maxexp) :: 
+                                    linecolor=(/'RED        ',            &
                                                 'BLUE       ',            &
                                                 'BLACK      ',            &
                                                 'CYAN       ',            &
-                                                'KELLY_GREEN'/)
+                                                'KELLY_GREEN',            &
+                                                'MAGENTA    ',            &
+                                                'ORAGNE     ',            &
+                                                'BROWN      ',            &
+                                                'VIOLET     ',            &
+                                                'NAVY       '/)
 
  CHARACTER(LEN=3) :: seasonal_name1(4)=(/'DJF','MAM','JJA','SON'/),		&
                      seasonal_name2(12)=(/'JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'/)

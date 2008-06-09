@@ -11,7 +11,7 @@ MODULE data
  REAL, PARAMETER :: err_ind = -999.e6 ! Error flag
 
 ! I/O
- INTEGER, PARAMETER :: lunnam  = 10	! Namelist unit
+ INTEGER, PARAMETER :: lunnam  = 10	    ! Namelist unit
  INTEGER, PARAMETER :: lunin   = 13
  INTEGER, PARAMETER :: lunin2  = 16
  INTEGER, PARAMETER :: lunout  = 14
@@ -19,9 +19,10 @@ MODULE data
  INTEGER, PARAMETER :: lunxml  = 47
  INTEGER, PARAMETER :: lunqc   = 48
  INTEGER, PARAMETER :: len_lab = 6
- INTEGER, PARAMETER :: maxexp  = 5	! Max experiments
+ INTEGER, PARAMETER :: maxexp  = 10     ! Max experiments
+                                        ! Remember to change colours in module_mymagics as well
  INTEGER, PARAMETER :: mparver = 200	! Max parameters to verify
- INTEGER, PARAMETER :: maxfclen= 48	! Maximum number of forecast lengths
+ INTEGER, PARAMETER :: maxfclen= 48   	! Maximum number of forecast lengths
  INTEGER, PARAMETER :: maxfclenval= 240	! Maximum forecast length value in hours
 
 
