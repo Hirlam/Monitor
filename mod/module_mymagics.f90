@@ -16,8 +16,7 @@ MODULE mymagics
  CHARACTER(LEN=20), ALLOCATABLE :: cdate(:)
  CHARACTER(LEN=20) :: ytitle = ''
 
- CHARACTER(LEN=20), DIMENSION(maxexp) :: 
-                                    linecolor=(/'RED        ',            &
+ CHARACTER(LEN=20), DIMENSION(maxexp) :: linecolor=(/'RED        ',       &
                                                 'BLUE       ',            &
                                                 'BLACK      ',            &
                                                 'CYAN       ',            &
