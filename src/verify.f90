@@ -763,6 +763,19 @@ SUBROUTINE verify
             periods(l+1) = maxdate(i)
          ENDIF
 
+         ! Print frequency distribution
+         IF ( lprint_freq .AND. leach_station )              &
+         CALL print_freq(lunout,nparver,obs(i)%stnr,nrun,    &
+              scat_data(:,l),                                &
+              periods(l),periods(l+1),par_active,            &
+              used_hours(:,l,:),used_fclen(:,l,:))
+
+         IF ( lprint_scat .AND. leach_station)                     &
+            CALL print_scat(lunout,nparver,obs(i)%stnr,nrun,       &
+                 scat_data(:,l),periods(l),periods(l+1),           &
+                 par_active,lplot_scat,                            &
+                 used_hours(:,l,:),used_fclen(:,l,:))
+
 #ifdef MAGICS
 
          ! Plot normal scatterplot
@@ -900,6 +913,20 @@ SUBROUTINE verify
           periods(l)   = MINVAL(mindate)
           periods(l+1) = MAXVAL(maxdate)
        ENDIF
+
+       ! Plot frequency distribution
+       IF ( lprint_freq )                        &
+       CALL print_freq(lunout,nparver,0,nrun,    &
+            all_scat_data(:,l),                  &
+            periods(l),periods(l+1),par_active,  &
+            used_hours(:,l,:),used_fclen(:,l,:))
+
+       IF ( lprint_scat)                             &
+       CALL print_scat(lunout,nparver,0,nrun,        &
+            all_scat_data(:,l),                      &
+            periods(l),periods(l+1),                 &
+            par_active,lplot_scat,                   &
+            used_hours(:,l,:),used_fclen(:,l,:))
 
 #ifdef MAGICS
 

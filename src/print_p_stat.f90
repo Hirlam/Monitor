@@ -1,24 +1,32 @@
 SUBROUTINE print_p_stat(lunout,ntim,npar,nr,nrun,     &
-                       time_stat,par_active,period1,period2)
+                        time_stat,par_active,         &
+                        period1,period2,uh,uf)
 
  USE types
- USE data, ONLY : ldiff
+ USE data, ONLY : ldiff,maxfclenval
 
  IMPLICIT NONE
 
  INTEGER :: lunout,ntim,npar,nr,nrun,par_active(npar),period1,period2
  TYPE(stat_obs) :: time_stat(ntim)
 
+ LOGICAL :: uh(npar,0:23),uf(npar,0:maxfclenval)
+
  CALL print_p_stat_diff(lunout,ntim,npar,nr,nrun,     &
-                       time_stat,.false.,par_active,period1,period2)
- IF (ldiff ) CALL print_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
-             time_stat,.true.,par_active,period1,period2)
+                       time_stat,.false.,par_active, &
+                       period1,period2,uh,uf)
+
+ IF (ldiff )                                         &
+ CALL print_p_stat_diff(lunout,ntim,npar,nr,nrun,     &
+                       time_stat,.true.,par_active,  &
+                       period1,period2,uh,uf)
 
  RETURN
 END SUBROUTINE print_p_stat
 
 SUBROUTINE print_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
-                            time_stat,ldiff,par_active,period1,period2)
+                            time_stat,ldiff,par_active, &
+                            period1,period2,uh,uf)
  ! External modules
 
  USE types
@@ -27,12 +35,13 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
  USE means
  USE data, ONLY : obstype,expname,err_ind,nexp,		 &
                   station_name,csi,	                 &
-                  ltiming,                               &
-                  show_fc_length,nfclengths,fclen,       &
+                  ltiming,tag,maxfclenval,               &
+                  show_fc_length,nuse_fclen,use_fclen,   &
                   timeserie_wind,sumup_tolerance,obint,  &
                   copied_obs,copied_mod,                 &
                   show_rmse,show_stdv,show_bias,         &
-                  ltemp,lev_lst,window_pos
+                  ltemp,lev_lst,window_pos,output_type,  &
+                  z_is_pressure,output_mode,len_lab
 
  USE functions
 
@@ -43,7 +52,8 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
  INTEGER :: lunout,ntim,npar,nr,nrun,par_active(npar),    &
             period1,period2
  TYPE(stat_obs) :: time_stat(ntim)
- LOGICAL :: ldiff
+ LOGICAL :: ldiff,uh(npar,0:23),uf(npar,0:maxfclenval),   &
+            legend_done
 
  ! local
 
@@ -51,6 +61,8 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
             timing_id,                  &
             ntim_use,dlen,mid(1),       &
             istart,iend,maxtim
+ !          date(ntim),time(ntim),	&
+ !          ndate(ntim),ntime(ntim),	&
 
  REAL :: miny,maxy,diff,       &
          rcount_max,           &
@@ -59,31 +71,37 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
          rmse_min(0:nexp),rmse_max(0:nexp),rmse_ave(0:nexp), &
          stdv_min(0:nexp),stdv_max(0:nexp),stdv_ave(0:nexp)
 
+ !       obs(ntim),            &
+ !       rnum(ntim,nexp),      &
+ !       bias(ntim,nexp),      &
+ !       rmse(ntim,nexp),      &
+ !       stdv(ntim,nexp),      &
+
  ! Allocatable
 
  REAL,    ALLOCATABLE :: obs(:),rnum(:,:),bias(:,:),rmse(:,:),stdv(:,:)
  INTEGER, ALLOCATABLE :: ndate(:),ntime(:),date(:),time(:)
 
 
- CHARACTER(LEN= 30) :: cform=''
+ CHARACTER(LEN=30 ) :: cform='   '
  CHARACTER(LEN=3  ) :: cdum='   '
+ CHARACTER(LEN=6  ) :: ob_short='      '
  CHARACTER(LEN=2  ) :: prefix=' '
  CHARACTER(LEN=100) :: fname=' '
- CHARACTER(LEN=120) :: wtext,wname
+ CHARACTER(LEN=120) :: wtext,wname,wtext1
 
 
 !-----------------------------------------------------
  ! Init timing counter
  timing_id = 0
 
- IF (ltiming) CALL acc_timing(timing_id,'print_p_stat')
+ IF (ltiming) CALL acc_timing(timing_id,'plot_p_stat')
 
  ! Find start and endpoint
 
  IF ( period1 /= 0 ) THEN
     istart = 1
-    !iend   = ntim
-    iend   = 1
+    iend   = ntim
     DO i=1,ntim
        IF ((time_stat(i)%date/100 - period1) == 0 ) THEN
                istart   = i 
@@ -102,17 +120,20 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
     iend   = ntim
  ENDIF
 
- iend = MAX(istart,iend)
+ ! Create filename
+ prefix ='ps'
+ IF ( ldiff ) prefix='PS'
 
- IF ( istart == iend ) THEN
-    WRITE(6,*)'No output for this period'
-    RETURN
- ENDIF
+ z_is_pressure = ( ltemp .AND. ( lev_lst(1) > lev_lst(2) ))
 
- ! Write to timeserie file
+ ytitle = ' '
 
  IF ( SUM(timeserie_wind) /= 0 ) THEN
-    maxtim = get_maxtim(time_stat(istart)%date,time_stat(iend)%date,MAX(1,MINVAL(timeserie_wind)))
+    IF ( MINVAL(timeserie_wind(1:npar)) == 0 ) THEN
+    maxtim = get_maxtim(time_stat(istart)%date,time_stat(iend)%date,obint)
+    ELSE
+    maxtim = get_maxtim(time_stat(istart)%date,time_stat(iend)%date,MAX(obint,MINVAL(timeserie_wind(1:npar))))
+    ENDIF
  ELSE
     maxtim = get_maxtim(time_stat(istart)%date,time_stat(iend)%date,obint)
  ENDIF
@@ -130,14 +151,14 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
 
  NPAR_LOOP : DO j=1,npar
 
-    ! Create filename
-    prefix ='ps'
-    IF ( ldiff ) prefix='PS'
-    CALL make_fname(prefix,period1,nr,nrun,fname,0)
-    fname = TRIM(obstype(j))//'_'//TRIM(fname)
-    OPEN(lunout,FILE=fname)
-    WRITE(6,*)'Doing ',TRIM(fname)
-
+    IF ( output_mode == 2 ) THEN
+       CALL make_fname(prefix,period1,nr,tag,     &
+                       obstype(j)(1:2),           &
+                       obstype(j)(3:len_lab),     &
+                       output_mode,output_type,   &
+                       fname)
+       CALL open_output(fname)
+    ENDIF
 
     rnum = 0.
     bias = 0.
@@ -198,13 +219,14 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
 
     ENDDO
 
+
     DO k=1,nexp
 
       ndate = date
       ntime = time
       dlen  = ii
 
-      IF (timeserie_wind(j) /= 0) THEN
+      IF (timeserie_wind(j) /= 0 .AND. dlen /= 0 ) THEN
 
          IF ( k == 1 ) THEN
 
@@ -273,21 +295,25 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
 
     ntim_use = MAX(dlen,1)
 
+    IF ( ldiff ) THEN
 
+    ELSE
 
-    IF ( obstype(j)(1:2) == 'DD' ) THEN
+        IF ( obstype(j)(1:2) == 'DD' ) THEN
 
-       WHERE(obs(1:ntim_use) > 360. ) 
-        obs(1:ntim_use) =  obs(1:ntim_use) - 360.
-       ELSEWHERE(obs(1:ntim_use) < 0. ) 
-        obs(1:ntim_use) =  obs(1:ntim_use) + 360.
-       END WHERE
+           WHERE(obs(1:ntim_use) > 360. ) 
+            obs(1:ntim_use) =  obs(1:ntim_use) - 360.
+           ELSEWHERE(obs(1:ntim_use) < 0. ) 
+            obs(1:ntim_use) =  obs(1:ntim_use) + 360.
+           END WHERE
 
-       WHERE(bias(1:ntim_use,:) > 360. ) 
-        bias(1:ntim_use,:) =  bias(1:ntim_use,:) - 360.
-       ELSEWHERE(bias(1:ntim_use,:) < 0. ) 
-        bias(1:ntim_use,:) =  bias(1:ntim_use,:) + 360.
-       END WHERE
+           WHERE(bias(1:ntim_use,:) > 360. ) 
+            bias(1:ntim_use,:) =  bias(1:ntim_use,:) - 360.
+           ELSEWHERE(bias(1:ntim_use,:) < 0. ) 
+            bias(1:ntim_use,:) =  bias(1:ntim_use,:) + 360.
+           END WHERE
+
+        ENDIF
 
     ENDIF
 
@@ -307,7 +333,6 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
 
  DEALLOCATE(ndate,ntime,date,time,obs,bias,rmse,stdv,rnum)
 
- IF (ltiming) CALL acc_timing(timing_id,'print_p_stat')
+ RETURN
 
-RETURN
-END 
+END  SUBROUTINE print_p_stat_diff

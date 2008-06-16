@@ -268,6 +268,8 @@ MODULE data
  LOGICAL :: ltimeserie_stat  = .FALSE.	! Plot timeserie statistics 
  LOGICAL :: lprint_timeserie_stat  = .FALSE.	! Print timeserie statistics 
  LOGICAL :: lplot_freq       = .FALSE.	! Make frequency distribution plots
+ LOGICAL :: lprint_freq      = .FALSE.	! Make frequency distribution printfiles
+ LOGICAL :: lprint_scat      = .FALSE.	! Make scatterplots
  LOGICAL :: lplot_scat       = .FALSE.	! Make scatterplots
  LOGICAL :: lprep_xml        = .FALSE.	! Create statistics in xml format based
                                         ! on scatter data
@@ -281,6 +283,7 @@ MODULE data
  LOGICAL :: lprint_findp     = .FALSE.	! Print diagnostics
  LOGICAL :: lprint_do_stat   = .FALSE.	! Print diagnostics
  LOGICAL :: lplot_vert       = .FALSE.	! Create plot file for vertical temp statistics
+ LOGICAL :: lprint_vert      = .FALSE.	! Create print file for vertical temp statistics
  LOGICAL :: lplot_vert_month = .FALSE.	! Create plot file for monthly vertical temp statistics 
  LOGICAL :: lplot_stat       = .FALSE.	! Create plot file for statistics
  LOGICAL :: lplot_stat_month = .FALSE.	! Create plot file for monthly statistics
@@ -312,7 +315,9 @@ MODULE data
  CHARACTER(LEN=50) :: MAP_AREA_DEFINITION = 'CENTRE'
 
  LOGICAL :: plot_bias_map          = .FALSE.  ! Plot map with biases
+ LOGICAL :: print_bias_map         = .FALSE.  ! Print map with biases
  LOGICAL :: plot_obs_map           = .FALSE.  ! Plot map with observations
+ LOGICAL :: print_obs_map          = .FALSE.  ! Print map with observations
  REAL    ::  map_obs_interval(7,mparver)= -1.      ! Set your own obs interval 
  REAL    :: map_bias_interval(7,mparver)= -1.      ! Set your own bias interval
  REAL    :: map_rmse_interval(7,mparver)= -1.      ! Set your own rmse interval
@@ -401,7 +406,7 @@ MODULE data
                  nn_ind,fi_ind,rf_ind,nr_ind,wq_ind,    &
                  qq_ind,gs_ind,gc_ind,gr_ind,hb_ind,	&
                  tz_ind,uz_ind,tu_ind,la_ind,hg_ind,    &
-                 wp_ind,wh_ind,       		         	&
+                 wp_ind,wh_ind,                         &
                  lev_typ,lev_lst,                       &
                  name,statname,                         &
                  obspath,modpath,                       &
@@ -410,8 +415,10 @@ MODULE data
                  lfindplot,                             &
                  lstat_gen,lverify,          	    	&
                  lplot_stat,ldaymean,                   &
+                 lprint_vert,                           &
                  lplot_vert_month,lplot_vert,        	&
                  ltimeserie,lplot_scat,lprep_xml,       &
+                 lprint_scat,                           &
                  lcontingency,                          &
                  ltimeserie_stat,                       &
                  lprint_timeserie_stat,                 &
@@ -420,7 +427,10 @@ MODULE data
                  use_kalman,kalvar_n,                   &
                  kalman_fclen,kalman_frequency_n,       &
                  plot_bias_map,                         &
-                 map_scale,plot_obs_map,                &
+                 print_bias_map,                        &
+                 map_scale,                             &
+                 plot_obs_map,                          &
+                 print_obs_map,                         &
                  map_obs_interval,                      &
                  map_rmse_interval,                     &
                  map_bias_interval,map_type,            &
@@ -438,7 +448,8 @@ MODULE data
                  lprint_read,print_read,                &
                  lprint_verif,lprint_findp,   	        &
                  lprint_do_stat,                     	&
-                 release_memory,lplot_freq,             &
+                 release_memory,                        &
+                 lprint_freq,lplot_freq,                &
                  cbox,lpoly,polyfile,                   &
                  data_to_verify,data_source,            &
                  ltemp,                                 &

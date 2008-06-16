@@ -154,6 +154,16 @@ SUBROUTINE check_namelist
  lcontingency = ( cont_param /= 0 )
 
 
+#ifndef MAGICS
+           output_type = 0
+ lprint_timeserie_stat = ltimeserie_stat 
+ print_bias_map        = plot_bias_map
+ print_obs_map         = plot_obs_map
+ lprint_vert           = lplot_vert
+ lprint_freq           = lplot_freq
+ lprint_scat           = lplot_scat
+#endif
+
  ! More to come ....
 
  WRITE(6,*)

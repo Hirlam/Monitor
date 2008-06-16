@@ -126,27 +126,41 @@ SUBROUTINE do_stat(per_ind,p1,p2)
     CALL plot_stat2(lunout,nexp,nparver,ntimver,          &
     stat(i)%s,stat(i)%stnr,p1(i),p2(i),par_active,        &
     used_hours(:,per_ind,:),used_fclen(:,per_ind,:))
+#endif
 
     !
     ! Plot statistics against level for specific
     ! hour or forecast time
     !
 
-    IF ( ltemp .AND. leach_station  .AND. lplot_vert )  THEN
+    IF ( ltemp .AND. leach_station  .AND.     &
+         ( lplot_vert .OR. lprint_vert ) )  THEN
 
       wrk = 0
       WHERE ( lev_lst > 0 ) wrk = 1 
       nlev = SUM(wrk)
-      CALL plot_vert(lunout,nexp,nlev,nparver,ntimver,       &
+
+      IF ( lprint_vert )                                     &
+      CALL print_vert(lunout,nexp,nlev,nparver,ntimver,      &
       stat(i)%s,stat(i)%stnr,p1(i),p2(i),par_active,         &
       used_hours(:,per_ind,:),used_fclen(:,per_ind,:))
 
-    ENDIF
+#ifdef MAGICS
+      IF ( lplot_vert )                                      &
+      CALL plot_vert(lunout,nexp,nlev,nparver,ntimver,       &
+      stat(i)%s,stat(i)%stnr,p1(i),p2(i),par_active,         &
+      used_hours(:,per_ind,:),used_fclen(:,per_ind,:))
 #endif
+
+    ENDIF
 
     IF (lallstat) CALL acc_stat(statall,stat(i)%s,nexp,nparver,ntimver)
 
  ENDDO
+
+ IF ( print_bias_map ) CALL print_map(0,minval(p1),maxval(p2),0,map_type,per_ind)
+ IF ( print_bias_map ) CALL print_map(0,minval(p1),maxval(p2),1,map_type,per_ind)
+ IF ( print_obs_map  ) CALL print_map(0,minval(p1),maxval(p2),2,map_type,per_ind)
 
 #ifdef MAGICS
  IF ( plot_bias_map ) CALL plot_map(0,minval(p1),maxval(p2),0,map_type,per_ind)
@@ -212,24 +226,33 @@ SUBROUTINE do_stat(per_ind,p1,p2)
       statall,0,minval(p1),maxval(p2),par_active,      &
       used_hours(:,per_ind,:),used_fclen(:,per_ind,:))
     ENDIF
+#endif
 
     !
     ! Plot statistics against level for specific
     ! hour or forecast time
     !
-    IF ( ltemp .AND. lplot_vert )  THEN
+    IF ( ltemp .AND. ( lplot_vert .OR. lprint_vert ) )  THEN
 
        wrk = 0
        WHERE ( lev_lst > 0 ) wrk = 1 
        nlev = SUM(wrk)
-       CALL plot_vert(lunout,nexp,nlev,nparver,ntimver, &
+
+       CALL print_vert(lunout,nexp,nlev,nparver,ntimver,&
                       statall,0,MINVAL(p1),MAXVAL(p2),  &
                       par_active,                       &
                       used_hours(:,per_ind,:),          &
                       used_fclen(:,per_ind,:))
 
-    ENDIF
+#ifdef MAGICS
+       CALL plot_vert(lunout,nexp,nlev,nparver,ntimver, &
+                      statall,0,MINVAL(p1),MAXVAL(p2),  &
+                      par_active,                       &
+                      used_hours(:,per_ind,:),          &
+                      used_fclen(:,per_ind,:))
 #endif
+
+    ENDIF
 
     DEALLOCATE(statall)
 

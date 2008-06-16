@@ -1,6 +1,6 @@
 SUBROUTINE open_output(fname)
 
- USE data, ONLY : output_type
+ USE data, ONLY : output_type,lunout
 
  IMPLICIT NONE
 
@@ -8,6 +8,10 @@ SUBROUTINE open_output(fname)
  CHARACTER(LEN=*), INTENT(IN) :: fname
 
  SELECT CASE(output_type) 
+ CASE(0)
+    ! Open an ASCII file
+    OPEN(UNIT=lunout,FILE=fname)
+#ifdef MAGICS
  CASE(1)
     ! Open a postscript file
     CALL popen
@@ -25,6 +29,7 @@ SUBROUTINE open_output(fname)
     CALL psetc('DEVICE','JPEG')
     CALL psetc('DEVICE_FILE_NAME',fname)
     CALL pseti('DEVICE_WIDTH',640)  
+#endif
  CASE DEFAULT
     WRITE(6,*)'Can not handle output_type ',output_type
     CALL abort
