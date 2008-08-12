@@ -238,6 +238,7 @@ SUBROUTINE do_stat(per_ind,p1,p2)
        WHERE ( lev_lst > 0 ) wrk = 1 
        nlev = SUM(wrk)
 
+       IF ( lprint_vert )                               &
        CALL print_vert(lunout,nexp,nlev,nparver,ntimver,&
                       statall,0,MINVAL(p1),MAXVAL(p2),  &
                       par_active,                       &
@@ -245,6 +246,7 @@ SUBROUTINE do_stat(per_ind,p1,p2)
                       used_fclen(:,per_ind,:))
 
 #ifdef MAGICS
+       IF ( lplot_vert )                                &
        CALL plot_vert(lunout,nexp,nlev,nparver,ntimver, &
                       statall,0,MINVAL(p1),MAXVAL(p2),  &
                       par_active,                       &
