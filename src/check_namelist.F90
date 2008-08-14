@@ -162,6 +162,7 @@ SUBROUTINE check_namelist
  lprint_vert           = lplot_vert
  lprint_freq           = lplot_freq
  lprint_scat           = lplot_scat
+ lprint_stat           = lplot_stat
 #endif
 
  ! More to come ....

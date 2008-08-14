@@ -1,4 +1,4 @@
-SUBROUTINE print_p_stat(lunout,ntim,npar,nr,nrun,     &
+SUBROUTINE print_p_stat(lunout,ntim,npar,stnr,nrun,     &
                         time_stat,par_active,         &
                         period1,period2,uh,uf)
 
@@ -7,24 +7,24 @@ SUBROUTINE print_p_stat(lunout,ntim,npar,nr,nrun,     &
 
  IMPLICIT NONE
 
- INTEGER :: lunout,ntim,npar,nr,nrun,par_active(npar),period1,period2
+ INTEGER :: lunout,ntim,npar,stnr,nrun,par_active(npar),period1,period2
  TYPE(stat_obs) :: time_stat(ntim)
 
  LOGICAL :: uh(npar,0:23),uf(npar,0:maxfclenval)
 
- CALL print_p_stat_diff(lunout,ntim,npar,nr,nrun,     &
+ CALL print_p_stat_diff(lunout,ntim,npar,stnr,nrun,    &
                        time_stat,.false.,par_active, &
                        period1,period2,uh,uf)
 
  IF (ldiff )                                         &
- CALL print_p_stat_diff(lunout,ntim,npar,nr,nrun,     &
+ CALL print_p_stat_diff(lunout,ntim,npar,stnr,nrun,    &
                        time_stat,.true.,par_active,  &
                        period1,period2,uh,uf)
 
  RETURN
 END SUBROUTINE print_p_stat
 
-SUBROUTINE print_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
+SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,nrun,  &
                             time_stat,ldiff,par_active, &
                             period1,period2,uh,uf)
  ! External modules
@@ -39,7 +39,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
                   show_fc_length,nuse_fclen,use_fclen,   &
                   timeserie_wind,sumup_tolerance,obint,  &
                   copied_obs,copied_mod,                 &
-                  show_rmse,show_stdv,show_bias,         &
+                  show_rmse,show_stdv,show_bias,show_obs,&
                   ltemp,lev_lst,window_pos,output_type,  &
                   z_is_pressure,output_mode,len_lab
 
@@ -49,7 +49,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
 
  ! INPUT
 
- INTEGER :: lunout,ntim,npar,nr,nrun,par_active(npar),    &
+ INTEGER :: lunout,ntim,npar,stnr,nrun,par_active(npar),    &
             period1,period2
  TYPE(stat_obs) :: time_stat(ntim)
  LOGICAL :: ldiff,uh(npar,0:23),uf(npar,0:maxfclenval),   &
@@ -60,7 +60,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
  INTEGER :: i,ii,j,k,kk,l,              &
             timing_id,                  &
             ntim_use,dlen,mid(1),       &
-            istart,iend,maxtim
+            istart,iend,maxtim,npp
  !          date(ntim),time(ntim),	&
  !          ndate(ntim),ntime(ntim),	&
 
@@ -71,15 +71,15 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
          rmse_min(0:nexp),rmse_max(0:nexp),rmse_ave(0:nexp), &
          stdv_min(0:nexp),stdv_max(0:nexp),stdv_ave(0:nexp)
 
- !       obs(ntim),            &
- !       rnum(ntim,nexp),      &
- !       bias(ntim,nexp),      &
- !       rmse(ntim,nexp),      &
- !       stdv(ntim,nexp),      &
+ TYPE print_pointer 
+    REAL, POINTER :: v(:)
+ END TYPE
+
+ TYPE(print_pointer), ALLOCATABLE :: pdat(:)
 
  ! Allocatable
 
- REAL,    ALLOCATABLE :: obs(:),rnum(:,:),bias(:,:),rmse(:,:),stdv(:,:)
+ REAL,    ALLOCATABLE, TARGET :: obs(:),rnum(:,:),bias(:,:),rmse(:,:),stdv(:,:)
  INTEGER, ALLOCATABLE :: ndate(:),ntime(:),date(:),time(:)
 
 
@@ -132,12 +132,28 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
     IF ( MINVAL(timeserie_wind(1:npar)) == 0 ) THEN
     maxtim = get_maxtim(time_stat(istart)%date,time_stat(iend)%date,obint)
     ELSE
-    maxtim = get_maxtim(time_stat(istart)%date,time_stat(iend)%date,MAX(obint,MINVAL(timeserie_wind(1:npar))))
+    maxtim = get_maxtim(time_stat(istart)%date,time_stat(iend)%date,    &
+                        MAX(obint,MINVAL(timeserie_wind(1:npar))))
     ENDIF
  ELSE
     maxtim = get_maxtim(time_stat(istart)%date,time_stat(iend)%date,obint)
  ENDIF
  maxtim = MAX(maxtim,ntim)
+
+    npp = 0
+    IF ( ldiff ) THEN
+       IF (show_rmse) THEN
+          npp = nexp
+       ENDIF
+       IF (show_stdv) THEN
+          npp = npp + nexp
+       ENDIF
+       IF (show_bias) THEN
+          npp = npp + nexp
+       ENDIF
+    ELSE
+       npp =  nexp
+    ENDIF
 
  ALLOCATE(ndate(maxtim),        &
           ntime(maxtim),        &
@@ -151,8 +167,11 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
 
  NPAR_LOOP : DO j=1,npar
 
+
+    WRITE(6,*)'DO PAR',j
+
     IF ( output_mode == 2 ) THEN
-       CALL make_fname(prefix,period1,nr,tag,     &
+       CALL make_fname(prefix,period1,stnr,tag,     &
                        obstype(j)(1:2),           &
                        obstype(j)(3:len_lab),     &
                        output_mode,output_type,   &
@@ -241,7 +260,6 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
            ndate = date
            ntime = time
 
-
          ENDIF
 
            CALL carefull_sumup(           &
@@ -295,39 +313,150 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
 
     ntim_use = MAX(dlen,1)
 
-    IF ( ldiff ) THEN
+    IF ( .NOT. ldiff .AND. obstype(j)(1:2) == 'DD' ) THEN
 
-    ELSE
+        WHERE(obs(1:ntim_use) > 360. ) 
+         obs(1:ntim_use) =  obs(1:ntim_use) - 360.
+        ELSEWHERE(obs(1:ntim_use) < 0. ) 
+         obs(1:ntim_use) =  obs(1:ntim_use) + 360.
+        END WHERE
 
-        IF ( obstype(j)(1:2) == 'DD' ) THEN
-
-           WHERE(obs(1:ntim_use) > 360. ) 
-            obs(1:ntim_use) =  obs(1:ntim_use) - 360.
-           ELSEWHERE(obs(1:ntim_use) < 0. ) 
-            obs(1:ntim_use) =  obs(1:ntim_use) + 360.
-           END WHERE
-
-           WHERE(bias(1:ntim_use,:) > 360. ) 
-            bias(1:ntim_use,:) =  bias(1:ntim_use,:) - 360.
-           ELSEWHERE(bias(1:ntim_use,:) < 0. ) 
-            bias(1:ntim_use,:) =  bias(1:ntim_use,:) + 360.
-           END WHERE
-
-        ENDIF
+        WHERE(bias(1:ntim_use,:) > 360. ) 
+         bias(1:ntim_use,:) =  bias(1:ntim_use,:) - 360.
+        ELSEWHERE(bias(1:ntim_use,:) < 0. ) 
+         bias(1:ntim_use,:) =  bias(1:ntim_use,:) + 360.
+        END WHERE
 
     ENDIF
 
+    ! Create headers
+ 
+    ! Line 1
+    IF(ALLOCATED(station_name).AND. stnr > 0 ) THEN
+       wtext='Station: '//trim(station_name(csi))
+    ELSE
+       WRITE(wtext1(1:8),'(I8)')stnr
+       wtext='Station: '//trim(wtext1(1:8))
+    ENDIF
+    IF (stnr == 0) THEN
+       wname=''
+       WRITE(wname(1:5),'(I5)')par_active(j)
+       wtext=TRIM(wname)//' stations'
+       IF ( TRIM(tag) /= '#' ) wtext='Area: '//TRIM(tag)//'  '//TRIM(wtext)
+    ENDIF
+    WRITE(lunout,'(A,X,A)')'#HEADING_1',TRIM(wtext)
+
+    ! Line 2
+    CALL pname(obstype(j),wtext)
+    WRITE(lunout,'(A,X,A)')'#HEADING_2',TRIM(wtext)
+
+    ! Line 3
+    IF ( show_fc_length ) THEN
+
+       CALL fclen_header(.true.,maxfclenval,uh(j,:),uf(j,:),wtext)
+
+       IF ( timeserie_wind(j) /= 0 ) THEN
+          wname = ' '
+          WRITE(wname(1:3),'(I3)')timeserie_wind(j)
+          wtext = TRIM(wtext)//'  Window:'//TRIM(wname)//'h'
+       ENDIF
+
+       WRITE(lunout,'(A,X,A)')'#HEADING_3',TRIM(wtext)
+
+    ENDIF
+
+    ! Experiments and parameters and norms
+    WRITE(lunout,'(A,X,A)')'#PAR',TRIM(obstype(j))
+
+    npp = 0
+    IF ( ldiff ) THEN
+       IF (show_rmse) npp = nexp
+       IF (show_stdv) npp = npp + nexp
+       IF (show_bias) npp = npp + nexp
+    ELSE
+       npp = 1 + nexp
+    ENDIF
+    ! Add one column for number of cases 
+    npp = npp + 1
+
+    IF ( ldiff ) THEN
+       WRITE(lunout,'(A,X,I2)')'#NEXP',nexp
+    ELSE
+       WRITE(lunout,'(A,X,I2)')'#NEXP',nexp+1
+       WRITE(lunout,'(A,I2.2X,A)')'#EXP_',0,'OBS'
+    ENDIF
+    DO i=1,nexp
+       WRITE(lunout,'(A,I2.2X,A)')'#EXP_',i,expname(i)
+    ENDDO
+
+    ob_short = obstype(j)
+    ob_short(3:6) = '   '
+    CALL yunit(ob_short,ytitle)
+    WRITE(lunout,'(A,X,A)')'#YLABEL',TRIM(ytitle)
+    WRITE(lunout,'(A,X,A)')'#XLABEL','Date'
+
+    ! Time to write the parameters
+ 
+    ALLOCATE(pdat(npp))
+  
+    k = 0
+    IF (ldiff) THEN
+     IF ( show_rmse ) THEN
+      DO i=1,nexp
+        k=k+1
+        pdat(k)%v => rmse(1:ntim_use,i)
+        WRITE(lunout,'(A,I2.2,2(X,A))')'#COLUMN_',k+2,'RMSE',TRIM(expname(i))
+      ENDDO
+     ENDIF 
+     IF ( show_stdv ) THEN
+      DO i=1,nexp
+        k=k+1
+        pdat(k)%v => stdv(1:ntim_use,i)
+        WRITE(lunout,'(A,I2.2,2(X,A))')'#COLUMN_',k+2,'STDV',TRIM(expname(i))
+      ENDDO
+     ENDIF 
+     IF ( show_bias ) THEN
+      DO i=1,nexp
+        k=k+1
+        pdat(k)%v => bias(1:ntim_use,i)
+        WRITE(6,*)'BIAS for ',expname(i),k
+        WRITE(lunout,'(A,I2.2,2(X,A))')'#COLUMN_',k+2,'BIAS',TRIM(expname(i))
+      ENDDO
+     ENDIF 
+    ELSE 
+      DO i=1,nexp
+        k=k+1
+        pdat(k)%v => bias(1:ntim_use,i)
+        WRITE(6,*)'BIAS for ',expname(i),k
+        WRITE(lunout,'(A,I2.2,X,A)')'#COLUMN_',k+2,TRIM(expname(i))
+      ENDDO
+      k=k+1
+      pdat(k)%v => obs(1:ntim_use)
+      WRITE(6,*)'OBS ',k
+      WRITE(lunout,'(A,I2.2,X,A)')'#COLUMN_',k+2,'OBS'
+    ENDIF
+    k=k+1
+    pdat(k)%v => rnum(1:ntim_use,1)
+    WRITE(lunout,'(A,I2.2,X,A)')'#COLUMN_',k+2,'CASES'
+
+    ! End of headings
+    WRITE(lunout,'(A,X,en13.3e2)')'#MISSING',err_ind
+    WRITE(lunout,'(A)')'#END'
+
+
     cform = '(I10,I3.2,NN(x,en13.3e2))'
-    WRITE(cform(11:12),'(I2.2)')(nexp+2)
+    WRITE(cform(11:12),'(I2.2)')npp
+
     DO i=1,ntim_use
-       IF ( (ABS(obs(i) - err_ind ) < 1.e-6) &
-            .AND. ( i == 1 .OR. i == ntim_use ) ) CYCLE
-       WRITE(lunout,cform)ndate(i),ntime(i),rnum(i,1),  &
-                                            obs(i),     &
-                                            bias(i,:)
+        WRITE(lunout,cform)ndate(i),ntime(i),(pdat(k)%v(i),k=1,npp)
     ENDDO
 
     CLOSE(lunout)
+
+    DO i=1,SIZE(pdat)
+       NULLIFY(pdat(i)%v)
+    ENDDO
+    DEALLOCATE(pdat)
 
  ENDDO NPAR_LOOP
 

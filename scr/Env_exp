@@ -13,6 +13,14 @@ BIN=$BASE/bin
 SCR=$BASE/scr
 WRK=$BASE/wrk
 
+# Set which graphics you are using
+# MAGICS/GNUPLOT
+# To be able to use MAGICS verobs has to be compiled with -DMAGICS.
+#
+# !NB GNUPLOT option is still under developement
+#
+export GRAPHICS=MAGICS
+
 # MAG_HOME for magics, not needed at ecgate
 # export MAG_HOME=
 

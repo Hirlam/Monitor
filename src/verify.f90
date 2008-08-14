@@ -718,7 +718,8 @@ SUBROUTINE verify
              IF ( lprint_timeserie_stat ) &
              CALL print_p_stat(lunout,time_stat_max,nparver,        &
                   obs(i)%stnr,nrun,time_stat(1:time_stat_max),      &
-                  par_active,periods(l),periods(l+1))
+                  par_active,periods(l),periods(l+1),               &
+                  used_hours(:,l,:),used_fclen(:,l,:))
 #ifdef MAGICS
              IF ( ltimeserie_stat ) &
              CALL plot_p_stat(lunout,time_stat_max,nparver,         &
@@ -848,8 +849,10 @@ SUBROUTINE verify
               par_active(j) = SUM(tim_par_active(l,:,j))
            ENDDO
            IF (lprint_timeserie_stat ) &
-           CALL print_p_stat(lunout,all_time_stat_max,nparver,0,   &
-                nrun,all_time_stat,par_active,periods(l),periods(l+1))
+           CALL print_p_stat(lunout,all_time_stat_max,nparver,0,  &
+                nrun,all_time_stat,par_active,                    &
+                periods(l),periods(l+1),                          &
+                used_hours(:,l,:),used_fclen(:,l,:))
 #ifdef MAGICS
            IF (ltimeserie_stat ) &
            CALL plot_p_stat(lunout,all_time_stat_max,nparver,0,   &

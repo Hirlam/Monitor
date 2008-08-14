@@ -34,6 +34,10 @@ for F in $SURFPAR ; do
    $BIN/verobs || exit
 done
 
+if [ $GRAPHICS == GNUPLOT ] ; then
+ $SCR/verobs2gnuplot.pl *.txt || exit
+fi
+
 [[ $WEBCALL == ""  ]] && exit
 
 # Quality control information

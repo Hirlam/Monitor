@@ -263,7 +263,6 @@ MODULE data
  LOGICAL :: leach_station    = .FALSE.	! Verify each station separately
  LOGICAL :: lallstat         = .TRUE.	! Show statistics for all stations
  LOGICAL :: lfindplot        = .FALSE.	! Call findplot obsolete at the moment
- LOGICAL :: ldaymean         = .FALSE.	! Calculate daily means 
  LOGICAL :: ltimeserie       = .FALSE.	! Plot timeseries for all stations
  LOGICAL :: ltimeserie_stat  = .FALSE.	! Plot timeserie statistics 
  LOGICAL :: lprint_timeserie_stat  = .FALSE.	! Print timeserie statistics 
@@ -284,10 +283,8 @@ MODULE data
  LOGICAL :: lprint_do_stat   = .FALSE.	! Print diagnostics
  LOGICAL :: lplot_vert       = .FALSE.	! Create plot file for vertical temp statistics
  LOGICAL :: lprint_vert      = .FALSE.	! Create print file for vertical temp statistics
- LOGICAL :: lplot_vert_month = .FALSE.	! Create plot file for monthly vertical temp statistics 
+ LOGICAL :: lprint_stat      = .FALSE.	! Create plot file for statistics
  LOGICAL :: lplot_stat       = .FALSE.	! Create plot file for statistics
- LOGICAL :: lplot_stat_month = .FALSE.	! Create plot file for monthly statistics
- LOGICAL :: lplot_stat_year  = .FALSE.	! Create plot file for seasonal statistics
  LOGICAL :: use_database     = .FALSE.  ! Try to use database, obsolete
  LOGICAL :: release_memory   = .FALSE.  ! Release memory as soon as data have been used
  LOGICAL :: gap_filled_data  = .FALSE.  ! Allow gap filled data, obsolete
@@ -401,7 +398,7 @@ MODULE data
                  nparver,                               &
                  tt_ind,ff_ind,dd_ind,uw_ind,wt_ind,	&
                  sw_ind,lw_ind,lu_ind,ld_ind,	    	&
-                 su_ind,sd_ind,td_ind,vi_ind,			&
+                 su_ind,sd_ind,td_ind,vi_ind,		&
                  ps_ind,pe_ind,pd_ind,rh_ind,	    	&
                  nn_ind,fi_ind,rf_ind,nr_ind,wq_ind,    &
                  qq_ind,gs_ind,gc_ind,gr_ind,hb_ind,	&
@@ -413,17 +410,14 @@ MODULE data
                  lfcver,leach_station,ltiming,          &
                  lallstat,                              &
                  lfindplot,                             &
-                 lstat_gen,lverify,          	    	&
-                 lplot_stat,ldaymean,                   &
-                 lprint_vert,                           &
-                 lplot_vert_month,lplot_vert,        	&
+                 lstat_gen,lverify,                     & 
+                 lprint_stat,lplot_stat,                &
+                 lprint_vert,lplot_vert,                &
                  ltimeserie,lplot_scat,lprep_xml,       &
                  lprint_scat,                           &
                  lcontingency,                          &
                  ltimeserie_stat,                       &
                  lprint_timeserie_stat,                 &
-                 lplot_stat_month,                      &
-                 lplot_stat_year,                       &
                  use_kalman,kalvar_n,                   &
                  kalman_fclen,kalman_frequency_n,       &
                  plot_bias_map,                         &

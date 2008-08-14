@@ -118,6 +118,15 @@ SUBROUTINE do_stat(per_ind,p1,p2)
     ENDDO
 
     !
+    ! Print statistics against hour or forecast time
+    !
+
+    IF (leach_station.AND. lprint_stat )                  &
+    CALL print_stat2(lunout,nexp,nparver,ntimver,         &
+    stat(i)%s,stat(i)%stnr,p1(i),p2(i),par_active,        &
+    used_hours(:,per_ind,:),used_fclen(:,per_ind,:))
+
+    !
     ! Plot statistics against hour or forecast time
     !
 
@@ -215,12 +224,23 @@ SUBROUTINE do_stat(per_ind,p1,p2)
     ENDDO LOOP_NPARVER
 
     !
+    ! Print statistics against hour or forecast time
+    !
+
+    IF( lprint_stat ) THEN
+      IF (lprint_do_stat) WRITE(6,*)'Call print_stat'
+      CALL print_stat2(lunout,nexp,nparver,ntimver,    &
+      statall,0,minval(p1),maxval(p2),par_active,      &
+      used_hours(:,per_ind,:),used_fclen(:,per_ind,:))
+    ENDIF
+
+#ifdef MAGICS
+
+    !
     ! Plot statistics against hour or forecast time
     !
 
-#ifdef MAGICS
-    IF( lplot_stat ) &
-    THEN
+    IF( lplot_stat ) THEN
       IF (lprint_do_stat) WRITE(6,*)'Call plot_stat'
       CALL plot_stat2(lunout,nexp,nparver,ntimver,     &
       statall,0,minval(p1),maxval(p2),par_active,      &
