@@ -30,6 +30,15 @@ for F in $TEMPPAR ; do
    $BIN/verobs || exit
 done
 
+if [ $GRAPHICS == GNUPLOT ] ; then
+ $SCR/verobs2gnuplot.pl *.txt || exit
+ RESIZE=100%
+ ROTATE="-rotate 90"
+else
+ RESIZE=75%
+ ROTATE=""
+fi
+
 [[ $WEBCALL == ""  ]] && exit
 
 # Quality control information
@@ -46,7 +55,7 @@ if [ $OUTPUT_TYPE -eq 1 ] ; then
    mv l*.ps vert
    for F in $( ls -1 *.ps ) ; do
       FF=$( basename $F .ps )
-      convert -resize 75% -rotate 90 $FF.ps $FF.png
+      convert -resize $RESIZE -rotate 90 $FF.ps $FF.png
    done
    tar cvf temp.tar *.png *.ps
 elif [ $OUTPUT_TYPE -eq 2 ] ; then
@@ -66,7 +75,7 @@ if [ $OUTPUT_TYPE -eq 1 ] ; then
    mv vert/*.ps .
    for F in $( ls -1 *.ps ) ; do
       FF=$( basename $F .ps )
-      convert -resize 75% $FF.ps $FF.png
+      convert -resize $RESIZE $ROTATE $FF.ps $FF.png
    done
    tar cvf vert.tar *.png *.xml style.xsl *.html *.ps
 elif [ $OUTPUT_TYPE -eq 2 ] ; then

@@ -36,6 +36,9 @@ done
 
 if [ $GRAPHICS == GNUPLOT ] ; then
  $SCR/verobs2gnuplot.pl *.txt || exit
+ RESIZE=100%
+else
+ RESIZE=75%
 fi
 
 [[ $WEBCALL == ""  ]] && exit
@@ -50,7 +53,7 @@ echo '</pre>' >> quality.html
 if [ $OUTPUT_TYPE -eq 1 ] ; then
    for F in $( ls -1 *.ps ) ; do
       FF=$( basename $F .ps )
-      convert -resize 75% -rotate 90 $FF.ps $FF.png
+      convert -resize $RESIZE -rotate 90 $FF.ps $FF.png
    done
    tar cvf fig.tar *.png  *.ps
 elif [ $OUTPUT_TYPE -eq 2 ] ; then

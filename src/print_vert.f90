@@ -37,15 +37,23 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
  INTEGER :: i,j,jj,j_ind,k,kk,              &
             ntimver_out,hour(ntimver),      &
             num(nexp,nlev),                 &
-            period,jl(1)
+            period,jl(1),npp
 
- REAL    :: bias(nexp,nlev),       &
+ REAL, TARGET ::                   &
+            bias(nexp,nlev),       &
             rmse(nexp,nlev),       &
             stdv(nexp,nlev),       &
             rnum(nexp,nlev),       &
              obs(nexp,nlev),       &
             miny,maxy,diff,        &
             rcount_max
+
+ TYPE print_pointer
+    REAL, POINTER :: v(:)
+ END TYPE
+
+ TYPE(print_pointer), ALLOCATABLE :: pdat(:)
+
 
  LOGICAL :: legend_done = .FALSE.
 
@@ -55,11 +63,15 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
  CHARACTER(LEN=7  ) :: cnum_case = '       '
  CHARACTER(LEN=1  ) :: prefix    = ' '
  CHARACTER(LEN=10 ) :: chour    = ' '
+ CHARACTER(LEN=30 ) :: cform='   '
 
  LOGICAL, ALLOCATABLE :: ldum(:)
 
 !------------------------------------------
 
+ !
+ ! Unify settings
+ !
  IF ( show_obs ) THEN
     show_rmse = .FALSE.
     show_bias = .FALSE.
@@ -157,12 +169,169 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
 
     CALL open_output(fname)
 
+    !
+    ! Create headings
+    !
+
+    ! Line 1
+    IF(ALLOCATED(station_name)) THEN
+       wtext='Station: '//trim(station_name(csi))
+    ELSE
+       WRITE(wtext(1:8),'(I8)')stnr
+       wtext='Station: '//trim(wtext(1:8))
+    ENDIF
+
+    IF (stnr == 0) THEN
+       wtext='Statistics for      stations'
+       j_ind = (j/nlev-1)*nlev + 1
+       jj = MAXVAL(par_active(j_ind:j_ind+nlev-1))
+       WRITE(wtext(1:4),'(I4)')jj
+       wtext=TRIM(wtext(1:4))//' stations'
+       IF ( TRIM(tag) /= '#' ) wtext=TRIM(wtext)//' Area: '//TRIM(tag)
+    ENDIF
+    WRITE(lunout,'(A,X,A)')'#HEADING_1',TRIM(wtext)
+    
+    ! Line 2
+    ob_short = obstype(j)
+    ob_short(3:6) = '    '
+    CALL pname(ob_short,wtext)
+     
+    ! Line 2
+    IF ( yymm == 0 ) THEN
+    ELSEIF(yymm < 13) THEN
+
+       SELECT CASE(period_freq) 
+       CASE(1)
+        WRITE(wtext1,'(A8,A8)')'Period: ',seasonal_name2(yymm)
+       CASE(3)
+        WRITE(wtext1,'(A8,A8)')'Period: ',seasonal_name1(yymm)
+       END SELECT 
+
+       ELSEIF(yymm < 9999 .OR. ( period_type == 2 .AND. period_freq == 1)) THEN
+       WRITE(wtext1,'(A8,I6)')'Period: ',yymm
+    ELSEIF(yymm < 999999 ) THEN
+       WRITE(wtext1,'(A8,I6,A2,I6)')'Period: ',        &
+       yymm,' -',monincr(yymm,period_freq-1)
+    ELSE
+       WRITE(wtext1,'(A8,I8,A1,I8)')'Period: ',        &
+       yymm,'-',yymm2
+    ENDIF
+    wtext = TRIM(wtext)//'  '//TRIM(wtext1)
+    WRITE(lunout,'(A,X,A)')'#HEADING_2',TRIM(wtext)
+
+    ! Line 3
+    ! First find corret index for fclenth usage
+
+    j_ind = (j/nlev-1)*nlev + 1
+    jl    = MAXLOC(par_active(j_ind:j_ind+nlev-1)) + j_ind - 1
+
+    IF ( ntimver_out == 1 ) THEN
+       CALL fclen_header(.TRUE.,maxfclenval,uh(jl,:),uf(jl,:),wtext)
+    ELSE
+       IF (lfcver) THEN
+          ALLOCATE(ldum(0:hour(kk)))
+          ldum           = .FALSE.
+          ldum(hour(kk)) = .TRUE.
+          CALL fclen_header(.TRUE.,hour(kk),uh(jl,:),ldum,wtext)
+          DEALLOCATE(ldum)
+       ELSE
+          WRITE(chour,'(I3.2,X,A3)')hour(kk),'UTC'
+          CALL fclen_header(.TRUE.,maxfclenval,uh(jl,:),uf(jl,:),wtext)
+          wtext = 'Statistics at '//chour   //'  '//TRIM(wtext)
+       ENDIF
+    ENDIF
+    WRITE(lunout,'(A,X,A)')'#HEADING_3',TRIM(wtext)
+
+    ! Experiments and parameters and norms
+    WRITE(lunout,'(A,X,A)')'#PAR',TRIM(obstype(j))
+
+    npp = 0
+
+    IF (show_obs ) npp = nexp + 1 
+    IF (show_rmse) npp = nexp
+    IF (show_stdv) npp = npp + nexp
+    IF (show_bias) npp = npp + nexp
+
+    ! Add one column for number of cases 
+    npp = npp + 1
+
+    IF ( show_obs ) THEN
+       WRITE(lunout,'(A,X,I2)')'#NEXP',nexp+1
+       WRITE(lunout,'(A,I2.2X,A)')'#EXP_',0,'OBS'
+    ELSE
+       WRITE(lunout,'(A,X,I2)')'#NEXP',nexp
+    ENDIF
+    DO i=1,nexp
+       WRITE(lunout,'(A,I2.2X,A)')'#EXP_',i,expname(i)
+    ENDDO
+
+    ob_short = obstype(j)
+    ob_short(3:6) = '   '
+    CALL yunit(ob_short,ytitle)
+    WRITE(lunout,'(A,X,A)')'#YLABEL','hPa'
+    WRITE(lunout,'(A,X,A)')'#XLABEL',TRIM(ytitle)
+
+    ! Time to write the parameters
+ 
+    ALLOCATE(pdat(npp))
+  
+    k = 0
+    IF ( show_rmse ) THEN
+      DO i=1,nexp
+        k=k+1
+        pdat(k)%v => rmse(i,1:nlev)
+        WRITE(lunout,'(A,I2.2,2(X,A))')'#COLUMN_',k+1,'RMSE',TRIM(expname(i))
+      ENDDO
+    ENDIF 
+    IF ( show_stdv ) THEN
+      DO i=1,nexp
+        k=k+1
+        pdat(k)%v => stdv(i,1:nlev)
+        WRITE(lunout,'(A,I2.2,2(X,A))')'#COLUMN_',k+1,'STDV',TRIM(expname(i))
+      ENDDO
+    ENDIF 
+    IF ( show_bias ) THEN
+      DO i=1,nexp
+        k=k+1
+        pdat(k)%v => bias(i,1:nlev)
+        WRITE(lunout,'(A,I2.2,2(X,A))')'#COLUMN_',k+1,'BIAS',TRIM(expname(i))
+      ENDDO
+    ENDIF 
+    IF ( show_obs ) THEN
+      DO i=1,nexp
+        k=k+1
+        pdat(k)%v => bias(i,1:nlev)
+        WRITE(lunout,'(A,I2.2,X,A)')'#COLUMN_',k+1,TRIM(expname(i))
+      ENDDO
+      k=k+1
+      pdat(k)%v => obs(1,1:nlev)
+      WRITE(6,*)'OBS ',k
+      WRITE(lunout,'(A,I2.2,X,A)')'#COLUMN_',k+1,'OBS'
+    ENDIF
+    k=k+1
+    pdat(k)%v => rnum(1,1:nlev)
+    WRITE(lunout,'(A,I2.2,X,A)')'#COLUMN_',k+1,'CASES'
+
+    ! End of headings
+    WRITE(lunout,'(A,X,en13.3e2)')'#MISSING',err_ind
+    WRITE(lunout,'(A)')'#END'
+
+    cform = '(f7.0,NN(x,en13.3e2))'
+    WRITE(cform(7:8),'(I2.2)')npp
+
+    WRITE(6,*)'CFORM:',TRIM(cform)
+
     DO jj=nlev,1,-1
        IF ( num(1,jj) == 0 ) CYCLE
-       WRITE(lunout,*)lev_lst(jj),bias(:,jj),rmse(:,jj)
+       WRITE(lunout,cform)lev_lst(jj),(pdat(k)%v(jj),k=1,npp)
     ENDDO
 
     CLOSE(lunout)
+
+    DO i=1,SIZE(pdat)
+       NULLIFY(pdat(i)%v)
+    ENDDO
+    DEALLOCATE(pdat)
 
  ENDDO
  ENDDO
