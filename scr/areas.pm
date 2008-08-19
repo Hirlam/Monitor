@@ -235,6 +235,16 @@
    'MAP_PROJECTION'      => '\'POLAR_STEREOGRAPHIC\'',
    'MAP_AREA_DEFINITION '=> '\'CENTRE\'',
    },
+  'Baltic_sea' => {
+   'LPOLY'               => 'T',
+   'POLYFILE'            => '\'Baltic_sea.poly\'',
+   'MAP_SCALE'           => 1.5e7,
+   'MAP_CENTRE_LATITUDE' => 60.,
+   'MAP_CENTRE_LONGITUDE'=> 30.,
+   'MAP_VERTICAL_LONGITUDE'=>20.,
+   'MAP_PROJECTION'      => '\'POLAR_STEREOGRAPHIC\'',
+   'MAP_AREA_DEFINITION '=> '\'CENTRE\'',
+   },
   'Eumou' => {
    'STNLIST'=> '1238, 1245,1288,1340,1350,1359,1364,1393,1433,1434,1441,1446,
             1447,2013,2020,2029,2102,2103,2110,2121,2130,2209,2221,2233,2256,
