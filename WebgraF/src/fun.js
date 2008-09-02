@@ -812,7 +812,7 @@ function sel_top(w,action) {
 function dirFig(fg,action,ft,tdstyle)
 {
    if ( tdstyle == undefined ) { tdstyle = '' }
-   tfg = " Missing: "+ fg 
+   tfg = " No plot available "
    return "<td "+tdstyle+"><a href='javascript:parent." +action+ "' a><img alt='" +tfg+ "' title='" +ft+ "' src='" +fg+ "' border='0'></a></td>"
 }
 // --------------------------------------------------------
@@ -827,10 +827,10 @@ function dirPic(fg,action,ft,tdstyle)
       if (myimage.width  != 0 ) {wdt = myimage.width  * size_fig }
       if ( wdt != 0 || hgt != 0 ){ fgs =" width="+wdt+" height="+hgt+" " }
    }
-   tfg = " Missing: "+ fg
+   tfg = " No plot available "
 
+   return "<td "+tdstyle+"><h1><a href='javascript:parent." +action+ "' a><img alt='" +tfg+ "' title='" +ft+ "' src='" +fg+ "'"+ fgs+" border='0'></a></h1></td>"
 
-   return "<td "+tdstyle+"><a href='javascript:parent." +action+ "' a><img alt='" +tfg+ "' title='" +ft+ "' src='" +fg+ "'"+ fgs+" border='0'></a></td>"
 }
 // --------------------------------------------------------
 function dirTxt(tdstyle,text,action,style,mytitle)
