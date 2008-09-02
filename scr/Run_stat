@@ -1,0 +1,56 @@
+#!/bin/sh
+#
+#
+#
+# Loop over assimilation cycles
+#
+ for JY in 2007
+ do
+
+ for JM in 02
+ do
+
+ for JD in 01
+ do
+
+ for JH in 12
+
+ do
+
+#
+#
+# Input data directories (to be modified)
+#
+
+#
+# Users execution/script/tmp/out directories (to be modified)
+#                                                                              
+BINDIR=/scratch/ms/se/smx/save/src
+SCRIPT_DIR=/scratch/ms/se/smx/save/scr
+TMPDIR=/scratch/ms/se/smx/save/tmp/
+OUT_DIR=/scratch/ms/se/smx/save/data/
+#
+# Export the ENVIRONMENT VARIABLES
+#
+export BINDIR SCRIPT_DIR TMPDIR OUT_DIR
+#                                                                             
+cd ${SCRIPT_DIR}
+
+./odbstat.job $JY $JM $JD $JH
+
+./plothist.job $JY$JM$JD $JH
+
+./rejstat.job $JY $JM $JD $JH 
+
+./plotusage.job $JY$JM$JD $JH 
+
+
+done
+
+done
+
+done
+
+done
+
+exit

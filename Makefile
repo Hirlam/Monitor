@@ -12,11 +12,16 @@ ifeq ($(MAGICSFLAG),-DMAGICS)
 else
    GLLINK := src rdr mod src
 endif
+CMALINK := cmastat
 
+LIBSGL  := $(patsubst %,$(ROOTDIR)/$(ARCH)/lib/%.a,$(GLLINK))
+LIBSCMA := $(patsubst %,$(ROOTDIR)/$(ARCH)/lib/%.a,$(CMALINK))
 
-LIBSGL := $(patsubst %,$(ROOTDIR)/$(ARCH)/lib/%.a,$(GLLINK))
+default: verobs odbstat rejstat
 
-default: $(ROOTDIR)/$(ARCH)/bin/verobs 
+verobs: $(ROOTDIR)/$(ARCH)/bin/verobs 
+odbstat: $(ROOTDIR)/$(ARCH)/bin/odbstat 
+rejstat: $(ROOTDIR)/$(ARCH)/bin/rejstat
 
 clean: clean_gl allclean clean_arch
 
@@ -38,8 +43,14 @@ ifeq ($(MAGICSFLAG),-DMAGICS)
 else
    GLDIRS := mod rdr src prg
 endif
+   CMADIRS := cmastat prg
 
 GLLIBS := $(patsubst %,$(ROOTDIR)/$(ARCH)/lib/%.a,$(GLDIRS))
+CMALIBS := $(patsubst %,$(ROOTDIR)/$(ARCH)/lib/%.a,$(CMADIRS))
+
+$(CMALIBS): $(ROOTDIR)/$(ARCH)/bin/depf90mod.x ./$(ARCH)/lib 
+	-$(MKDIR)  $(ARCH)/$(patsubst $(ROOTDIR)/$(ARCH)/lib/%.a,%,$@)
+	$(MAKE) -C $(ARCH)/$(patsubst $(ROOTDIR)/$(ARCH)/lib/%.a,%,$@) -f $(ROOTDIR)/makegl.mk ARCH=$(ARCH) TOROOT=.. $@
 
 $(GLLIBS): $(ROOTDIR)/$(ARCH)/bin/depf90mod.x ./$(ARCH)/lib 
 	-$(MKDIR)  $(ARCH)/$(patsubst $(ROOTDIR)/$(ARCH)/lib/%.a,%,$@)
@@ -49,6 +60,12 @@ $(GLLIBS): $(ROOTDIR)/$(ARCH)/bin/depf90mod.x ./$(ARCH)/lib
 
 $(ROOTDIR)/$(ARCH)/bin/verobs: $(ARCH) $(GLLIBS)
 	$(LD) $(ROOTDIR)/$(ARCH)/prg/verobs.o $(LIBSGL) $(EXTLIB) $(LDFLAGS) -o $@
+
+$(ROOTDIR)/$(ARCH)/bin/odbstat: $(ARCH) $(CMALIBS)
+	$(LD) $(ROOTDIR)/$(ARCH)/prg/odbstat.o $(LIBSCMA) $(LDFLAGS) -o $@
+
+$(ROOTDIR)/$(ARCH)/bin/rejstat: $(ARCH) $(CMALIBS)
+	$(LD) $(ROOTDIR)/$(ARCH)/prg/rejstat.o $(LIBSCMA) $(LDFLAGS) -o $@
 
 clean_gl: cleanobj_gl cleanpp_gl
 	-for dir in $(GLDIRS) ; do \

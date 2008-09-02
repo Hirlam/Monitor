@@ -1,0 +1,72 @@
+#!/bin/sh
+#         
+#    Extract statistics from acma-file 
+#
+
+set -x
+#
+#
+ok=yes
+cd ${TMPDIR} || ok=no
+if [ $ok = yes ]
+then
+echo ${TMPDIR}
+else
+echo 'TMPDIR does not exist'
+fi
+#
+# Copy executable
+cp ${BINDIR}/rejstat.x rejstat.x
+#
+# Date/Time
+#
+date=$1$2$3
+time=$4
+
+#
+# link input acma file
+#
+cp ${OUT_DIR}/ecma_conv_${date}${time} fort.10
+#
+# Generate namelist
+#
+cat  >rejstat.dat <<**EOF**
+ &rejstat
+    lsatob=.false.,
+    lsynop=.true.,
+    lmetar=.false., 
+    lship=.true.,
+    ldribu=.true.,
+    lpilot=.true.,
+    lairep=.true.,
+    ltemp=.true., 
+    lpreplo=.false.,
+ /
+**EOF**
+
+# Run executable
+./rejstat.x
+
+cp synop_z.dat ${OUT_DIR}/histdata/synop_z.dat
+cp ship_z.dat ${OUT_DIR}/histdata/ship_z.dat
+cp dribu_z.dat ${OUT_DIR}/histdata/dribu_z.dat
+cp temp_T.dat ${OUT_DIR}/histdata/temp_T.dat
+cp temp_u.dat ${OUT_DIR}/histdata/temp_u.dat 
+cp temp_v.dat ${OUT_DIR}/histdata/temp_v.dat
+cp temp_q.dat ${OUT_DIR}/histdata/temp_q.dat
+cp pilot_u.dat ${OUT_DIR}/histdata/pilot_u.dat
+cp pilot_v.dat ${OUT_DIR}/histdata/pilot_v.dat 
+cp airep_T.dat ${OUT_DIR}/histdata/airep_T.dat
+cp airep_u.dat ${OUT_DIR}/histdata/airep_u.dat 
+cp airep_v.dat ${OUT_DIR}/histdata/airep_v.dat 
+ 
+
+rm rejstat.dat 
+
+rm *.dat fort.33 rejstat.x
+
+exit
+
+
+
+
