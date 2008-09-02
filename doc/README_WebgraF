@@ -1,6 +1,6 @@
  -------- WebgraF -------
 
- (c) Ulf Andrae 2003-2006
+ (c) Ulf Andrae 2003-2008
 
  -------- WebgraF -------
 
@@ -8,7 +8,7 @@
 
     http://www.smhi.se/sgn0106/if/hirald/WebgraF/WebgraF.tar.gz
     or by subversion
-    snv export https://svn.hirlma.org/trunk/harmonie/util/monitor/WebgraF
+    snv export https://svn.hirlam.org/trunk/harmonie/util/monitor/WebgraF
 
 
  Install 

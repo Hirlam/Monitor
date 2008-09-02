@@ -46,11 +46,16 @@ mname = ["Month","Parameter","Fc length"]
 // ['month_txt']  gives ['Jan',...,'Dec']
 // ['time_arch',199909,200305]  gives ["1999/09/","1999/10/",...,"2003/05/"] 
 // ['gen_date','YYYYMMDDHH',1999050100,1999060218] gives [1999050100, ...,1999060212,1999060218]
+// ['gen_date','YYYYMMDDHH',today(),1999060218] gives [todays date, ...,1999060212,1999060218]
+// ['gen_date','YYYYMMDDHH',today(-1),1999060218] gives [yesterdays date, ...,1999060212,1999060218]
 // ['gen_date','YYYYMMDD_HH','20050101_00','20050104_00',24] gives ["20050101_00","20050102_00",...,"20050104_00"] 
 // ['gen_date','YYYY_MM_DD','1999_05_01','1999_05_15',48] gives ['1999_05_01',...,'1999_05_13','1999_05_15']
 // ['gen_date','/YYYY_MMDD','/2005_0101','/2005_0104',24] gives ["/2005_0101","/2005_0102",...,"/2005_0104"] 
 // ['gen_date','YYYYMMDD','20050101','20050104',24] gives ["20050101","20050102",...,"20050104"] 
 // ['gen_date','/YYYY/MM/','/1999/05/','/1998/11/'] gives ['/1999/05/',...,'/1998/12/','/1998/11/']
+// ['gen_date','/YYYY/MM/','/1999/05/','/1998/11/'] gives ['/1999/05/',...,'/1998/12/','/1998/11/']
+// ['gen_date','/YYYY/MM/',today(-1,''/YYYY/MM/'),today(1,'/YYYY/MM/')] 
+//   gives [last month '/YYYY/MM/',..., next month '/YYYY/MM/']
 // ['txt_date','YYYY MM','1999 05','1999 11'] gives ['May 1999',...,'Oct 1999','Nov 1999']
 // etc.
 
@@ -82,6 +87,8 @@ sep = ''
 // Menu order of appearence on browser, optional
 order = [2,1,0]
 
+// Which position to start on in the "matrix"
+start_at ='0_1_5'
 
 // Location, left = l; top = t, optional
 // If left empty script will decide

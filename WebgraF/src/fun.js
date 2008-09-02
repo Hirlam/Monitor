@@ -387,38 +387,58 @@ function getFig(ind,selectedIndex) {
 function today()
 {
 // Create dynamic time array
- dh = 0
- if ( arguments[0] != undefined ) { dh = - arguments[0]*24 }
+ dh_0 = 0
+ if ( arguments[0] != undefined ) { dh_0 = - arguments[0]*24 }
 
       sep_yy ='' ; sep_hh ='' ;
       sep_ym ='' ; sep_md ='' ;  sep_dh ='' ;
       so = 0 ; si=0 ;
       
+      include_yy = true ;
+      include_mm = true ;
+      include_dd = true ;
+      include_hh = true ;
+
+      dh = dh_0
+
  if ( arguments[1] != undefined ) {
+
+      include_yy = false ;
+      include_mm = false ;
+      include_dd = false ;
+      include_hh = false ;
 
       form = arguments[1] 
       if ( form.indexOf("YYYY",si) > -1 ) { 
          si = form.indexOf("YYYY",si)
          if ( so != si ) { sep_yy = form.substring(so,si) }
          si += 4 ; so = si  ;
+         include_yy = true ;
+         dh = dh_0 * 365
       } ;
 
       if ( form.indexOf("MM"  ,si) > -1 ) {
          si = form.indexOf("MM",si)
          if ( so != si ) { sep_ym = form.substring(so,si) }
          si += 2 ; so = si  ;
+         include_mm = true ;
+         dh = dh_0 * 31 
       } ;
 
       if ( form.indexOf("DD"  ,si) > -1 ) {
          si = form.indexOf("DD",si)
          if ( so != si ) { sep_md = form.substring(so,si) }
          si += 2 ; so = si  ;
+         include_dd = true ;
+         dh = dh_0
       };
 
       if ( form.indexOf("HH"  ,si) > -1 ) {
          si =form.indexOf("HH",si)
          if ( so != si ) { sep_dh = form.substring(so,si) }
          si += 2 ; so = si  ;
+         include_hh = true ;
+         dh = dh_0 / 24
       } ;
 
        so = form.length ;
@@ -442,7 +462,16 @@ function today()
  sd = add[magn(nday.getDate())] + nday.getDate()
  sh = '00'
 
- date = sep_yy + sy + sep_ym + sm + sep_md + sd + sep_dh + sh + sep_hh ;
+ date = sep_yy
+ if ( include_yy) { date += sy }
+ date += sep_ym
+ if ( include_mm) { date += sm }
+ date += sep_md
+ if ( include_dd) { date += sd }
+ date += sep_dh
+ if ( include_hh) { date += sh }
+ date += sep_hh
+ //date = sep_yy + sy + sep_ym + sm + sep_md + sd + sep_dh + sh + sep_hh ;
  return date
 
 }
@@ -475,7 +504,7 @@ var p = arguments[0]
       do {
          p[jj] =  mm
          mm += mm_inc
-         jj += 1
+	 jj += 1
       } while ( mm <= mstop )
 
       if ( reverse ) { p = p.reverse() }
