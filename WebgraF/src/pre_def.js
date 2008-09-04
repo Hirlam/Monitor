@@ -1,5 +1,5 @@
 // User dependent variables
-if ( window.screen.availWidth > 1100 ) {
+if ( window.screen.availWidth > 1400 ) {
     m_item = 'menuitem'
     m_head = 'menuheading'
     m_curr = 'menucurrent'
@@ -23,6 +23,9 @@ var input_text  = new Array() ;
 var my_xml      = new Array() ;
 var my_xml_txt  = new Array() ;
 var my_xml_title = 'Statistics'
+var my_info      = new Array() ;
+var my_info_txt  = new Array() ;
+var my_info_title= 'Model info'
 var multi  	= false
 var mpos   	= -99
 var save_txt 	= ""
@@ -64,7 +67,8 @@ var pdir   	= ''
 var help   	= ""
 var info   	= ""
 var view_limit  = 50
-var do_remember = true
+var do_remember = false
+var do_show_remember = false
 var do_save 	= true
 var do_flip	= false
 var do_delete	= false
@@ -76,6 +80,7 @@ var info_start  = false
 var user        = "nada"
 var size_fig    = 1.0
 var do_resize   = true
+var host_page   = undefined
 
 // Language
 

@@ -1,6 +1,6 @@
  -------- WebgraF -------
 
- Ulf Andrae 2003-2006
+ Ulf Andrae 2003-2008
 
  -------- WebgraF -------
 
@@ -42,22 +42,24 @@
 
  WebgraF -h will print :
 
- USAGE: WebgraF -p PROJECT -e ENTRY [ -f FILE ] [ -glrhxXInm]
- -p PROJECT name 
- -e ENTRY name 
- -I Install a new WebgraF webhome, to be used with -b 
- -i INFO html file linked to mainpage, project or entry 
- -f FILE Webpage definition file or directory 
-    can be FILE.js,FILE.tar or directory 
- -r Remove ENTRY or PROJECT 
- -m Message on PROJECT link 
- -n Rename PROJECT/ENTRY  
- -c CLEANAGE Remove all ( but .html,.js) files older than CLEANAGE days from PROJECT/ENTRY 
- -l List all projects and entrys 
- -g Get input.js from PROJECT/ENTRY 
- -x Export an PROJECT/ENTRY 
- -h Displays this help 
- -b Work with a different base directory 
+ USAGE: WebgraF -p PROJECT -e ENTRY [ -f FILE ] [ -glrhxXInmtj]
+  -p PROJECT name 
+  -e ENTRY name 
+  -I Install a new WebgraF webhome, to be used with -b 
+  -i INFO html file linked to project or entry 
+  -j Set host page for main page "WebgraF -j https://hirlam.org"
+  -f FILE Webpage definition file or directory 
+     can be <a href='src/input.html' >FILE.js</a>, FILE.tar or directory 
+  -r Remove ENTRY or PROJECT 
+  -m Message on PROJECT link 
+  -n Rename PROJECT/ENTRY  
+  -c CLEANAGE Remove all ( but .html,.js) files older than CLEANAGE days from PROJECT/ENTRY 
+  -l List all projects and entrys 
+  -g Get input.js from PROJECT/ENTRY 
+  -x Export an PROJECT/ENTRY 
+  -t Transport an PROJECT/ENTRY 
+  -h Displays this help 
+  -b Work with a different base directory 
 
 
  WebgraF -l will list current projects
@@ -78,15 +80,26 @@
 
  WebgraF -b $FULL_PATH/NEW_WEBGRAF -i "some_file.html" will add a start page to the main page
 
- WebgraF -b $FULL_PATH/NEW_WEBGRAF -i "http://www.ecmwf.int" will add a start page as a link to the main page
+ WebgraF -b $FULL_PATH/NEW_WEBGRAF -i "http://hirlam.org" will add a start page as a link to the main page
 
- WebgraF -b $FULL_PATH/NEW_WEBGRAF -p PROJECT_1 -i "http://www.smhi.se"  will add a new description on PROJECT_1
+ WebgraF -b $FULL_PATH/NEW_WEBGRAF -j "http://hirlam.org" will add a "back to main page" link to the main page
+
+ WebgraF -b $FULL_PATH/NEW_WEBGRAF -p PROJECT_1 -i "http://hirlam.org"  will add a new description on PROJECT_1
 
  WebgraF -b $FULL_PATH/NEW_WEBGRAF -p PROJECT_1 -e ENTRY_1 -f fig.tar will new plots to PROJECT_1/ENTRY_1
 
  WebgraF -b $FULL_PATH/NEW_WEBGRAF -p PROJECT_1 -e ENTRY_1 -x will create a tar file with your plots and definition for ENTRY_1
 
  WebgraF -b $FULL_PATH/NEW_WEBGRAF -p PROJECT_1            -x will create a tar file with your plots and definition for PROJECT_1
+
+ WebgraF -b $FULL_PATH/NEW_WEBGRAF -p PROJECT_1 -e ENTRY_1 -t will create a tar file with your plots and definition for ENTRY_1
+
+ WebgraF -b $FULL_PATH/NEW_WEBGRAF -p PROJECT_1            -t will create a tar file with your plots and definition for PROJECT_1
+
+ The difference between -x and -t is that -x creates a tar file which is selcontained in terms of the web interface. 
+ If you use -t it can be added to another WebgraF page by
+
+ WebgraF -b $FULL_PATH/NEW_WEBGRAF -a tarfile.tar
 
  WebgraF -b $FULL_PATH/NEW_WEBGRAF -p PROJECT_1 -e ENTRY_1 -c 0 will list all png/gif files in ENTRY_1
 

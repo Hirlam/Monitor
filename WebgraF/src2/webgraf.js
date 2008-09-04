@@ -7,25 +7,7 @@ function expand_menu(ind) {
 
 }
 // --------------------------------------------------------
-function goto_random_entry() {
-   str = new String(window.location) ;
-   str = str.substr(0,str.lastIndexOf("/"))
-   str += "/"+project+"/index.html?choice_ind="+entry
-    window.top.location = str
-}
-// --------------------------------------------------------
 function get_src() { parent.frames['Pic'].location = "http://www.smhi.se/sgn0106/if/hirald/WebgraF/WebgraF.tar.gz" }
-// --------------------------------------------------------
-function get_random_fig() {
- str = new String(window.location) ;
- str = str.substr(0,str.lastIndexOf("/"))
-
- tmp  = "<pre>Pick of the day from <a href='javascript:parent.goto_random_entry()' a>"+project+"/"+entry+"</a></pre><br>"
- tmp += "<a href='javascript:parent.goto_random_entry()' a>"
- tmp += "<img title=' Go to "+project+"/"+entry+"' border='0' alt='No image found' src='"+str+"/"+project+"/"+entry+"/"+ranfig+"'></a>"
-
- return tmp
-}
 // --------------------------------------------------------
 function get_info(ind) {
    if ( ind > -1 ) {
@@ -122,8 +104,10 @@ function dirTxt(tdstyle,text,action,style,ind,mytitle)
    else { 
       tmp =""
       tmp += "<td "+tdstyle+"><a href='javascript:parent." +action+ "'"
-      if (ind >   -1 ) {tmp += " onMouseOver='parent.get_info("+ind+")'" }
-      if (ind == -11 ) {tmp += " onMouseOver='parent.show_info()'" }
+      if ( do_mouseinfo ) {
+         if (ind >   -1 ) {tmp += " onMouseOver='parent.get_info("+ind+")'" }
+         if (ind == -11 ) {tmp += " onMouseOver='parent.show_info()'" }
+      } 
       tmp += " class='"+style+"' title='"+mytitle+"' a>" +text+ "</a></td>" 
       return tmp
    }
@@ -148,14 +132,10 @@ function all_head( ) {
  this.txt  = ""
  this.cri  = cri
 
- if ( pre_lan == 0 ) { this.mytitle = 'Show this project'  }
- if ( pre_lan == 1 ) { this.mytitle = 'Visa detta projekt' }
- this.txt += dirTxt('width=100',this.name,("getEntry("+this.ind+",-1)"),m_head,this.ind,this.mytitle) 
-
- if ( pre_lan == 0 ) { this.mytitle = 'Expand menu'    }
- if ( pre_lan == 1 ) { this.mytitle = 'Expandera meny' }
-
- this.txt += dirTxt('width=10','i',("expand_menu("+this.ind+")"),m_head,this.ind,this.mytitle) 
+ this.txt += dirTxt('width=100',this.name,("getEntry("+this.ind+",-1)"),m_head,this.ind,lang[pre_lan].showp)
+ if ( this.info_list != 'undefined' ) {
+    this.txt += dirTxt('width=10',lang[pre_lan].info,("get_info("+this.ind+")"),m_head,this.ind,lang[pre_lan].info)
+ } 
  this.txt += "</tr><tr>"
 
  if (this.typ == 0 ) { this.txt += "</tr>" }
@@ -175,12 +155,11 @@ function sim_head() {
     break
 
     case -4:
-    //this.act = "to_main()"
     this.act = "nada()"
     break
 
     case -6:
-    this.act = "flip_help()"
+    this.act = "show_info()"
     break
 
     case -7:
@@ -200,13 +179,11 @@ function sim_head() {
     break
 
     case -11:
-    this.act = "show_info()"
+    this.act = "to_main()"
     break
 
     case -12:
     this.act = "get_src()"
-    if ( pre_lan == 0 ) { this.mytitle = 'Download the WebgraF source code'     }
-    if ( pre_lan == 1 ) { this.mytitle = 'Ladda ned källkoden för WebgraF' }
     break
 
  }
@@ -225,7 +202,7 @@ function show_info() {
 
 }
 //--------------------------------------------------------------------------------------------------------------------
-function to_main() { window.top.location = "http://www-int/cmp/jsp/polopoly.jsp?d=1155" }
+function to_main() { window.top.location = host_page }
 //--------------------------------------------------------------------------------------------------------------------
 function my_alert(ind) { alert(this.name + this.p +" "+ this.active +" "+ this.v + "<br>" + this.t + "<BR>" ) }
 //--------------------------------------------------------------------------------------------------------------------
@@ -304,7 +281,7 @@ function menu(ind,name,v,t,loc,typ,head,body,p,active,d,info_list) {
  this.v = v 			// Values
  this.t = t 			// Text
  this.d = d 			// Description
- this.info_list = new String(info_list) 	// Project information link
+ this.info_list = new String(info_list) // Project information link
  this.loc = loc 		// Location in window
  this.typ = typ 		// Type of menu
  this.head = head		// menu head function
@@ -330,6 +307,7 @@ function write_list(){
  this.txt = ""
  // this.txt += top_menu.make_menu('l')
 
+ this.txt += top_menu.make_menu('l') 
  this.txt += inf_menu.make_menu('l') 
  this.txt += src_menu.make_menu('l') 
 
@@ -337,7 +315,6 @@ function write_list(){
      this.txt += mlist[order[i]].make_menu('l') 
  }
 
- this.txt += hel_menu.make_menu('l') 
 
  return this.txt
 
@@ -346,7 +323,7 @@ function write_list(){
 function write_top(){
 
  parent.document.title=title
-
+ 
  this.txt = "<table cellpadding='0' cellspacing='1' border='0' ><tbody><tr>"
  this.txt += "<td><h2> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "+title+"</h2></td>" 
  this.txt += "</tr></tbody></table>"
@@ -371,13 +348,9 @@ function init() {
 
  if ( title == "" ) { title = " WebgraF " }
 
- input_text = fix_input_text(input_list)
- if (input_list.length <= 1 ) { body = nada } else { body = gen_body }
- top_menu = new menu(-4,lang[pre_lan].home,input_list,input_text,'l',1,sim_head,body,choice_ind,true)
-
- hel_menu = new menu( -6,lang[pre_lan].help ,[""],[""],'l',0,sim_head,nada,0,( help != ""))
- inf_menu = new menu(-11,lang[pre_lan].back ,[""],[""],'l',0,sim_head,nada,0,( info != ""))
- src_menu = new menu(-12,lang[pre_lan].downl,[""],[""],'l',0,sim_head,nada,0,         true)
+ top_menu = new menu(-11,lang[pre_lan].back ,[""],[""],'l',0,sim_head,nada,0,(host_page !=undefined))
+ inf_menu = new menu( -6,lang[pre_lan].info ,[""],[""],'l',0,sim_head,nada,0, true )
+ src_menu = new menu(-12,lang[pre_lan].downl,[""],[""],'l',0,sim_head,nada,0, do_download )
 
  for ( i=0 ; i < mname.length ; i++ ) {
 

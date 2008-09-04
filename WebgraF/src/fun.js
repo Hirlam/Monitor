@@ -858,7 +858,7 @@ function dirPic(fg,action,ft,tdstyle)
    }
    tfg = " No plot available "
 
-   return "<td "+tdstyle+"><h1><a href='javascript:parent." +action+ "' a><img alt='" +tfg+ "' title='" +ft+ "' src='" +fg+ "'"+ fgs+" border='0'></a></h1></td>"
+   return "<td "+tdstyle+"><a href='javascript:parent." +action+ "' a><img alt='" +tfg+ "' title='" +ft+ "' src='" +fg+ "'"+ fgs+" border='0'></a></td>"
 
 }
 // --------------------------------------------------------
@@ -1004,6 +1004,10 @@ function sim_head() {
     this.act = "nada()"
     break
 
+    case -16:
+    this.act = "nada()"
+    break
+
  }
 
 
@@ -1032,7 +1036,10 @@ function show_info() {
  parent.frames['Pic'].location = tmp
 }
 //--------------------------------------------------------------------------------------------------------------------
-function to_main() { window.location = "../index.html" }
+function to_main() { 
+   if ( host_page == undefined ) { window.location = "../index.html" }
+                            else { window.location = host_page       }
+}
 //--------------------------------------------------------------------------------------------------------------------
 function my_alert(ind) { alert(this.name + this.p +" "+ this.active +" "+ this.v + "<br>" + this.t + "<BR>" ) }
 //--------------------------------------------------------------------------------------------------------------------
@@ -1183,6 +1190,48 @@ function xml_body( ) {
 
 }
 //--------------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------
+function info_update(loc) { 
+ tmp = my_info[loc]
+
+ // Add URL
+ if ( tmp.lastIndexOf("http") < 0 ) {
+    tmp =  baseURL.substr(0,baseURL.lastIndexOf("index.html"))
+    tmp += input_text[choice_ind]+'/'+ my_info[loc]
+ }
+    
+ if ( tmp.lastIndexOf(".") < 0 ) { tmp += '.xml' }
+ 
+ // Expand [] arguments
+ while ( tmp.search("\\[") != -1 ) {
+     i1= tmp.search("\\[")
+     i2= tmp.search("\\]")
+     i3= tmp.substr(i1+1,i2-i1-1)
+    tmp = tmp.replace(tmp.substr(i1,i2-i1+1),v[i3][pos[i3]])
+ } ;
+ parent.frames['Pic'].location = tmp
+}
+//--------------------------------------------------------------------------------------------------------------------
+function info_body( ) { 
+
+ this.attrib = "bgcolor='#ffffff' rowspan='1' colspan='6'"
+ this.menu_style = menu_style
+ this.txt        = ""
+
+ this.act = "info_update(selectedIndex)"
+ this.txt += sel_top(6,this.act,0)
+
+ for (jj = 0; jj < this.v.length; jj++) {
+    if ( this.p == jj ) { seltext = 'selected' } else { seltext ='' }
+    this.txt += "<option " +seltext+" class="+m_item+">"+this.t[jj]+"</option>"
+ }
+
+ this.txt += "</select></td></tr>"
+
+ return this.txt
+
+}
+//--------------------------------------------------------------------------------------------------------------------
 function make_menu(loc) { 
 
  this.txt = ""
@@ -1265,6 +1314,7 @@ function write_list(){
  if ( do_resize ) { this.txt += res_menu.make_menu('l') }
  if ( rem_menu.active ) { this.txt += sen_menu.make_menu('l') }
  this.txt += xml_menu.make_menu('l')
+ this.txt += info_menu.make_menu('l')
 
  list = this.txt
 
@@ -1299,7 +1349,7 @@ function write_top(){
      this.txt += "</td>"
  }
 
- if ( do_remember ) { this.txt += "<td>" + rem_menu.make_menu('t') + "</td>" }
+ if ( do_remember && do_show_remember ) { this.txt += "<td>" + rem_menu.make_menu('t') + "</td>" }
 //if ( ! rem_menu.active ) { this.txt += "<td><h2> &nbsp;&nbsp;&nbsp; "+title+"</h2></td>" }
 
  this.txt += "</tr></tbody></table>"
@@ -1346,11 +1396,16 @@ function init() {
             'l',0,sim_head,you_body,-1,false)
 
  inf_menu = new menu(-11,lang[pre_lan].mifo,[""],[""],'l',0,sim_head,nada,0,( info != ""))
- sen_menu = new menu(-12,lang[pre_lan].send,[""],[""],'l',0,sim_head,nada,0,( do_send && ! do_manip && ! do_flip && ! do_delete ))
+ sen_menu = new menu(-12,lang[pre_lan].send,[""],[""],'l',0,sim_head,nada,0,
+                     ( do_show_remember && do_send && ! do_manip && ! do_flip && ! do_delete ))
  deb_menu = new menu(-13,'Debug'           ,[""],[""],'l',0,sim_head,nada,0, do_debug )
  res_menu = new menu(-14,lang[pre_lan].resi,[""],[""],'l',0,sim_head,nada,0, do_resize )
+
  if ( my_xml_txt.length == 0 ) { my_xml_txt = my_xml }
  xml_menu = new menu(-15,my_xml_title,my_xml,my_xml_txt,'l',0,sim_head,xml_body,0, (my_xml.length > 0 ))
+
+ if ( my_info_txt.length == 0 ) { my_info_txt = my_info }
+ info_menu = new menu(-16,my_info_title,my_info,my_info_txt,'l',0,sim_head,info_body,0, (my_info.length > 0 ))
 
  for ( i=0 ; i < mname.length ; i++ ) {
 

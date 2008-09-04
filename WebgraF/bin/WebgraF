@@ -9,6 +9,7 @@
  $usage .=" -e ENTRY name \n" ;
  $usage .=" -I Install a new WebgraF webhome, to be used with -b \n" ;
  $usage .=" -i INFO html file linked to project or entry \n" ;
+ $usage .=" -j Set host page for main page like: WebgraF -j https://hirlam.org \n";
  $usage .=" -f FILE Webpage definition file or directory \n" ;
  $usage .="    can be FILE.js,FILE.tar or directory \n";
  $usage .=" -r Remove ENTRY or PROJECT \n";
@@ -18,6 +19,7 @@
  $usage .=" -l List all projects and entrys \n";
  $usage .=" -g Get input.js from PROJECT/ENTRY \n" ;
  $usage .=" -x Export an PROJECT/ENTRY \n" ;
+ $usage .=" -t Transport an PROJECT/ENTRY \n" ;
  $usage .=" -h Displays this help \n" ;
  $usage .=" -b Work with a different base directory \n" ;
  $usage .=" \n";
@@ -49,9 +51,11 @@ $ADDUSER = "false"    ;
 $RENAME  = "false"    ;
 $ADDFILE = "false"    ;
 $INSTALL = "false"    ;
+$ADD_HP  = "false"    ;
 $MESSAGE = "none"     ;
 $NEWNAME = "none"     ;
 $BASNAME = "none"     ;
+$INFO    = "none"     ;
 $BASE    = $WEBGRAF_BASE  ;
 $TRANSPORT  = "false" ;
 
@@ -66,6 +70,7 @@ while ( <@ARGV> ) {
    if ( /-n/) { $NEWNAME = $ARGV[($n + 1)] ; $RENAME  = "true"       ; } ;
    if ( /-c/) { $CLEANAGE= $ARGV[($n + 1)] ; $CLEAN   = "true"       ; } ;
    if ( /-a/) { $FILE    = $ARGV[($n + 1)] ; $ADDFILE = "true"       ; } ;
+   if ( /-j/) { $HOST_PAGE = $ARGV[($n + 1)] ; $ADD_HP = "true" ; } ;
    if ( /-f/) { $FILE    = $ARGV[($n + 1)] ; } ;
    if ( /-m/) { $MESSAGE = $ARGV[($n + 1)] ; } ;
    if ( /-d/) { die "USE -r for delete \n" ; } ;
@@ -344,6 +349,68 @@ if ( $ADDFILE =~ /true/ ) {
 
 } ;
 
+if ( $ADD_HP =~ /true/ ) {
+
+           $WRK=$BASE."/host_page.txt" ;
+           open OFILE, "> $WRK";
+           print OFILE "$HOST_PAGE" ; 
+           close OFILE ;
+           chdir $BASE or die "Could not change dir to $BASE \n" ;
+	   &make_index() ;
+	   exit;
+
+} ;
+
+#
+# Add an infofile to the mainpage, project or entry
+#
+
+if ( $GETINFO =~ /true/ && $GETFILE =~ /false/ && $DELETE =~ /false/ ) {
+
+        if ( $PROJECT =~ /WebgraF_PROJECT/ ) {
+
+           $WRK=$BASE."/info.txt" ;
+           open OFILE, "> $WRK";
+           print OFILE "$INFO" ; 
+           close OFILE ;
+
+           chdir $BASE or die "Could not change dir to $BASE \n" ;
+	   &make_index() ;
+	   exit;
+
+        } ;
+	chdir $CALLDIR or die "Could not goto $CALLDIR \n";
+
+
+	if ( $ENTRY =~ /WebgraF_ENTRY/ ) { $BASENTRY=$BASE . "/" . $PROJECT ; $WRK = $PROJECT ;                }
+                       	   else { $BASENTRY=$BASE . "/" . $PROJECT . "/" . $ENTRY ; $WRK=$ENTRY ;     } ;
+	   $BASENTRY =~ s/ //g ;
+	   $WRK      =~ s/ //g ;
+	   if ( -s $INFO ) { 
+		if ( $INFO =~m/\.html/) { 
+			print "Copy $INFO to $BASENTRY/$WRK.html \n"; 
+			system ("rm -f     $BASENTRY/$WRK.html") ; 
+			system ("cp $INFO  $BASENTRY/$WRK.html") ; 
+			system ("chmod 777 $BASENTRY/$WRK.html") ; 
+		} else { die "I don't know what to do with $INFO \n" ; } ;
+		$INFO="$PROJECT/$WRK.html" ;
+	   $INFO      =~ s/ //g ;
+	} ;
+        if ( $ENTRY =~ /WebgraF_ENTRY/ ) {
+           $OFILE=$BASE."/".$PROJECT."/info.txt" ;
+           $OFILE =~ s/ //g ;
+           open OFILE, "> $OFILE" or die "Project $PROJECT does not exist\n";
+           print OFILE "$INFO" ; 
+           close OFILE ;
+        } ;
+
+        chdir $BASE or die "Could not change dir to $BASE \n" ;
+	&make_index() ;
+	exit;
+
+};
+
+
 #
 # Request a PROJECT for the tasks following
 #
@@ -391,42 +458,6 @@ if ( $RENAME =~ /true/ ) {
    &make_index() ;
    exit ;
 } ;
-
-#
-# Add an infofile to the project or entry
-#
-
-if ( $GETINFO =~ /true/ && $GETFILE =~ /false/ && $DELETE =~ /false/ ) {
-
-	chdir $CALLDIR or die "Could not goto $CALLDIR \n";
-
-	if ( $ENTRY =~ /WebgraF_ENTRY/ ) { $BASENTRY=$BASE . "/" . $PROJECT ; $WRK = $PROJECT ;                }
-                       	   else { $BASENTRY=$BASE . "/" . $PROJECT . "/" . $ENTRY ; $WRK=$ENTRY ;     } ;
-	   $BASENTRY =~ s/ //g ;
-	   $WRK      =~ s/ //g ;
-	   if ( -s $INFO ) { 
-		if ( $INFO =~m/\.html/) { 
-			print "Copy $INFO to $BASENTRY/$WRK.html \n"; 
-			system ("rm -f     $BASENTRY/$WRK.html") ; 
-			system ("cp $INFO  $BASENTRY/$WRK.html") ; 
-			system ("chmod 777 $BASENTRY/$WRK.html") ; 
-		} else { die "I don't know what to do with $INFO \n" ; } ;
-		$INFO="$PROJECT/$WRK.html" ;
-	   $INFO      =~ s/ //g ;
-	} ;
-        if ( $ENTRY =~ /WebgraF_ENTRY/ ) {
-           $WRK=$BASE."/".$PROJECT."/info.txt" ;
-           $WRK =~ s/ //g ;
-           open OFILE, "> $WRK";
-           print OFILE "$INFO" ; 
-           close OFILE ;
-        } ;
-
-        chdir $BASE or die "Could not change dir to $BASE \n" ;
-	&make_index() ;
-	exit;
-
-};
 
 #
 # Delete project or entry
@@ -689,7 +720,26 @@ sub make_index {
 
 $OFILE="input.js" ;
 open OFILE, "> $OFILE";
-print OFILE "info='info.html' \n";
+
+# Add info
+ $WRK = $BASE."/info.txt" ;
+ if ( -s $WRK ) { 
+   open IFILE, "< $WRK";
+   $I = <IFILE> ;
+   close IFILE ;
+   print OFILE "info='$I' \n";
+ } else {
+   print OFILE "info='info.html' \n";
+ } ;
+
+# Add host_page
+ $WRK = $BASE."/host_page.txt" ;
+ if ( -s $WRK ) { 
+   open IFILE, "< $WRK";
+   $I = <IFILE> ;
+   close IFILE ;
+   print OFILE "host_page='$I' \n";
+ } ;
 
 $i=0 ;
 @P = &get_dir ;
@@ -720,24 +770,20 @@ foreach ( @P ) {
 	shift @M ;
 
 	# Add info
-        local @I = "" ;
 	$WRK = $BASE."/".$P ."/info.txt" ;
         $WRK =~s/ //g;
-	$I = "info.html" ;
+        $I='';
 	if ( -s $WRK ) { 
          open IFILE, "< $WRK";
 	 $I = <IFILE> ;
 	 close IFILE ;
+	 $I ="info_list[$i]=['".$I."']";
 	} ;
-        @I = (@I,"$I") ;
-	shift @I ;
-
 
 	$E=join('\',\'',@E) ;
 	$M=join('\',\'',@M) ;
 	$V ="v[$i]=['".$E."']";
 	$D ="d[$i]=['".$M."']";
-	$I ="info_list[$i]=['".$I."']";
 	$V =~s/ //g;
 	print OFILE "$V \n";
 	print OFILE "$D \n";

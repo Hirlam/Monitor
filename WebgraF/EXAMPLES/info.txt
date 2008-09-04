@@ -1,1 +1,1 @@
-http://www.smhi.se
+https://hirlam.org/trac/browser/trunk/harmonie/util/monitor/WebgraF/README

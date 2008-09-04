@@ -1,16 +1,16 @@
 // User dependent variables
-if ( window.screen.availWidth > 1100 ) {
+if ( window.screen.availWidth > 1500 ) {
     m_item = 'menuitem'
     m_head = 'menuheading'
     m_curr = 'menucurrent'
     m_grey = 'menugrey'
-    var twidth 		= '150'
+    var twidth 		= '200'
 } else {
     m_item = 's_menuitem'
     m_head = 's_menuheading'
     m_curr = 's_menucurrent'
     m_grey = 's_menugrey'
-    var twidth 		= '120'
+    var twidth 		= '200'
 }
 
 // Random
@@ -60,7 +60,7 @@ var ext    		= 'gif'
 var sep    		= '_'
 var pdir   		= ''
 var help   		= ""
-var info   		= ""
+var info   		= "info.html"
 var view_limit  = 50
 var do_remember = true
 var do_save 	= true
@@ -68,6 +68,10 @@ var do_flip	= false
 var do_delete	= false
 var do_subset 	= false
 var do_manip  	= false
+var do_download = false
+var do_expand   = false
+var do_mouseinfo = false
+var host_page = undefined
 
 // Language
 
@@ -76,7 +80,7 @@ var lang = new Array( )
 function language_def(home,favo,late,save,remo,clea,welc,
               slid,up,down,forw,back,fast,slow,stop,help,
               downl,ps,pdf,stpo,enpo,flip,load,youm,dele,
-              rest,back) {
+              rest,back,info,showp) {
 
 this.home = home
 this.favo = favo
@@ -105,6 +109,8 @@ this.youm  = youm
 this.dele  = dele
 this.rest  = rest
 this.back  = back
+this.info  = info
+this.showp = showp
 
 }
 
@@ -114,9 +120,11 @@ var pre_lan = 0
 lang[0] = new language_def("WebgraF","Favorites","All","Save","DEL","Clear","Choices",
                            "Slideshow","Up","Down","Forward","Backward","Faster","Slower",
                            "Stop","Help","Download","Postscript","PDF","Start point","End point",
-                            "FLIP","Load","Your Menu","Delete","Restore","Info")
+                            "FLIP","Load","Your Menu","Delete","Restore","Back to main page","Info",
+                           "Show this project")
 // Swedish
 lang[1] = new language_def("WebgraF","Favoriter","Alla","Spara","DEL","Rensa","Val",
                            "Bildspel","Upp","Ned","Framåt","Bakåt","Snabbare","Långsammare",
                            "Stopp","Hjälp","Ladda ned","Postscript","PDF","Startpunkt","Ändpunkt",
-                            "VÄND","Ladda","Din Meny","Ta bort","Återställ","Info")
+                           "VÄND","Ladda","Din Meny","Ta bort","Återställ","Tillbaka","Info",
+                           "Visa detta projekt")
