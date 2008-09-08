@@ -158,6 +158,7 @@ SUBROUTINE read_obs_mast
        !
        ! Store data
        !
+       IF ( print_read > 1 ) WRITE(6,*)'NEWDATE,NEWTIME',newdate,newtime
 
        ii = 0
        DO i=1,obs(stat_i)%ntim
@@ -166,11 +167,7 @@ SUBROUTINE read_obs_mast
                ii = i
           ENDIF
        ENDDO
-
-       IF ( ii == 0 ) THEN
-          WRITE(6,*)'Error in date matching'
-          CALL abort
-       ENDIF
+       IF ( ii == 0 ) CYCLE FLUX_READ_LOOP
  
        IF(print_read > 1 ) WRITE(6,*)'Added ',newdate,newtime/100,i
    
@@ -216,6 +213,7 @@ SUBROUTINE read_obs_mast
        MAST_SUB_LOOP : DO
 
           READ(lunin,*,IOSTAT=ierr)ctstamp,mast1
+          IF( print_read > 1 ) WRITE(6,*)'READ',ctstamp,mast1
           IF ( ierr /= 0 ) EXIT MAST_READ_LOOP
           READ(ctstamp,'(I8.8,I4.4)')newdate,newtime
 
@@ -250,10 +248,7 @@ SUBROUTINE read_obs_mast
           ENDIF
        ENDDO
 
-       IF ( ii == 0 ) THEN
-          WRITE(6,*)'Error in date matching'
-          CALL abort
-       ENDIF
+       IF ( ii == 0 ) CYCLE MAST_READ_LOOP
  
        IF(print_read > 1 ) WRITE(6,*)'Added ',newdate,newtime/100,i
    

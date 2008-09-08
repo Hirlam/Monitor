@@ -35,6 +35,17 @@ P1=$DBASE/RCR/
 P2=$DBASE/C22/
 MODPATH="$P1 $P2"
 
+#
+# Single stations can be defined with comma separated
+# station number and a text for the web page
+#
+# STNLIST_PLOT="00002574,00006348"
+# STNLIST_PLOT_TXT="NORRKOPING,CABAUW"
+#
+
+STNLIST_PLOT=-1
+STNLIST_PLOT_TXT=-1
+
 ######################
 # Surface parameters #
 ######################
@@ -162,7 +173,7 @@ export LEV_LST SURFPAR TEMPPAR AREAS
 export OBINT_SURF FCINT_SURF FCLEN_SURF FCLEN_DAYVAR FCLEN_SCAT
 export OBINT_TEMP FCINT_TEMP FCLEN_TEMP  
 export SURFPLOT TEMPPLOT
-export STNLIST_PLOT=-1
+export STNLIST_PLOT STNLIST_PLOT_TXT
 
 ###########################
 # End of definitions

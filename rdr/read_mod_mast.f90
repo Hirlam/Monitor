@@ -20,7 +20,7 @@ SUBROUTINE read_mod_mast
  LOGICAL :: do_this_time,use_stnlist
 
  CHARACTER(LEN=12) :: ctstamp
- CHARACTER(LEN=80) :: wname =' '
+ CHARACTER(LEN=200):: wname =' '
  CHARACTER(LEN=8)  :: ccdate =''
  CHARACTER(LEN=2)  :: cchour =''
 
@@ -88,11 +88,11 @@ SUBROUTINE read_mod_mast
 
        OPEN(lunin,file=wname,status='old',iostat=ierr)
        IF ( ierr /= 0 ) THEN
-          WRITE(6,*)'Could not open ',TRIM(wname)
+          WRITE(6,'(2A)')'Could not open ',TRIM(wname)
           CYCLE EXP_LOOP
        ENDIF
 
-       WRITE(6,*)'Open ',TRIM(wname)
+       WRITE(6,'(2A)')'Open ',TRIM(wname)
 
        CALL find_dz_model(expname(o),stname(istnr),dz_model)
 

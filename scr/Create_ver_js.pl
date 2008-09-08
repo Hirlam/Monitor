@@ -36,6 +36,16 @@
  $period_type = $ENV{PERIOD_TYPE}; 
  @period_v = ('','\'00000000\'','\'gen_date\',\'00YYYYMM\',\'00'.$ENV{EDATE}.'\',\'00'.$ENV{IDATE}.'\'');
  @period_t = ('','\'00000000\'','\'gen_date\',\'YYYYMM\',\''.$ENV{EDATE}.'\',\''.$ENV{IDATE}.'\'');
+
+ # Stations
+ if ( $ENV{STNLIST_PLOT} ne -1 ) {
+    @stations = split(',',$ENV{STNLIST_PLOT});
+    @stations_txt = split(',',$ENV{STNLIST_PLOT_TXT});
+ } ;
+ @stations=('00000000',@stations) ;
+ @stations_txt=('ALL',@stations_txt) ;
+ $stations     ='\''.join('\',\'',@stations).'\'';
+ $stations_txt ='\''.join('\',\'',@stations_txt).'\'';
  
  # Download button
  $download="do_debug = false ;" ;
@@ -223,8 +233,8 @@ v[0] = ['l']
 t[0] = ['diff']
 v[1] = [$period_v[$period_type]]
 t[1] = [$period_t[$period_type]]
-v[2] = ['00000000']
-t[2] = v[2] ;
+v[2] = [$stations]
+t[2] = [$stations_txt]
 v[3] =[$areas] ;
 t[3] = v[3] ;
 v[4] =[$prof_hours] ;
@@ -235,7 +245,7 @@ v[6] =[0] ;
 t[6] =[0] ;
 mname = ['Type','Period','Station','Area','Time (UTC)','Parameter','Dum']
 
-loc = ['l','t','l','t','l','l','l']
+loc = ['l','t','t','t','l','l','l']
 $download
 
 pdir ='Prof_Temp/'
@@ -288,8 +298,8 @@ v[0] = [$map_prefix]
 t[0] = v[0]
 v[1] = [$period_v[$period_type]]
 t[1] = [$period_t[$period_type]]
-v[2] = ['00000000']
-t[2] = v[2] ;
+v[2] = [$stations]
+t[2] = [$stations_txt]
 v[3] =[$areas] ;
 t[3] = v[3] ;
 v[4] = [$partext]
@@ -342,8 +352,8 @@ v[0] = [$plottype];
 t[0] = [$plottype_txt];
 v[1] = [$period_v[$period_type]]
 t[1] = [$period_t[$period_type]]
-v[2] = ['00000000']
-t[2] = v[2]
+v[2] = [$stations]
+t[2] = [$stations_txt]
 v[3] =[$areas] ;
 t[3] = v[3] ;
 v[4] = [$partext];
@@ -351,7 +361,7 @@ t[4] = [$text]
 v[5] =[$lev_lst] ;
 v[5] = v[5].reverse()
 t[5] = v[5]
-loc = ['l','t','l','t','l','t']
+loc = ['l','t','t','t','l','t']
 
 $download ;
 
@@ -391,8 +401,8 @@ v[0] = ['s']
 t[0] = ['Full scatter']
 v[1] = [$period_v[$period_type]]
 t[1] = [$period_t[$period_type]]
-v[2] = ['00000000']
-t[2] = v[2] ;
+v[2] = [$stations]
+t[2] = [$stations_txt]
 v[3] =  [$areas] ;
 t[3] = v[3] ;
 v[4] = [$partext]
@@ -404,7 +414,7 @@ v[6] = [$expname]
 t[6] = [$expname]
 
 mname = ['Type','Period','Station','Area','Parameter','Level','Exp']
-loc = ['l','t','l','t','l','l','t']
+loc = ['l','t','t','t','l','l','t']
 spec_name =[0,1,2,3,6,4,5]
 $download
 pdir ='$type/'

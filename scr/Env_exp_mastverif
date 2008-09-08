@@ -5,16 +5,21 @@
 # Project name, will be the name on the web page
 PROJECT=mastverif
 
-export DATA_SOURCE='mastdata'
-export STNLIST_PLOT='1,2,3,4,5,6'
-
 # Path to this project
-BASE=$SCRATCH/monitor
+BASE=/local_disk/scratch/developement/monitor_mast
 
 # Definition of BIN,SCR and WRK directory
 BIN=$BASE/bin
 SCR=$BASE/scr
 WRK=$BASE/wrk
+
+# Set which graphics you are using
+# MAGICS/GNUPLOT
+# To be able to use MAGICS verobs has to be compiled with -DMAGICS.
+#
+# !NB GNUPLOT option is still under developement
+#
+export GRAPHICS=GNUPLOT
 
 # MAG_HOME for magics, not needed at ecgate
 # export MAG_HOME=
@@ -23,13 +28,28 @@ WRK=$BASE/wrk
 # Experiment names and paths,should be space separated
 #
 
-DBASE=/scratch/ms/se/snh/mastverif/dat
-EXP="FIPR FRAR FI15"
-OBSPATH=$DBASE/
+DBASE=/local_disk/scratch/developement/monitor_mast/ArchiveData
+EXP="FIPR FRAR FI15 FI75 SP16"
+EXP="FIPR"
+OBSPATH=$BASE/obs/
 P1=$DBASE/
 P2=$DBASE/
 P3=$DBASE/
-MODPATH="$P1 $P2 $P3"
+P4=$DBASE/
+P5=$DBASE/
+MODPATH="$P1 $P2 $P3 $P4 $P5"
+
+#
+# Single stations can be defined with station number
+# and a text for the web page
+#
+# STNLIST_PLOT="00002574,00006348"
+# STNLIST_PLOT_TXT="NORRKOPING,CABAUW"
+#
+STNLIST_PLOT='00000001,00000002,00000003,00000004,00000005,00000006'
+STNLIST_PLOT_TXT='SODA,CABA,KIVI,KUOP,ROVA,XXXX'
+
+export DATA_SOURCE='mastdata'
 
 ######################
 # Surface parameters #
@@ -63,7 +83,7 @@ SURFPAR="TT RH FF LU GR UW WT WQ TZ"
 # CONT   : Contingency tables
 # VERT   : Vertical profiles only available for TEMP data
 # 
-SURFPLOT="GEN TIME FREQ SCAT"
+SURFPLOT="GEN TIME DAYVAR"
 
 # Areas for surface verification as defined in areas.pm
 # Note that XML statistics will be defined for the
@@ -125,7 +145,7 @@ TEMPAREAS="ALL EWGLAM"
 # 2  PNG
 # 3  JPEG
 
-OUTPUT_TYPE=1
+OUTPUT_TYPE=2
 
 # Date
 # PERIOD_TYPE 1 : SDATE - EDATE, 2 : SDATE - EDATE in monthly pieces
@@ -136,8 +156,8 @@ OUTPUT_TYPE=1
 
 PERIOD_TYPE=1
 
-SDATE=20080310
-EDATE=20080319
+SDATE=20080901
+EDATE=20080905
 IDATE=$SDATE
 
 # WebgraF call, set WEBCALL empty if not used
@@ -154,6 +174,8 @@ export LEV_LST SURFPAR TEMPPAR AREAS
 export OBINT_SURF FCINT_SURF FCLEN_SURF FCLEN_DAYVAR FCLEN_SCAT
 export OBINT_TEMP FCINT_TEMP FCLEN_TEMP  
 export SURFPLOT TEMPPLOT
+export STNLIST_PLOT STNLIST_PLOT_TXT
+
 
 ###########################
 # End of definitions

@@ -112,7 +112,6 @@ sub plot_command {
         if ( $i gt 0 ) { $plot = "$plot,"; }
         $plot = $plot . " '$input_file' using 1:" . $column[$i];
         $plot = $plot . " title '$legend[$i]' with linespoints lt $i lw 2";
-	print "CASES $_\n";
         if ( $_ =~ /CASES/ ) {
 	  $plot = $plot . " axis x1y2 ";
 	}
