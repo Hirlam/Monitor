@@ -152,9 +152,14 @@ OUTPUT_TYPE=1
 
 PERIOD_TYPE=1
 
-SDATE=20080301
-EDATE=20080331
+SDATE=20080801
+EDATE=20080831
 IDATE=$SDATE
+
+# Run all parameters in one go
+# Possible if you have a short period/small number of stations
+# or only a few parameters
+ALL_AT_ONCE=no
 
 # WebgraF call, set WEBCALL empty if not used
 WEBGRAF_BASE=$BASE/WebgraF
@@ -174,6 +179,7 @@ export OBINT_SURF FCINT_SURF FCLEN_SURF FCLEN_DAYVAR FCLEN_SCAT
 export OBINT_TEMP FCINT_TEMP FCLEN_TEMP  
 export SURFPLOT TEMPPLOT
 export STNLIST_PLOT STNLIST_PLOT_TXT
+export ALL_AT_ONCE
 
 ###########################
 # End of definitions

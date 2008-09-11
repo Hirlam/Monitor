@@ -20,19 +20,27 @@ DIR=SURF
 
 mkdir $WRK/${DIR}_$$ || exit
 
-for F in $SURFPAR ; do
-   ./Build_namelist.pl -t ${DIR} -p $F > $WRK/${DIR}_$$/namelist_$F || exit
-done
+if [ $ALL_AT_ONCE == "yes" ] ; then
+   ./Build_namelist.pl -t ${DIR} -p "$SURFPAR" > $WRK/${DIR}_$$/fort.10 || exit
+else
+   for F in $SURFPAR ; do
+      ./Build_namelist.pl -t ${DIR} -p $F > $WRK/${DIR}_$$/namelist_$F || exit
+   done
+fi
 
 cd $WRK/${DIR}_$$ || exit
 
 ln -s $SCR/*.poly .
 
 # Run verobs for the different variables
-for F in $SURFPAR ; do
-   cp namelist_$F fort.10
+if [ $ALL_AT_ONCE == "yes" ] ; then
    $BIN/verobs || exit
-done
+else
+   for F in $SURFPAR ; do
+      cp namelist_$F fort.10
+      $BIN/verobs || exit
+   done
+fi
 
 if [ $GRAPHICS == GNUPLOT ] ; then
  $SCR/verobs2gnuplot.pl *.txt || exit

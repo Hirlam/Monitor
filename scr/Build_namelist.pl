@@ -201,7 +201,10 @@
    unless ( exists $plots{'CONT'} ) { ${$default}{'scat_ver'}{'CONT_PARAM'   } =  0  ; } ;
 
    # Only produce xml for the first area
-   if ( $area_num gt 1 ) {  ${$default}{'scat_ver'}{'LPREP_XML'    } = 'F' } ;
+   if ( $area_num gt 1 ) { ${$default}{'scat_ver'}{'LPREP_XML'} = 'F' } ;
+
+   # Only plot single stations for the first area
+   if ( $area_num gt 1 ) { ${$default}{'def'}{'STNLIST_PLOT'} = '-1' } ;
 
    # 
    # Remove things not asked for
@@ -213,9 +216,9 @@
    unless ( exists $plots{'GEN'}    ) { delete ${$default}{'GEN'} ;    };
    unless ( exists $plots{'MAP'}    ) { delete ${$default}{'MAP'} ;    };
    unless ( exists $plots{'SCAT'} || 
-	    exists $plots{'XML'}  ||
-	    exists $plots{'FREQ'} ||
-	    exists $plots{'CONT'}    ) { delete ${$default}{'scat_ver'} ;};
+	        exists $plots{'XML'}  ||
+	        exists $plots{'FREQ'} ||
+	        exists $plots{'CONT'}    ) { delete ${$default}{'scat_ver'} ;};
 
    &print_list ;
 
