@@ -259,7 +259,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
       DO i=1,nexp
         k=k+1
         pdat(k)%v => bias(1:ntimver_l,i)
-        WRITE(6,*)'BIAS for ',expname(i),k
+        !WRITE(6,*)'BIAS for ',expname(i),k
         WRITE(lunout,'(A,I2.2,2(X,A))')'#COLUMN_',k+1,'BIAS',TRIM(expname(i))
       ENDDO
      ENDIF 
@@ -267,7 +267,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
       DO i=1,nexp
         k=k+1
         pdat(k)%v => bias(1:ntimver_l,i)
-        WRITE(6,*)'BIAS for ',expname(i),k
+        !WRITE(6,*)'BIAS for ',expname(i),k
         WRITE(lunout,'(A,I2.2,X,A)')'#COLUMN_',k+1,TRIM(expname(i))
       ENDDO
       k=k+1

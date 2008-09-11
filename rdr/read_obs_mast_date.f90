@@ -41,7 +41,7 @@ SUBROUTINE read_obs_mast_date
 
  CALL allocate_obs
 
- IF(print_read > 0 ) WRITE(6,*)'OBS is ALLOCATED'
+ IF( print_read > 0 ) WRITE(6,*)'OBS is ALLOCATED'
 
  STATION_LOOP : DO istnr=1,max_flux_station
 
@@ -71,9 +71,9 @@ SUBROUTINE read_obs_mast_date
        CALL abort
     ENDIF
 
-    WRITE(6,*)'Working with station',stat_i,istnr,stations(istnr)
-
     stat_i = stations(istnr)
+
+    WRITE(6,*)'Working with station',stat_i,istnr,stations(istnr)
 
     ! The station is used, fill the data arrays
 
@@ -91,6 +91,7 @@ SUBROUTINE read_obs_mast_date
        ALLOCATE(obs(stat_i)%o(i)%time)
        ALLOCATE(obs(stat_i)%o(i)%val(nparver))
 
+       obs(stat_i)%ntim       = i
        obs(stat_i)%o(i)%date  = cdate
        obs(stat_i)%o(i)%time  = ctime
        obs(stat_i)%o(i)%val   = err_ind
@@ -102,7 +103,6 @@ SUBROUTINE read_obs_mast_date
        
     ENDDO FILL_LOOP 
 
-    obs(stat_i)%ntim = i
 
     !
     ! First treat the flux data
@@ -291,7 +291,7 @@ SUBROUTINE read_obs_mast_date
           IF (tz_ind /= 0 .AND. (ABS(mast(3)-err_ind)>1.e-6)) obs(stat_i)%o(ii)%val(tz_ind) = mast(3)/dz(istnr)
           IF (rh_ind /= 0 .AND. (ABS(mast(4)-err_ind)>1.e-6)) obs(stat_i)%o(ii)%val(rh_ind) = mast(4)
           IF (ff_ind /= 0 .AND. (ABS(mast(5)-err_ind)>1.e-6)) obs(stat_i)%o(ii)%val(ff_ind) = mast(5)
-          IF (gr_ind /= 0 .AND. (ABS(mast(6)-err_ind)>1.e-6)    &
+          IF (gr_ind /= 0 .AND. (ABS(mast(6)-err_ind)>1.e-6)  .AND.  &
           qcl(mast(6),gr_ind) .AND. qcu(mast(6),gr_ind)     ) obs(stat_i)%o(ii)%val(gr_ind) = mast(6)
           IF (lu_ind /= 0 .AND. (ABS(mast(7)-err_ind)>1.e-6)) obs(stat_i)%o(ii)%val(lu_ind) = mast(7)
 
@@ -312,7 +312,7 @@ SUBROUTINE read_obs_mast_date
  ALLOCATE(station_name(maxstn))
 
  DO i=1,maxstn
-   station_name(i)=stname(obs(i)%stnr)
+   IF ( obs(i)%active ) station_name(i)=stname(obs(i)%stnr)
  ENDDO
 
 END SUBROUTINE read_obs_mast_date

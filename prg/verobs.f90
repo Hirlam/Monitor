@@ -15,7 +15,7 @@ PROGRAM verobs
 
  ! Local
 
- INTEGER :: i,ierr,maxstn_save,    &
+ INTEGER :: i,j,ierr,maxstn_save,    &
            timing_id1,timing_id2
  !--------------------
 
@@ -133,12 +133,50 @@ PROGRAM verobs
  !
 
  DO i=1,maxstn
-    obs(i)%obs_is_allocated = .false.
-    hir(i)%obs_is_allocated = .false.
+
+    IF ( obs(i)%obs_is_allocated ) THEN
+       DO j=1,obs(i)%ntim
+         IF(ASSOCIATED(obs(i)%o(j)%date)) DEALLOCATE(obs(i)%o(j)%date)
+         IF(ASSOCIATED(obs(i)%o(j)%time)) DEALLOCATE(obs(i)%o(j)%time)
+         IF(ASSOCIATED(obs(i)%o(j)%val )) DEALLOCATE(obs(i)%o(j)%val )
+       ENDDO
+
+       DO j=obs(i)%ntim+1,SIZE(obs(i)%o)
+         NULLIFY(obs(i)%o(j)%date)
+         NULLIFY(obs(i)%o(j)%time)
+         NULLIFY(obs(i)%o(j)%val )
+       ENDDO
+
+       DEALLOCATE(obs(i)%o)
+       obs(i)%obs_is_allocated = .FALSE.
+
+    ENDIF
+
+    IF ( hir(i)%obs_is_allocated ) THEN
+
+       DO j=1,hir(i)%ntim
+          DEALLOCATE(hir(i)%o(j)%date)
+          DEALLOCATE(hir(i)%o(j)%time)
+          DEALLOCATE(hir(i)%o(j)%nal )
+       ENDDO
+
+       DO j=1,hir(i)%ntim+1,SIZE(hir(i)%o)
+          NULLIFY(hir(i)%o(j)%date)
+          NULLIFY(hir(i)%o(j)%time)
+          NULLIFY(hir(i)%o(j)%nal )
+       ENDDO
+
+       DEALLOCATE(hir(i)%o)
+       hir(i)%obs_is_allocated = .FALSE.
+
+    ENDIF
+
  ENDDO
 
  DEALLOCATE(obs)
  DEALLOCATE(hir)
+ DEALLOCATE(obstype)
+ IF ( ALLOCATED(station_name) ) DEALLOCATE(station_name)
 
  IF (ltiming) CALL add_timing(timing_id1,'verobs')
  IF (ltiming) CALL view_timing

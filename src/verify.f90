@@ -477,7 +477,6 @@ SUBROUTINE verify
              tim_ind = wtime/timdiff+1
           ENDIF
 
-
           SELECT CASE(period_type) 
           CASE(1)
              per_ind = 1
@@ -600,7 +599,14 @@ SUBROUTINE verify
 
                 used_hours(k,per_ind,hir(i)%o(j)%time)              = .TRUE.
                 used_fclen(k,per_ind,fclen(n))                      = .TRUE.
-                IF ( .NOT. lfcver ) showed_times(k,per_ind,tim_ind) = .TRUE.
+                IF ( .NOT. lfcver ) THEN
+                   IF ( tim_ind == 24 ) THEN
+                      showed_times(k,per_ind,0) = .TRUE.
+                   ELSE
+                      showed_times(k,per_ind,tim_ind) = .TRUE.
+                   ENDIF
+                   
+                ENDIF
 
                 IF (use_kalman) THEN
 
