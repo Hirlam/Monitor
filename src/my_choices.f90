@@ -26,7 +26,7 @@ CHARACTER(LEN=2)  :: ci   = ' '
 
     CASE('mastdata')
    
-       CALL read_obs_mast
+       CALL read_obs_mast_date
        CALL read_mod_mast
 
     CASE('wind_test','WIND_TEST')
