@@ -3,6 +3,7 @@ SUBROUTINE read_obs_mast_date
  !
  ! Read flax and mast data 
  ! and organize for evalutaion
+ ! Mast iformation is set in the module mast_data
  !
  ! Ulf Andrae, SMHI, 2008
  !
@@ -13,15 +14,16 @@ SUBROUTINE read_obs_mast_date
  IMPLICIT NONE
 
  
- INTEGER :: i,ii,ierr,stat_i,        &
+ INTEGER :: i,ii,ierr,stat_i,j,      &
             cdate,ctime,             &
             wdate,wtime,             &
             newdate,newtime,         &
             stations(100),           &
-            max_found_stat,istnr
+            max_found_stat,istnr,    &
+            nread
          
- REAL    :: val1(4),num(4),val(4),   &
-            mast(7),mast1(7),mnum(7)
+ REAL,    ALLOCATABLE :: val(:,:),val1(:)
+ INTEGER, ALLOCATABLE :: date(:),hhmm(:),num(:)
 
  LOGICAL :: use_stnlist
          
@@ -45,7 +47,9 @@ SUBROUTINE read_obs_mast_date
 
  STATION_LOOP : DO istnr=1,max_flux_station
 
+    !
     ! Check if this station should be used
+    !
 
     stat_i = 0
     IF ( use_stnlist ) THEN
@@ -73,9 +77,12 @@ SUBROUTINE read_obs_mast_date
 
     stat_i = stations(istnr)
 
-    WRITE(6,*)'Working with station',stat_i,istnr,stations(istnr)
+    IF ( print_read > 0 ) WRITE(6,*)'Working with station',stat_i,istnr,stations(istnr),stname(istnr)
 
-    ! The station is used, fill the data arrays
+
+    !
+    ! The station is used, fill the date/time arrays
+    !
 
     cdate = sdate
     ctime = stime
@@ -105,9 +112,17 @@ SUBROUTINE read_obs_mast_date
 
 
     !
-    ! First treat the flux data
+    ! First read the flux data
+    ! Allocate working arrays
     !
+ 
+    ALLOCATE(date(  obs(stat_i)%ntim*obint*12),   &
+             hhmm(  obs(stat_i)%ntim*obint*12),   &
+              val(4,obs(stat_i)%ntim*obint*12),   &
+              val1(4),num(4))
 
+
+        i = 0
     cdate = sdate
     ctime = stime
 
@@ -143,54 +158,18 @@ SUBROUTINE read_obs_mast_date
        ENDIF
 
        FLUX_READ_LOOP : DO
-    
-          num = 0.
-          val = 0.
-          FLUX_SUB_LOOP : DO
 
-            READ(lunin,*,IOSTAT=ierr)ctstamp,val1
-            IF ( print_read > 1 ) WRITE(6,*)ctstamp,val1
-            IF ( ierr /= 0 ) EXIT FLUX_READ_LOOP
-            READ(ctstamp,'(I8.8,I4.4)')newdate,newtime
+          READ(lunin,*,IOSTAT=ierr)ctstamp,val1
+          IF ( print_read > 1 ) WRITE(6,*)ctstamp,val1
+          IF ( ierr /= 0 ) EXIT FLUX_READ_LOOP
+          READ(ctstamp,'(I8.8,I4.4)')newdate,newtime
 
-            WHERE(val1 > -99998. ) 
-               val = val + val1
-               num = num + 1.
-            END WHERE
-
-            IF ( MOD(newtime,100) == 0 ) EXIT FLUX_SUB_LOOP
-
-          ENDDO FLUX_SUB_LOOP 
-
-          IF(print_read > 1 ) WRITE(6,*)'Sum is ',num
-
-          WHERE( num > 0. ) 
-             val  = val / num
-          ELSEWHERE
-             val  = err_ind
-          END WHERE
-
-          !
-          ! Store data
-          !
-
-          IF ( print_read > 1 ) WRITE(6,*)'NEWDATE,NEWTIME',newdate,newtime
-
-          ii = 0
-          DO i=1,obs(stat_i)%ntim
-             IF ( newdate     == obs(stat_i)%o(i)%date .AND. &
-                  newtime/100 == obs(stat_i)%o(i)%time       )  THEN
-                  ii = i
-                  EXIT
-             ENDIF
-          ENDDO
-          IF ( ii == 0 ) CYCLE FLUX_READ_LOOP
- 
-          IF(print_read > 1 ) WRITE(6,*)'Added ',newdate,newtime/100,i
-   
-          IF (wt_ind /= 0 .AND. (ABS(val(1)-err_ind)>1.e-6)) obs(stat_i)%o(ii)%val(wt_ind) = val(1)
-          IF (wq_ind /= 0 .AND. (ABS(val(2)-err_ind)>1.e-6)) obs(stat_i)%o(ii)%val(wq_ind) = val(2)
-          IF (uw_ind /= 0 .AND. (ABS(val(3)-err_ind)>1.e-6)) obs(stat_i)%o(ii)%val(uw_ind) = val(3)
+          IF ( ANY(val1 > -99998.)) THEN
+                i   = i+1
+           val(:,i) = val1
+            date(i) = newdate 
+            hhmm(i) = newtime 
+          ENDIF
 
        ENDDO FLUX_READ_LOOP
 
@@ -203,32 +182,99 @@ SUBROUTINE read_obs_mast_date
 
     ENDDO FLUX_DATA
 
+
+    nread = i
+
+    !
+    ! Store data
+    !
+ 
+    val1 = 0.
+    num  = 0
+
+    FLUX_STORAGE : DO j=1,nread
+
+       IF ( print_read > 1 ) WRITE(6,*)'check:date,hhmm',date(j),hhmm(j)
+
+       WHERE ( val(:,j) > -99998. ) 
+         val1 = val1 + val(:,j)
+         num  = num  + 1
+       ENDWHERE
+
+       IF ( MOD(hhmm(j),100) == 0 ) THEN
+
+
+          !
+          ! New hour is found: store data
+          !
+
+          ii = 0
+          DO i=1,obs(stat_i)%ntim
+             IF ( date(j)     == obs(stat_i)%o(i)%date .AND. &
+                  hhmm(j)/100 == obs(stat_i)%o(i)%time       )  THEN
+                  ii = i
+                  EXIT
+             ENDIF
+          ENDDO
+
+          IF ( ii /= 0 ) THEN
+
+             IF(print_read > 1 ) WRITE(6,*)'Added ',ii,date(j),hhmm(j),num
+
+             WHERE ( num == 0 )
+               val1 = err_ind
+             ELSEWHERE
+               val1 = val1 / FLOAT(num)
+             ENDWHERE
+            
+             IF (wt_ind /= 0 .AND. (ABS(val1(1)-err_ind)>1.e-6)) obs(stat_i)%o(ii)%val(wt_ind) = val1(1)
+             IF (wq_ind /= 0 .AND. (ABS(val1(2)-err_ind)>1.e-6)) obs(stat_i)%o(ii)%val(wq_ind) = val1(2)
+             IF (uw_ind /= 0 .AND. (ABS(val1(3)-err_ind)>1.e-6)) obs(stat_i)%o(ii)%val(uw_ind) = val1(3)
+      
+          ENDIF 
+
+          val1 = 0.
+          num  = 0
+
+       ENDIF 
+
+
+    ENDDO FLUX_STORAGE
+
+
+    !
+    ! Mast data
+    !
+
+    DEALLOCATE(val,val1,num)
+    ALLOCATE(val(7,obs(stat_i)%ntim*obint*12),val1(7),num(7))
+
+
+    IF ( print_read > 0 ) WRITE(6,*)'Read mast data'
+
+        i = 0
     cdate = sdate
     ctime = stime
 
-    IF ( print_read > 1 ) WRITE(6,*)'Read mast data'
-
-    MAST_LOOP : DO
-
-       !
-       ! Second treat the mast data
-       !
+    MAST : DO
 
        WRITE(ccdate,'(I8.8)')cdate
+
        fname = TRIM(obspath)//'Meas_'//          &
                TRIM(stname(istnr))//'_Mast_'//   &
                TRIM(ccdate)//'.txt'
 
        OPEN(lunin,FILE=fname,STATUS='old',IOSTAT=ierr)
+
        IF ( ierr /= 0 ) THEN
-          WRITE(6,*)'Could not open ',TRIM(fname)
+          WRITE(6,'(2A)')'Could not open ',TRIM(fname)
           wdate = cdate
           wtime = ctime*10000
           CALL adddtg(wdate,00,3600*24,cdate,ctime)
-          IF ( cdate > edate ) EXIT MAST_LOOP
-          CYCLE MAST_LOOP
+          IF ( cdate > edate ) EXIT MAST
+          CYCLE MAST
        ENDIF
-   
+
        WRITE(6,'(2A)')'Open ',TRIM(fname)
 
        IF ( istnr == 2 ) THEN
@@ -240,73 +286,92 @@ SUBROUTINE read_obs_mast_date
        ENDIF
 
        MAST_READ_LOOP : DO
-    
-          mnum = 0.
-          mast = 0.
 
-          MAST_SUB_LOOP : DO
+          READ(lunin,*,IOSTAT=ierr)ctstamp,val1
+          IF ( print_read > 1 ) WRITE(6,*)ctstamp,val1
+          IF ( ierr /= 0 ) EXIT MAST_READ_LOOP
+          READ(ctstamp,'(I8.8,I4.4)')newdate,newtime
 
-             READ(lunin,*,IOSTAT=ierr)ctstamp,mast1
-             IF( print_read > 1 ) WRITE(6,*)'READ:',ctstamp,mast1
-             IF ( ierr /= 0 ) EXIT MAST_READ_LOOP
-             READ(ctstamp,'(I8.8,I4.4)')newdate,newtime
+          IF ( ANY(val1 > -99998.)) THEN
+                i   = i+1
+           val(:,i) = val1
+            date(i) = newdate 
+            hhmm(i) = newtime 
+          ENDIF
 
-             IF ( newdate < sdate )CYCLE MAST_READ_LOOP
+       ENDDO MAST_READ_LOOP
 
-             WHERE(mast1 > -99998. ) 
-               mast = mast + mast1
-               mnum = mnum + 1.
-             END WHERE
+       CLOSE(lunin)
 
-             IF ( MOD(newtime,100) == 0 ) EXIT MAST_SUB_LOOP
+       wdate = cdate
+       wtime = ctime*10000
+       CALL adddtg(wdate,00,3600*24,cdate,ctime)
+       IF ( cdate > edate ) EXIT MAST
 
-          ENDDO MAST_SUB_LOOP 
+    ENDDO MAST
 
-          IF(print_read > 1 ) WRITE(6,*)'Sum is ',mnum
 
-          WHERE( mnum > 0. ) 
-             mast  = mast / mnum
-          ELSEWHERE
-             mast  = err_ind
-          END WHERE
+    nread = i
 
-          !
-          ! Store data
-          !
+    !
+    ! Store data
+    !
+ 
+    val1= 0.
+    num = 0
+
+    MAST_STORAGE : DO j=1,nread
+
+       IF ( print_read > 1 ) WRITE(6,*)'date,hhmm',date(j),hhmm(j)
+
+       WHERE ( val(:,j) > -99998. ) 
+         val1 = val1 + val(:,j)
+         num  = num  + 1
+       ENDWHERE
+
+       IF ( MOD(hhmm(j),100) == 0 ) THEN
 
           ii = 0
           DO i=1,obs(stat_i)%ntim
-             IF ( newdate     == obs(stat_i)%o(i)%date .AND. &
-                  newtime/100 == obs(stat_i)%o(i)%time       )  THEN
+             IF ( date(j)     == obs(stat_i)%o(i)%date .AND. &
+                  hhmm(j)/100 == obs(stat_i)%o(i)%time       )  THEN
                   ii = i
                   EXIT
              ENDIF
           ENDDO
 
-          IF ( ii == 0 ) CYCLE MAST_READ_LOOP
- 
-          IF(print_read > 1 ) WRITE(6,*)'Added ',newdate,newtime/100,i
-   
-          IF (tt_ind /= 0 .AND. (ABS(mast(1)-err_ind)>1.e-6)) obs(stat_i)%o(ii)%val(tt_ind) = mast(1)
-          IF (tz_ind /= 0 .AND. (ABS(mast(3)-err_ind)>1.e-6)) obs(stat_i)%o(ii)%val(tz_ind) = mast(3)/dz(istnr)
-          IF (rh_ind /= 0 .AND. (ABS(mast(4)-err_ind)>1.e-6)) obs(stat_i)%o(ii)%val(rh_ind) = mast(4)
-          IF (ff_ind /= 0 .AND. (ABS(mast(5)-err_ind)>1.e-6)) obs(stat_i)%o(ii)%val(ff_ind) = mast(5)
-          IF (gr_ind /= 0 .AND. (ABS(mast(6)-err_ind)>1.e-6)  .AND.  &
-          qcl(mast(6),gr_ind) .AND. qcu(mast(6),gr_ind)     ) obs(stat_i)%o(ii)%val(gr_ind) = mast(6)
-          IF (lu_ind /= 0 .AND. (ABS(mast(7)-err_ind)>1.e-6)) obs(stat_i)%o(ii)%val(lu_ind) = mast(7)
+          IF ( ii /= 0 ) THEN
 
-       ENDDO MAST_READ_LOOP
+             IF(print_read > 1 ) WRITE(6,*)'Added ',date(j),hhmm(j),i
 
-       CLOSE(lunin)
-    
-       wdate = cdate
-       wtime = ctime*10000
-       CALL adddtg(wdate,00,3600*24,cdate,ctime)
-       IF ( cdate > edate ) EXIT MAST_LOOP
+             WHERE ( num == 0 )
+               val1 = err_ind
+             ELSEWHERE
+               val1 = val1 / FLOAT(num)
+             ENDWHERE
 
-    ENDDO MAST_LOOP
+             IF (tt_ind /= 0 .AND. (ABS(val1(1)-err_ind)>1.e-6)) obs(stat_i)%o(ii)%val(tt_ind) = val1(1)
+             IF (tz_ind /= 0 .AND. (ABS(val1(3)-err_ind)>1.e-6)) obs(stat_i)%o(ii)%val(tz_ind) = val1(3)/dz(istnr)
+             IF (rh_ind /= 0 .AND. (ABS(val1(4)-err_ind)>1.e-6)) obs(stat_i)%o(ii)%val(rh_ind) = val1(4)
+             IF (ff_ind /= 0 .AND. (ABS(val1(5)-err_ind)>1.e-6)) obs(stat_i)%o(ii)%val(ff_ind) = val1(5)
+             IF (gr_ind /= 0 .AND. (ABS(val1(6)-err_ind)>1.e-6)  .AND.  &
+             qcl(val1(6),gr_ind) .AND. qcu(val1(6),gr_ind)     ) obs(stat_i)%o(ii)%val(gr_ind) = val1(6)
+             IF (lu_ind /= 0 .AND. (ABS(val1(7)-err_ind)>1.e-6)) obs(stat_i)%o(ii)%val(lu_ind) = val1(7)
+
+          ENDIF 
+
+          val1 = 0.
+          num  = 0
+
+       ENDIF 
+
+    ENDDO MAST_STORAGE
+
+
+    DEALLOCATE(date,hhmm,val,val1,num)
 
  ENDDO STATION_LOOP
+
 
  ! Set station names
  ALLOCATE(station_name(maxstn))

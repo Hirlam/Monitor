@@ -597,17 +597,10 @@ SUBROUTINE verify
                 ! Store information about fclen,hours and times really used
                 !
 
-                used_hours(k,per_ind,hir(i)%o(j)%time)              = .TRUE.
-                used_fclen(k,per_ind,fclen(n))                      = .TRUE.
-                IF ( .NOT. lfcver ) THEN
-                   IF ( tim_ind == 24 ) THEN
-                      showed_times(k,per_ind,0) = .TRUE.
-                   ELSE
-                      showed_times(k,per_ind,tim_ind) = .TRUE.
-                   ENDIF
+                used_hours(k,per_ind,hir(i)%o(j)%time) = .TRUE.
+                used_fclen(k,per_ind,fclen(n))         = .TRUE.
+                showed_times(k,per_ind,tim_ind-1)      = .TRUE.
                    
-                ENDIF
-
                 IF (use_kalman) THEN
 
                    do_kalman = .TRUE.
