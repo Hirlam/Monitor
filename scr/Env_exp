@@ -103,6 +103,9 @@ FCLEN_DAYVAR="24 48"
 # lengths reasonable
 FCLEN_SCAT="06 18 30 42"
 
+# Forecast lengths used in timeserie plots
+FCLEN_TIME="24"
+
 ########################
 # Upper air parameters #
 ########################
@@ -175,7 +178,8 @@ HELP="Observation verification comparison between \
 export PROJECT WEBCALL WEBGRAF_BASE BASE BIN MYEXP IDATE SDATE EDATE HELP SCR WRK
 export OUTPUT_TYPE PERIOD_TYPE
 export LEV_LST SURFPAR TEMPPAR AREAS
-export OBINT_SURF FCINT_SURF FCLEN_SURF FCLEN_DAYVAR FCLEN_SCAT
+export OBINT_SURF FCINT_SURF 
+export FCLEN_SURF FCLEN_DAYVAR FCLEN_SCAT FCLEN_TIME
 export OBINT_TEMP FCINT_TEMP FCLEN_TEMP  
 export SURFPLOT TEMPPLOT
 export STNLIST_PLOT STNLIST_PLOT_TXT

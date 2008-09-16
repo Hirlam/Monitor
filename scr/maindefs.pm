@@ -63,6 +63,7 @@
  'TIME' => {
   # Timeseries
   'LTIMESERIE_STAT'=> 'T',
+  'USE_FCLEN' => join(',',split(' ',$ENV{FCLEN_TIME})),
  },
 
  'scat_ver' => {
