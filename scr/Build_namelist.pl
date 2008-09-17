@@ -167,14 +167,20 @@
 
    $area_num++ ;
 
+   # Set default tag according to area
    $def{'def'}{'TAG'} = '\''.$area.'\'' ;
 
+   # Merge user defined tag and area
+   &merge_role('arealoop','TAG','\'','_'.$area.'\'');
+
+   # Merge the default list with the different plot types
    %tmp=();
    $default='tmp';
    @lists=('arealoop');
    &set_def ;
    &join_lists ;
 
+   # Copy the area map settings
    for $role ( keys %{ $areas{$area} } ) {
       if ( $role =~/MAP/ && exists $plots{'MAP'} ) {
         ${$default}{'MAP'}{$role}=$areas{$area}{$role};
@@ -185,16 +191,21 @@
       } ;
    } ;
 
+   #
+   # Modify station list according to area definiton
+   #
    if ( exists $areas{$area}{'STNLIST'} ) {
       $def{'def'}{'STNLIST'}=
       $areas{$area}{'STNLIST'}.','.$nameread{'read_section'}{'MAXSTN'}.'*0',
       $def{'def'}{'STNLIST'}=~ s/,,/,/g ;
    } ;
 
+   # Set output table names
    ${$default}{'GEN'}{'STATNAME'} = '\''.$type.'_LL_'.$area.'.html\'' ;
    ${$default}{'DAYVAR'}{'STATNAME'} = '\''.$type.'_HH_'.$area.'.html\'' ;
    ${$default}{'VERT'}{'STATNAME'}   = '\''.$type.'_VV_'.$area.'.html\'' ;
 
+   # Modify scatter plot settings
    unless ( exists $plots{'SCAT'} ) { ${$default}{'scat_ver'}{'LPLOT_SCAT'   } = 'F' ; } ;
    unless ( exists $plots{'FREQ'} ) { ${$default}{'scat_ver'}{'LPLOT_FREQ'   } = 'F' ; } ;
    unless ( exists $plots{'XML'}  ) { ${$default}{'scat_ver'}{'LPREP_XML'    } = 'F' ; } ;
@@ -216,9 +227,14 @@
    unless ( exists $plots{'GEN'}    ) { delete ${$default}{'GEN'} ;    };
    unless ( exists $plots{'MAP'}    ) { delete ${$default}{'MAP'} ;    };
    unless ( exists $plots{'SCAT'} || 
-	        exists $plots{'XML'}  ||
-	        exists $plots{'FREQ'} ||
-	        exists $plots{'CONT'}    ) { delete ${$default}{'scat_ver'} ;};
+	    exists $plots{'XML'}  ||
+	    exists $plots{'FREQ'} ||
+	    exists $plots{'CONT'}    ) { delete ${$default}{'scat_ver'} ;};
+
+
+   #
+   # Print the final namelist
+   #
 
    &print_list ;
 
@@ -249,6 +265,21 @@ sub join_lists{
    } ;
 
   } ;
+
+} ;
+#################################################################
+sub merge_role{
+
+   $sub_list  = shift @_ ;
+   $sub_role  = shift @_ ;
+   $sub_lv    = shift @_ ;
+   $sub_rv    = shift @_ ;
+
+   for $key ( keys %${sub_list} ) {
+      if ( exists ${$sub_list}{$key}{$sub_role} ) {
+          ${$sub_list}{$key}{$sub_role}=$sub_lv.${$sub_list}{$key}{$sub_role}.$sub_rv ;
+      } ;
+   } ;
 
 } ;
 #################################################################
