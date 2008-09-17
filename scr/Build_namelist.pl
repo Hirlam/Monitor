@@ -170,8 +170,6 @@
    # Set default tag according to area
    $def{'def'}{'TAG'} = '\''.$area.'\'' ;
 
-   # Merge user defined tag and area
-   &merge_role('arealoop','TAG','\'','_'.$area.'\'');
 
    # Merge the default list with the different plot types
    %tmp=();
@@ -179,6 +177,9 @@
    @lists=('arealoop');
    &set_def ;
    &join_lists ;
+
+   # Merge user defined tag and area
+   &merge_role('tmp','arealoop','TAG','\'','_'.$area.'\'');
 
    # Copy the area map settings
    for $role ( keys %{ $areas{$area} } ) {
@@ -270,6 +271,7 @@ sub join_lists{
 #################################################################
 sub merge_role{
 
+   $out_list  = shift @_ ;
    $sub_list  = shift @_ ;
    $sub_role  = shift @_ ;
    $sub_lv    = shift @_ ;
@@ -277,7 +279,7 @@ sub merge_role{
 
    for $key ( keys %${sub_list} ) {
       if ( exists ${$sub_list}{$key}{$sub_role} ) {
-          ${$sub_list}{$key}{$sub_role}=$sub_lv.${$sub_list}{$key}{$sub_role}.$sub_rv ;
+          ${$out_list}{$key}{$sub_role}=$sub_lv.${$sub_list}{$key}{$sub_role}.$sub_rv ;
       } ;
    } ;
 
