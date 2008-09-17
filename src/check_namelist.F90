@@ -79,6 +79,7 @@ SUBROUTINE check_namelist
        IF( use_fclen(i) /= -1 ) nuse_fclen = nuse_fclen + 1
     ENDDO
     WRITE(6,*)'  Changed NUSE_FCLEN to', nuse_fclen
+    WRITE(6,*)'           USE_FCLEN is', use_fclen(1:nuse_fclen)
  ENDIF
 
  ! Check that use_fclen is increasing

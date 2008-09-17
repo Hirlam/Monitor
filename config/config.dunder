@@ -10,11 +10,11 @@ CPP        := /lib/cpp -E -traditional
 
 # C
 CC      := gcc 
-CCFLAGS := -O2 -xP -g  $(MACHINECPP) 
+CCFLAGS := -O2 -g  $(MACHINECPP) 
 
 # Fortran
 FC := ifort
-MYFCFLAGS := -O3 -xW -traceback -g -checkbounds
+MYFCFLAGS := -O3 -traceback -g -xP
 
 # Modules
 MODNAME = $(shell echo $(*F) | tr "[:upper:]" "[:lower:]")
@@ -22,12 +22,7 @@ MODEXT := mod
 
 # Link
 LD          := $(FC)
-ifeq ($(MAGICSFLAG),-DMAGICS)
-LDFLAGS     := -O3 -xW -I/usr/lib -lglib-2.0 -traceback -g -checkbounds
-else
-LDFLAGS     := -O3 -xW -I/usr/lib -lglib-2.0 -traceback -g 
-endif
-#-Bstatic -static
+LDFLAGS     := -O3 -traceback -g -xP
 
 # AR
 AR      := ar
@@ -44,11 +39,7 @@ CPPFLAGS := -I$(ROOTDIR)/inc $(MAGICSFLAG)
 # depf90mod.x search extensions ( -f is default )
 MODEXTS=-E F90 -E F -E f90 -E -f 
 
-# MAGICS
-ifeq ($(MAGICSFLAG),-DMAGICS)
-EXTLIB := 
-else
+# External libraries
 EXTLIB :=
-endif
 
 

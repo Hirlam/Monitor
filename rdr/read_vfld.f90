@@ -82,10 +82,10 @@ SUBROUTINE read_vfld
 
        OPEN(lunin,file=fname,status='old',iostat=ierr)
        IF (ierr.NE.0) THEN
-          IF (print_read > 0 ) WRITE(6,*)'Could not open ',TRIM(fname)
+          IF (print_read > 0 ) WRITE(6,'(2A)')'Could not open ',TRIM(fname)
           CYCLE EXP_LOOP
        ENDIF
-       IF (print_read > 0 ) WRITE(6,*)'READ ',TRIM(fname)
+       IF (print_read > 0 ) WRITE(6,'(2A)')'READ ',TRIM(fname)
 
        version_flag = 0
 

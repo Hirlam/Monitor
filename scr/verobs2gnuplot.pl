@@ -113,7 +113,7 @@ sub plot_command {
         $plot = $plot . " '$input_file' using 1:" . $column[$i];
         $plot = $plot . " title '$legend[$i]' with linespoints lt $i lw 2";
         if ( $_ =~ /CASES/ ) {
-	  $plot = $plot . " axis x1y2 ";
+	  $plot = $plot . " axis x1y2 " ;
 	}
     }
 
@@ -135,9 +135,6 @@ set xlabel "$xlabel"
 
 # right axis definitions-------------
 
-set y2range [0:]
-set y2label "No cases"
-set y2tics 0,1000
 # ------------------------------------
 
 set ylabel "$ylabel"
@@ -151,11 +148,14 @@ EOF
 sub timeserie {
 
     print GP <<EOF;
+set y2range [0:]
+set y2label "No cases"
+set y2tics 0,1000
 set xdata time
 set format x "%d/%m\\n%H"
 EOF
 
-    &plot_command;
+    &plot_command ;
 
 }
 #################################################################
@@ -163,7 +163,13 @@ EOF
 #################################################################
 sub gen_stat {
 
-    &plot_command;
+    print GP <<EOF;
+set y2range [0:]
+set y2label "No cases"
+set y2tics 0,1000
+EOF
+
+    &plot_command ;
 
 }
 #################################################################
@@ -173,6 +179,9 @@ sub plot_vert {
 
     print GP <<EOF;
 set yrange [10:1000] reverse
+set x2range [0:]
+set x2label "No cases"
+set x2tics 0,1000
 EOF
     $plot = "plot ";
 
@@ -182,6 +191,9 @@ EOF
         if ( $i gt 0 ) { $plot = "$plot,"; }
         $plot = $plot . " '$input_file' using " . $column[$i] . ":1";
         $plot = $plot . " title '$legend[$i]' with linespoints lt $i lw 2";
+        if ( $_ =~ /CASES/ ) {
+	  $plot = $plot . " axis x2y1 " ;
+	}
       }
 
 }

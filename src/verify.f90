@@ -282,12 +282,10 @@ SUBROUTINE verify
  ! 
 
  ALLOCATE(  used_fclen(nparver,maxper,0:maxfclenval),     &
-            used_hours(nparver,maxper,0:23),              &
-          showed_times(nparver,maxper,0:23))
+            used_hours(nparver,maxper,0:23))
 
  used_fclen   = .FALSE.
  used_hours   = .FALSE.
- showed_times = .FALSE.
 
  !
  ! Prepare xml file for station statistics
@@ -599,7 +597,6 @@ SUBROUTINE verify
 
                 used_hours(k,per_ind,hir(i)%o(j)%time) = .TRUE.
                 used_fclen(k,per_ind,fclen(n))         = .TRUE.
-                showed_times(k,per_ind,tim_ind-1)      = .TRUE.
                    
                 IF (use_kalman) THEN
 
@@ -1016,7 +1013,7 @@ SUBROUTINE verify
  ENDIF
  IF ( ALLOCATED(tmpdiff)) DEALLOCATE(tmpdiff)
 
- DEALLOCATE(used_fclen,used_hours,showed_times)
+ DEALLOCATE(used_fclen,used_hours)
 
  IF (ltiming) CALL add_timing(timing_id_plot,'Verify_plot')
 

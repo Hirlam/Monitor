@@ -116,7 +116,6 @@ MODULE data
                                                 !  1 End
 
  LOGICAL, ALLOCATABLE ::   used_hours(:,:,:)    ! Indicator for hours really used
- LOGICAL, ALLOCATABLE :: showed_times(:,:,:)    ! Hours of days really shown
  LOGICAL, ALLOCATABLE ::   used_fclen(:,:,:)    ! fclengths really used
 
  ! Frequency distribution plots
