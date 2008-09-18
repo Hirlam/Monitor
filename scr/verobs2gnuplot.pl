@@ -111,9 +111,11 @@ sub plot_command {
         $i++;
         if ( $i gt 0 ) { $plot = "$plot,"; }
         $plot = $plot . " '$input_file' using 1:" . $column[$i];
-        $plot = $plot . " title '$legend[$i]' with linespoints lt $i lw 2";
         if ( $_ =~ /CASES/ ) {
-	  $plot = $plot . " axis x1y2 " ;
+          $plot = $plot . " title '$legend[$i]' with linespoints lt 0 lw 2 axis x1y2 ";
+        } else {
+          $col_id=$i+1;
+          $plot = $plot . " title '$legend[$i]' with linespoints lt $col_id lw 2 pt 7";
 	}
     }
 
@@ -132,11 +134,6 @@ set missing "$missing"
 set title "$heading1\\n \\$heading2\\n \\$heading3\\n \\$heading4 "
 
 set xlabel "$xlabel"
-
-# right axis definitions-------------
-
-# ------------------------------------
-
 set ylabel "$ylabel"
 set timefmt "%Y%m%d %H"
 set grid
@@ -181,7 +178,7 @@ sub plot_vert {
 set yrange [10:1000] reverse
 set x2range [0:]
 set x2label "No cases"
-set x2tics 0,1000
+set x2tics 0,300
 EOF
     $plot = "plot ";
 
@@ -190,10 +187,12 @@ EOF
         $i++;
         if ( $i gt 0 ) { $plot = "$plot,"; }
         $plot = $plot . " '$input_file' using " . $column[$i] . ":1";
-        $plot = $plot . " title '$legend[$i]' with linespoints lt $i lw 2";
         if ( $_ =~ /CASES/ ) {
-	  $plot = $plot . " axis x2y1 " ;
-	}
+          $plot = $plot . " title '$legend[$i]' with linespoints lt 0 lw 2 axis x2y1";
+        } else {
+          $col_id=$i+1;
+          $plot = $plot . " title '$legend[$i]' with linespoints lt $col_id lw 2 pt 7";
+        }
       }
 
 }
