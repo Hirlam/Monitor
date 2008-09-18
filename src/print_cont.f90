@@ -52,6 +52,13 @@ SUBROUTINE print_cont(p1,p2)
        cwrk = TRIM(cwrk)//' ('//TRIM(ctmp2)//')'
 
        WRITE(luncont,*)TRIM(cwrk)
+
+       IF ( period == 0 ) THEN
+          WRITE(luncont,'(A,I8,A,I8)')'Period:',p1,'-',p2
+       ELSE
+          WRITE(luncont,'(A,I8)')'Period:',period
+       ENDIF
+
        WRITE(luncont,*)'Limits ',cont_table(i)%limit(1:cont_table(i)%nclass)
        WRITE(luncont,*)'Each class is data <= limit, the very last > last limit'
        WRITE(luncont,*)'Total number of values',cont_table(i)%nval
