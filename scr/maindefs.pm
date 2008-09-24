@@ -88,6 +88,7 @@
   'LPLOT_VERT' => 'T',
   'LSTAT_GEN'  => 'T',
   'LFCVER'     => 'F',
+  'USE_FCLEN'  => join(',',split(' ',$ENV{FCLEN_TEMP_VERT})),
  },
 
 );
