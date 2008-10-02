@@ -66,6 +66,7 @@ STNLIST_PLOT_TXT=-1
 
 # Active parameters
 SURFPAR="PS FF DD TT TD RH QQ NN PE"
+SURFPAR="PS FF TT RH NN PE"
 
 # Things to plot:
 # GEN    : General forcast length statistics
@@ -85,6 +86,7 @@ SURFPLOT="GEN TIME MAP FREQ SCAT CONT XML DAYVAR"
 # first area only
 #
 SURFAREAS="ALL EWGLAM Scandinavia Greenland Denmark Finland Ireland_England Netherland Norway Spain_Portugal Sweden"
+SURFAREAS="ALL"
 
 # Interval in hours between observations
 OBINT_SURF=06
@@ -122,6 +124,7 @@ FCLEN_TIME="24"
 #
 
 TEMPPAR="TT TD FF DD FI RH QQ"
+TEMPPAR="TT TD FF RH"
 
 TEMPPLOT="GEN TIME VERT"
 
@@ -149,7 +152,7 @@ TEMPAREAS="ALL EWGLAM"
 # 2  PNG
 # 3  JPEG
 
-OUTPUT_TYPE=1
+OUTPUT_TYPE=2
 
 # Date
 # PERIOD_TYPE 1 : SDATE - EDATE, 2 : SDATE - EDATE in monthly pieces
@@ -160,14 +163,14 @@ OUTPUT_TYPE=1
 
 PERIOD_TYPE=1
 
-SDATE=20080801
-EDATE=20080831
+SDATE=20080901
+EDATE=20080905
 IDATE=$SDATE
 
 # Run all parameters in one go
 # Possible if you have a short period/small number of stations
 # or only a few parameters
-ALL_AT_ONCE=no
+ALL_AT_ONCE=yes
 
 # WebgraF call, set WEBCALL empty if not used
 WEBGRAF_BASE=$BASE/WebgraF
