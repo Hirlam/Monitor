@@ -22,12 +22,7 @@ MODEXT := mod
 
 # Link
 LD          := $(FC)
-ifeq ($(MAGICSFLAG),-DMAGICS)
 LDFLAGS     := -O3 -fbacktrace -g
-else
-LDFLAGS     := -O3 -fbacktrace -g
-endif
-#-Bstatic -static
 
 # AR
 AR      := ar

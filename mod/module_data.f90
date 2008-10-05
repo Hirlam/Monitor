@@ -132,6 +132,9 @@ MODULE data
 
  !TYPE(variable) :: tt =(0,0.,0.,0.,0.,'TT','Temperature','Deg')
 
+ ! Graphics
+ CHARACTER(LEN=20) :: graphics='GNUPLOT'
+
  ! Parameters to verify
  INTEGER :: nparver = mparver
  INTEGER :: tt_ind = 0 ! Temperature
@@ -469,7 +472,8 @@ MODULE data
                  corr_pairs,flag_pairs,exp_pairs,       &
                  scat_min,scat_max,scat_magn,           &
                  cont_ind,cont_class,cont_lim,          &
-                 cont_param
+                 cont_param,                            &
+                 graphics
 
 CONTAINS
 

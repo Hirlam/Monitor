@@ -15,7 +15,8 @@ SUBROUTINE read_vfld_temp
  IMPLICIT NONE
 
 
- INTEGER :: i,ii,j,k,kk,kkk,l,kk_lev,	&
+ INTEGER :: i,ii,j,k,kk,kkk,l,ll,       &
+            kk_lev,                     &
             ierr = 0,aerr=0,            &
             cdate = 999999,		&
             ctime = 999999,		&
@@ -33,7 +34,7 @@ SUBROUTINE read_vfld_temp
  REAL :: lat,lon,hgt,val(8)
 
  LOGICAL :: allocated_this_time(maxstn),	&
-            found_any_time,use_stnlist
+            found_any_time,use_stnlist,lfound
 
  CHARACTER(LEN=100) :: fname = ' '
  CHARACTER(LEN= 10) :: cwrk  ='yyyymmddhh'
@@ -76,10 +77,22 @@ SUBROUTINE read_vfld_temp
     !
 
     LL_LOOP  : DO j=1,nfclengths
+
+    !
+    ! Check that all files are available
+    ! If not, skip this forecast length
+    !
+
+    WRITE(cwrk(1:10),'(I8,I2.2)')cdate,ctime/10000
+    WRITE(cfclen(1:2),'(I2.2)')fclen(j)
+    SUB_EXP_LOOP : DO ll=1,nexp
+       fname = TRIM(modpath(ll))//'vfld'//TRIM(expname(ll))//cwrk//cfclen
+       INQUIRE(FILE=fname,EXIST=lfound)
+       IF ( .NOT. lfound ) CYCLE LL_LOOP 
+    ENDDO SUB_EXP_LOOP
+
     EXP_LOOP : DO l=1,nexp
 
-       WRITE(cwrk(1:10),'(I8,I2.2)')cdate,ctime/10000
-       WRITE(cfclen(1:2),'(I2.2)')fclen(j)
        fname = TRIM(modpath(l))//'vfld'//TRIM(expname(l))//cwrk//cfclen
 
        OPEN(lunin,file=fname,status='old',iostat=ierr)
@@ -114,9 +127,11 @@ SUBROUTINE read_vfld_temp
 
           !
           ! Find station index
+          ! Search the first experiment only
           !
 
-          IF(stations(istnr) == 0) THEN
+          IF ( l == 1 ) THEN
+            IF(stations(istnr) == 0) THEN
 
              stat_i = 0
              IF ( use_stnlist ) THEN
@@ -151,6 +166,12 @@ SUBROUTINE read_vfld_temp
              hir(max_found_stat)%lon    = lon
              hir(max_found_stat)%hgt    = hgt
 
+
+           ENDIF
+
+          ELSE
+
+           IF(stations(istnr) == 0)  CYCLE READ_STATION_MOD
 
           ENDIF
 

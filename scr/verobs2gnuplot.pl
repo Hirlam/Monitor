@@ -7,6 +7,8 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
 
     @legend = ();
     @column = ();
+    @sfile  = ();
+    @sint   = ();
 
     # Examine file name
 
@@ -48,6 +50,10 @@ SCAN_FILE: while (<FILE>) {
         }
         if ( $_ =~ /#YLABEL/ ) { $ylabel = substr( $_, 8 ); next SCAN_FILE; }
         if ( $_ =~ /#XLABEL/ ) { $xlabel = substr( $_, 8 ); next SCAN_FILE; }
+        if ( $_ =~ /#XMIN/   ) { @tmp = split (' ',$_ ) ; $xmin   = $tmp[1]; next SCAN_FILE; }
+        if ( $_ =~ /#XMAX/   ) { @tmp = split (' ',$_ ) ; $xmax   = $tmp[1]; next SCAN_FILE; }
+        if ( $_ =~ /#XMIN/   ) { @tmp = split (' ',$_ ) ; $ymin   = $tmp[1]; next SCAN_FILE; }
+        if ( $_ =~ /#XMAX/   ) { @tmp = split (' ',$_ ) ; $ymax   = $tmp[1]; next SCAN_FILE; }
         if ( $_ =~ /#MISSING/ ) {
             $missing = substr( $_, 10 );
             next SCAN_FILE;
@@ -56,6 +62,12 @@ SCAN_FILE: while (<FILE>) {
         if ( $_ =~ /#COLUMN/ ) {
             @legend = ( @legend, substr( $_, 10 ) );
             @column = ( @column, substr( $_, 8, 3 ) );
+            next SCAN_FILE;
+        }
+        if ( $_ =~ /#SLEVEL/ ) {
+            @tmp = split( ' ', $_ );
+            @sfile = ( @sfile, $tmp[1] );
+            @sint  = ( @sint,  $tmp[2] );
             next SCAN_FILE;
         }
     }
@@ -83,6 +95,14 @@ PLOT_TYPES: {
             &plot_vert;
             last PLOT_TYPES;
         }
+        if ( $prefix =~ /f/ || $prefix =~ /F/ ) {
+            &plot_freq;
+            last PLOT_TYPES;
+        }
+        if ( $prefix =~ /s/ || $prefix =~ /S/ ) {
+            &plot_scat;
+            last PLOT_TYPES;
+        }
 
         print "Skip unknown file : $input_file \n";
         close GP;
@@ -93,8 +113,8 @@ PLOT_TYPES: {
     # Call gnuplot
 
     print GP "$plot";
-    system("gnuplot plot.gp");
     close GP;
+    system("gnuplot plot.gp");
 
     print "Created: $output_file \n";
 
@@ -194,5 +214,31 @@ EOF
           $plot = $plot . " title '$legend[$i]' with linespoints lt $col_id lw 2 pt 7";
         }
       }
+
+}
+#################################################################
+#################################################################
+#################################################################
+sub plot_freq {
+    &plot_command ;
+EOF
+}
+#################################################################
+#################################################################
+#################################################################
+sub plot_scat {
+  
+print GP <<EOF;
+set key outside 
+EOF
+    $plot = "plot ";
+
+    $i = -1;
+    foreach (@sfile) {
+        $i++;
+        if ( $i gt 0 ) { $plot = "$plot,"; }
+        $col_id=$i+1;
+        $plot = $plot . " '$input_file"."_".$_."' title '$sint[$i]' lt $col_id ps 2 pt 7";
+    }
 
 }

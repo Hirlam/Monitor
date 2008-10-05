@@ -155,16 +155,38 @@ SUBROUTINE check_namelist
  lcontingency = ( cont_param /= 0 )
 
 
+ ! Graphics settings
+
+ WRITE(6,*)'  GRAPHICS is ',TRIM(graphics)
+
+ SELECT CASE(TRIM(graphics))
+  CASE('gnuplot','GNUPLOT')
+ 
+              output_type = 0
+
+    lprint_timeserie_stat = ltimeserie_stat 
+    print_bias_map        = plot_bias_map
+    print_obs_map         = plot_obs_map
+    lprint_vert           = lplot_vert
+    lprint_freq           = lplot_freq
+    lprint_scat           = lplot_scat
+    lprint_stat           = lplot_stat
+
+
+  CASE('MAGICS','magics')
+
+    WRITE(6,*)'  GRAPHICS is ',TRIM(graphics)
 #ifndef MAGICS
-           output_type = 0
- lprint_timeserie_stat = ltimeserie_stat 
- print_bias_map        = plot_bias_map
- print_obs_map         = plot_obs_map
- lprint_vert           = lplot_vert
- lprint_freq           = lplot_freq
- lprint_scat           = lplot_scat
- lprint_stat           = lplot_stat
+    WRITE(6,*)'  Please recompile with -DMAGICS'
+    CALL abort
 #endif
+
+  CASE DEFAULT
+
+     WRITE(6,*)'  Unknown graphics'
+     CALL abort
+
+ END SELECT
 
  ! More to come ....
 

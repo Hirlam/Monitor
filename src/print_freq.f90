@@ -49,9 +49,10 @@ SUBROUTINE print_freq(lunout,nparver,nr,nrun,scat,p1,p2,par_active,uh,uf)
  LOGICAL :: reset_class
 
  CHARACTER(LEN=100) :: fname = ''
- CHARACTER(LEN=90) :: wtext = '',wtext2 = ''
+ CHARACTER(LEN=90) :: wtext = '',wtext1='',wtext2 = ''
  CHARACTER(LEN=20) :: wname = ''
  CHARACTER(LEN=20) :: cdum  = ''
+ CHARACTER(LEN=len_lab  ) :: ob_short=''
 
 !-----------------------------------------------------
  ! Init timing counter
@@ -145,6 +146,50 @@ SUBROUTINE print_freq(lunout,nparver,nr,nrun,scat,p1,p2,par_active,uh,uf)
        ENDDO
 
     ENDIF
+
+    ! Create headers
+ 
+    ! Line 1
+    IF(ALLOCATED(station_name).AND. nr > 0 ) THEN
+       wtext='Station: '//trim(station_name(csi))
+    ELSE
+       WRITE(wtext1(1:8),'(I8)')nr
+       wtext='Station: '//trim(wtext1(1:8))
+    ENDIF
+    IF (nr == 0) THEN
+       wname=''
+       WRITE(wname(1:5),'(I5)')par_active(j)
+       wtext=TRIM(wname)//' stations'
+       IF ( TRIM(tag) /= '#' ) wtext='Area: '//TRIM(tag)//'  '//TRIM(wtext)
+    ENDIF
+    WRITE(lunout,'(A,X,A)')'#HEADING_1',TRIM(wtext)
+
+    ! Line 2
+    CALL pname(obstype(j),wtext)
+    WRITE(lunout,'(A,X,A)')'#HEADING_2',TRIM(wtext)
+
+    ! Line 3
+    IF ( show_fc_length ) THEN
+       CALL fclen_header(.true.,maxfclenval,uh(j,:),uf(j,:),wtext)
+       WRITE(lunout,'(A,X,A)')'#HEADING_3',TRIM(wtext)
+    ENDIF
+
+    ! Experiments and parameters and norms
+    WRITE(lunout,'(A,X,A)')'#PAR',TRIM(obstype(j))
+
+    WRITE(lunout,'(A,X,I2)')'#NEXP',nexp+1
+    DO i=1,nexp
+       WRITE(lunout,'(A,I2.2X,A)')'#EXP_',i,TRIM(expname(i))
+       WRITE(lunout,'(A,I2.2X,A)')'#COLUMN_',i+1,TRIM(expname(i))
+    ENDDO
+    WRITE(lunout,'(A,I2.2X,A)')'#EXP_',lnexp,'OBS'
+    WRITE(lunout,'(A,I2.2X,A)')'#COLUMN_',lnexp+1,'OBS'
+
+    ob_short = obstype(j)
+    ob_short(3:6) = '   '
+    CALL yunit(ob_short,ytitle)
+    WRITE(lunout,'(A,X,A)')'#XLABEL',TRIM(ytitle)
+    WRITE(lunout,'(A,X,A)')'#YLABEL','Relative frequency'
 
     ! Plotting
    

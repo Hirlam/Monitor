@@ -19,7 +19,7 @@ WRK=$BASE/wrk
 #
 # !NB GNUPLOT option is still under developement
 #
-export GRAPHICS=MAGICS
+export GRAPHICS=GNUPLOT
 
 # MAG_HOME for magics, not needed at ecgate
 # export MAG_HOME=

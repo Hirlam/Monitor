@@ -10,12 +10,11 @@ SUBROUTINE read_vfld
 
  USE data
  USE functions
- USE timing
  USE constants
 
  IMPLICIT NONE
 
- INTEGER :: i,ii,j,k,l,			&
+ INTEGER :: i,ii,j,k,l,ll,              &
             ierr = 0,			&
             cdate = 999999,		&
             ctime = 999999,		&
@@ -27,14 +26,13 @@ SUBROUTINE read_vfld
             num_temp_lev,		&
             stations(100000),	&
             max_found_stat,		&
-            timing_id,aerr,     &
-            version_flag
+            aerr,version_flag
  
  
  REAL :: lat,lon,hgt,val(10)
 
  LOGICAL :: allocated_this_time(maxstn),	&
-            found_any_time,use_stnlist
+            found_any_time,use_stnlist,lfound
 
  CHARACTER(LEN=99) :: oname ='vfld',fname = ' '
  CHARACTER(LEN=10) :: cwrk  ='yyyymmddhh'
@@ -42,8 +40,6 @@ SUBROUTINE read_vfld
  INTEGER,PARAMETER :: pl = 3 ! Path length of filename
 
 !----------------------------------------------------------
-
- !999 format(1x,i5.5,2F8.3,f5.0,f5.0,f6.1,f6.1,f6.1,f7.1,f6.1,en13.3e2)
 
  stations       = 0
  max_found_stat = 0
@@ -74,12 +70,24 @@ SUBROUTINE read_vfld
  !
 
     LL_LOOP  : DO j=1,nfclengths
+
+    !
+    ! Check that all files are available
+    ! If not, skip this forecast length
+    !
+
+    WRITE(cwrk(1:10),'(I8,I2.2)')cdate,ctime/10000
+    WRITE(cfclen(1:2),'(I2.2)')fclen(j)
+
+    SUB_EXP_LOOP : DO ll=1,nexp
+       fname = TRIM(modpath(ll))//TRIM(oname)//TRIM(expname(ll))//cwrk//cfclen
+       INQUIRE(FILE=fname,EXIST=lfound)
+       IF ( .NOT. lfound ) CYCLE LL_LOOP 
+    ENDDO SUB_EXP_LOOP
+
     EXP_LOOP : DO l=1,nexp
 
-       WRITE(cwrk(1:10),'(I8,I2.2)')cdate,ctime/10000
-       WRITE(cfclen(1:2),'(I2.2)')fclen(j)
        fname = TRIM(modpath(l))//TRIM(oname)//TRIM(expname(l))//cwrk//cfclen
-
        OPEN(lunin,file=fname,status='old',iostat=ierr)
        IF (ierr.NE.0) THEN
           IF (print_read > 0 ) WRITE(6,'(2A)')'Could not open ',TRIM(fname)
@@ -113,39 +121,49 @@ SUBROUTINE read_vfld
           IF (ierr.ne.0) CYCLE READ_STATION_MOD
 
           !
-          ! Find station index
+          ! Find station index for the first experiment
           !
 
-          IF(stations(istnr) == 0) THEN
+          IF ( l == 1 ) THEN
+             IF ( stations(istnr) == 0 ) THEN
 
-             stat_i = 0
-             IF ( use_stnlist ) THEN
-                DO ii=1,maxstn
-                   IF (istnr == stnlist(ii) ) stat_i = ii
-                ENDDO
-                IF ( stat_i == 0 ) CYCLE READ_STATION_MOD
+                stat_i = 0
+                IF ( use_stnlist ) THEN
+                   DO ii=1,maxstn
+                      IF (istnr == stnlist(ii) ) THEN
+                          stat_i = ii
+                          EXIT
+                      ENDIF
+                   ENDDO
+                   IF ( stat_i == 0 ) CYCLE READ_STATION_MOD
+                ENDIF
+   
+                IF (stat_i == 0 ) THEN
+                   max_found_stat  = max_found_stat + 1
+                   stnlist(max_found_stat) = istnr
+                ELSE
+                   max_found_stat  = stat_i
+                ENDIF
+
+                stations(istnr) = max_found_stat
+                hir(max_found_stat)%active = .TRUE.
+                hir(max_found_stat)%stnr   = istnr
+                hir(max_found_stat)%lat    = lat 
+                hir(max_found_stat)%lon    = lon 
+                hir(max_found_stat)%hgt    = hgt 
+   
+                IF (max_found_stat > maxstn) THEN
+                   WRITE(6,*)'Increase maxstn',max_found_stat
+                   CALL abort
+                ENDIF
+
+                IF (print_read > 1 ) WRITE(6,*)'ADDED',istnr,stations(istnr)
+
              ENDIF
 
-             IF (stat_i == 0 ) THEN
-                max_found_stat  = max_found_stat + 1
-                stnlist(max_found_stat) = istnr
-             ELSE
-                max_found_stat  = stat_i
-             ENDIF
+          ELSE
 
-             stations(istnr) = max_found_stat
-             hir(max_found_stat)%active = .TRUE.
-             hir(max_found_stat)%stnr   = istnr
-             hir(max_found_stat)%lat    = lat 
-             hir(max_found_stat)%lon    = lon 
-             hir(max_found_stat)%hgt    = hgt 
-
-             IF (max_found_stat > maxstn) THEN
-                WRITE(6,*)'Increase maxstn',max_found_stat
-                CALL abort
-             ENDIF
-
-             IF (print_read > 1 ) WRITE(6,*)'ADDED',istnr,stations(istnr)
+             IF(stations(istnr) == 0)  CYCLE READ_STATION_MOD
 
           ENDIF
 
@@ -170,7 +188,6 @@ SUBROUTINE read_vfld
              ALLOCATE(hir(stat_i)%o(i)%time)
              ALLOCATE(hir(stat_i)%o(i)%nal(nexp,nfclengths,nparver),stat=aerr)
 
-
              IF ( aerr /= 0 ) THEN
                 WRITE(6,*)'ERROR IN ALLOCATE',aerr
                 CALL ABORT
@@ -183,7 +200,7 @@ SUBROUTINE read_vfld
              allocated_this_time(stat_i) = .TRUE.
              found_any_time = .TRUE.
 
-          IF (print_read > 1 ) WRITE(6,*)'ALLOCATED',istnr,stat_i,cdate,ctime/10000
+             IF (print_read > 1 ) WRITE(6,*)'ALLOCATED',istnr,stat_i,cdate,ctime/10000
   
           ENDIF
 
@@ -196,16 +213,16 @@ SUBROUTINE read_vfld
           IF (print_read > 1 ) WRITE(6,*)'ADD',istnr,val
           IF (print_read > 1 ) WRITE(6,*)'BOUND',istnr,UBOUND( hir(stat_i)%o(i)%nal )
 
-          IF (nn_ind /= 0 .AND. qca(val(1),-99.)  .AND. &
+          IF (nn_ind /= 0 .AND. qca(val(1),-99.)   .AND. &
                                 qcl(val(1),nn_ind) .AND. &
                                 qcu(val(1),nn_ind)) hir(stat_i)%o(i)%nal(l,j,nn_ind) = val(1)
-          IF (dd_ind /= 0 .AND. qca(val(2),-99.)  .AND. &
+          IF (dd_ind /= 0 .AND. qca(val(2),-99.)   .AND. &
                                 qcl(val(2),dd_ind) .AND. &
                                 qcu(val(2),dd_ind)) hir(stat_i)%o(i)%nal(l,j,dd_ind) = val(2)
-          IF (ff_ind /= 0 .AND. qca(val(3),-99.)        &
-!                                                  .AND. &
-!                               qcl(val(3),ff_ind) .AND. &
-!                               qcu(val(3),ff_ind)       &
+          IF (ff_ind /= 0 .AND. qca(val(3),-99.)         &
+                                                   .AND. &
+                                qcl(val(3),ff_ind) .AND. &
+                                qcu(val(3),ff_ind)       &
                                 ) hir(stat_i)%o(i)%nal(l,j,ff_ind) = val(3)
           IF (tt_ind /= 0 .AND. qca(val(4),-99.)        .AND. &
                                 qcl(val(4)-tzero,tt_ind) .AND. &
@@ -228,7 +245,6 @@ SUBROUTINE read_vfld
           IF (td_ind /= 0 .AND. qca(val(10),-99.)  .AND. &
                                 qcl(val(10),td_ind) .AND. &
                                 qcu(val(10),td_ind)) hir(stat_i)%o(i)%nal(l,j,td_ind) = val(10)
-
           IF (la_ind /= 0 ) hir(stat_i)%o(i)%nal(l,j,la_ind) = hir(stat_i)%lat
           IF (hg_ind /= 0 ) hir(stat_i)%o(i)%nal(l,j,hg_ind) = hir(stat_i)%hgt
 

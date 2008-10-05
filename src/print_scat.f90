@@ -108,6 +108,46 @@ SUBROUTINE print_scat(lunout,nparver,nr,nrun,        &
        CYCLE
     ENDIF
 
+    !
+    ! Set title and axis names
+    !
+    IF (nr > 0) THEN
+      IF(ALLOCATED(station_name)) THEN
+        title = TRIM(titln)//' for '//TRIM(station_name(csi))
+      ELSE
+        WRITE(cnum,'(I8)')nr
+        title = TRIM(titln)//' for '//TRIM(cnum)
+      ENDIF
+    ELSE
+      WRITE(cnum,'(I4)')par_active(lcorr_pairs(j,1))
+      title = TRIM(titln)//' for '//TRIM(cnum)//' stations'
+      IF ( TRIM(tag) /= '#' ) title=TRIM(title)//' Area: '//TRIM(tag)
+    ENDIF
+
+    ! Line 2, time period
+    IF (p1 == 0 ) THEN
+    ELSEIF(p1 < 13) THEN
+
+       SELECT CASE(period_freq) 
+       CASE(1)
+        WRITE(wtext4,'(A8,A8)')'Period: ',seasonal_name2(p1)
+       CASE(3)
+        WRITE(wtext4,'(A8,A8)')'Period: ',seasonal_name1(p1)
+       END SELECT 
+
+    ELSEIF(p1 < 999999 ) THEN
+       pp1 = monincr(p1,period_freq-1)
+       IF(p1 == pp1 ) THEN
+          WRITE(wtext4,'(A8,I8)')'Period: ',p1
+       ELSE
+          WRITE(wtext4,'(A8,I8,A2,I8)')'Period: ',        &
+          p1,' -',pp1
+       ENDIF
+    ELSE
+       WRITE(wtext4,'(A8,I8,A1,I8)')'Period: ',p1,'-',p2
+    ENDIF
+
+
     ! Find min and max
 
     IF ( scat_min(lcorr_pairs(j,1)) < scat_max(lcorr_pairs(j,1)) ) THEN
@@ -199,6 +239,12 @@ SUBROUTINE print_scat(lunout,nparver,nr,nrun,        &
 
     ENDIF ! scat_min < scat_max
 
+    IF ( show_fc_length )                      &
+    CALL fclen_header(.TRUE.,maxfclenval,      &
+                      uh(lcorr_pairs(j,1),:),  &
+                      uf(lcorr_pairs(j,1),:),  &
+                      wtext3)
+
     nexp_plot = 1
     IF( ALL(lexp_pairs(j,:) == 0 ) ) nexp_plot = nexp
 
@@ -220,33 +266,41 @@ SUBROUTINE print_scat(lunout,nparver,nr,nrun,        &
        DO k=1,2
 
            i = lcorr_pairs(j,k)
+           CALL pname(obstype(i),wtext) 
 
            SELECT CASE(lflag_pairs(j,k))
            CASE(-1)
               val(k,1:kk) = scat(i)%dat(1,1:kk)
+              axist(k)= 'OBS '//TRIM(wtext)
            CASE( 0)
               IF( ALL(lexp_pairs(j,:) == 0 ) ) THEN
                 val(k,1:kk) = scat(i)%dat(1+jj,1:kk)
+                axist(k) = TRIM(expname(jj))//' - OBS '//TRIM(wtext)
               ELSE
                 x = lexp_pairs(j,k) + 1
                 val(k,1:kk) = scat(i)%dat(x,1:kk)
+                axist(k) = TRIM(expname(x-1))//' - OBS '//TRIM(wtext)
               ENDIF
            CASE( 1)
               IF( ALL(lexp_pairs(j,:) == 0 ) ) THEN
                 val(k,1:kk) = scat(i)%dat(1+jj,1:kk) + &
                               scat(i)%dat(1   ,1:kk)
+                axist(k) = TRIM(expname(jj))//' '//TRIM(wtext)
               ELSE
                 x = lexp_pairs(j,k) + 1
                 val(k,1:kk) = scat(i)%dat(x,1:kk) + &
                               scat(i)%dat(1   ,1:kk)
+                axist(k) = TRIM(expname(x-1))//' '//TRIM(wtext)
               ENDIF
            CASE( 2)
               IF( ALL(lexp_pairs(j,:) == 0 ) ) THEN
                 val(k,1:kk) = scat(i)%dat(1+jj,1:kk)
+                axist(k) = TRIM(expname(jj))//' - OBS '//TRIM(wtext)
               ELSE
                 x = lexp_pairs(j,1) + 1
                 y = lexp_pairs(j,2) + 1
                 val(k,1:kk) = scat(i)%dat(x,1:kk) - scat(i)%dat(y,1:kk)
+                axist(k) = TRIM(expname(x-1))//' - '//TRIM(expname(y-1))//' '//TRIM(wtext)
               ENDIF
            END SELECT
 
@@ -265,11 +319,19 @@ SUBROUTINE print_scat(lunout,nparver,nr,nrun,        &
            ENDIF
         ENDDO
 
+        wtext ='                               '
+        IF( full_scatter ) &
+        CALL pname(obstype(lcorr_pairs(j,1)),wtext)
+
         CALL bin_cont(lunout,                         &
                       val(1,1:kk),val(2,1:kk),kk,     &
                       minax(1),maxax(1),              &
                       minax(2),maxax(2),              &
-                      scat_magn(lcorr_pairs(j,1)))
+                      scat_magn(lcorr_pairs(j,1)),    &
+                      fname,                          &
+                      title,wtext,wtext3,wtext4,      &
+                      axist(2),axist(1)) 
+
 
         CLOSE(lunout)
 

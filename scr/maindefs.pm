@@ -17,6 +17,7 @@
     'PERIOD_TYPE'      => $ENV{PERIOD_TYPE},
     'OUTPUT_TYPE'      => $ENV{OUTPUT_TYPE},
     'OUTPUT_MODE'      => 2,
+    'GRAPHICS'         => '\''.$ENV{GRAPHICS}.'\'',
  },
 ) ;
 
