@@ -240,5 +240,5 @@ EOF
         $col_id=$i+1;
         $plot = $plot . " '$input_file"."_".$_."' title '$sint[$i]' lt $col_id ps 2 pt 7";
     }
-
+    $plot = $plot . ", x notitle with lines lt 7";
 }
