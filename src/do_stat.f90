@@ -131,10 +131,12 @@ SUBROUTINE do_stat(per_ind,p1,p2)
     !
 
 #ifdef MAGICS
+    IF (TRIM(graphics) == 'MAGICS') THEN
     IF (leach_station.AND. lplot_stat )                   &
     CALL plot_stat2(lunout,nexp,nparver,ntimver,          &
     stat(i)%s,stat(i)%stnr,p1(i),p2(i),par_active,        &
     used_hours(:,per_ind,:),used_fclen(:,per_ind,:))
+    ENDIF
 #endif
 
     !
@@ -155,10 +157,12 @@ SUBROUTINE do_stat(per_ind,p1,p2)
       used_hours(:,per_ind,:),used_fclen(:,per_ind,:))
 
 #ifdef MAGICS
+      IF (TRIM(graphics) == 'MAGICS') THEN
       IF ( lplot_vert )                                      &
       CALL plot_vert(lunout,nexp,nlev,nparver,ntimver,       &
       stat(i)%s,stat(i)%stnr,p1(i),p2(i),par_active,         &
       used_hours(:,per_ind,:),used_fclen(:,per_ind,:))
+      ENDIF
 #endif
 
     ENDIF
@@ -172,9 +176,11 @@ SUBROUTINE do_stat(per_ind,p1,p2)
  IF ( print_obs_map  ) CALL print_map(0,minval(p1),maxval(p2),2,map_type,per_ind)
 
 #ifdef MAGICS
+ IF (TRIM(graphics) == 'MAGICS') THEN
  IF ( plot_bias_map ) CALL plot_map(0,minval(p1),maxval(p2),0,map_type,per_ind)
  IF ( plot_bias_map ) CALL plot_map(0,minval(p1),maxval(p2),1,map_type,per_ind)
  IF ( plot_obs_map  ) CALL plot_map(0,minval(p1),maxval(p2),2,map_type,per_ind)
+ ENDIF
 #endif
 
  csi = 1
@@ -235,6 +241,7 @@ SUBROUTINE do_stat(per_ind,p1,p2)
     ENDIF
 
 #ifdef MAGICS
+    IF (TRIM(graphics) == 'MAGICS') THEN
 
     !
     ! Plot statistics against hour or forecast time
@@ -245,6 +252,7 @@ SUBROUTINE do_stat(per_ind,p1,p2)
       CALL plot_stat2(lunout,nexp,nparver,ntimver,     &
       statall,0,minval(p1),maxval(p2),par_active,      &
       used_hours(:,per_ind,:),used_fclen(:,per_ind,:))
+    ENDIF
     ENDIF
 #endif
 
@@ -266,12 +274,14 @@ SUBROUTINE do_stat(per_ind,p1,p2)
                       used_fclen(:,per_ind,:))
 
 #ifdef MAGICS
+    IF (TRIM(graphics) == 'MAGICS') THEN
        IF ( lplot_vert )                                &
        CALL plot_vert(lunout,nexp,nlev,nparver,ntimver, &
                       statall,0,MINVAL(p1),MAXVAL(p2),  &
                       par_active,                       &
                       used_hours(:,per_ind,:),          &
                       used_fclen(:,per_ind,:))
+    ENDIF
 #endif
 
     ENDIF

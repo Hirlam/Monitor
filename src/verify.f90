@@ -717,11 +717,13 @@ SUBROUTINE verify
                   par_active,periods(l),periods(l+1),               &
                   used_hours(:,l,:),used_fclen(:,l,:))
 #ifdef MAGICS
+       IF (TRIM(graphics) == 'MAGICS' ) THEN
              IF ( ltimeserie_stat ) &
              CALL plot_p_stat(lunout,time_stat_max,nparver,         &
                   obs(i)%stnr,nrun,time_stat(1:time_stat_max),      &
                   par_active,periods(l),periods(l+1),               &
                   used_hours(:,l,:),used_fclen(:,l,:))
+       ENDIF
 #endif
           ENDDO
      ENDIF
@@ -774,6 +776,7 @@ SUBROUTINE verify
                  used_hours(:,l,:),used_fclen(:,l,:))
 
 #ifdef MAGICS
+         IF (TRIM(graphics) == 'MAGICS' ) THEN
 
          ! Plot normal scatterplot
          IF ( lplot_scat .AND. leach_station)                      &
@@ -796,6 +799,7 @@ SUBROUTINE verify
               periods(l),periods(l+1),par_active,            &
               used_hours(:,l,:),used_fclen(:,l,:))
 
+         ENDIF
 #endif
 
       ENDDO
@@ -850,11 +854,13 @@ SUBROUTINE verify
                 periods(l),periods(l+1),                          &
                 used_hours(:,l,:),used_fclen(:,l,:))
 #ifdef MAGICS
+         IF (TRIM(graphics) == 'MAGICS' ) THEN
            IF (ltimeserie_stat ) &
            CALL plot_p_stat(lunout,all_time_stat_max,nparver,0,   &
                 nrun,all_time_stat,par_active,                    &
                 periods(l),periods(l+1),                          &
                 used_hours(:,l,:),used_fclen(:,l,:))
+         ENDIF
 #endif
         ENDDO
 
@@ -928,6 +934,7 @@ SUBROUTINE verify
             used_hours(:,l,:),used_fclen(:,l,:))
 
 #ifdef MAGICS
+       IF (TRIM(graphics) == 'MAGICS' ) THEN
 
        ! Plot normal scatterplot
        
@@ -954,6 +961,7 @@ SUBROUTINE verify
             periods(l),periods(l+1),par_active,  &
             used_hours(:,l,:),used_fclen(:,l,:))
 
+       ENDIF
 #endif
        ! Accumulate and print contingency tables
        IF ( lcontingency ) THEN
