@@ -1,14 +1,21 @@
 #!/usr/bin/perl
 #
-
+#
 # Create gnuplot plots from verobs .txt files
+#
+# Usage: verobs2gnuplot.pl *.txt, where *.txt is the textfiles produced by verobs
+#
 
 SCAN_INPUT: foreach $input_file (@ARGV) {
 
-    @legend = ();
-    @column = ();
-    @sfile  = ();
-    @sint   = ();
+    print "Process:$input_file \n";
+
+    @col_def   = ();
+    @heading   = ();
+    @sfile     = ();
+    @sint      = ();
+
+    $col_count = 0 ;
 
     # Examine file name
 
@@ -28,26 +35,22 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
 
     open FILE, "< $input_file";
 
-SCAN_FILE: while (<FILE>) {
+    SCAN_FILE: while (<FILE>) {
+
+        #  
+        # Scan through the file and extract the necessary information
+        #  
+
         chomp;
+
         if ( $_ =~ /#END/ )  { last SCAN_FILE; }
-        if ( $_ =~ /#HEADING_1/ ) {
-            $heading1 = substr( $_, 11 );
-            next SCAN_FILE;
-        }
-        if ( $_ =~ /#HEADING_2/ ) {
-            $heading2 = substr( $_, 11 );
-            next SCAN_FILE;
-        }
-        if ( $_ =~ /#HEADING_3/ ) {
-            $heading3 = substr( $_, 11 );
+
+        if ( $_ =~ /#HEADING/ ) {
+            @heading = (@heading,substr( $_, 11 ));
             next SCAN_FILE;
         }
 
-        if ( $_ =~ /#HEADING_4/ ) {
-            $heading4 = substr( $_, 11 );
-            next SCAN_FILE;
-        }
+        if ( $_ =~ /#NEXP/ )   { $nexp = substr( $_, 5 ); next SCAN_FILE; }
         if ( $_ =~ /#YLABEL/ ) { $ylabel = substr( $_, 8 ); next SCAN_FILE; }
         if ( $_ =~ /#XLABEL/ ) { $xlabel = substr( $_, 8 ); next SCAN_FILE; }
         if ( $_ =~ /#XMIN/   ) { @tmp = split (' ',$_ ) ; $xmin   = $tmp[1]; next SCAN_FILE; }
@@ -60,10 +63,17 @@ SCAN_FILE: while (<FILE>) {
         }
 
         if ( $_ =~ /#COLUMN/ ) {
-            @legend = ( @legend, substr( $_, 10 ) );
-            @column = ( @column, substr( $_, 8, 3 ) );
+            $col_count++ ;
+            @col_def = (@col_def,
+                       { LEGEND => substr( $_, 11 ) , 
+                         COLUMN => substr( $_, 8, 3 ),
+                         PT     => 7,
+                         LT     => $col_count,
+                        },
+            ) ;
             next SCAN_FILE;
         }
+
         if ( $_ =~ /#SLEVEL/ ) {
             @tmp = split( ' ', $_ );
             @sfile = ( @sfile, $tmp[1] );
@@ -74,14 +84,38 @@ SCAN_FILE: while (<FILE>) {
 
     close FILE;
 
+    #
+    # Set plot colors and symbols depending on type of plot
+    #
+
+    my $ii = scalar (@col_def);
+    unless ( $ii eq 0 ) {
+       $ncol = 0;
+       if ( $col_def[$ii-2]{LEGEND} ne OBS ) { $ncol = ( $ii -1 ) / $nexp ; } ;
+     
+       for (my $i=0; $i < $ii; $i++) {
+          if ( $col_def[$i]{LEGEND} =~/RMSE/ ) {  $col_def[$i]{PT} = 7 } ;
+          if ( $col_def[$i]{LEGEND} =~/BIAS/ ) {  $col_def[$i]{PT} = 4 } ;
+          if ( $col_def[$i]{LEGEND} =~/STDV/ ) {  $col_def[$i]{PT} = 3 } ;
+   
+          if ( $nexp ne 0 ) { $col_def[$i]{LT} = 1 + $i % $nexp ; } ;
+   
+         if ( $col_def[$i]{LEGEND} eq 'CASES' ) {  $col_def[$i]{LT} = 0 } ;
+   
+       } ;
+    } ;
+
+
+    #
     # Start writing the plotting file
+    #
 
     # Print the header
     &header;
 
     # File type dependent options
 
-PLOT_TYPES: {
+    PLOT_TYPES: {
 
         if ( $prefix =~ /ps/ || $prefix =~ /PS/ ) {
             &timeserie;
@@ -116,7 +150,7 @@ PLOT_TYPES: {
     close GP;
     system("gnuplot plot.gp");
 
-    print "Created: $output_file \n";
+    print "Created:$output_file \n";
 
 }
 #################################################################
@@ -127,15 +161,14 @@ sub plot_command {
     $plot = "plot ";
 
     $i = -1;
-    foreach (@legend) {
+    foreach (@col_def) {
         $i++;
         if ( $i gt 0 ) { $plot = "$plot,"; }
-        $plot = $plot . " '$input_file' using 1:" . $column[$i];
-        if ( $_ =~ /CASES/ ) {
-          $plot = $plot . " title '$legend[$i]' with linespoints lt 0 lw 2 axis x1y2 ";
+        $plot = $plot . " '$input_file' using 1:" . $col_def[$i]{COLUMN};
+        if ( $col_def[$i]{LEGEND} =~ /CASES/ ) {
+          $plot = $plot . " title '$col_def[$i]{LEGEND}' with linespoints lt 0 lw 2 axis x1y2 ";
         } else {
-          $col_id=$i+1;
-          $plot = $plot . " title '$legend[$i]' with linespoints lt $col_id lw 2 pt 7";
+          $plot = $plot . " title '$col_def[$i]{LEGEND}' with linespoints lt $col_def[$i]{LT} lw 2 pt $col_def[$i]{PT}";
 	}
     }
 
@@ -145,13 +178,18 @@ sub plot_command {
 #################################################################
 sub header {
 
+    # Create header
+    $len_head = scalar(@heading) ;
+    $heading =$heading[0];
+    for ($i=1;$i<$len_head;$i++ ) { $heading=$heading."\\n $heading[$i]"; } ;
+
     open GP, ">plot.gp";
 
     print GP <<EOF;
 $terminal
 set output '$output_file'
 set missing "$missing"
-set title "$heading1\\n \\$heading2\\n \\$heading3\\n \\$heading4 "
+set title "$heading"
 
 set xlabel "$xlabel"
 set ylabel "$ylabel"
@@ -203,17 +241,16 @@ EOF
     $plot = "plot ";
 
     $i = -1;
-    foreach (@legend) {
+    foreach (@col_def) {
         $i++;
         if ( $i gt 0 ) { $plot = "$plot,"; }
-        $plot = $plot . " '$input_file' using " . $column[$i] . ":1";
-        if ( $_ =~ /CASES/ ) {
-          $plot = $plot . " title '$legend[$i]' with linespoints lt 0 lw 2 axis x2y1";
+        $plot = $plot . " '$input_file' using " . $col_def[$i]{COLUMN} . ":1";
+        if ( $col_def[$i]{LEGEND} =~ /CASES/ ) {
+          $plot = $plot . " title '$col_def[$i]{LEGEND}' with linespoints lt 0 lw 2 axis x2y1 ";
         } else {
-          $col_id=$i+1;
-          $plot = $plot . " title '$legend[$i]' with linespoints lt $col_id lw 2 pt 7";
-        }
-      }
+          $plot = $plot . " title '$col_def[$i]{LEGEND}' with linespoints lt $col_def[$i]{LT} lw 2 pt $col_def[$i]{PT}";
+	}
+    }
 
 }
 #################################################################
