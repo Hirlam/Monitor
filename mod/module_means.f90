@@ -11,11 +11,11 @@ MODULE means
  !-----------------------------------------
 
  SUBROUTINE carefull_sumup(data,date,time,    &
-               ntim,ndim,win,dlen,	              &
+               ntim,ndim,win,dlen,	          &
                data_min,data_max,data_ave,    &
-               startdate,starttime,	      &
+               startdate,starttime,	          &
                sumup_tolerance,obint,         &
-               err_ind,window_pos)
+               err_ind,window_pos,do_average)
  !
  ! Apply win lenght averages on time series
  ! Check data piecevise and use the average only
@@ -37,6 +37,7 @@ MODULE means
   INTEGER, INTENT(IN)    :: obint
   REAL,    INTENT(IN)    :: err_ind
   INTEGER, INTENT(IN)    :: window_pos
+  LOGICAL, INTENT(IN)    :: do_average
 
   ! Local
   INTEGER :: i,ii,j,jj,k,				&
@@ -142,7 +143,11 @@ MODULE means
          CALL abort
       END SELECT
 
-        tmp(k) = wrk * r_jj
+      tmp(k) = wrk
+      IF ( do_average ) THEN
+        tmp(k) = tmp(k) * r_jj
+      ENDIF
+
       ldate(k) = middate
       ltime(k) = midtime / 10000
 

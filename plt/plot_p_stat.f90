@@ -243,7 +243,7 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
            data_min(0),data_max(0),       &
            data_ave(0),ndate(1),00,       &
            sumup_tolerance,obint,         &
-           err_ind,window_pos)
+           err_ind,window_pos,.true.)
 
            ndate = date
            ntime = time
@@ -257,7 +257,7 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
            rnum_min(k),rnum_max(k),       &
            rnum_ave(k),ndate(1),00,       &
            sumup_tolerance,obint,         &
-           err_ind,window_pos)
+           err_ind,window_pos,.false.)
 
            ndate = date
            ntime = time
@@ -268,7 +268,7 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
            data_min(k),data_max(k),       &
            data_ave(k),ndate(1),00,       &
            sumup_tolerance,obint,         &
-           err_ind,window_pos)
+           err_ind,window_pos,.true.)
 
            IF ( ldiff ) THEN
 
@@ -281,7 +281,7 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
               rmse_min(k),rmse_max(k),       &
               rmse_ave(k),ndate(1),00,       &
               sumup_tolerance,obint,         &
-              err_ind,window_pos)
+              err_ind,window_pos,.true.)
 
               ndate = date
               ntime = time
@@ -292,7 +292,7 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
               stdv_min(k),stdv_max(k),       &
               stdv_ave(k),ndate(1),00,       &
               sumup_tolerance,obint,         &
-              err_ind,window_pos)
+              err_ind,window_pos,.true.)
 
            ENDIF
 
