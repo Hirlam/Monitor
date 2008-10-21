@@ -203,7 +203,7 @@ SUBROUTINE print_freq(lunout,nparver,nr,nrun,scat,p1,p2,par_active,uh,uf)
     ENDDO
 
     DO i=1,ncl
-     WRITE(lunout,*)fcla(i),fdat(i,:)
+     WRITE(lunout,'(10F15.6)')fcla(i),fdat(i,:)
     ENDDO
 
     CLOSE(lunout)

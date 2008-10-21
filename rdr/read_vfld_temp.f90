@@ -171,7 +171,12 @@ SUBROUTINE read_vfld_temp
 
           ELSE
 
-           IF(stations(istnr) == 0)  CYCLE READ_STATION_MOD
+           IF(stations(istnr) == 0) THEN
+             DO kk=1,num_temp_lev
+               READ(lunin,*)
+             ENDDO
+             CYCLE READ_STATION_MOD
+           ENDIF
 
           ENDIF
 

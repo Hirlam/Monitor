@@ -129,7 +129,10 @@ SUBROUTINE read_vobs_temp
 
           IF(print_read>1) WRITE(6,*)istnr,lat,lon,ierr
 
-          IF (ierr  /= 0) CYCLE READ_STATION_OBS
+          IF (ierr  /= 0) THEN
+             WRITE(6,*)'Error in reading the header of the TEMP observation ',istnr,lat,lon
+             CALL abort
+          ENDIF
           IF (istnr == 0) CYCLE READ_STATION_OBS
           IF (( ABS(lat+99) < 1.e-4 ) ) CYCLE READ_STATION_OBS
           IF (( ABS(lon+99) < 1.e-4 ) ) CYCLE READ_STATION_OBS
