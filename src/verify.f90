@@ -64,7 +64,6 @@ SUBROUTINE verify
  LOGICAL :: all_exp_verified = .TRUE.
  LOGICAL :: found_right_time = .FALSE.
  LOGICAL :: demand_equal     = .TRUE.
- LOGICAL :: do_kalman        = .TRUE.
  LOGICAL :: lscat_array      = .FALSE.
  LOGICAL :: stat_file_found  = .FALSE.
 
@@ -88,17 +87,6 @@ SUBROUTINE verify
  WRITE(6,*)
  WRITE(6,*)'--VERIFY--'
  WRITE(6,*)
-
- !
- ! Kalman filter specifics
- !
- nexp_ver= nexp
- IF ( use_kalman ) THEN
-   nexp = 2 * nexp
-   DO i=nexp_ver+1,nexp
-     expname(i) ='k_'//TRIM(expname(i-nexp_ver))
-   ENDDO
- ENDIF
 
  ALLOCATE(tmpdiff(nexp))
 
@@ -598,27 +586,6 @@ SUBROUTINE verify
                 used_hours(k,per_ind,hir(i)%o(j)%time) = .TRUE.
                 used_fclen(k,per_ind,fclen(n))         = .TRUE.
                    
-                IF (use_kalman) THEN
-
-                   do_kalman = .TRUE.
-
-                   IF ( k == wp_ind ) THEN
-                      IF (ABS(obs(i)%o(jj)%val(k) - err_ind ) > 1.e-6 .AND.   &
-                              obs(i)%o(jj)%val(k) < 0.5                     ) &
-                              do_kalman = .FALSE.
-                   ENDIF
-
-                   IF ( do_kalman )                &
-                   CALL update_kalman(i,n,k,       &
-                        obs(i)%o(jj)%date,         &
-                        obs(i)%o(jj)%time,         &
-                        obs(i)%o(jj)%val(k),tmpdiff)
-
-                   IF ( k == wp_ind ) CALL correct_windp(obs(i)%stnr,nexp,   &
-                                           obs(i)%o(jj)%val(k),tmpdiff)
-
-                ENDIF
-
                 IF (lscat_array ) THEN
 
                    !
@@ -1025,8 +992,6 @@ SUBROUTINE verify
  DEALLOCATE(used_fclen,used_hours)
 
  IF (ltiming) CALL add_timing(timing_id_plot,'Verify_plot')
-
- !IF (use_kalman) CALL clear_kalman
 
  IF (ltiming) CALL add_timing(timing_id,'Verify')
 

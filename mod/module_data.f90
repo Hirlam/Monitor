@@ -335,12 +335,6 @@ MODULE data
  LOGICAL :: lspecial_cond    = .FALSE.  ! Use special conditions
 
 
- ! Kalman filter
- TYPE(kalman_type) kalvar_n(mparver)          ! Kalman settings
- LOGICAL :: use_kalman             = .FALSE.  ! Kalman filter values
- INTEGER :: kalman_frequency_n     = 24       ! Expected data frequency
- INTEGER :: kalman_fclen(maxfclen) = 0        ! fclen to use in kalman filter
-
  ! Output type
  INTEGER :: output_type = 1                   ! 1 = ps, 2 = png, 3 = jpg
  INTEGER :: output_mode = 1                   ! 1 = multi page, 2 = single page
@@ -420,8 +414,6 @@ MODULE data
                  lcontingency,                          &
                  ltimeserie_stat,                       &
                  lprint_timeserie_stat,                 &
-                 use_kalman,kalvar_n,                   &
-                 kalman_fclen,kalman_frequency_n,       &
                  plot_bias_map,                         &
                  print_bias_map,                        &
                  map_scale,                             &

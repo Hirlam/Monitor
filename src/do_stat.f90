@@ -171,9 +171,9 @@ SUBROUTINE do_stat(per_ind,p1,p2)
 
  ENDDO
 
- IF ( print_bias_map ) CALL print_map(0,minval(p1),maxval(p2),0,map_type,per_ind)
- IF ( print_bias_map ) CALL print_map(0,minval(p1),maxval(p2),1,map_type,per_ind)
- IF ( print_obs_map  ) CALL print_map(0,minval(p1),maxval(p2),2,map_type,per_ind)
+ IF ( print_bias_map ) CALL print_map(0,minval(p1),maxval(p2),0,map_type,per_ind,par_active)
+ IF ( print_bias_map ) CALL print_map(0,minval(p1),maxval(p2),1,map_type,per_ind,par_active)
+ IF ( print_obs_map  ) CALL print_map(0,minval(p1),maxval(p2),2,map_type,per_ind,par_active)
 
 #ifdef MAGICS
  IF (TRIM(graphics) == 'MAGICS') THEN

@@ -33,13 +33,6 @@ MODULE types
 
  END TYPE plot_type
 
- !
- ! Kalman type
- !
- TYPE kalman_type
-    INTEGER :: date,time
-    REAL :: q(2,2),q0(2,2),d,f1,f2,x(2),xn(2)
- END TYPE kalman_type 
 
  ! 
  ! Variable

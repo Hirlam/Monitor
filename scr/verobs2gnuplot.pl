@@ -14,6 +14,7 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
     @heading   = ();
     @sfile     = ();
     @sint      = ();
+    @sintu     = ();
 
     $col_count = 0 ;
 
@@ -50,6 +51,7 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
             next SCAN_FILE;
         }
 
+        if ( $_ =~ /#AREA/ )   { $area = substr( $_, 5 ); next SCAN_FILE; }
         if ( $_ =~ /#NEXP/ )   { $nexp = substr( $_, 5 ); next SCAN_FILE; }
         if ( $_ =~ /#YLABEL/ ) { $ylabel = substr( $_, 8 ); next SCAN_FILE; }
         if ( $_ =~ /#XLABEL/ ) { $xlabel = substr( $_, 8 ); next SCAN_FILE; }
@@ -78,6 +80,7 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
             @tmp = split( ' ', $_ );
             @sfile = ( @sfile, $tmp[1] );
             @sint  = ( @sint,  $tmp[2] );
+            @sintu = ( @sintu, $tmp[3] );
             next SCAN_FILE;
         }
     }
@@ -135,6 +138,10 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
         }
         if ( $prefix =~ /s/ || $prefix =~ /S/ ) {
             &plot_scat;
+            last PLOT_TYPES;
+        }
+        if ( $prefix =~ /m/ || $prefix =~ /M/ ) {
+            &plot_map;
             last PLOT_TYPES;
         }
 
@@ -278,4 +285,21 @@ EOF
         $plot = $plot . " '$input_file"."_".$_."' title '$sint[$i]' lt $col_id ps 2 pt 7";
     }
     $plot = $plot . ", x notitle with lines lt 7";
+}
+#################################################################
+#################################################################
+#################################################################
+sub plot_map {
+  
+print GP <<EOF;
+set key outside 
+EOF
+    $plot = "plot ".$area." 'coast.dat' notit lt 9 ps 0.2 pt 7,";
+    $i = -1;
+    foreach (@sfile) {
+        $i++;
+        if ( $i gt 0 ) { $plot = "$plot,"; }
+        $col_id=$i+1;
+        $plot = $plot . " '$input_file"."_".$_."' title '$sint[$i] $sintu[$i]' lt $col_id ps 1 pt 7";
+    }
 }

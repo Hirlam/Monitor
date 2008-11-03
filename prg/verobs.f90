@@ -176,6 +176,7 @@ PROGRAM verobs
  DEALLOCATE(obs)
  DEALLOCATE(hir)
  DEALLOCATE(obstype)
+
  IF ( ALLOCATED(station_name) ) DEALLOCATE(station_name)
 
  IF (ltiming) CALL add_timing(timing_id1,'verobs')

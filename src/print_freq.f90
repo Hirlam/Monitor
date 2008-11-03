@@ -40,7 +40,7 @@ SUBROUTINE print_freq(lunout,nparver,nr,nrun,scat,p1,p2,par_active,uh,uf)
             timing_id,lnexp,pp1,period
 
  REAL :: dcla,fdat_sum,bar_width,               &
-         bfac,maxy,miny
+         maxy,miny
 
  REAL, ALLOCATABLE :: work(:,:),                &
                       pcla(:),fcla(:),          &
@@ -52,6 +52,7 @@ SUBROUTINE print_freq(lunout,nparver,nr,nrun,scat,p1,p2,par_active,uh,uf)
  CHARACTER(LEN=90) :: wtext = '',wtext1='',wtext2 = ''
  CHARACTER(LEN=20) :: wname = ''
  CHARACTER(LEN=20) :: cdum  = ''
+ CHARACTER(LEN=30) :: cform = ''
  CHARACTER(LEN=len_lab  ) :: ob_short=''
 
 !-----------------------------------------------------
@@ -192,15 +193,14 @@ SUBROUTINE print_freq(lunout,nparver,nr,nrun,scat,p1,p2,par_active,uh,uf)
     WRITE(lunout,'(A,X,A)')'#YLABEL','Relative frequency'
 
     ! Plotting
-   
-    dcla      = fcla(ncl) - fcla(ncl-1)
-    bar_width = spxl / float(ncl*lnexp)
-    bfac      = bar_width*dcla*(ncl)/spxl
 
     DO i=1,lnexp
        fdat_sum  = SUM(fdat(:,i))
        fdat(:,i) = fdat(:,i) / MAX(1.,fdat_sum)
     ENDDO
+
+    cform = '(NN(en13.3e2,x))'
+    WRITE(cform(2:3),'(I2.2)')nexp+2
 
     DO i=1,ncl
      WRITE(lunout,'(10F15.6)')fcla(i),fdat(i,:)

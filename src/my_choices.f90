@@ -169,10 +169,6 @@ CHARACTER(LEN=2)  :: ci   = ' '
     CALL read_windp_obs
     CALL read_windp_mod
 
- CASE(20)
-
-    CALL read_kalman_test
-
  CASE(21)
 
     CALL read_nasudden

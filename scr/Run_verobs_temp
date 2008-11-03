@@ -26,7 +26,8 @@ fi
 
 cd $WRK/${DIR}_$$ || exit
 
-ln -s $SCR/*.poly .
+ln -s $SCR/*.poly    .
+ln -s $SCR/coast.dat .
 
 # Run verobs for the different variables
 if [ $ALL_AT_ONCE == "yes" ] ; then
