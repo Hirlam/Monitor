@@ -52,7 +52,6 @@ SUBROUTINE verify
             ind_pe(nparver,nfclengths),                 &
             lyear,year_map(12) = 0,                     &
             cdate,ctime,                                &
-            nexp_ver,                                   &
             par_active(nparver),                        &
             len_scat,per_ind,iscat
 
@@ -488,7 +487,7 @@ SUBROUTINE verify
              ! All EXP should have data, else do not verify
              !
 
-             DO o=1,nexp_ver
+             DO o=1,nexp
                IF (ABS(hir(i)%o(j)%nal(o,n,k)-err_ind) < 1.e-6) THEN
                   IF ( demand_equal ) hir(i)%o(j)%nal(:,n,k) = err_ind
                   CYCLE NPARVER_LOOP
@@ -505,8 +504,7 @@ SUBROUTINE verify
 
              !!!IF ( lspecial_cond ) CALL special_cond(I!
 
- 
-             EXP_LOOP : DO o=1,nexp_ver
+             EXP_LOOP : DO o=1,nexp
 
                 IF(accu_int(k) /= 0) THEN
 
