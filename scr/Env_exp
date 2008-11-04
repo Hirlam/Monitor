@@ -85,7 +85,7 @@ SURFPLOT="GEN TIME MAP FREQ SCAT CONT XML DAYVAR"
 # Note that XML statistics will be defined for the
 # first area only
 #
-SURFAREAS="ALL EWGLAM Scandinavia Greenland Denmark Finland Ireland_England Netherland Norway Spain_Portugal Sweden"
+SURFAREAS="ALL EWGLAM Scandinavia Greenland Denmark Finland IrelandEngland Netherland Norway SpainPortugal Sweden"
 SURFAREAS="ALL"
 
 # Interval in hours between observations

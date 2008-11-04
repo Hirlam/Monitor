@@ -106,7 +106,7 @@
    'MAP_PROJECTION'=> '\'POLAR_STEREOGRAPHIC\'',
    'MAP_AREA_DEFINITION '=> '\'CENTRE\'',
    },
-  'North_of_60' => {
+  'NorthOf60' => {
    'CBOX%ACTIVE' => 'T',
    'CBOX%SLAT' => '60.',
    'CBOX%WLON' => '-180.',
@@ -118,7 +118,7 @@
    'MAP_PROJECTION'=> '\'POLAR_STEREOGRAPHIC\'',
    'MAP_AREA_DEFINITION '=> '\'CENTRE\'',
    },
-  'Ireland_England' => {
+  'IrelandEngland' => {
    'CBOX%ACTIVE' => 'T',
    'CBOX%SLAT' => '50.',
    'CBOX%WLON' => '-11.',
@@ -130,7 +130,7 @@
    'MAP_PROJECTION'=> '\'POLAR_STEREOGRAPHIC\'',
    'MAP_AREA_DEFINITION '=> '\'CENTRE\'',
    },
-  'Northern_North_Sea' => {
+  'NorthernNorthSea' => {
    'CBOX%ACTIVE' => 'T',
    'CBOX%SLAT' => '55.',
    'CBOX%WLON' => '-1.5',
@@ -154,7 +154,7 @@
    'MAP_PROJECTION'=> '\'POLAR_STEREOGRAPHIC\'',
    'MAP_AREA_DEFINITION '=> '\'CENTRE\'',
    },
-  'Spain_Portugal' => {
+  'SpainPortugal' => {
    'CBOX%ACTIVE' => 'T',
    'CBOX%SLAT' => '35.',
    'CBOX%WLON' => '-10',
@@ -301,7 +301,7 @@
    'MAP_PROJECTION'      => '\'POLAR_STEREOGRAPHIC\'',
    'MAP_AREA_DEFINITION '=> '\'CENTRE\'',
    },
-  'Baltic_sea' => {
+  'BalticSea' => {
    'LPOLY'               => 'T',
    'POLYFILE'            => '\'Baltic_sea.poly\'',
    'MAP_SCALE'           => 1.5e7,
