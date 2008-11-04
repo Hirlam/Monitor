@@ -19,11 +19,6 @@ CHARACTER(LEN=2)  :: ci   = ' '
 
     SELECT CASE (TRIM(data_source))
    
-    CASE('WINDP_CUSTOM')
-
-       CALL read_windp_oper_obs2_custom
-       CALL read_windp_oper_mod_custom
-
     CASE('mastdata')
    
        CALL read_obs_mast_date
@@ -60,11 +55,6 @@ CHARACTER(LEN=2)  :: ci   = ' '
        CALL read_vhtb
        CALL read_vfld
 
-    CASE('windp_test')
-
-       CALL read_windp_oper_obs2
-       CALL read_windp_oper_mod
-
     CASE DEFAULT
 
        WRITE(6,*)'No such option ',TRIM(data_source)
@@ -99,16 +89,6 @@ CHARACTER(LEN=2)  :: ci   = ' '
     CALL read_radiation
     CALL read_point
 
- CASE(6)
-
-    CALL read_bak
-    CALL read_vfld
-
- CASE(7)
-
-    CALL read_bak
-    CALL copy_obs
-
  CASE(8)
 
     CALL read_vobs
@@ -129,16 +109,6 @@ CHARACTER(LEN=2)  :: ci   = ' '
     CALL read_voqc_temp
     CALL read_vfld_temp_hirvda
 
- CASE(12)
-
-    CALL read_statgen
-    CALL copy_obs
-
- CASE(13)
-
-    CALL read_statgen
-    CALL read_gp
-
  CASE(14)
 
     CALL read_voqc_y4
@@ -154,55 +124,10 @@ CHARACTER(LEN=2)  :: ci   = ' '
     CALL read_vobs_dmi
     CALL read_vfld
 
- CASE(17)
-
-    CALL read_windp_obs
-    CALL copy_obs
-
  CASE(18)
 
     CALL read_vobs_temp_dmi
     CALL read_vfld_temp_dmi
-
- CASE(19)
-
-    CALL read_windp_obs
-    CALL read_windp_mod
-
- CASE(21)
-
-    CALL read_nasudden
-    CALL read_mod_nasudden
-
- CASE(22)
-
-    CALL read_windp_oper_obs
-    CALL read_windp_oper_mod
-
- CASE(23)
-
-    CALL read_windp_oper_obs2
-    CALL read_windp_oper_mod
-
- CASE(24)
-
-    CALL read_vindstat
-    CALL copy_obs
-    
- CASE(25)
-
-    CALL read_windp_oper_mod_day
-    CALL read_vindstat
-
- CASE(27)
-
-    CALL read_windp_oper_obs2
-    CALL read_windp_oper_mod_plot
-
- CASE(28)
-
-    CALL read_windp_oper_obs3
-    CALL read_windp_oper_mod2
 
  CASE(29)
 
