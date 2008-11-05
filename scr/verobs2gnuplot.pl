@@ -108,6 +108,9 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
        } ;
     } ;
 
+    # Set colors for map plot
+    @map_colors =  ("7","3","5","6","8","4");
+
 
     #
     # Start writing the plotting file
@@ -294,12 +297,12 @@ sub plot_map {
 print GP <<EOF;
 set key outside 
 EOF
-    $plot = "plot ".$area." 'coast.dat' notit lt 9 ps 0.2 pt 7,";
+    $plot = "plot ".$area." 'coast.dat' notit with lines lt -1,";
     $i = -1;
     foreach (@sfile) {
         $i++;
         if ( $i gt 0 ) { $plot = "$plot,"; }
         $col_id=$i+1;
-        $plot = $plot . " '$input_file"."_".$_."' title '$sint[$i] $sintu[$i]' lt $col_id ps 1 pt 7";
+        $plot = $plot . " '$input_file"."_".$_."' title '$sint[$i] $sintu[$i]' lt $map_colors[$i] ps 1 pt 7";
     }
 }

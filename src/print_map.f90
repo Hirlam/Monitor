@@ -58,6 +58,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,mtype,per_ind,par_active)
 
  LOGICAL :: found_hour    = .FALSE.,user_interval
  LOGICAL :: mask(maxstn)
+ LOGICAL :: print_latlon
 
  CHARACTER(LEN=100) :: text     = ' ',wtext = ' ',wtext1 = ' '
  CHARACTER(LEN=100) :: my_tag   = ' '
@@ -83,12 +84,12 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,mtype,per_ind,par_active)
  CASE(0)
     prefix = 'm_b'
     IF (lfcver) prefix = 'M_b'
-    mtext = 'Bias'
+    mtext = 'bias'
     nexp_plot = nexp
  CASE(1)
     prefix = 'm_r'
     IF (lfcver) prefix = 'M_r'
-    mtext = 'Rmse'
+    mtext = 'rmse'
     nexp_plot = nexp
  CASE(2)
     prefix = 'm_o'
@@ -323,10 +324,21 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,mtype,per_ind,par_active)
        wtext=TRIM(wname)//' stations'
        IF ( TRIM(tag) /= '#' ) wtext='Area: '//TRIM(tag)//'  '//TRIM(wtext)
     ENDIF
+    wtext = 'Exp: '//TRIM(expname(i))//'   '//TRIM(wtext)
     WRITE(lunout,'(A,X,A)')'#HEADING_1',TRIM(wtext)
 
     ! Line 2
     CALL pname(obstype(j),wtext)
+
+    IF ( ntimver_out /= 1 ) THEN
+       IF (lfcver) THEN
+          WRITE(chour,'(I3.2,X,A1)')hour(kk),'H'
+       ELSE
+          WRITE(chour,'(I3.2,X,A3)')hour(kk),'UTC'
+       ENDIF
+       wtext = TRIM(wtext)//' '//TRIM(mtext)//' at '//TRIM(chour)
+    ENDIF
+
     WRITE(lunout,'(A,X,A)')'#HEADING_2',TRIM(wtext)
 
     ! Line 3
@@ -367,13 +379,16 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,mtype,per_ind,par_active)
              OPEN(UNIT=37,FILE=sname)
              WRITE(lunout,'(A,X,A,X,2f6.1)')'#SLEVEL', &
              chour(1:2),interval(l-1),interval(l)
-
+ 
+             print_latlon=.FALSE.
              DO ll=1,numstn
               IF ( dat(i,ll) >= interval(l-1) .AND.   &
                   dat(i,ll) <  interval(l  )      ) THEN
                   WRITE(37,*)lon(ll),lat(ll)
+                  print_latlon=.TRUE.
               ENDIF
              ENDDO
+             IF(.NOT.print_latlon) WRITE(37,*) "-999.   -999."
           ENDDO
 
           CLOSE(37)
