@@ -42,6 +42,8 @@ SUBROUTINE bin_cont(lunout,xval,yval,nobs,          &
   CHARACTER(LEN=100) :: sname = ''
   CHARACTER(LEN=  2) :: cnum  = ''
 
+  LOGICAL :: print_data
+
 !---------------------------------------------------------------------
 
   level = 1.
@@ -194,17 +196,20 @@ SUBROUTINE bin_cont(lunout,xval,yval,nobs,          &
    WRITE(cnum,'(I2.2)')l
    sname = TRIM(fname)//'_'//cnum
 
-   WRITE(lunout,'(A,X,A,en15.5e2)')'#SLEVEL ',cnum,level(l)
+   WRITE(lunout,'(A,X,A,I10)')'#SLEVEL ',cnum,NINT(level(l))
 
    OPEN(UNIT=37,FILE=sname)
+   print_data=.FALSE.
    DO j=1,nbiny
-   DO i=1,nbinx
-    IF (array(i,j) >= level(l-1) .AND.  &
-        array(i,j) <  level(l  )      ) THEN
-        WRITE(37,*)binx(i-1),biny(j-1)
-    ENDIF
+     DO i=1,nbinx
+      IF (array(i,j) >= level(l-1) .AND.  &
+          array(i,j) <  level(l  )      ) THEN
+          WRITE(37,*)binx(i-1),biny(j-1)
+          print_data=.TRUE.
+      ENDIF
+     ENDDO
    ENDDO
-   ENDDO
+   IF(.NOT.print_data) WRITE(37,*) "-999.   -999."
    CLOSE(37)
   ENDDO
 

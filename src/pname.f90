@@ -29,7 +29,7 @@
  CASE('PS')
    u='Surface pressure'
  CASE('NN')
-   u='Cloud cover (octas)'
+   u='Cloud cover'
  CASE('TD')
    u='Dew point temperature'
  CASE('TT')

@@ -25,7 +25,8 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,mtype,per_ind,par_active)
                       use_fclen,show_times, &
                       lunout,               &
                       station_name,csi,     &
-                      maxfclenval 
+                      maxfclenval,          &
+                      period_freq 
 
  IMPLICIT NONE
 
@@ -324,11 +325,37 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,mtype,per_ind,par_active)
        wtext=TRIM(wname)//' stations'
        IF ( TRIM(tag) /= '#' ) wtext='Area: '//TRIM(tag)//'  '//TRIM(wtext)
     ENDIF
+
     wtext = 'Exp: '//TRIM(expname(i))//'   '//TRIM(wtext)
+
+    IF (yymm == 0 ) THEN
+    ELSEIF(yymm < 13) THEN
+     
+       SELECT CASE(period_freq) 
+       CASE(1)
+        WRITE(wtext1,'(A8,A8)')'Period: ',seasonal_name2(yymm)
+       CASE(3)
+        WRITE(wtext1,'(A8,A8)')'Period: ',seasonal_name1(yymm)
+       END SELECT 
+     
+    ELSEIF(yymm < 999999 ) THEN
+       WRITE(wtext1,'(A8,I8)')'Period: ',yymm
+    ELSE
+       WRITE(wtext1,'(A8,I8,A1,I8)')'Period: ',yymm,'-',yymm2
+    ENDIF
+
+    wtext = TRIM(wtext)//'   '//TRIM(wtext1)
+
     WRITE(lunout,'(A,X,A)')'#HEADING_1',TRIM(wtext)
 
     ! Line 2
     CALL pname(obstype(j),wtext)
+
+    ob_short = obstype(j)
+    ob_short(3:6) = '   '
+    CALL yunit(ob_short,cunit)
+
+    wtext = TRIM(wtext)//' '//TRIM(mtext)//' ['//TRIM(cunit)//']'
 
     IF ( ntimver_out /= 1 ) THEN
        IF (lfcver) THEN
@@ -336,7 +363,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,mtype,per_ind,par_active)
        ELSE
           WRITE(chour,'(I3.2,X,A3)')hour(kk),'UTC'
        ENDIF
-       wtext = TRIM(wtext)//' '//TRIM(mtext)//' at '//TRIM(chour)
+       wtext = TRIM(wtext)//' at '//TRIM(chour)
     ENDIF
 
     WRITE(lunout,'(A,X,A)')'#HEADING_2',TRIM(wtext)
@@ -362,9 +389,6 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,mtype,per_ind,par_active)
     ! Experiments and parameters and norms
     WRITE(lunout,'(A,X,A)')'#PAR',TRIM(obstype(j))
 
-    ob_short = obstype(j)
-    ob_short(3:6) = '   '
-    CALL yunit(ob_short,ytitle)
     WRITE(lunout,'(A,X,A)')'#XLABEL','Lon'
     WRITE(lunout,'(A,X,A)')'#YLABEL','Lat'
 

@@ -33,7 +33,7 @@
  CASE('FF')
    u='m/s'
  CASE('DD')
-   u='Wind direction'
+   u='deg'
  CASE('WT','WQ','SW','GS','GR','LW','LU','LD','NR','GC','HB','SU','SD')
    u='W/m^2'
  CASE('WP')

@@ -57,8 +57,8 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
         if ( $_ =~ /#XLABEL/ ) { $xlabel = substr( $_, 8 ); next SCAN_FILE; }
         if ( $_ =~ /#XMIN/   ) { @tmp = split (' ',$_ ) ; $xmin   = $tmp[1]; next SCAN_FILE; }
         if ( $_ =~ /#XMAX/   ) { @tmp = split (' ',$_ ) ; $xmax   = $tmp[1]; next SCAN_FILE; }
-        if ( $_ =~ /#XMIN/   ) { @tmp = split (' ',$_ ) ; $ymin   = $tmp[1]; next SCAN_FILE; }
-        if ( $_ =~ /#XMAX/   ) { @tmp = split (' ',$_ ) ; $ymax   = $tmp[1]; next SCAN_FILE; }
+        if ( $_ =~ /#YMIN/   ) { @tmp = split (' ',$_ ) ; $ymin   = $tmp[1]; next SCAN_FILE; }
+        if ( $_ =~ /#YMAX/   ) { @tmp = split (' ',$_ ) ; $ymax   = $tmp[1]; next SCAN_FILE; }
         if ( $_ =~ /#MISSING/ ) {
             $missing = substr( $_, 10 );
             next SCAN_FILE;
@@ -108,9 +108,9 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
        } ;
     } ;
 
-    # Set colors for map plot
+    # Set colors for map and scatter plots
     @map_colors =  ("7","3","5","6","8","4");
-
+    @scat_colors = ("3","5","2","6","8","1","4","9","7");
 
     #
     # Start writing the plotting file
@@ -140,6 +140,8 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
             last PLOT_TYPES;
         }
         if ( $prefix =~ /s/ || $prefix =~ /S/ ) {
+            $xrange="[$xmin:$xmax]";
+            $yrange="[$ymin:$ymax]";
             &plot_scat;
             last PLOT_TYPES;
         }
@@ -278,16 +280,16 @@ sub plot_scat {
 print GP <<EOF;
 set key outside 
 EOF
-    $plot = "plot ";
+    $plot = "plot $xrange$yrange";
 
     $i = -1;
     foreach (@sfile) {
         $i++;
         if ( $i gt 0 ) { $plot = "$plot,"; }
-        $col_id=$i+1;
-        $plot = $plot . " '$input_file"."_".$_."' title '$sint[$i]' lt $col_id ps 2 pt 7";
+        if ( $i <= 8 ) { $color_id = $i; } else { $color_id = 8; } ;
+        $plot = $plot . " '$input_file"."_".$_."' title '$sint[$i]' lt $scat_colors[$color_id] ps 1 pt 7";
     }
-    $plot = $plot . ", x notitle with lines lt 7";
+    $plot = $plot . ", x notitle with lines lt -1";
 }
 #################################################################
 #################################################################
@@ -302,7 +304,6 @@ EOF
     foreach (@sfile) {
         $i++;
         if ( $i gt 0 ) { $plot = "$plot,"; }
-        $col_id=$i+1;
         $plot = $plot . " '$input_file"."_".$_."' title '$sint[$i] $sintu[$i]' lt $map_colors[$i] ps 1 pt 7";
     }
 }
