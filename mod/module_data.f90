@@ -75,10 +75,11 @@ MODULE data
                                  ! set to 0 to let the program decide
 
  ! Station selection by list or area
- INTEGER :: maxstn             = 1  ! Max stations
- INTEGER :: stnlist(5000)      = 0  ! Station numbers
- INTEGER :: stnlist_bl(5000)   = 0  ! Black listed stations
- INTEGER :: stnlist_plot(5000) = -1 ! Additional stations to plot
+ INTEGER, PARAMETER ::  max_maxstn  = 5000
+ INTEGER :: maxstn                   = 1  ! Max stations
+ INTEGER :: stnlist(max_maxstn)      = 0  ! Station numbers
+ INTEGER :: stnlist_bl(max_maxstn)   = 0  ! Black listed stations
+ INTEGER :: stnlist_plot(max_maxstn) = -1 ! Additional stations to plot
                                     ! -1 gives none 
                                     !  0 gives all 
  TYPE (box) :: cbox                 ! Area box (S,W,N,E) corners

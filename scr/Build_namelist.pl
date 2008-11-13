@@ -80,7 +80,11 @@
     $nlev = scalar(@lev);
     $nameread{'read_section'}{'LEV_LST'} = join(',',@lev);
     $nameread{'read_section'}{'LTEMP'} = 'T';
-    $nameread{'read_section'}{'DATA_SOURCE'} = '\'vfld_temp\'';
+    if ( $ENV{DATA_SOURCE} ) {
+       $nameread{'read_section'}{'DATA_SOURCE'} = '\''.$ENV{DATA_SOURCE}.'\''; 
+    } else {
+       $nameread{'read_section'}{'DATA_SOURCE'} = '\'vfld_temp\'';
+    };
 
  } else {
 
@@ -166,7 +170,13 @@
 
  foreach $area ( @areas ) {
 
+
+   unless  (  exists $areas{$area} ) { die "$area not defined in areas.pm \n"; } ;
+
    $area_num++ ;
+
+   # Only plot single stations for the first area
+   if ( $area_num gt 1 ) { ${$default}{'def'}{'STNLIST_PLOT'} = '-1' } ;
 
    # Set default tag according to area
    $def{'def'}{'TAG'} = '\''.$area.'\'' ;
@@ -216,8 +226,6 @@
    # Only produce xml for the first area
    if ( $area_num gt 1 ) { ${$default}{'scat_ver'}{'LPREP_XML'} = 'F' } ;
 
-   # Only plot single stations for the first area
-   if ( $area_num gt 1 ) { ${$default}{'def'}{'STNLIST_PLOT'} = '-1' } ;
 
    # 
    # Remove things not asked for

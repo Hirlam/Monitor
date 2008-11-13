@@ -19,6 +19,16 @@ SUBROUTINE check_namelist
  WRITE(6,*)
 
  !
+ ! Check maxstn
+ !
+
+ IF ( maxstn > max_maxstn ) THEN
+    WRITE(6,*)'Your requested maxstn is',maxstn
+    WRITE(6,*)'Maximum alloved is ',max_maxstn
+    WRITE(6,*)'Decrease or recompile'
+    CALL abort
+ ENDIF
+ !
  ! Check precipitation interval
  !
 
