@@ -199,11 +199,11 @@ SUBROUTINE print_freq(lunout,nparver,nr,nrun,scat,p1,p2,par_active,uh,uf)
        fdat(:,i) = fdat(:,i) / MAX(1.,fdat_sum)
     ENDDO
 
-    cform = '(NN(en13.5e2,x))'
+    cform = '(NN(en15.5e2,x))'
     WRITE(cform(2:3),'(I2.2)')nexp+2
 
     DO i=1,ncl
-     WRITE(lunout,'(10F15.6)')fcla(i),fdat(i,:)
+     WRITE(lunout,cform)fcla(i),fdat(i,:)
     ENDDO
 
     CLOSE(lunout)

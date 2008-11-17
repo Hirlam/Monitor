@@ -283,7 +283,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
     WRITE(lunout,'(A,X,en13.3e2)')'#MISSING',err_ind
     WRITE(lunout,'(A)')'#END'
 
-    cform = '(I3.2,NN(x,en13.5e2))'
+    cform = '(I3.2,NN(x,en15.5e2))'
     WRITE(cform(7:8),'(I2.2)')npp
 
     DO i=1,ntimver_l

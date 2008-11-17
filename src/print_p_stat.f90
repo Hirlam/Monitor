@@ -444,7 +444,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,nrun,  &
     WRITE(lunout,'(A)')'#END'
 
 
-    cform = '(I10,I3.2,NN(x,en13.5e2))'
+    cform = '(I10,I3.2,NN(x,en15.5e2))'
     WRITE(cform(11:12),'(I2.2)')npp
 
     DO i=1,ntim_use

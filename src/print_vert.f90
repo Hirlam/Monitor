@@ -316,7 +316,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
     WRITE(lunout,'(A,X,en13.3e2)')'#MISSING',err_ind
     WRITE(lunout,'(A)')'#END'
 
-    cform = '(f7.0,NN(x,en13.5e2))'
+    cform = '(f7.0,NN(x,en15.5e2))'
     WRITE(cform(7:8),'(I2.2)')npp
 
     WRITE(6,*)'CFORM:',TRIM(cform)
