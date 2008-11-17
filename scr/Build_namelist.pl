@@ -150,6 +150,11 @@
  if ( $j gt 0 ) { $arealoop{'scat_ver'}{'CONT_PARAM'}=$j; } ;
  if ( exists $plots{'DAYVAR'} ) { $arealoop{'DAYVAR'}{'NTIMVER'}=24/$obint ; } ;
  if ( exists $plots{'VERT'}   ) { $arealoop{'VERT'}{'NTIMVER'}=24/$obint   ; } ;
+ if ( exists $plots{'MAP'}    ) {
+    if ( exists $arealoop{'MAP'}{'SHOW_TIMES'} && $arealoop{'MAP'}{'LFCVER'} =~/F/) {
+       $arealoop{'MAP'}{'NTIMVER'}=24/$obint   ; 
+    }; 
+ }; 
 
  $nameread{'read_section'}{'NPARVER'} = $i*$nlev ;
 
