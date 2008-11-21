@@ -17,7 +17,6 @@ WRK=$BASE/wrk
 # MAGICS/GNUPLOT
 # To be able to use MAGICS verobs has to be compiled with -DMAGICS.
 #
-# !NB GNUPLOT option is still under developement
 #
 export GRAPHICS=GNUPLOT
 
@@ -66,7 +65,6 @@ STNLIST_PLOT_TXT=-1
 
 # Active parameters
 SURFPAR="PS FF DD TT TD RH QQ NN PE"
-SURFPAR="PS FF TT RH NN PE"
 
 # Things to plot:
 # GEN    : General forcast length statistics
@@ -86,7 +84,6 @@ SURFPLOT="GEN TIME MAP FREQ SCAT CONT XML DAYVAR"
 # first area only
 #
 SURFAREAS="ALL EWGLAM Scandinavia Greenland Denmark Finland IrelandEngland Netherland Norway SpainPortugal Sweden"
-SURFAREAS="ALL"
 
 # Interval in hours between observations
 OBINT_SURF=06
@@ -124,7 +121,6 @@ FCLEN_TIME="24"
 #
 
 TEMPPAR="TT TD FF DD FI RH QQ"
-TEMPPAR="TT TD FF RH"
 
 TEMPPLOT="GEN TIME VERT"
 
@@ -140,7 +136,7 @@ FCLEN_TEMP="00 06 12 18 24 36 48"
 FCLEN_TEMP_VERT="06 12 18 24 36 48"
 
 # TEMP levels to be verified
-LEV_LST="925 850 700 500 300 250 200 100 50"
+LEV_LST="925 850 700 600 500 300 200 150 100 50"
 
 # Areas for TEMP verification
 # Note that XML statistics will be defined for the

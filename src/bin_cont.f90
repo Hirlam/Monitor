@@ -188,6 +188,7 @@ SUBROUTINE bin_cont(lunout,xval,yval,nobs,          &
   WRITE(lunout,*)'#XMAX ',maxx
   WRITE(lunout,*)'#YMIN ',miny
   WRITE(lunout,*)'#YMAX ',maxy
+  WRITE(lunout,*)'#MISSING  -999.'
 
 
   DO l=2,nlevels

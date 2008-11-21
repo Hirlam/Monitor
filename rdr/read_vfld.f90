@@ -34,10 +34,9 @@ SUBROUTINE read_vfld
  LOGICAL :: allocated_this_time(maxstn),	&
             found_any_time,use_stnlist,lfound
 
- CHARACTER(LEN=99) :: oname ='vfld',fname = ' '
- CHARACTER(LEN=10) :: cwrk  ='yyyymmddhh'
- CHARACTER(LEN=02) :: cfclen  ='  '
- INTEGER,PARAMETER :: pl = 3 ! Path length of filename
+ CHARACTER(LEN=200) :: fname = ' '
+ CHARACTER(LEN=10 ) :: cwrk  ='yyyymmddhh'
+ CHARACTER(LEN=02 ) :: cfclen  ='  '
 
 !----------------------------------------------------------
 
@@ -80,14 +79,18 @@ SUBROUTINE read_vfld
     WRITE(cfclen(1:2),'(I2.2)')fclen(j)
 
     SUB_EXP_LOOP : DO ll=1,nexp
-       fname = TRIM(modpath(ll))//TRIM(oname)//TRIM(expname(ll))//cwrk//cfclen
+       fname = TRIM(modpath(ll))//'vfld'//TRIM(expname(ll))//cwrk//cfclen
        INQUIRE(FILE=fname,EXIST=lfound)
-       IF ( .NOT. lfound ) CYCLE LL_LOOP 
+       IF ( .NOT. lfound ) THEN
+          IF (print_read > 0 ) &
+          WRITE(6,'(3A)')'No model data found for ',TRIM(cwrk),TRIM(cfclen)
+          CYCLE LL_LOOP 
+       ENDIF
     ENDDO SUB_EXP_LOOP
 
     EXP_LOOP : DO l=1,nexp
 
-       fname = TRIM(modpath(l))//TRIM(oname)//TRIM(expname(l))//cwrk//cfclen
+       fname = TRIM(modpath(l))//'vfld'//TRIM(expname(l))//cwrk//cfclen
        OPEN(lunin,file=fname,status='old',iostat=ierr)
        IF (ierr.NE.0) THEN
           IF (print_read > 0 ) WRITE(6,'(2A)')'Could not open ',TRIM(fname)

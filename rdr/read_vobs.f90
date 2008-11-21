@@ -27,7 +27,7 @@ SUBROUTINE read_vobs
  
  REAL :: lat,lon,hgt,val(10)
 
- CHARACTER(LEN=100) :: fname =' '
+ CHARACTER(LEN=200) :: fname =' '
  CHARACTER(LEN= 10) :: ndate =' '
 
  LOGICAL :: qco,use_stnlist

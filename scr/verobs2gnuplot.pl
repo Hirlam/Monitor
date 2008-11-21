@@ -61,6 +61,8 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
         if ( $_ =~ /#YMAX/   ) { @tmp = split (' ',$_ ) ; $ymax   = $tmp[1]; next SCAN_FILE; }
         if ( $_ =~ /#MISSING/ ) {
             $missing = substr( $_, 10 );
+            $missing =~ s/^\s+//;
+            $missing =~ s/\s+$//;
             next SCAN_FILE;
         }
 

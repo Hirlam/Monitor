@@ -53,9 +53,11 @@ fi
 [[ $WEBCALL == ""  ]] && exit
 
 # Quality control information
+if [ -s fort.48 ] ; then
 echo '<pre>'   > quality.html
 cat fort.48   >> quality.html
 echo '</pre>' >> quality.html
+fi
 
 # Generate browser friendly graphics and gather files
 

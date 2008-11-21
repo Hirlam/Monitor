@@ -36,7 +36,7 @@ SUBROUTINE read_vfld_temp
  LOGICAL :: allocated_this_time(maxstn),	&
             found_any_time,use_stnlist,lfound
 
- CHARACTER(LEN=100) :: fname = ' '
+ CHARACTER(LEN=200) :: fname = ' '
  CHARACTER(LEN= 10) :: cwrk  ='yyyymmddhh'
  CHARACTER(LEN= 02) :: cfclen  ='  '
 
@@ -88,7 +88,11 @@ SUBROUTINE read_vfld_temp
     SUB_EXP_LOOP : DO ll=1,nexp
        fname = TRIM(modpath(ll))//'vfld'//TRIM(expname(ll))//cwrk//cfclen
        INQUIRE(FILE=fname,EXIST=lfound)
-       IF ( .NOT. lfound ) CYCLE LL_LOOP 
+       IF ( .NOT. lfound ) THEN
+          IF (print_read > 0 ) &
+          WRITE(6,'(3A)')'No model data found for ',TRIM(cwrk),TRIM(cfclen)
+          CYCLE LL_LOOP 
+       ENDIF
     ENDDO SUB_EXP_LOOP
 
     EXP_LOOP : DO l=1,nexp

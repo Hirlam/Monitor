@@ -313,7 +313,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
     WRITE(lunout,'(A,I2.2,X,A)')'#COLUMN_',k+1,'CASES'
 
     ! End of headings
-    WRITE(lunout,'(A,X,en13.3e2)')'#MISSING',err_ind
+    WRITE(lunout,'(A,X,en15.5e2)')'#MISSING',err_ind
     WRITE(lunout,'(A)')'#END'
 
     cform = '(f7.0,NN(x,en15.5e2))'

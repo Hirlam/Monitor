@@ -167,9 +167,6 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,nrun,  &
 
  NPAR_LOOP : DO j=1,npar
 
-
-    WRITE(6,*)'DO PAR',j
-
     IF ( output_mode == 2 ) THEN
        CALL make_fname(prefix,period1,stnr,tag,     &
                        obstype(j)(1:2),           &
@@ -419,7 +416,6 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,nrun,  &
       DO i=1,nexp
         k=k+1
         pdat(k)%v => bias(1:ntim_use,i)
-        WRITE(6,*)'BIAS for ',expname(i),k
         WRITE(lunout,'(A,I2.2,2(X,A))')'#COLUMN_',k+2,'BIAS',TRIM(expname(i))
       ENDDO
      ENDIF 
@@ -427,12 +423,10 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,nrun,  &
       DO i=1,nexp
         k=k+1
         pdat(k)%v => bias(1:ntim_use,i)
-        WRITE(6,*)'BIAS for ',expname(i),k
         WRITE(lunout,'(A,I2.2,X,A)')'#COLUMN_',k+2,TRIM(expname(i))
       ENDDO
       k=k+1
       pdat(k)%v => obs(1:ntim_use)
-      WRITE(6,*)'OBS ',k
       WRITE(lunout,'(A,I2.2,X,A)')'#COLUMN_',k+2,'OBS'
     ENDIF
     k=k+1
@@ -440,7 +434,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,nrun,  &
     WRITE(lunout,'(A,I2.2,X,A)')'#COLUMN_',k+2,'CASES'
 
     ! End of headings
-    WRITE(lunout,'(A,X,en13.3e2)')'#MISSING',err_ind
+    WRITE(lunout,'(A,X,en15.5e2)')'#MISSING',err_ind
     WRITE(lunout,'(A)')'#END'
 
 

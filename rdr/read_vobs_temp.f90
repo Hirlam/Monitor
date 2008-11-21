@@ -30,7 +30,7 @@ SUBROUTINE read_vobs_temp
  LOGICAL :: allocated_this_time(maxstn),	&
             found_any_time,use_stnlist
 
- CHARACTER(LEN=100) :: fname =' '
+ CHARACTER(LEN=200) :: fname =' '
  CHARACTER(LEN= 10) :: ndate =' '
 
 !----------------------------------------------------------
