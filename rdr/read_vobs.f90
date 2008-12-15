@@ -25,7 +25,7 @@ SUBROUTINE read_vobs
             
  
  
- REAL :: lat,lon,hgt,val(10)
+ REAL :: lat,lon,hgt,val(15)
 
  CHARACTER(LEN=200) :: fname =' '
  CHARACTER(LEN= 10) :: ndate =' '
@@ -103,6 +103,8 @@ SUBROUTINE read_vobs
              READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val(1:8)
           CASE(1)
              READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val(1:10)
+          CASE(2)
+             READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val(1:15)
           CASE DEFAULT
              WRITE(6,*)'Cannot handle this vobs-file version',version_flag
              CALL abort
@@ -167,26 +169,59 @@ SUBROUTINE read_vobs
           IF ( use_pos ) obs(stat_i)%pos(cdate * 100 + ctime/10000 ) = i
           obs(stat_i)%o(i)%val  = err_ind
 
+          ! Cloud cover
           if (nn_ind /= 0 .AND. qco(val(1)).AND.qcl(val(1),nn_ind).AND. &
                                 qcu(val(1),nn_ind)) obs(stat_i)%o(i)%val(nn_ind) = val(1)
+
+          ! Wind direction
           if (dd_ind /= 0 .AND. qco(val(2)).AND.qcl(val(2),dd_ind).AND. &
                                 qcu(val(2),dd_ind)) obs(stat_i)%o(i)%val(dd_ind) = val(2)
+
+          ! Wind speed
           if (ff_ind /= 0 .AND. qco(val(3)).AND.qcl(val(3),ff_ind).AND. &
                                 qcu(val(3),ff_ind)) obs(stat_i)%o(i)%val(ff_ind) = val(3)
+          ! Temperature
           if (tt_ind /= 0 .AND. qco(val(4)).AND.qcl(val(4)-tzero,tt_ind).AND. &
                                 qcu(val(4)-tzero,tt_ind)) obs(stat_i)%o(i)%val(tt_ind) = val(4) - tzero
+          ! Relative humidity
           if (rh_ind /= 0 .AND. qco(val(5)).AND.qcl(val(5),rh_ind).AND. &
                                 qcu(val(5),rh_ind)) obs(stat_i)%o(i)%val(rh_ind) = val(5)
+          ! Pressure
           if (ps_ind /= 0 .AND. qco(val(6)).AND.qcl(val(6),ps_ind).AND. &
                                 qcu(val(6),ps_ind)) obs(stat_i)%o(i)%val(ps_ind) = val(6)
+          ! Precipitaion
           if (pe_ind /= 0 .AND. qco(val(7)).AND.qcl(val(7),pe_ind).AND. &
                                 qcu(val(7),pe_ind)) obs(stat_i)%o(i)%val(pe_ind) = val(7)
+          ! Specific humidity
           if (qq_ind /= 0 .AND. qco(val(8)).AND.qcl(val(8),qq_ind).AND. &
                                 qcu(val(8),qq_ind)) obs(stat_i)%o(i)%val(qq_ind) = val(8) * 1.e3
+          ! Visibility
           if (vi_ind /= 0 .AND. qco(val(9)).AND.qcl(val(9),vi_ind).AND. &
                                 qcu(val(9),vi_ind)) obs(stat_i)%o(i)%val(vi_ind) = val(9) 
+          ! Dew point temperature
           if (td_ind /= 0 .AND. qco(val(10)).AND.qcl(val(10),td_ind).AND. &
                                 qcu(val(10),td_ind)) obs(stat_i)%o(i)%val(td_ind) = val(10) 
+
+          ! Maximum temperature
+          IF (tx_ind /= 0 .AND. qco(val(11)).AND.qcl(val(11)-tzero,tx_ind) .AND. &
+                                qcu(val(11)-tzero,tx_ind)) obs(stat_i)%o(i)%val(tx_ind) = val(11) - tzero
+
+          ! Minimum temperature
+          IF (tn_ind /= 0 .AND. qco(val(12)).AND.qcl(val(12)-tzero,tn_ind) .AND. &
+                                qcu(val(12)-tzero,tn_ind)) obs(stat_i)%o(i)%val(tn_ind) = val(12) - tzero
+
+          ! Wind gust
+          IF (gg_ind /= 0 .AND. qco(val(13)).AND.qcl(val(13),gg_ind) .AND. &
+                                qcu(val(13),gg_ind)) obs(stat_i)%o(i)%val(gg_ind) = val(13)
+
+          ! Wind gust max
+          IF (gx_ind /= 0 .AND. qco(val(14)).AND.qcl(val(14),gx_ind) .AND. &
+                                qcu(val(14),gx_ind)) obs(stat_i)%o(i)%val(gx_ind) = val(14)
+
+          ! Max wind speed
+          IF (fx_ind /= 0 .AND. qco(val(15)).AND.qcl(val(15),fx_ind) .AND. &
+                                qcu(val(15),fx_ind)) obs(stat_i)%o(i)%val(fx_ind) = val(15)
+
 
           if (la_ind /= 0 ) obs(stat_i)%o(i)%val(la_ind) = obs(stat_i)%lat
           if (hg_ind /= 0 ) obs(stat_i)%o(i)%val(hg_ind) = obs(stat_i)%hgt

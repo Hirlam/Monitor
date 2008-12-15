@@ -35,6 +35,16 @@
    'MAP_BIAS_INTERVAL'=> '-6.,-4.,-2.,0.,2.,4.,6.',
  },
  
+ 'TN'=>{
+   'TEXT'        => 'Min T2m',
+   'MAP_BIAS_INTERVAL'=> '-6.,-4.,-2.,0.,2.,4.,6.',
+ },
+ 
+ 'TX'=>{
+   'TEXT'        => 'Max T2m',
+   'MAP_BIAS_INTERVAL'=> '-6.,-4.,-2.,0.,2.,4.,6.',
+ },
+ 
  'TD'=>{
    'TEXT'        => 'Td2m',
    'TEXT_TEMP'        => 'Dew point T' ,
@@ -50,6 +60,21 @@
    'TEXT_TEMP'   => 'Wind speed',
    'CONT_CLASS'  => 7,
    'CONT_LIM'=> '1.5,3.3,5.5,8.0,10.8,13.9,24.5',
+   'MAP_BIAS_INTERVAL'=> '-10.,-5.,-2.5,0.,2.5,5.,10.'
+ },
+
+ 'FX'=>{
+   'TEXT'        => 'Max U10m',
+   'MAP_BIAS_INTERVAL'=> '-10.,-5.,-2.5,0.,2.5,5.,10.'
+ },
+
+ 'GG'=>{
+   'TEXT'        => 'Wind Gust',
+   'MAP_BIAS_INTERVAL'=> '-10.,-5.,-2.5,0.,2.5,5.,10.'
+ },
+
+ 'GX'=>{
+   'TEXT'        => 'Max Wind Gust',
    'MAP_BIAS_INTERVAL'=> '-10.,-5.,-2.5,0.,2.5,5.,10.'
  },
 

@@ -29,7 +29,7 @@ SUBROUTINE read_vfld
             aerr,version_flag
  
  
- REAL :: lat,lon,hgt,val(10)
+ REAL :: lat,lon,hgt,val(15)
 
  LOGICAL :: allocated_this_time(maxstn),	&
             found_any_time,use_stnlist,lfound
@@ -115,7 +115,9 @@ SUBROUTINE read_vfld
           CASE(0)
              READ(lunin,*,iostat=ierr)istnr,lat,lon,val(1:8)
           CASE(1)
-             READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val
+             READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val(1:10)
+          CASE(2)
+             READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val(1:15)
           CASE DEFAULT
              WRITE(6,*)'Cannot handle this vfld-file version',version_flag
              CALL abort
@@ -216,39 +218,80 @@ SUBROUTINE read_vfld
           IF (print_read > 1 ) WRITE(6,*)'ADD',istnr,val
           IF (print_read > 1 ) WRITE(6,*)'BOUND',istnr,UBOUND( hir(stat_i)%o(i)%nal )
 
+          ! Cloud cover
           IF (nn_ind /= 0 .AND. qca(val(1),-99.)   .AND. &
                                 qcl(val(1),nn_ind) .AND. &
                                 qcu(val(1),nn_ind)) hir(stat_i)%o(i)%nal(l,j,nn_ind) = val(1)
+          ! Wind direction
           IF (dd_ind /= 0 .AND. qca(val(2),-99.)   .AND. &
                                 qcl(val(2),dd_ind) .AND. &
                                 qcu(val(2),dd_ind)) hir(stat_i)%o(i)%nal(l,j,dd_ind) = val(2)
-          IF (ff_ind /= 0 .AND. qca(val(3),-99.)         &
-                                                   .AND. &
+          ! Wind speed
+          IF (ff_ind /= 0 .AND. qca(val(3),-99.)   .AND. &
                                 qcl(val(3),ff_ind) .AND. &
-                                qcu(val(3),ff_ind)       &
-                                ) hir(stat_i)%o(i)%nal(l,j,ff_ind) = val(3)
-          IF (tt_ind /= 0 .AND. qca(val(4),-99.)        .AND. &
+                                qcu(val(3),ff_ind)) hir(stat_i)%o(i)%nal(l,j,ff_ind) = val(3)
+
+          ! Temperature
+          IF (tt_ind /= 0 .AND. qca(val(4),-99.)         .AND. &
                                 qcl(val(4)-tzero,tt_ind) .AND. &
                                 qcu(val(4)-tzero,tt_ind)) hir(stat_i)%o(i)%nal(l,j,tt_ind) = val(4) - tzero
-          IF (rh_ind /= 0 .AND. qca(val(5),-99.)  .AND. &
+
+          ! Relative humidity
+          IF (rh_ind /= 0 .AND. qca(val(5),-99.)   .AND. &
                                 qcl(val(5),rh_ind) .AND. &
                                 qcu(val(5),rh_ind)) hir(stat_i)%o(i)%nal(l,j,rh_ind) = val(5)
-          IF (ps_ind /= 0 .AND. qca(val(6),-99.)  .AND. &
+          ! Pressure
+          IF (ps_ind /= 0 .AND. qca(val(6),-99.)   .AND. &
                                 qcl(val(6),ps_ind) .AND. &
                                 qcu(val(6),ps_ind)) hir(stat_i)%o(i)%nal(l,j,ps_ind) = val(6)
-          IF (pe_ind /= 0 .AND. qca(val(7),-99.)  .AND. &
+          ! Precipitaion
+          IF (pe_ind /= 0 .AND. qca(val(7),-99.)   .AND. &
                                 qcl(val(7),pe_ind) .AND. &
                                 qcu(val(7),pe_ind)) hir(stat_i)%o(i)%nal(l,j,pe_ind) = val(7)
-          IF (qq_ind /= 0 .AND. qca(val(8),-99.)  .AND. &
+          ! Specific humidity
+          IF (qq_ind /= 0 .AND. qca(val(8),-99.)   .AND. &
                                 qcl(val(8),qq_ind) .AND. &
                                 qcu(val(8),qq_ind)) hir(stat_i)%o(i)%nal(l,j,qq_ind) = val(8) * 1.e3
-          IF (vi_ind /= 0 .AND. qca(val(9),-99.)  .AND. &
+
+          ! Visibility
+          IF (vi_ind /= 0 .AND. qca(val(9),-99.)   .AND. &
                                 qcl(val(9),vi_ind) .AND. &
                                 qcu(val(9),vi_ind)) hir(stat_i)%o(i)%nal(l,j,vi_ind) = val(9)
-          IF (td_ind /= 0 .AND. qca(val(10),-99.)  .AND. &
+
+          ! Dew point temperature
+          IF (td_ind /= 0 .AND. qca(val(10),-99.)   .AND. &
                                 qcl(val(10),td_ind) .AND. &
                                 qcu(val(10),td_ind)) hir(stat_i)%o(i)%nal(l,j,td_ind) = val(10)
+
+          ! Maximum temperature
+          IF (tx_ind /= 0 .AND. qca(val(11),-99.)         .AND. &
+                                qcl(val(11)-tzero,tx_ind) .AND. &
+                                qcu(val(11)-tzero,tx_ind)) hir(stat_i)%o(i)%nal(l,j,tx_ind) = val(11) - tzero
+
+          ! Minimum temperature
+          IF (tn_ind /= 0 .AND. qca(val(12),-99.)         .AND. &
+                                qcl(val(12)-tzero,tn_ind) .AND. &
+                                qcu(val(12)-tzero,tn_ind)) hir(stat_i)%o(i)%nal(l,j,tn_ind) = val(12) - tzero
+
+          ! Wind gust
+          IF (gg_ind /= 0 .AND. qca(val(13),-99.)   .AND. &
+                                qcl(val(13),gg_ind) .AND. &
+                                qcu(val(13),gg_ind)) hir(stat_i)%o(i)%nal(l,j,gg_ind) = val(13)
+
+          ! Wind gust max
+          IF (gx_ind /= 0 .AND. qca(val(14),-99.)   .AND. &
+                                qcl(val(14),gx_ind) .AND. &
+                                qcu(val(14),gx_ind)) hir(stat_i)%o(i)%nal(l,j,gx_ind) = val(14)
+
+          ! Max wind speed
+          IF (fx_ind /= 0 .AND. qca(val(15),-99.)   .AND. &
+                                qcl(val(15),fx_ind) .AND. &
+                                qcu(val(15),fx_ind)) hir(stat_i)%o(i)%nal(l,j,fx_ind) = val(15)
+
+          ! Latitude
           IF (la_ind /= 0 ) hir(stat_i)%o(i)%nal(l,j,la_ind) = hir(stat_i)%lat
+
+          ! Station height
           IF (hg_ind /= 0 ) hir(stat_i)%o(i)%nal(l,j,hg_ind) = hir(stat_i)%hgt
 
        ENDDO READ_STATION_MOD

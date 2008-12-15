@@ -224,7 +224,7 @@ SUBROUTINE read_vfld_temp
           SELECT CASE(version_flag)
           CASE(0)
              READ(lunin,*,iostat=ierr)val(1:7)
-          CASE(1)
+          CASE(1:2)
              READ(lunin,*,iostat=ierr)val(1:8)
           END SELECT 
 

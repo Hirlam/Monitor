@@ -120,7 +120,7 @@ SUBROUTINE read_vobs_temp
           CASE(0)
              READ(lunin,*,iostat=ierr)istnr,lat,lon
              hgt = -99.
-          CASE(1)
+          CASE(1:2)
              READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt
           CASE DEFAULT
              WRITE(6,*)'Cannot handle this vobs-file version',version_flag

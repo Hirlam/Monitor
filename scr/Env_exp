@@ -53,8 +53,13 @@ STNLIST_PLOT_TXT=-1
 #
 # PS : Mslp
 # TT : T2m
+# TN : Min T2m
+# TX : Max T2m
 # TD : Td2m
 # FF : Wind speed
+# FX : Max wind speed
+# GG : Wind gust
+# GX : Max wind gust
 # DD : Wind direction
 # QQ : Specific humidity
 # RH : Relative humidity
@@ -64,7 +69,7 @@ STNLIST_PLOT_TXT=-1
 #
 
 # Active parameters
-SURFPAR="PS FF DD TT TD RH QQ NN PE"
+SURFPAR="PS FF FX GG GX DD TT TN TX TD RH QQ NN PE"
 
 # Things to plot:
 # GEN    : General forcast length statistics

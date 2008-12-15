@@ -139,9 +139,14 @@ MODULE data
  ! Parameters to verify
  INTEGER :: nparver = mparver
  INTEGER :: tt_ind = 0 ! Temperature
+ INTEGER :: tn_ind = 0 ! Min temperature
+ INTEGER :: tx_ind = 0 ! Max temperature
  INTEGER :: td_ind = 0 ! Dew point temperature
  INTEGER :: vi_ind = 0 ! Visibility
  INTEGER :: ff_ind = 0 ! Wind speed
+ INTEGER :: fx_ind = 0 ! Max wind speed
+ INTEGER :: gg_ind = 0 ! Wind gust,instantaneous
+ INTEGER :: gx_ind = 0 ! Max wind gust
  INTEGER :: dd_ind = 0 ! Wind direction
  INTEGER :: uw_ind = 0 ! momentum flux
  INTEGER :: wt_ind = 0 ! heat flux
@@ -400,7 +405,8 @@ MODULE data
                  nn_ind,fi_ind,rf_ind,nr_ind,wq_ind,    &
                  qq_ind,gs_ind,gc_ind,gr_ind,hb_ind,	&
                  tz_ind,uz_ind,tu_ind,la_ind,hg_ind,    &
-                 wp_ind,wh_ind,                         &
+                 wp_ind,wh_ind,tn_ind,tx_ind,           &
+                 gg_ind,gx_ind,fx_ind,                  &
                  lev_typ,lev_lst,                       &
                  name,statname,                         &
                  obspath,modpath,                       &
