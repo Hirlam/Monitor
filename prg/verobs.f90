@@ -27,7 +27,7 @@ PROGRAM verobs
  ! Read namelist
  !
 
- OPEN(10,STATUS='OLD',IOSTAT=ierr)
+ OPEN(10,FILE='fort.10',STATUS='OLD',IOSTAT=ierr)
  IF ( ierr /= 0 ) THEN
     WRITE(6,*)'Could not open namelist file fort.10'
     CALL abort
@@ -116,7 +116,11 @@ PROGRAM verobs
     CALL ini_namelist
 
     READ(10,namver,iostat=ierr)
+#ifdef PATHSCALE
+    IF (ierr == -4001) EXIT
+#else
     IF (ierr == -1) EXIT
+#endif
     IF (ierr /=  0) THEN
        WRITE(6,*)'Could not read namver correctly, read nr,ierr:',nrun+1,ierr
        CALL abort

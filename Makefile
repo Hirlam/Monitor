@@ -23,9 +23,9 @@ verobs: $(ROOTDIR)/$(ARCH)/bin/verobs
 odbstat: $(ROOTDIR)/$(ARCH)/bin/odbstat 
 rejstat: $(ROOTDIR)/$(ARCH)/bin/rejstat
 
-clean: clean_gl allclean clean_arch
+clean: clean_gl clean_cma allclean clean_arch
 
-cleanwrk: cleanobj_gl cleanpp_gl
+cleanwrk: cleanobj_gl cleanpp_gl cleanobj_cma cleanpp_cma
 
 allclean: 
 	$(MAKE) -C tools clean ARCH=$(ARCH) ROOTDIR=$(ROOTDIR)
@@ -79,6 +79,21 @@ cleanobj_gl:
 
 cleanpp_gl:
 	-for dir in $(GLDIRS) ; do \
+	$(RM) $(ARCH)/$$dir/*_pp.* ; \
+	done ;
+
+clean_cma: cleanobj_cma cleanpp_cma
+	-for dir in $(CMADIRS) ; do \
+	$(RM) -rf $(ARCH)/$$dir ; \
+	done ;
+
+cleanobj_cma:
+	-for dir in $(CMADIRS) ; do \
+	$(RM) $(ARCH)/$$dir/*.o ; \
+	done ;
+
+cleanpp_cma:
+	-for dir in $(CMADIRS) ; do \
 	$(RM) $(ARCH)/$$dir/*_pp.* ; \
 	done ;
 

@@ -58,8 +58,6 @@ SUBROUTINE sumup_gross(gross_error,total_amount)
     WRITE(lunqc,'(A8,3I8)')obstype(j),gross_sum(:,j),total_sum
  ENDDO
 
- CLOSE(lunqc)
-
  RETURN
 
 END SUBROUTINE sumup_gross

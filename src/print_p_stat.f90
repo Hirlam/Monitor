@@ -314,13 +314,13 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,nrun,  &
 
         WHERE(obs(1:ntim_use) > 360. ) 
          obs(1:ntim_use) =  obs(1:ntim_use) - 360.
-        ELSEWHERE(obs(1:ntim_use) < 0. ) 
+        ELSEWHERE( (obs(1:ntim_use) < 0.) .AND. (obs(1:ntim_use) > err_ind) ) 
          obs(1:ntim_use) =  obs(1:ntim_use) + 360.
         END WHERE
 
         WHERE(bias(1:ntim_use,:) > 360. ) 
          bias(1:ntim_use,:) =  bias(1:ntim_use,:) - 360.
-        ELSEWHERE(bias(1:ntim_use,:) < 0. ) 
+        ELSEWHERE( (bias(1:ntim_use,:) < 0.) .AND. (bias(1:ntim_use,:) > err_ind) ) 
          bias(1:ntim_use,:) =  bias(1:ntim_use,:) + 360.
         END WHERE
 

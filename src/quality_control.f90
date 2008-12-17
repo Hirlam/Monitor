@@ -447,6 +447,8 @@ SUBROUTINE quality_control
 
  DEALLOCATE(total_amount)
 
+ CLOSE(lunqc)
+
  RETURN
 
 END SUBROUTINE quality_control
