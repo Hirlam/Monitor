@@ -46,9 +46,14 @@ SUBROUTINE set_qc_lim
        qc_lim(k) = pd_lim
     ELSEIF (k.EQ.rh_ind) THEN
        qc_lim(k) = rh_lim
-    ELSEIF (k.EQ.tt_ind) THEN
+    ELSEIF (k.EQ.tt_ind .OR. &
+            k.EQ.tn_ind .OR. &
+            k.EQ.tx_ind        ) THEN
        qc_lim(k) = tt_lim
-    ELSEIF (k.EQ.ff_ind) THEN
+    ELSEIF (k.EQ.ff_ind .OR. &
+            k.EQ.fx_ind .OR. &
+            k.EQ.gg_ind .OR. &
+            k.EQ.gx_ind        ) THEN
        qc_lim(k) = ff_lim
     ELSEIF (k.EQ.dd_ind) THEN
        qc_lim(k) = dd_lim

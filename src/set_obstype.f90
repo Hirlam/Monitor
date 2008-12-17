@@ -57,9 +57,12 @@ SUBROUTINE set_obstype
     IF(wp_ind.GT.0) obstype(wp_ind) = 'WP'
     IF(wh_ind.GT.0) obstype(wh_ind) = 'WH'
     IF(tt_ind.GT.0) obstype(tt_ind) = 'TT'
+    IF(tx_ind.GT.0) obstype(tx_ind) = 'TX'
+    IF(tn_ind.GT.0) obstype(tn_ind) = 'TN'
     IF(td_ind.GT.0) obstype(td_ind) = 'TD'
     IF(vi_ind.GT.0) obstype(vi_ind) = 'VI'
     IF(ff_ind.GT.0) obstype(ff_ind) = 'FF'
+    IF(fx_ind.GT.0) obstype(fx_ind) = 'FX'
     IF(dd_ind.GT.0) obstype(dd_ind) = 'DD'
     IF(uw_ind.GT.0) obstype(uw_ind) = 'UW'
     IF(wt_ind.GT.0) obstype(wt_ind) = 'WT'
@@ -86,6 +89,8 @@ SUBROUTINE set_obstype
     IF(tz_ind.GT.0) obstype(tz_ind) = 'TZ'
     IF(uz_ind.GT.0) obstype(uz_ind) = 'UZ'
     IF(tu_ind.GT.0) obstype(tu_ind) = 'TU'
+    IF(gg_ind.GT.0) obstype(gg_ind) = 'GG'
+    IF(gx_ind.GT.0) obstype(gx_ind) = 'GX'
 
  ENDIF
 

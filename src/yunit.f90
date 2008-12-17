@@ -26,11 +26,11 @@
    u='%'
  CASE('PS')
    u='hPa'
- CASE('TT')
+ CASE('TT','TN','TX')
    u='deg C'
  CASE('TD')
    u='K'
- CASE('FF')
+ CASE('FF','FX','GG','GX')
    u='m/s'
  CASE('DD')
    u='deg'
