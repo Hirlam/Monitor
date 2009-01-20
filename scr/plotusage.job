@@ -28,29 +28,14 @@ set -kvx
 #                                                 #
 ###################################################
 #
-#-Usr section------------- 
-DATADIR=${datdir-/scratch/ms/se/smx/save/data/histdata/}
-OUTDIR=${wrkdir-/scratch/ms/se/smx/save/data/areaplot/}
-TMPDIR=${wrkdir-/scratch/ms/se/smx/save/tmp/}
-COASTDIR=${scrdir-/scratch/ms/se/smx/save/scr/}
-#--------------------------
 
 DATE=$1
 TIME=$2
 
-[ -d  ${OUTDIR} ] || mkdir -p ${OUTDIR}
-[ -d  ${TMPDIR} ] || mkdir -p ${TMPDIR}
-cd ${TMPDIR}
-cp ${COASTDIR}/coast.dat ${TMPDIR}/coast_pp.dat || exit
-
-#for FILE in synop_z temp_T temp_u temp_v temp_q pilot_u pilot_v
-for FILE in synop_z ship_z dribu_z temp_T temp_u temp_v temp_q airep_T airep_u airep_v pilot_u pilot_v
+for FILE in synop_z ship_z dribu_z temp_t temp_u temp_v temp_q airep_t airep_u airep_v pilot_u pilot_v pilot_t
 do
 
-exist=yes
-cp ${DATADIR}/${FILE}.dat ${TMPDIR}/${FILE}_pp.dat || exist=no
-
-if [ $exist = yes ]
+if [ -f ${FILE}.dat ] 
 then
 awk '
 {
@@ -58,7 +43,7 @@ lat=$1
 lon=$2
 qcfl=$5
 if(qcfl==1) print lon,lat
-} ' ${FILE}_pp.dat > passive
+} ' ${FILE}.dat > passive
 
 awk ' 
 {
@@ -66,7 +51,7 @@ lat=$1
 lon=$2
 qcfl=$3
 if(qcfl==1)print lon,lat
-} ' ${FILE}_pp.dat > active
+} ' ${FILE}.dat > active
 
 awk '
 {
@@ -74,8 +59,7 @@ lat=$1
 lon=$2
 qcfl=$4
 if(qcfl==1)print lon,lat
-} ' ${FILE}_pp.dat > rejected
-
+} ' ${FILE}.dat > rejected
 
 awk '
 {
@@ -83,34 +67,28 @@ lat=$1
 lon=$2
 qcfl=$6
 if(qcfl==1)print lon,lat
-} ' ${FILE}_pp.dat > blacklisted
+} ' ${FILE}.dat > blacklisted
 
 
 cat > infile.gnu <<EOF
-set terminal postscript landscape color
-set out "${FILE}_${DATE}${TIME}.ps"
+set terminal postscript enhanced color
+set out "map_${FILE}_${DATE}${TIME}.ps"
 set pointsize 0.1
 set xtics -120,40
 set mxtics 8
 set mytics 2
 set title "${FILE} ${DATE} ${TIME} UTC"
 
-plot [-90:90][20:90] "coast_pp.dat" notit with points 9,  "active" ps 0.8 pt 5, "blacklisted" ps 0.6 pt 4, "rejected" ps 0.4 pt 5
+plot [-90:90][20:90] "coast.dat" notit with lines lt -1,  "active" ps 0.8 pt 5, "blacklisted" ps 0.6 pt 4, "rejected" ps 0.4 pt 5
 
 EOF
 
 gnuplot < infile.gnu
 
-convert -rotate 90 -resize 75% "${FILE}_${DATE}${TIME}.ps" "${FILE}_${DATE}${TIME}.png"
+convert -rotate 90 -resize 75% "map_${FILE}_${DATE}${TIME}.ps" "map_${FILE}_${DATE}${TIME}.png"
  
 fi
 
 done
 
-#rm ${TMPDIR}/*.ps
-mv ${TMPDIR}/*.ps ${OUTDIR}/.
-mv ${TMPDIR}/*.png ${OUTDIR}/. 
-rm *.gnu *.dat active passive rejected blacklisted
-
-
-
+exit

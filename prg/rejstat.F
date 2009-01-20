@@ -123,7 +123,7 @@ c     temp temperature
         if  (ltempt) then
            singlelvl=.false.
            call calrej(5,0,255,2,1,
-     $        singlelvl,nlevelspres,refpres,'temp_T.dat',10)
+     $        singlelvl,nlevelspres,refpres,'temp_t.dat',10)
         endif
 
         if  (ltempu) then
@@ -158,7 +158,7 @@ c     airep temperature
         if  (lairept) then
            singlelvl=.false.
            call calrej(2,0,255,2,1,
-     $       singlelvl,nlevelspres,refpres,'airep_T.dat',11)
+     $       singlelvl,nlevelspres,refpres,'airep_t.dat',11)
         endif
 
         if  (lairepu) then
@@ -180,7 +180,7 @@ c     pilot u-wind comp
         if  (lpilotu) then
            singlelvl=.false.
            call calrej(6,0,255,3,1,
-     $      singlelvl,nlevelspres,refpres,'pilot_T.dat',11)
+     $      singlelvl,nlevelspres,refpres,'pilot_t.dat',11)
         endif
 
         if  (lpilotv) then

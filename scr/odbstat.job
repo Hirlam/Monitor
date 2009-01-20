@@ -2,32 +2,9 @@
 #         
 #    Extract statistics from acma-file 
 #
-
 set -x
 #
-#
-ok=yes
-cd ${TMPDIR} || ok=no
-if [ $ok = yes ]
-then
-echo ${TMPDIR}
-else
-echo 'TMPDIR does not exist'
-fi
-#
-# Copy executable
-cp ${BINDIR}/odbstat.x odbstat.x
-#
-# Date/Time
-#
-date=$1$2$3
-time=$4
-
-#
-# link input acma file
-#
-cp ${OUT_DIR}/ccma_${date}${time} fort.10
-#
+ln -sf ecma_conv_$DTG fort.10
 # Generate namelist
 #
 cat  >odbstat.dat <<**EOF**
@@ -47,21 +24,6 @@ cat  >odbstat.dat <<**EOF**
 
 
 # Run executable
-./odbstat.x
-
-cp synop_hist.dat ${OUT_DIR}/histdata/synop_${date}_${time}
-cp dribu_hist.dat ${OUT_DIR}/histdata/dribu_${date}_${time} 
-cp pilot_hist.dat ${OUT_DIR}/histdata/pilot_${date}_${time} 
-cp temp_hist.dat  ${OUT_DIR}/histdata/temp_${date}_${time} 
-cp airep_hist.dat  ${OUT_DIR}/histdata/airep_${date}_${time} 
- 
-
-rm odbstat.dat 
-
-rm *.dat fort.10 fort.33 odbstat.x
-
-exit
-
-
+$BINDIR/odbstat
 
 
