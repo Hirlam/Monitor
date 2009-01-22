@@ -197,7 +197,7 @@ SUBROUTINE read_vobs_temp
           CASE(0)
              1001 format(1x,f5.0,f6.0,f6.1,f6.1,f5.0,f5.0,en13.3e2)
              READ(lunin,1001,iostat=ierr)val(1:7)
-          CASE(1)
+          CASE(1:2)
              READ(lunin,*,iostat=ierr)val
           END SELECT 
 
