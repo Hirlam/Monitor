@@ -401,7 +401,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,mtype,per_ind,par_active)
              WRITE(chour,'(I2.2)')l
              sname = TRIM(fname)//'_'//chour(1:2)
              OPEN(UNIT=37,FILE=sname)
-             WRITE(lunout,'(A,X,A,X,2f6.1)')'#SLEVEL', &
+             WRITE(lunout,'(A,X,A,X,2f8.1)')'#SLEVEL', &
              chour(1:2),interval(l-1),interval(l)
  
              print_latlon=.FALSE.

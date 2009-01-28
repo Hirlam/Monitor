@@ -364,12 +364,13 @@ MODULE data
  ! Cross correlations of variables an biases
  INTEGER :: corr_pairs(mparver,2) = 0         ! Pairs of variables to compare,
                                               ! specify variable number
- INTEGER :: flag_pairs(mparver,2) = 1         ! -1 means model  
+ INTEGER :: flag_pairs(mparver,2) = 1         ! -1 means observation
                                               !  0 means difference
                                               !  1 means model
  INTEGER :: exp_pairs(mparver,2)  = 0         ! Pairs of experiment to pick
                                               !
- LOGICAL :: lplot_comp = .FALSE.              ! Not a namelist variable
+ LOGICAL ::  lplot_comp = .FALSE.             ! Not a namelist variable
+ LOGICAL :: lprint_comp = .FALSE.             ! Not a namelist variable
  REAL    :: scat_min(mparver)     = 1.        ! Minimum value in scatterplot
  REAL    :: scat_max(mparver)     = 0.        ! Maximum value in scatterplot
  INTEGER :: scat_magn(mparver)    = 6         ! Number of scale levels for 

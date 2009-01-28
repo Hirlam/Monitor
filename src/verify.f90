@@ -740,6 +740,12 @@ SUBROUTINE verify
                  par_active,lplot_scat,                            &
                  used_hours(:,l,:),used_fclen(:,l,:))
 
+         IF ( lprint_comp .AND. leach_station)                     &
+            CALL print_scat(lunout,nparver,obs(i)%stnr,nrun,       &
+                 scat_data(:,l),periods(l),periods(l+1),           &
+                 par_active,.FALSE.,                               &
+                 used_hours(:,l,:),used_fclen(:,l,:))
+
 #ifdef MAGICS
          IF (TRIM(graphics) == 'MAGICS' ) THEN
 
@@ -896,6 +902,13 @@ SUBROUTINE verify
             all_scat_data(:,l),                      &
             periods(l),periods(l+1),                 &
             par_active,lplot_scat,                   &
+            used_hours(:,l,:),used_fclen(:,l,:))
+
+       IF ( lprint_comp)                             &
+       CALL print_scat(lunout,nparver,0,nrun,        &
+            all_scat_data(:,l),                      &
+            periods(l),periods(l+1),                 &
+            par_active,.FALSE.,                      &
             used_hours(:,l,:),used_fclen(:,l,:))
 
 #ifdef MAGICS

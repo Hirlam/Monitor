@@ -44,7 +44,7 @@ else
 fi
 
 if [ $GRAPHICS == GNUPLOT ] ; then
- $SCR/verobs2gnuplot.pl *.txt || exit
+ $SCR/verobs2gnuplot.pl -d || exit
  RESIZE=100%
 else
  RESIZE=75%
@@ -61,16 +61,26 @@ fi
 
 # Generate browser friendly graphics and gather files
 
+rm -f fig.tar
 if [ $OUTPUT_TYPE -eq 1 ] ; then
-   for F in $( ls -1 *.ps ) ; do
+   for F in $( $SCR/Create_file_list.pl .ps ) ; do
       FF=$( basename $F .ps )
       convert -resize $RESIZE -rotate 90 $FF.ps $FF.png
    done
-   tar cvf fig.tar *.png  *.ps
+   for F in $( $SCR/Create_file_list.pl .ps ) ; do
+      tar rvf fig.tar $F
+   done
+   for F in $( $SCR/Create_file_list.pl .png ) ; do
+      tar rvf fig.tar $F
+   done
 elif [ $OUTPUT_TYPE -eq 2 ] ; then
-   tar cvf fig.tar *.png 
+   for F in $( $SCR/Create_file_list.pl .png ) ; do
+      tar rvf fig.tar $F
+   done
 elif [ $OUTPUT_TYPE -eq 3 ] ; then
-   tar cvf fig.tar *.jpg
+   for F in $( $SCR/Create_file_list.pl .jpg ) ; do
+      tar rvf fig.tar $F
+   done
 fi
 
 cp $SCR/style.xsl .

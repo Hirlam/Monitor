@@ -78,10 +78,6 @@ SUBROUTINE print_scat(lunout,nparver,nr,nrun,        &
     lflag_pairs = flag_pairs
      lexp_pairs =  exp_pairs
     len_loop = mparver
-    IF ( output_mode /= 1 ) THEN
-       WRITE(6,*)'output_mode has to be 1 when doing Xcrossplots'
-       CALL abort
-    ENDIF
  ENDIF
 
  ! Set filename period
@@ -254,10 +250,17 @@ SUBROUTINE print_scat(lunout,nparver,nr,nrun,        &
        i = lcorr_pairs(j,2)
 
        my_tag = TRIM(tag)//'_'//TRIM(expname(jj))
-       CALL make_fname(prefix,period,nr,my_tag,          &
+       IF( full_scatter ) THEN
+          CALL make_fname(prefix,period,nr,my_tag,       &
                        obstype(i)(1:2),                  &
                        obstype(i)(3:len_lab),            &
                        output_mode,output_type,fname)
+       ELSE
+          WRITE(cnum(1:2),'(I2.2)')j
+          CALL make_fname(prefix,period,nr,my_tag,       &
+                       cnum(1:2),cnum(1:2),              &
+                       output_mode,output_type,fname)
+       ENDIF
 
        ! Open output file
        CALL open_output(fname)

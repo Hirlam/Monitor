@@ -122,16 +122,16 @@ SUBROUTINE bin_cont(lunout,xval,yval,nobs,          &
      fac = 10.**((i)/4)
      level(i)=1*fac
      ii = i 
-     IF(level(i).GT.maxobs) EXIT
-     level(i+1)=2.5*fac
+     IF(level(ii).GT.maxobs) EXIT
      ii = i+1
-     IF(level(i+1).GT.maxobs) EXIT
-     level(i+2)=5*fac
+     level(i+1)=2.5*fac
+     IF(level(ii).GT.maxobs) EXIT
      ii = i+2
-     IF(level(i+2).GT.maxobs) EXIT
-     level(i+3)=7.5*fac
+     level(ii)=5*fac
+     IF(level(ii).GT.maxobs) EXIT
      ii = i+3
-     IF(level(i+3).GT.maxobs) EXIT
+     level(ii)=7.5*fac
+     IF(level(ii).GT.maxobs) EXIT
   ENDDO
 
   XMEAN  = 0.

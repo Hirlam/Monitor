@@ -40,7 +40,7 @@ else
 fi
 
 if [ $GRAPHICS == GNUPLOT ] ; then
- $SCR/verobs2gnuplot.pl *.txt || exit
+ $SCR/verobs2gnuplot.pl -d || exit
  RESIZE=100%
  ROTATE="-rotate 90"
 else

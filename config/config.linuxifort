@@ -2,7 +2,7 @@ ARCH=linuxifort
 
 # Magics flag
 # If this is not set only tables will be produced
-MAGICSFLAG := -DMAGICS
+MAGICSFLAG :=
 
 # CPP
 MACHINECPP :=
@@ -14,7 +14,7 @@ CCFLAGS := -O2 -xP -g  $(MACHINECPP)
 
 # Fortran
 FC := ifort
-MYFCFLAGS := -O3 -xW -traceback -g -checkbounds
+MYFCFLAGS := -O3 -xW -traceback -g 
 
 # Modules
 MODNAME = $(shell echo $(*F) | tr "[:upper:]" "[:lower:]")
@@ -22,12 +22,7 @@ MODEXT := mod
 
 # Link
 LD          := $(FC)
-ifeq ($(MAGICSFLAG),-DMAGICS)
-LDFLAGS     := -O3 -xW -I/usr/lib -lglib-2.0 -lfam -traceback -g -checkbounds
-else
-LDFLAGS     := -O3 -xW -I/usr/lib -lglib-2.0 -lfam -traceback -g -static -Bstatic
-endif
-#-Bstatic -static
+LDFLAGS     := -O3 -xW -traceback -g 
 
 # AR
 AR      := ar

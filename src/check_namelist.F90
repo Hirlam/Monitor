@@ -18,6 +18,7 @@ SUBROUTINE check_namelist
  WRITE(6,*)'-Check namelist options-'
  WRITE(6,*)
 
+
  !
  ! Check maxstn
  !
@@ -28,6 +29,7 @@ SUBROUTINE check_namelist
     WRITE(6,*)'Decrease or recompile'
     CALL abort
  ENDIF
+
  !
  ! Check precipitation interval
  !
@@ -37,16 +39,6 @@ SUBROUTINE check_namelist
     WRITE(6,*)'  Changed precipitation accumulation period to ',pe_interval
     pe_interval = accu_int(pe_ind)
  ENDIF 
-
- !
- ! Check scat_nlev
- !
-
- IF ( lplot_scat ) THEN
-    DO i=1,nparver
-       scat_magn(i) = scat_magn(i) * 4 
-    ENDDO
- ENDIF
 
  ! Check ncla
     DO i=1,nparver
@@ -64,6 +56,8 @@ SUBROUTINE check_namelist
     tag ='1'
     WRITE(6,*)'  Changed TAG to ', TRIM(tag)
  ENDIF
+
+ WRITE(6,*)'  Current tag is ', TRIM(tag)
 
 
  ! Check nfclengths
@@ -161,7 +155,21 @@ SUBROUTINE check_namelist
  lplot_comp      = ( ANY(corr_pairs /= 0) )
 
 
+ !
+ ! Check scat_nlev
+ !
+
+ IF ( lplot_scat .OR. lplot_comp) THEN
+    DO i=1,nparver
+       scat_magn(i) = scat_magn(i) * 4 
+    ENDDO
+ ENDIF
+
+
+ !
  ! Contingency settings
+ !
+
  lcontingency = ( cont_param /= 0 )
 
 
@@ -181,7 +189,7 @@ SUBROUTINE check_namelist
     lprint_freq           = lplot_freq
     lprint_scat           = lplot_scat
     lprint_stat           = lplot_stat
-
+    lprint_comp           = lplot_comp
 
   CASE('MAGICS','magics')
 

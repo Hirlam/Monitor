@@ -6,7 +6,20 @@
 # Usage: verobs2gnuplot.pl *.txt, where *.txt is the textfiles produced by verobs
 #
 
-SCAN_INPUT: foreach $input_file (@ARGV) {
+if ( $ARGV[0] eq '-d' ) {
+
+ print" Scanning $ENV{PWD} for *.txt files \n";
+
+ # Read file from the current directory
+ opendir MYDIR, "." ;
+ @FILES = grep !/^\.\.?/, readdir MYDIR ;
+ @FILES = grep /\.txt$/, @FILES ;
+ close MYDIR ;
+
+} else { @FILES = @ARGV } ;
+
+
+SCAN_INPUT: foreach $input_file (@FILES) {
 
     print "Process:$input_file \n";
 
@@ -141,7 +154,7 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
             &plot_freq;
             last PLOT_TYPES;
         }
-        if ( $prefix =~ /s/ || $prefix =~ /S/ ) {
+        if ( $prefix =~ /s/ || $prefix =~ /S/ || $prefix =~ /x/ || $prefix =~ /X/ ) {
             $xrange="[$xmin:$xmax]";
             $yrange="[$ymin:$ymax]";
             &plot_scat;
@@ -291,7 +304,9 @@ EOF
         if ( $i <= 8 ) { $color_id = $i; } else { $color_id = 8; } ;
         $plot = $plot . " '$input_file"."_".$_."' title '$sint[$i]' lt $scat_colors[$color_id] ps 1 pt 7";
     }
-    $plot = $plot . ", x notitle with lines lt -1";
+
+    if ( $prefix =~ /s/ || $prefix =~ /S/ ) { $plot = $plot . ", x notitle with lines lt -1"; } ;
+
 }
 #################################################################
 #################################################################
