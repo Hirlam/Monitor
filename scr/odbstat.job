@@ -4,7 +4,7 @@
 #
 set -x
 #
-ln -sf ecma_conv_$DTG fort.10
+ln -sf ccma_$DTG fort.10
 # Generate namelist
 #
 cat  >odbstat.dat <<**EOF**

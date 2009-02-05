@@ -32,7 +32,7 @@ set -kvx
 DATE=$1
 TIME=$2
 
-for FILE in synop_z ship_z dribu_z temp_t temp_u temp_v temp_q airep_t airep_u airep_v pilot_u pilot_v pilot_t
+for FILE in synop_z ship_z dribu_z temp_t temp_u temp_v temp_q airep_t airep_u airep_v pilot_u pilot_v
 do
 
 if [ -f ${FILE}.dat ] 
@@ -69,6 +69,12 @@ qcfl=$6
 if(qcfl==1)print lon,lat
 } ' ${FILE}.dat > blacklisted
 
+# Make sure we always have at least one point to keep gnuplot happy
+echo '0 0' >> active
+echo '0 0' >> passive
+echo '0 0' >> rejected
+echo '0 0' >> blacklisted
+
 
 cat > infile.gnu <<EOF
 set terminal postscript enhanced color
@@ -90,5 +96,5 @@ convert -rotate 90 -resize 75% "map_${FILE}_${DATE}${TIME}.ps" "map_${FILE}_${DA
 fi
 
 done
-
+trap - 0
 exit
