@@ -122,7 +122,7 @@ SUBROUTINE read_vfld_temp
           SELECT CASE (version_flag)
           CASE(0)
              READ(lunin,*,iostat=ierr)istnr,lat,lon
-          CASE(1)
+          CASE(1:2)
              READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt
           CASE DEFAULT
           END SELECT 
