@@ -60,8 +60,11 @@ echo '</pre>' >> quality.html
 fi
 
 # Generate browser friendly graphics and gather files
-
 rm -f fig.tar
+
+cp $SCR/style.xsl .
+tar cvf fig.tar  *.xml style.xsl *.html
+
 if [ $OUTPUT_TYPE -eq 1 ] ; then
    for F in $( $SCR/Create_file_list.pl .ps ) ; do
       FF=$( basename $F .ps )
@@ -83,13 +86,8 @@ elif [ $OUTPUT_TYPE -eq 3 ] ; then
    done
 fi
 
-cp $SCR/style.xsl .
-
-tar cvf xml.tar  *.xml style.xsl *.html
-
 # Send data to WebgraF
-$WEBCALL -e Surface -f fig.tar xml.tar
-$WEBCALL -e Surface -f xml.tar
+$WEBCALL -e Surface -f fig.tar
 
 cd $SCR 
 
