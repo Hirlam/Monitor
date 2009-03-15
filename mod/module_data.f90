@@ -781,6 +781,11 @@ END FUNCTION qcu
  hir%nexp       = nexp
  hir%nparver    = nparver
  hir%nfclengths = nfclengths
+ 
+ hir%lat        = err_ind
+ hir%lon        = err_ind
+ hir%hgt        = err_ind
+
  hir%active     = .FALSE.
 
  hir%obs_is_allocated = .TRUE.
@@ -830,11 +835,13 @@ SUBROUTINE allocate_obs
  obs%ntim       = 0
  obs%nexp       = nexp
  obs%stnr       = 0
- obs%lat        = 0.0
- obs%lon        = 0.0
- obs%hgt        = 0.0
  obs%nparver    = nparver
  obs%nfclengths = nfclengths
+
+ obs%lat        = err_ind
+ obs%lon        = err_ind
+ obs%hgt        = err_ind
+
  obs%active     = .FALSE.
 
  obs%obs_is_allocated = .TRUE.
