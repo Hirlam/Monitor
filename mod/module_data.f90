@@ -373,8 +373,10 @@ MODULE data
  LOGICAL :: lprint_comp = .FALSE.             ! Not a namelist variable
  REAL    :: scat_min(mparver)     = 1.        ! Minimum value in scatterplot
  REAL    :: scat_max(mparver)     = 0.        ! Maximum value in scatterplot
- INTEGER :: scat_magn(mparver)    = 6         ! Number of scale levels for 
+ INTEGER :: scat_magn(mparver)    = 24        ! Number of scale levels for 
                                               ! observations classes in scatterplot
+                                              ! The actual number of levels are
+                                              ! scat_magn / 4 
 
  ! Contingency flags
 

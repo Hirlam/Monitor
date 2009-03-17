@@ -156,17 +156,6 @@ SUBROUTINE check_namelist
 
 
  !
- ! Check scat_nlev
- !
-
- IF ( lplot_scat .OR. lplot_comp) THEN
-    DO i=1,nparver
-       scat_magn(i) = scat_magn(i) * 4 
-    ENDDO
- ENDIF
-
-
- !
  ! Contingency settings
  !
 
