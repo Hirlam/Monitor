@@ -305,7 +305,6 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
       ENDDO
       k=k+1
       pdat(k)%v => obs(1,1:nlev)
-      WRITE(6,*)'OBS ',k
       WRITE(lunout,'(A,I2.2,X,A)')'#COLUMN_',k+1,'OBS'
     ENDIF
     k=k+1
@@ -318,8 +317,6 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
 
     cform = '(f7.0,NN(x,en15.5e2))'
     WRITE(cform(7:8),'(I2.2)')npp
-
-    WRITE(6,*)'CFORM:',TRIM(cform)
 
     DO jj=nlev,1,-1
        IF ( num(1,jj) == 0 ) CYCLE

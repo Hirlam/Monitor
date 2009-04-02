@@ -240,6 +240,11 @@ SUBROUTINE read_vfld_temp
 
           IF (lprint_read) WRITE(6,*)'KK_LEV',kk_lev,val(1),lev_lst(kk_lev)
 
+          ! Do not use levels below model topography
+          IF ( (ABS(hgt    - err_ind ) > 1.e-6) .AND. &
+               (ABS(val(2) + 99.     ) > 1.e-6) .AND. &
+                    val(2) < hgt                     ) CYCLE READ_LEV_MOD
+
           IF((fi_ind /= 0 ) .AND. qca(val(2),-99.)) &
           hir(stat_i)%o(i)%nal(l,j,kk_lev+ my_temp_lev*(fi_ind-1)) = val(2)
           IF((tt_ind /= 0 ) .AND. qca(val(3),-99.)) &
