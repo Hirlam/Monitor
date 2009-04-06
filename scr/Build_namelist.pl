@@ -86,6 +86,8 @@
        $nameread{'read_section'}{'DATA_SOURCE'} = '\'vfld_temp\'';
     };
 
+    $arealoop{'TIME'}{'USE_FCLEN'} = join(',',split(' ',$ENV{FCLEN_TEMP_TIME})) ;
+
  } else {
 
     #
@@ -99,6 +101,8 @@
     } else {
        $nameread{'read_section'}{'DATA_SOURCE'} = '\'vfld\'';
     };
+
+    $arealoop{'TIME'}{'USE_FCLEN'} = join(',',split(' ',$ENV{FCLEN_SURF_TIME})) ;
 
  };
 
