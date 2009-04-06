@@ -4,24 +4,28 @@
  # Ulf Andrae, SMHI, 2005
  #
 
- $usage  = " \n USAGE: WebgraF -p PROJECT -e ENTRY [ -f FILE ] [ -glrhxXInm]  \n" ;
+ $usage  = " \n USAGE: WebgraF -p PROJECT -e ENTRY [ -f FILE ] [ -glrhxXInmatuci ]  \n\n" ;
+ $usage .=" -h Displays this help \n" ;
+ $usage .=" -l List all projects and entrys \n";
+ $usage .=" -b Work with a different base directory \n" ;
  $usage .=" -p PROJECT name \n";
  $usage .=" -e ENTRY name \n" ;
+ $usage .=" -r Remove ENTRY or PROJECT \n";
+ $usage .=" -n Rename PROJECT/ENTRY  \n";
+ $usage .=" -f FILE. Add WebgraF page definition file or directory \n" ;
+ $usage .="    can be FILE.js,FILE.tar or directory \n";
+ $usage .=" -g Get input.js from PROJECT/ENTRY \n" ;
+ $usage .=" -x Export an PROJECT/ENTRY as a tar file\n" ;
+ $usage .="    This file can be opened as a stand alone web page\n";
+ $usage .=" -t Transport an PROJECT/ENTRY \n" ;
+ $usage .="    Creates a XXX___transport.tar file\n";
+ $usage .=" -a Add a file extracted with -t \n";
  $usage .=" -I Install a new WebgraF webhome, to be used with -b \n" ;
  $usage .=" -i INFO html file linked to project or entry \n" ;
  $usage .=" -j Set host page for main page like: WebgraF -j https://hirlam.org \n";
- $usage .=" -f FILE Webpage definition file or directory \n" ;
- $usage .="    can be FILE.js,FILE.tar or directory \n";
- $usage .=" -r Remove ENTRY or PROJECT \n";
  $usage .=" -m Message on PROJECT link \n";
- $usage .=" -n Rename PROJECT/ENTRY  \n";
  $usage .=" -c CLEANAGE Remove all ( but .html,.js) files older than CLEANAGE days from PROJECT/ENTRY \n";
- $usage .=" -l List all projects and entrys \n";
- $usage .=" -g Get input.js from PROJECT/ENTRY \n" ;
- $usage .=" -x Export an PROJECT/ENTRY \n" ;
- $usage .=" -t Transport an PROJECT/ENTRY \n" ;
- $usage .=" -h Displays this help \n" ;
- $usage .=" -b Work with a different base directory \n" ;
+ $usage .=" -u Add user name to an entry \n";
  $usage .=" \n";
 
  # Change you working directory here
@@ -166,29 +170,6 @@ if ( $INSTALL =~ /true/ ) {
    exit ;
 
 } ;
-
-#
-# Transport an entry or a project
-#
-
-if ( $TRANSPORT =~ /true/) {
-   $PROJECT =~ s/ //g ;
-   if ( $ENTRY   =~ /WebgraF_ENTRY/    ) { 
-      chdir $BASE or die "Could not change dir to $BASE \n" ;
-      $XPORT=$CALLDIR."/".$PROJECT."___transport.tar" ;
-      system("tar cf $XPORT $PROJECT ") ;
-   } else {
-      $WRK=$BASE."/".$PROJECT."/".$ENTRY ;
-      $WRK =~ s/ //g ;
-      chdir $WRK or die "Could not change dir to $WRK \n" ;
-      $ENTRY =~ s/ //g ;
-      $XPORT=$CALLDIR."/".$PROJECT."___".$ENTRY."___transport.tar" ;
-      system("tar cf $XPORT *") ;
-   } ;
-   print "Created $XPORT \n";
-   exit ;
-} ;
-
 
 #
 # Export an entry or a project
@@ -415,9 +396,30 @@ if ( $GETINFO =~ /true/ && $GETFILE =~ /false/ && $DELETE =~ /false/ ) {
 # Request a PROJECT for the tasks following
 #
 
-if ( $PROJECT =~ /WebgraF_PROJECT/ ) { die "Please give PROJECT \n"; } ;
+if ( $PROJECT =~ /WebgraF_PROJECT/ ) { die " Please give PROJECT \n"; } ;
 
+#
+# Transport an entry or a project
+#
 
+if ( $TRANSPORT =~ /true/) {
+   $PROJECT =~ s/ //g ;
+   if ( $ENTRY   =~ /WebgraF_ENTRY/    ) { 
+      chdir $BASE or die "Could not change dir to $BASE \n" ;
+      unless ( -s $PROJECT ) { die "Could not find project $PROJECT \n"; } ;
+      $XPORT=$CALLDIR."/".$PROJECT."___transport.tar" ;
+      system("tar cf $XPORT $PROJECT ") ;
+   } else {
+      $WRK=$BASE."/".$PROJECT."/".$ENTRY ;
+      $WRK =~ s/ //g ;
+      chdir $WRK or die "Could not change dir to $WRK \n" ;
+      $ENTRY =~ s/ //g ;
+      $XPORT=$CALLDIR."/".$PROJECT."___".$ENTRY."___transport.tar" ;
+      system("tar cf $XPORT *") ;
+   } ;
+   print "Created $XPORT \n";
+   exit ;
+} ;
 
 #
 # Rename PROJECT or ENTRY
@@ -537,7 +539,7 @@ if ( $GETFILE =~ /true/ ) {
 	exit ;
 };
 
-if ( $ENTRY   =~ /WebgraF_ENTRY/    ) { die "Please give ENTRY   \n"; } ;
+if ( $ENTRY   =~ /WebgraF_ENTRY/    ) { die " Please give ENTRY   \n"; } ;
 
 #
 # Add Message

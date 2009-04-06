@@ -47,6 +47,7 @@ SUBROUTINE read_vfld_temp
  stations       = 0
  max_found_stat = 0
  use_stnlist    = ( MAXVAL(stnlist) > 0 ) 
+ hgt            = err_ind
 
  CALL allocate_mod
 

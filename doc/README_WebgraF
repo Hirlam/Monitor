@@ -1,20 +1,12 @@
  -------- WebgraF -------
 
- (c) Ulf Andrae 2003-2008
-
- -------- WebgraF -------
-
  Download the latest WebgraF from : 
 
-    http://www.smhi.se/sgn0106/if/hirald/WebgraF/WebgraF.tar.gz
-    or by subversion
-    snv export https://svn.hirlam.org/trunk/harmonie/util/monitor/WebgraF
+ svn export https://svn.hirlam.org/trunk/harmonie/util/monitor/WebgraF
 
 
  Install 
  -------
-
- - Unzip and untar WebgraF.tar.gz
 
  - Set your WebgraF main directory in WebgraF/bin/WebgraF.pl where :
  - Tell WebgraF where you have installed it by exporting the environment variable
@@ -30,23 +22,30 @@
 
  WebgraF -h will print :
 
- USAGE: WebgraF -p PROJECT -e ENTRY [ -f FILE ] [ -glrhxXInm]
+ USAGE: WebgraF -p PROJECT -e ENTRY [ -f FILE ] [ -glrhxXInmatuci ]  
+
+ -h Displays this help 
+ -l List all projects and entrys 
+ -b Work with a different base directory 
  -p PROJECT name 
  -e ENTRY name 
+ -r Remove ENTRY or PROJECT 
+ -n Rename PROJECT/ENTRY  
+ -f FILE. Add WebgraF page definition file or directory 
+    can be FILE.js,FILE.tar or directory 
+ -g Get input.js from PROJECT/ENTRY 
+ -x Export an PROJECT/ENTRY as a tar file
+    This file can be opened as a stand alone web page
+ -t Transport an PROJECT/ENTRY 
+    Creates a XXX___transport.tar file
+ -a Add a file extracted with -t 
  -I Install a new WebgraF webhome, to be used with -b 
  -i INFO html file linked to project or entry 
- -f FILE Webpage definition file or directory 
-    can be FILE.js,FILE.tar or directory 
- -r Remove ENTRY or PROJECT 
+ -j Set host page for main page like: WebgraF -j https://hirlam.org 
  -m Message on PROJECT link 
- -n Rename PROJECT/ENTRY  
  -c CLEANAGE Remove all ( but .html,.js) files older than CLEANAGE days from PROJECT/ENTRY 
- -l List all projects and entrys 
- -g Get input.js from PROJECT/ENTRY 
- -x Export an PROJECT/ENTRY 
- -h Displays this help 
- -b Work with a different base directory 
-
+ -u Add user name to an entry 
+ 
 
  WebgraF -l will list current projects
 
@@ -85,6 +84,10 @@
  WebgraF -b $FULL_PATH/NEW_WEBGRAF -p PROJECT_2 -e ENTRY_2 -r will remove entry ENTRY_2
 
  WebgraF -b $FULL_PATH/NEW_WEBGRAF -p PROJECT_2 -r will remove project PROJECT_2
+
+ WebgraF -b $FULL_PATH/NEW_WEBGRAF -p PROJECT_2 -t will create a PROJECT2___transport.tar file
+
+ WebgraF -b $FULL_PATH/NEW_WEBGRAF -p PROJECT_3 -a PROJECT2___transport.tar file will create a new project using the tar file as input
 
 
  These are the most (un)useful commands in WebgraF

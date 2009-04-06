@@ -1309,12 +1309,12 @@ function write_list(){
  if ( ! sli_menu.active ) { this.txt += cok_menu.make_menu('l') }
 
  this.txt += you_menu.make_menu('l') 
- if ( user != 'nada' ) { this.txt +="<b> By "+user+"</b> <br>" }
  if ( do_debug  ) { this.txt += deb_menu.make_menu('l') }
  if ( do_resize ) { this.txt += res_menu.make_menu('l') }
  if ( rem_menu.active ) { this.txt += sen_menu.make_menu('l') }
  this.txt += xml_menu.make_menu('l')
  this.txt += info_menu.make_menu('l')
+ if ( user != 'nada' ) { this.txt +="<b> Created by "+user+"</b> <br>" }
 
  list = this.txt
 

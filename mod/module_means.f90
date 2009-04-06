@@ -130,18 +130,24 @@ MODULE means
       k = k + 1
    
       r_jj = 1./FLOAT(jj)
-      SELECT CASE( window_pos )
-      CASE (-1)
+
+      IF ( jj == 1 ) THEN
          middate = mindate
          midtime = mintime
-      CASE ( 0)
-         CALL adddtg(mindate,mintime,3600*win/2,middate,midtime)
-      CASE ( 1)
-         CALL adddtg(mindate,mintime,3600*win,middate,midtime)
-      CASE DEFAULT
-         WRITE(6,*)'No such window_pos option', window_pos
-         CALL abort
-      END SELECT
+      ELSE
+         SELECT CASE( window_pos )
+         CASE (-1)
+            middate = mindate
+            midtime = mintime
+         CASE ( 0)
+            CALL adddtg(mindate,mintime,3600*win/2,middate,midtime)
+         CASE ( 1)
+            CALL adddtg(mindate,mintime,3600*win,middate,midtime)
+         CASE DEFAULT
+            WRITE(6,*)'No such window_pos option', window_pos
+            CALL abort
+         END SELECT
+      ENDIF
 
       tmp(k) = wrk
       IF ( do_average ) THEN
