@@ -135,6 +135,10 @@
             $arealoop{'scat_ver'}{'CONT_LIM('.$j.',1:'.$tmp{$_}{'CONT_CLASS'}.')'  }=$tmp{$_}{'CONT_LIM'};
          } ;
 
+         if ( exists $tmp{$_}{'PRE_FCLA'} ) {
+            $arealoop{'scat_ver'}{'PRE_FCLA('.$k.',:)'}=$tmp{$_}{'PRE_FCLA'};
+         } ;
+
          if ( exists $plots{'MAP'} ) {
 		 $arealoop{'MAP'}{'MAP_BIAS_INTERVAL(1:7,'.$k.')'}=$tmp{$_}{'MAP_BIAS_INTERVAL'}; 
 	 } ;
