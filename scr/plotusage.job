@@ -35,8 +35,26 @@ TIME=$2
 for FILE in synop_z ship_z dribu_z temp_t temp_u temp_v temp_q airep_t airep_u airep_v pilot_u pilot_v
 do
 
-if [ -f ${FILE}.dat ] 
+if [ -s ${FILE}.dat ] 
 then
+
+# Find map corners
+MINLAT=$( cat ${FILE}.dat | sort -n | head -1  | cut -c2-10 )
+
+if [ ! "$MINLAT" ] ; then
+   MINLAT=-90.
+   MAXLAT=90.
+   MINLON=-180.
+   MAXLON=180.
+else
+   MAXLAT=$( cat ${FILE}.dat | sort -n | tail -1  | cut -c2-10 )
+   MINLON=$( cat ${FILE}.dat | sort -n --key=2  | head -1  | cut -c15-25 )
+   MAXLON=$( cat ${FILE}.dat | sort -n --key=2  | tail -1  | cut -c15-25 )
+fi
+
+
+rm -f passive active rejecte blacklisted || true
+ 
 awk '
 {
 lat=$1
@@ -70,11 +88,9 @@ if(qcfl==1)print lon,lat
 } ' ${FILE}.dat > blacklisted
 
 # Make sure we always have at least one point to keep gnuplot happy
-echo '0 0' >> active
-echo '0 0' >> passive
-echo '0 0' >> rejected
-echo '0 0' >> blacklisted
-
+for obs_status in  passive active rejecte blacklisted ; do 
+   [[ -s $obs_status ]] || echo "0 0" >> $obs_status
+done
 
 cat > infile.gnu <<EOF
 set terminal postscript enhanced color
@@ -85,13 +101,12 @@ set mxtics 8
 set mytics 2
 set title "${FILE} ${DATE} ${TIME} UTC"
 
-plot [-90:90][20:90] "coast.dat" notit with lines lt -1,  "active" ps 0.8 pt 5, "blacklisted" ps 0.6 pt 4, "rejected" ps 0.4 pt 5
-
+plot [$MINLON:$MAXLON][$MINLAT:$MAXLAT] "coast.dat" notit with lines lt -1,  "active" ps 0.8 pt 5, "blacklisted" ps 0.6 pt 4, "rejected" ps 0.4 pt 5
 EOF
 
 gnuplot < infile.gnu
 
-convert -rotate 90 -resize 75% "map_${FILE}_${DATE}${TIME}.ps" "map_${FILE}_${DATE}${TIME}.png"
+convert -rotate 90 "map_${FILE}_${DATE}${TIME}.ps" "map_${FILE}_${DATE}${TIME}.png"
  
 fi
 

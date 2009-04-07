@@ -479,7 +479,7 @@ plot "${variable}rms" using 4:1 title "OB-FG" with lines 3,\
 EOF
 
 gnuplot < pfil
-convert -resize 75% -rotate 90 $OUTPUT.ps $OUTPUT.png
+convert -rotate 90 $OUTPUT.ps $OUTPUT.png
 
 done
 rm *bias *rms
