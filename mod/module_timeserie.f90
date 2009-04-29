@@ -68,12 +68,6 @@ MODULE timeserie
        time_stat_fclen_diff = MIN(time_stat_fclen_diff,use_fclen(i) - use_fclen(i-1))
     ENDDO
 
-    CALL adddtg(cdate,ctime*10000,time_stat_fclen_diff*3600,wdate,wtime)
-
-    wtime = wtime / 10000
-    cdate = wdate
-    ctime = wtime
-
     i = 0
     DO 
 
@@ -199,6 +193,9 @@ MODULE timeserie
          ! If difference between forecast hours is not constant
          ! we may have irregular times
          !
+         WRITE(6,*)'MISMATCH',oo,date,time,  &
+          time_stat(time_stat_max)%time,     &
+          time_stat(time_stat_max)%date
 
          RETURN
 
