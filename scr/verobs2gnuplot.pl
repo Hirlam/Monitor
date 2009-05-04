@@ -6,6 +6,13 @@
 # Usage: verobs2gnuplot.pl *.txt, where *.txt is the textfiles produced by verobs
 #
 
+# Set colors for map and scatter plots and lines
+@map_colors  = ("7","3","5","6","8","4");
+@scat_colors = ("3","5","2","6","8","1","4","9","7");
+@col_def_lt  = (1,3,4,5,2,6,8);
+
+@col_def_lt  = (0,@col_def_lt);
+
 if ( $ARGV[0] eq '-d' ) {
 
  print" Scanning $ENV{PWD} for *.txt files \n";
@@ -81,11 +88,16 @@ SCAN_INPUT: foreach $input_file (@FILES) {
 
         if ( $_ =~ /#COLUMN/ ) {
             $col_count++ ;
+
+            if ( scalar (@col_def_lt) lt $col_count) {
+                $col_def_lt[$col_count] = $col_count ;
+            } ;
+
             @col_def = (@col_def,
                        { LEGEND => substr( $_, 11 ) , 
                          COLUMN => substr( $_, 8, 3 ),
                          PT     => 7,
-                         LT     => $col_count,
+                         LT     => $col_def_lt[$col_count],
                         },
             ) ;
             next SCAN_FILE;
@@ -116,16 +128,13 @@ SCAN_INPUT: foreach $input_file (@FILES) {
           if ( $col_def[$i]{LEGEND} =~/BIAS/ ) {  $col_def[$i]{PT} = 4 } ;
           if ( $col_def[$i]{LEGEND} =~/STDV/ ) {  $col_def[$i]{PT} = 3 } ;
    
-          if ( $nexp ne 0 ) { $col_def[$i]{LT} = 1 + $i % $nexp ; } ;
+          if ( $nexp ne 0 ) { $col_def[$i]{LT} = $col_def_lt[1 + $i % $nexp] ; } ;
    
          if ( $col_def[$i]{LEGEND} eq 'CASES' ) {  $col_def[$i]{LT} = 0 } ;
    
        } ;
     } ;
 
-    # Set colors for map and scatter plots
-    @map_colors =  ("7","3","5","6","8","4");
-    @scat_colors = ("3","5","2","6","8","1","4","9","7");
 
     #
     # Start writing the plotting file
