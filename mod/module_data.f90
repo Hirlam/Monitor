@@ -123,7 +123,7 @@ MODULE data
  INTEGER, PARAMETER :: mpre_cla  = 100  ! Max number of predined classes
  INTEGER :: ncla(mparver)        = 26   ! Number of classes
  INTEGER :: classtype(mparver)   = 0    ! Linear classtypes
- REAL    :: pre_fcla(mparver,mpre_cla) = 0.   ! Predefined classes
+ REAL    :: pre_fcla(mpre_cla,mparver) = 0.   ! Predefined classes
  REAL    :: maxcla(mparver)      = 0.   ! Maximum class value
  REAL    :: mincla(mparver)      = 1.   ! Minimum class value
 
@@ -385,7 +385,7 @@ MODULE data
  INTEGER :: cont_param          = 0
  INTEGER :: cont_ind(mparver)   = 0
  INTEGER :: cont_class(mparver) = 0
- REAL    :: cont_lim(mparver,mpre_cla) = 0.0 !
+ REAL    :: cont_lim(mpre_cla,mparver) = 0.0 !
 
  !
  ! Namelist 

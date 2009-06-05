@@ -42,9 +42,9 @@ SUBROUTINE check_namelist
 
  ! Check ncla
     DO i=1,nparver
-       IF ( ANY(ABS(pre_fcla(i,:)) > 1.e-6 ) ) THEN
+       IF ( ANY(ABS(pre_fcla(:,i)) > 1.e-6 ) ) THEN
          DO j=2,mpre_cla
-           IF ( ABS( pre_fcla(i,j-1)-pre_fcla(i,j)) < 1.e-9 ) EXIT
+           IF ( ABS( pre_fcla(j-1,i)-pre_fcla(j,i)) < 1.e-9 ) EXIT
          ENDDO
          ncla(i) = j - 2
          WRITE(6,*)'  Changed ncla to (par_ind/value)', i,ncla(i)

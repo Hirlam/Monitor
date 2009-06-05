@@ -58,6 +58,7 @@ echo '</pre>' >> quality.html
 #
 # Generate browser friendly graphics
 #
+cp $SCR/style.xsl .
 
 mkdir vert 
 if [ $OUTPUT_TYPE -eq 1 ] ; then
@@ -66,19 +67,21 @@ if [ $OUTPUT_TYPE -eq 1 ] ; then
       FF=$( basename $F .ps )
       convert -resize $RESIZE -rotate 90 $FF.ps $FF.png
    done
-   tar cvf temp.tar *.png *.ps
+   TARARG="*.png *.ps"
 elif [ $OUTPUT_TYPE -eq 2 ] ; then
    mv l*.png vert
-   tar cvf temp.tar *.png
+   TARARG="*.png"
 elif [ $OUTPUT_TYPE -eq 3 ] ; then
    mv l*.jpg vert
-   tar cvf temp.tar *.jpg
+   TARARG="*.jpg"
 fi
+tar cvf temp.tar $TARARG
 
 rm -f *.jpg *.ps *.png
 
 #Vertical
-cp $SCR/style.xsl .
+TARARG="*.html"
+[[ $( echo $TEMPPLOT | grep XML ) ]] && TARARG="$TARARG *.xml style.xsl"
 if [ $OUTPUT_TYPE -eq 1 ] ; then
    rm -f *.ps
    mv vert/*.ps .
@@ -86,17 +89,17 @@ if [ $OUTPUT_TYPE -eq 1 ] ; then
       FF=$( basename $F .ps )
       convert -resize $RESIZE $ROTATE $FF.ps $FF.png
    done
-   tar cvf vert.tar *.png *.xml style.xsl *.html *.ps
+   TARARG="$TARARG *.png *.ps"
 elif [ $OUTPUT_TYPE -eq 2 ] ; then
    rm -f *.png
    mv vert/*.png .
-   tar cvf vert.tar *.png *.xml style.xsl *.html
+   TARARG="$TARARG *.png"
 elif [ $OUTPUT_TYPE -eq 3 ] ; then
    rm -f *.jpg
    mv vert/*.jpg .
-   tar cvf vert.tar *.jpg *.xml style.xsl *.html
+   TARARG="$TARARG *.jpg"
 fi 
-
+tar cvf vert.tar $TARARG
 rmdir vert
 
 # Send data to WebgraF

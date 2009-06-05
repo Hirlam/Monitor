@@ -3,10 +3,10 @@
  #
  # Build namelist for verification
  #
- # Usage: Build_namelist.pl TYPE INPAR
+ # Usage: Build_namelist.pl -t TYPE -p INPAR
  # where :
  # TYPE is SURF or TEMP
- # Inpar is any parameter or parameters such as "NN" or "FF DD NN"
+ # INPAR is any parameter or parameters such as "NN" or "FF DD NN"
  #
  # Main plotting definitions are defined in maindefs.pm
  # Parameter definitions are defined in plotdefs.pm
@@ -107,7 +107,6 @@
  };
 
  # Define variable specific things
-
  foreach ( split(' ',$inpar) ) {
 
       $i++ ;
@@ -136,11 +135,11 @@
             $j++ ;
 	    $arealoop{'scat_ver'}{'CONT_CLASS('.$j.')'}=$tmp{$_}{'CONT_CLASS'};
             $arealoop{'scat_ver'}{'CONT_IND('.$j.')'}=$k ;
-            $arealoop{'scat_ver'}{'CONT_LIM('.$j.',1:'.$tmp{$_}{'CONT_CLASS'}.')'  }=$tmp{$_}{'CONT_LIM'};
+            $arealoop{'scat_ver'}{'CONT_LIM(1:'.$tmp{$_}{'CONT_CLASS'}.','.$j.')'  }=$tmp{$_}{'CONT_LIM'};
          } ;
 
          if ( exists $tmp{$_}{'PRE_FCLA'} ) {
-            $arealoop{'scat_ver'}{'PRE_FCLA('.$k.',:)'}=$tmp{$_}{'PRE_FCLA'};
+            $arealoop{'scat_ver'}{'PRE_FCLA(:,'.$k.')'}=$tmp{$_}{'PRE_FCLA'};
          } ;
 
          if ( exists $plots{'MAP'} ) {
@@ -182,7 +181,6 @@
  $area_num = 0;
 
  foreach $area ( @areas ) {
-
 
    unless  (  exists $areas{$area} ) { die "$area not defined in areas.pm \n"; } ;
 

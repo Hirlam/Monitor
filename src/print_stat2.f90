@@ -272,7 +272,6 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
       ENDDO
       k=k+1
       pdat(k)%v => obs(1:ntimver_l,1)
-      WRITE(6,*)'OBS ',k
       WRITE(lunout,'(A,I2.2,X,A)')'#COLUMN_',k+1,'OBS'
     ENDIF
     k=k+1

@@ -108,10 +108,10 @@ SUBROUTINE freq_dist(npar,ntim,ncla,            &
  ! Classify data
  !
  
- num_rej = 0
  fdat    = 0.
 
  DO j = 1,npar
+    num_rej = 0
     IC : DO i = 1,ntim
     
       IF ( classtype /= 1 ) THEN
@@ -129,17 +129,18 @@ SUBROUTINE freq_dist(npar,ntim,ncla,            &
             CYCLE IC
          ENDIF
 
-
       ENDDO KC
 
       num_rej = num_rej + 1
 
     ENDDO IC
+
+    IF (num_rej > 0 ) THEN
+       WRITE(6,*)'Number of data excluded from the statistics :',num_rej,j
+    ENDIF
+
  ENDDO
 
- IF (num_rej > 0 ) THEN
-    WRITE(6,*)'Number of data excluded from the statistics :',num_rej
- ENDIF
 
  RETURN
 

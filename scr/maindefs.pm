@@ -9,7 +9,7 @@
     'OBSPATH' => '\''.$ENV{OBSPATH}.'\'',
     'LQUALITY_CONTROL' => 'T',
     'ESTIMATE_QC_LIMIT'=> 'T',
-    'MAXSTN'           => 4000,
+    'MAXSTN'           => 5000,
     'STNLIST'          => 0,
     'STNLIST_PLOT'     => $ENV{STNLIST_PLOT},
     'LVERIFY'          => 'F',
@@ -58,7 +58,8 @@
  'PLOT_BIAS_MAP' => 'T',
  'LSTAT_GEN'     => 'T',
  'LPLOT_STAT'    => 'F',
- 'LFCVER'        => 'T',
+ 'LFCVER'        => 'F',
+ 'SHOW_TIMES'    => '00,12',
  },
 
  'TIME' => {
@@ -90,6 +91,7 @@
   'LSTAT_GEN'  => 'T',
   'LFCVER'     => 'F',
   'USE_FCLEN'  => join(',',split(' ',$ENV{FCLEN_TEMP_VERT})),
+  'SHOW_TIMES'    => '00,12',
  },
 
 );

@@ -137,7 +137,7 @@ SUBROUTINE print_freq(lunout,nparver,nr,nrun,scat,p1,p2,par_active,uh,uf)
   
        CALL freq_dist(lnexp,n,ncl,                    &
                       mincla(j),maxcla(j),classtype(j),   &
-                      pre_fcla(j,1:ncl),work,fdat,fcla)
+                      pre_fcla(1:ncl,j),work,fdat,fcla)
 
     ELSE
 

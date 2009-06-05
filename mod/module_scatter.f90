@@ -35,8 +35,6 @@ MODULE scatter
 
  !-----------------------------------------------
 
- WRITE(6,*)'ALLOCATE SCATTER ARRAY'
-
  ! All station scatter plot array 
  ALLOCATE(scat_data(nparver,maxper),STAT=allocate_status)
  IF ( allocate_status /= 0 ) THEN

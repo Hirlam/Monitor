@@ -79,7 +79,7 @@ MODULE contingency
   INTEGER, INTENT (IN) :: xcont_mparam,xcont_param
   INTEGER, INTENT (IN) :: xcont_class(xcont_mparam)
   INTEGER, INTENT (IN) :: xcont_ind(xcont_mparam)
-  REAL,    INTENT (IN) :: xcont_lim(xcont_mparam,xcont_mclass)
+  REAL,    INTENT (IN) :: xcont_lim(xcont_mclass,xcont_mparam)
 
   CHARACTER(LEN=*), INTENT(IN) :: tag
 
@@ -110,7 +110,7 @@ MODULE contingency
      ALLOCATE(cont_table(i)%limit(xcont_class(i)))
      ALLOCATE(cont_table(i)%table(nexp,0:xcont_class(i),0:xcont_class(i)))
 
-     cont_table(i)%limit  = xcont_lim(i,1:xcont_class(i))
+     cont_table(i)%limit  = xcont_lim(1:xcont_class(i),i)
      cont_table(i)%table  = 0
      cont_table(i)%ind    = xcont_ind(i)
      cont_table(i)%nclass = xcont_class(i)
