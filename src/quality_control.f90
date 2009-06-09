@@ -17,7 +17,7 @@ SUBROUTINE quality_control
  ! Local
  !
 
- INTEGER :: i,j,k,l,m,n,o,ii,                           &
+ INTEGER :: i,j,k,n,o,ii,                               &
             jj,jjstart,jjcheck(nfclengths),             &
             wdate,wtime,                                &
             ind_pe(nparver,nfclengths),                 &
@@ -202,7 +202,7 @@ SUBROUTINE quality_control
 
        IF (hir(i)%o(jj)%date > wdate) CYCLE FC_CYCLE
 
-       MOD_TEST : IF(hir(i)%o(jj)%date == wdate .AND.	&
+       MOD_TEST : IF(hir(i)%o(jj)%date == wdate .AND.&
                      hir(i)%o(jj)%time == wtime ) THEN
 
           IF ( print_qc > 2 ) WRITE(lunqc,*)&

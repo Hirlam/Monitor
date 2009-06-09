@@ -11,9 +11,9 @@ MODULE means
  !-----------------------------------------
 
  SUBROUTINE carefull_sumup(data,date,time,    &
-               ntim,ndim,win,dlen,	          &
+               ntim,ndim,win,dlen,            &
                data_min,data_max,data_ave,    &
-               startdate,starttime,	          &
+               startdate,starttime,           &
                sumup_tolerance,obint,         &
                err_ind,window_pos,do_average)
  !
@@ -40,19 +40,16 @@ MODULE means
   LOGICAL, INTENT(IN)    :: do_average
 
   ! Local
-  INTEGER :: i,ii,j,jj,k,				&
-             y1,m1,d1,h1,				&
-             y2,m2,d2,h2,				&
-             cy,cm,cd,ch,				&
-             ierr,				&
-             mindate,mintime,			&
-             middate,midtime,			&
+  INTEGER :: i,ii,jj,k,             &
+             y1,m1,d1,h1,           &
+             y2,m2,d2,h2,           &
+             cy,cm,cd,ch,           &
+             mindate,mintime,       &
+             middate,midtime,       &
              maxdate,maxtime,dhour
 
   REAL    :: r_win,r_jj,wrk,rlen,tmp(ndim)
   INTEGER  :: ldate(ndim),ltime(ndim)
-
-  INTEGER :: difdtg
 
   LOGICAL :: mask(ndim)
   
@@ -102,12 +99,10 @@ MODULE means
          cd = MOD(date(i),100)
          ch = time(i)
 
-!EC         CALL hourdiff(cy,cm,cd,ch,y1,m1,d1,h1,dhour,ierr)
-         CALL hourdiff2(cy,cm,cd,ch,y1,m1,d1,h1,dhour,ierr)
+         CALL hourdiff2(cy,cm,cd,ch,y1,m1,d1,h1,dhour)
          IF ( dhour < 0 ) CYCLE FIND_TIMES
 
-!EC         CALL hourdiff(cy,cm,cd,ch,y2,m2,d2,h2,dhour,ierr)
-         CALL hourdiff2(cy,cm,cd,ch,y2,m2,d2,h2,dhour,ierr) 
+         CALL hourdiff2(cy,cm,cd,ch,y2,m2,d2,h2,dhour)
          IF ( dhour > 0 ) EXIT FIND_TIMES
 
          ! YES we found a suitable time
@@ -191,7 +186,7 @@ MODULE means
  !-----------------------------------------
  !-----------------------------------------
  !-----------------------------------------
- SUBROUTINE sumup(data,ntim,npar,win,		&
+ SUBROUTINE sumup(data,ntim,npar,win,  &
                   dsta,dsto,dste,dlen)
 
   IMPLICIT NONE
@@ -234,12 +229,12 @@ MODULE means
  !-----------------------------------------
  !-----------------------------------------
  !-----------------------------------------
- SUBROUTINE running_mean(data,ntim,npar,win,	&
+ SUBROUTINE running_mean(data,ntim,npar,win,  &
                          dsta,dsto,dste,dlen)
 
   IMPLICIT NONE
 
-  INTEGER :: i,j,ntim,npar,win,l_win,	&
+  INTEGER :: i,j,ntim,npar,win,l_win,  &
              dsta,dsto,dste,dlen
 
   REAL :: data(ntim,npar),r_win
@@ -272,18 +267,18 @@ MODULE means
  !-----------------------------------------
  !-----------------------------------------
  !-----------------------------------------
- SUBROUTINE yearcycle(data,date,time,		&
-                      ntim,npar,			&
+ SUBROUTINE yearcycle(data,date,time,      &
+                      ntim,npar,           &
                       dsta,dsto,dste,dlen)
 
   IMPLICIT NONE
 
-  INTEGER :: i,j,ntim,npar,				&
-             dsta,dsto,dste,dlen,		&
-             yy,mm,dd,yday,ierr,		&
+  INTEGER :: i,ntim,npar,            &
+             dsta,dsto,dste,dlen,    &
+             yy,mm,dd,yday,          &
              date(ntim),time(ntim)
 
-  INTEGER :: idate2yd,minday,maxday
+  INTEGER :: minday,maxday
   INTEGER :: idat2c, yday1
 
   REAL :: data(ntim,npar),nday(366)

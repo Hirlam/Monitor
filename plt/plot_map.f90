@@ -61,9 +61,7 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype,per_ind)
 
  REAL, ALLOCATABLE :: lat(:),lon(:),dat(:,:),mlat(:),mlon(:),mdat(:)
 
- LOGICAL :: found_hour    = .FALSE.
  LOGICAL :: user_interval = .FALSE.
- LOGICAL :: mask(maxstn)
 
  CHARACTER(LEN=100) :: text     = ' ',wtext = ' '
  CHARACTER(LEN=100) :: my_tag   = ' '

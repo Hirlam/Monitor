@@ -14,7 +14,7 @@ CCFLAGS := -O3 -g  $(MACHINECPP)
 
 # Fortran
 FC := gfortran
-MYFCFLAGS := -O3 -fbacktrace -g
+MYFCFLAGS := -O3 -fbacktrace -g -Wall -Werror
 
 # Modules
 MODNAME = $(shell echo $(*F) | tr "[:upper:]" "[:lower:]")
@@ -22,7 +22,7 @@ MODEXT := mod
 
 # Link
 LD          := $(FC)
-LDFLAGS     := -O3 -fbacktrace -g
+LDFLAGS     := -O3 -fbacktrace -g -Wall -Werror
 
 # AR
 AR      := ar

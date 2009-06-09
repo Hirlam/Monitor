@@ -73,7 +73,7 @@ MODULE types
  !
 
  TYPE station
-    INTEGER :: stnr,ntim,		&
+    INTEGER :: stnr,ntim,                    &
                nexp,nfclengths,nparver
     REAL    :: lat,lon,hgt
     LOGICAL :: active,obs_is_allocated

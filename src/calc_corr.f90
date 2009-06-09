@@ -12,7 +12,7 @@ SUBROUTINE calc_corr(nobs,xval,yval,            &
 
  ! Local
 
- INTEGER :: i,ierr
+ INTEGER :: i
  REAL    :: sumy,sumx,sumxx,sumyy,             &
             sumxy,sumxy2,stdevd,               &
             xpt,xptd,xhelp,yhelp,sid,rv

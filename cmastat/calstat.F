@@ -28,16 +28,15 @@ c     http://www.cnrm.meteo.fr/gmapdoc/meshtml/DOC_odb
       integer lenoutfile
       real biasfg(nlevels),absbiasfg(nlevels),rmsfg(nlevels)
       real biasan(nlevels),absbiasan(nlevels),rmsan(nlevels)
-      integer count(nlevels),qccount(4,nlevels)
+      integer count(nlevels)
 
-      integer ilenin,ipos,i,j,no
-      real lat,lon,alt,obs,vert
+      integer i,j
+      real vert
       integer nlev
 
 c ODB based ascii-files variables
 
       CHARACTER*8 CSTAID_ODB 
-      CHARACTER*400 CLINE
       INTEGER IUNIT,icount
 
       integer IOBTYP_ODB,ICODETYPE_ODB,IVARNO_ODB
@@ -72,7 +71,6 @@ c
 c
 c     loop over odb based ascii-file
 c
- 2    CONTINUE
       OPEN(UNIT=IUNIT,FORM='FORMATTED',STATUS='UNKNOWN',ERR=206)
     
 c 200  READ(IUNIT,'(A500)',END=210,ERR=205) CLINE

@@ -15,25 +15,26 @@ SUBROUTINE bin_cont(lunout,xval,yval,nobs,          &
  ! Input
  INTEGER,INTENT(IN) :: lunout,nlevels,nobs
 
- REAL,    INTENT(IN) :: xval(nobs),yval(nobs),	&
+ REAL,    INTENT(IN) :: xval(nobs),yval(nobs),  &
                         minx,miny,maxx,maxy
- CHARACTER(LEN=*)    :: fname,                  &
+ CHARACTER(LEN=*), INTENT(IN) ::                &
+                        fname,                  &
                         heading1,heading2,      &
                         heading3,heading4,      &
                         axist1,axist2
 
  ! Local
   
-  INTEGER :: nbinx,nbiny,		&
-             ibin_x,ibin_y,		&
-             i,j,l,ii,numrej,sunit
-  REAL                   :: 		&
-    bin_min_yx(2)=(/0.,0./)     ,	& ! min for x and y axis
-    bin_max_yx(2)=(/100.,100./) ,	& ! max for x and y axis
-    bin_inc_yx(2)=(/1,1/),    		& ! inc for x and y axis
-    level(nlevels),			&
-    fac,magn,maxobs,		&
-    sumy,sumx,sumyy,sumxx,sumxy,sumxy2,	&
+  INTEGER :: nbinx,nbiny,               &
+             ibin_x,ibin_y,             &
+             i,j,l,ii,numrej
+  REAL                   ::             &
+    bin_min_yx(2)=(/0.,0./)     ,       & ! min for x and y axis
+    bin_max_yx(2)=(/100.,100./) ,       & ! max for x and y axis
+    bin_inc_yx(2)=(/1,1/),              & ! inc for x and y axis
+    level(nlevels),                     &
+    fac,maxobs,                         &
+    sumy,sumx,sumyy,sumxx,sumxy,sumxy2, &
     xhelp,yhelp,xpt,xptd,rv,sid,        &
     XMEAN, YMEAN, STDEVX, STDEVY, BIAS, RMSE, STDEVD, CORR
 
@@ -63,7 +64,9 @@ SUBROUTINE bin_cont(lunout,xval,yval,nobs,          &
 
   ALLOCATE(biny(0:nbiny))
   ALLOCATE(binx(0:nbinx))
-  ALLOCATE(array(nbinx,nbiny))   ; array = 0.
+  ALLOCATE(array(nbinx,nbiny))
+
+  array = 0.
 
   biny(0) = bin_min_yx(1)
   binx(0) = bin_min_yx(2)
@@ -143,7 +146,6 @@ SUBROUTINE bin_cont(lunout,xval,yval,nobs,          &
   STDEVD = 0.
   CORR   = 0.
 
-  !IF (nobs.LT.1) RETURN
   XPT  = REAL(nobs)
   XPTD = 1./XPT
 
@@ -190,7 +192,6 @@ SUBROUTINE bin_cont(lunout,xval,yval,nobs,          &
   WRITE(lunout,*)'#YMAX ',maxy
   WRITE(lunout,*)'#MISSING  -999.'
 
-
   DO l=2,nlevels
 
    IF ( level(l) <= level(l-1)) EXIT
@@ -215,5 +216,10 @@ SUBROUTINE bin_cont(lunout,xval,yval,nobs,          &
   ENDDO
 
   WRITE(lunout,'(A)')'#END'
+ 
+  ! Clear memory
+  DEALLOCATE(biny,binx,array)
+
+  RETURN
 
 END SUBROUTINE bin_cont

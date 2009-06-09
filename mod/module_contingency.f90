@@ -68,7 +68,7 @@ MODULE contingency
  SUBROUTINE ini_cont(nexp,                      &
                      xcont_mclass,xcont_mparam, &
                      xcont_class,xcont_param,   &
-                     xcont_ind,xcont_lim,tag)
+                     xcont_ind,xcont_lim)
 
   IMPLICIT NONE
 
@@ -81,13 +81,9 @@ MODULE contingency
   INTEGER, INTENT (IN) :: xcont_ind(xcont_mparam)
   REAL,    INTENT (IN) :: xcont_lim(xcont_mclass,xcont_mparam)
 
-  CHARACTER(LEN=*), INTENT(IN) :: tag
-
   ! Local
 
   INTEGER :: i
-
-  LOGICAL :: found_file
 
   !------------------------------------------------------------------
 

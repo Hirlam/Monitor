@@ -27,7 +27,7 @@ MODULE mymagics
                                                 'VIOLET     ',            &
                                                 'NAVY       '/)
 
- CHARACTER(LEN=3) :: seasonal_name1(4)=(/'DJF','MAM','JJA','SON'/),		&
+ CHARACTER(LEN=3) :: seasonal_name1(4)=(/'DJF','MAM','JJA','SON'/),       &
                      seasonal_name2(12)=(/'JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'/)
 
 

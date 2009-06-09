@@ -8,27 +8,26 @@ SUBROUTINE read_vobs_temp
  IMPLICIT NONE
 
 
- INTEGER :: i,ii,j,k,kk,kkk,l,kk_lev,       &
-            ierr = 0,			&
-            cdate = 999999,		&
-            ctime = 999999,		&
-            wdate = 999999,		&
-            wtime = 999999,		&
-            istnr = 0,			&
-            stat_i,				&
-            num_temp,num_stat,	&
-            num_temp_lev,		&
-            my_temp_lev,		&
-            stations(100000),	&
-            max_found_stat,		&
-            timing_id,wrk(mparver), &
+ INTEGER :: i,ii,k,kk,kkk,kk_lev,       &
+            ierr = 0,                   &
+            cdate = 999999,             &
+            ctime = 999999,             &
+            wdate = 999999,             &
+            wtime = 999999,             &
+            istnr = 0,                  &
+            stat_i,                     &
+            num_temp,num_stat,          &
+            num_temp_lev,               &
+            my_temp_lev,                &
+            stations(100000),           &
+            max_found_stat,             &
+            wrk(mparver),               &
             version_flag
  
  
  REAL :: lat,lon,hgt,val(8)
 
- LOGICAL :: allocated_this_time(maxstn),	&
-            found_any_time,use_stnlist
+ LOGICAL :: use_stnlist
 
  CHARACTER(LEN=200) :: fname =' '
  CHARACTER(LEN= 10) :: ndate =' '

@@ -1,4 +1,4 @@
-SUBROUTINE print_freq(lunout,nparver,nr,nrun,scat,p1,p2,par_active,uh,uf)
+SUBROUTINE print_freq(lunout,nparver,nr,scat,p1,par_active,uh,uf)
 
  !
  ! Plot Frequency distribution
@@ -25,9 +25,8 @@ SUBROUTINE print_freq(lunout,nparver,nr,nrun,scat,p1,p2,par_active,uh,uf)
  REAL,    PARAMETER :: spxl      = 23. ! SUB_PAGE_X_LENGTH
 
  ! Input
- INTEGER, INTENT(IN) :: lunout,nparver,nr,nrun,     &
-                        p1,p2,                      &
-                        par_active(nparver)
+ INTEGER, INTENT(IN) :: lunout,nparver,nr,       &
+                        p1,par_active(nparver)
 
  TYPE(scatter_type), INTENT(IN) :: scat(nparver)
 
@@ -36,11 +35,10 @@ SUBROUTINE print_freq(lunout,nparver,nr,nrun,scat,p1,p2,par_active,uh,uf)
 
 
  ! Local
- INTEGER :: i,j,k,l,m,n,ncl,       		&
-            timing_id,lnexp,pp1,period
+ INTEGER :: i,j,k,m,n,ncl,                      &
+            timing_id,lnexp,period
 
- REAL :: dcla,fdat_sum,bar_width,               &
-         maxy,miny
+ REAL :: fdat_sum
 
  REAL, ALLOCATABLE :: work(:,:),                &
                       pcla(:),fcla(:),          &
@@ -49,9 +47,8 @@ SUBROUTINE print_freq(lunout,nparver,nr,nrun,scat,p1,p2,par_active,uh,uf)
  LOGICAL :: reset_class
 
  CHARACTER(LEN=100) :: fname = ''
- CHARACTER(LEN=90) :: wtext = '',wtext1='',wtext2 = ''
+ CHARACTER(LEN=90) :: wtext = '',wtext1=''
  CHARACTER(LEN=20) :: wname = ''
- CHARACTER(LEN=20) :: cdum  = ''
  CHARACTER(LEN=30) :: cform = ''
  CHARACTER(LEN=len_lab  ) :: ob_short=''
 

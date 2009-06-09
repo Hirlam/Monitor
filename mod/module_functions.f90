@@ -73,7 +73,7 @@ INTEGER FUNCTION get_maxtim(sdate,edate,int)
  ddiff = MOD(edate,100) - MOD(sdate,100)
 
  
- get_maxtim = ydiff * 12 * 31 * 24 / int + 	&
+ get_maxtim = ydiff * 12 * 31 * 24 / int +  &
               mdiff      * 31 * 24 / int +  &
              (ddiff + 2)      * 24 / int 
 
@@ -89,19 +89,14 @@ IMPLICIT NONE
 
  INTEGER :: yyyymm,inc
 
- INTEGER :: y1,m1,y2,m2,d2,ierr
+ INTEGER :: y1,m1
 
  integer :: yyyymmdd2,t2
  
- integer :: monincr2
-
  y1=yyyymm/100
  m1=MOD(yyyymm,100)
 
-!EC CALL dayincr(y1,m1,25,inc*30,y2,m2,d2,ierr)
  call adddtg( yyyymm*100+25 , 0,inc*30*86400, yyyymmdd2, t2)
-
-!EC monincr = y2*100+m2
  monincr= yyyymmdd2/100
 
 END FUNCTION monincr
@@ -132,10 +127,8 @@ IMPLICIT NONE
 INTEGER :: ndates,step
 INTEGER :: date(ndates)
 
-integer :: diff2
-
 ! Local
-INTEGER :: y1,m1,d1,y2,m2,d2,diff,ierr,i,date1
+INTEGER :: y1,m1,d1,y2,m2,d2,diff,i,date1
 
 INTEGER :: difdtg
 

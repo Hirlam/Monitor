@@ -8,18 +8,18 @@ SUBROUTINE read_vobs_dmi
  IMPLICIT NONE
 
 
- INTEGER :: i,ii,j,k,l,			&
-            ierr = 0,			&
-            cdate = 999999,		&
-            ctime = 999999,		&
-            wdate = 999999,		&
-            wtime = 999999,		&
-            istnr = 0,			&
-            stat_i,				&
-            num_temp,num_stat,	&
-            num_temp_lev,		&
-            stations(100000),	&
-            max_found_stat,		&
+ INTEGER :: i,ii,k,                     &
+            ierr = 0,                   &
+            cdate = 999999,             &
+            ctime = 999999,             &
+            wdate = 999999,             &
+            wtime = 999999,             &
+            istnr = 0,                  &
+            stat_i,                     &
+            num_temp,num_stat,          &
+            num_temp_lev,               &
+            stations(100000),           &
+            max_found_stat,             &
             timing_id
             
  

@@ -12,7 +12,7 @@ SUBROUTINE read_any
 
  IMPLICIT NONE
 
- INTEGER :: i,ii,j,k,l,o,   &
+ INTEGER :: i,j,k,          &
             ierr,           &
             date,fctime,    &
             jstart,         &

@@ -20,7 +20,7 @@ SUBROUTINE prep_xml(lunxml,nparver,nr,time,scat)
 
  ! LOCAL
 
- INTEGER :: i,j,jj,k,kk,l,timing_id
+ INTEGER :: j,jj,kk,l,timing_id
 
  REAL    :: xmean,ymean,          &
             stdevx,stdevy,        &

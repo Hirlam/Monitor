@@ -1,4 +1,4 @@
-SUBROUTINE print_map(stnr,yymm,yymm2,ptype,mtype,per_ind,par_active)
+SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,par_active)
 
  !
  ! Plot maps of station statistics
@@ -32,7 +32,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,mtype,per_ind,par_active)
 
  ! Input
 
- INTEGER, INTENT(IN) :: stnr,yymm,yymm2,ptype,mtype,   &
+ INTEGER, INTENT(IN) :: stnr,yymm,yymm2,ptype,   &
                         per_ind,par_active(nparver)
 
  ! Local
@@ -43,28 +43,23 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,mtype,per_ind,par_active)
             hour(ntimver),              &
             maxn,                       &
             numstn,period,              &
-            min_stnr,max_stnr,mid(1),   &
             nexp_plot,ntimver_out
 
- INTEGER, ALLOCATABLE :: stn(:),mcount(:)
+ INTEGER, ALLOCATABLE :: stn(:)
 
  REAL :: lmax,lint,   &
          interval(maxint+1) =(/-6.,-4.,-2.,0.,2.,4.,6./),       &
-         min_val,max_val,                                       &
-         symbol_size(maxint),                                   &
          rnum,bias,rmse,obs,                                    &
          minlat,maxlat,minlon,maxlon
 
- REAL, ALLOCATABLE :: lat(:),lon(:),dat(:,:),mlat(:),mlon(:),mdat(:)
+ REAL, ALLOCATABLE :: lat(:),lon(:),dat(:,:)
 
- LOGICAL :: found_hour    = .FALSE.,user_interval
- LOGICAL :: mask(maxstn)
+ LOGICAL :: user_interval
  LOGICAL :: print_latlon
 
- CHARACTER(LEN=100) :: text     = ' ',wtext = ' ',wtext1 = ' '
+ CHARACTER(LEN=100) :: wtext = ' ',wtext1 = ' '
  CHARACTER(LEN=100) :: my_tag   = ' '
  CHARACTER(LEN=10 ) :: chour    = ' ',cdum = ' '
- CHARACTER(LEN=50 ) :: cobsname = ' '
  CHARACTER(LEN=100) :: fname    = ' ',sname=' '
  CHARACTER(LEN=30)  :: wname    = ' '
  CHARACTER(LEN=30)  :: mtext    = ' '

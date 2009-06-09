@@ -44,9 +44,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
             rmse(nexp,nlev),       &
             stdv(nexp,nlev),       &
             rnum(nexp,nlev),       &
-             obs(nexp,nlev),       &
-            miny,maxy,diff,        &
-            rcount_max
+             obs(nexp,nlev)
 
  TYPE print_pointer
     REAL, POINTER :: v(:)
@@ -54,13 +52,9 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
 
  TYPE(print_pointer), ALLOCATABLE :: pdat(:)
 
-
- LOGICAL :: legend_done = .FALSE.
-
  CHARACTER(LEN=100      ) :: wtext =' ',wtext1=' ',my_tag
- CHARACTER(LEN=100      ) :: fname =' ',wname =' '
+ CHARACTER(LEN=100      ) :: fname =' '
  CHARACTER(LEN=len_lab  ) :: ob_short=''
- CHARACTER(LEN=7  ) :: cnum_case = '       '
  CHARACTER(LEN=1  ) :: prefix    = ' '
  CHARACTER(LEN=10 ) :: chour    = ' '
  CHARACTER(LEN=30 ) :: cform='   '

@@ -8,8 +8,7 @@ SUBROUTINE selection(flag)
 
  IMPLICIT NONE
 
- INTEGER :: i,ii,flag,			&
-            stnr(0:10000000)
+ INTEGER :: i,ii,flag,stnr(0:10000000)
 
 !---------------------------------
 
@@ -67,10 +66,10 @@ SUBROUTINE selection(flag)
 
  IF(cbox%active) THEN
    DO i=1,maxstn
-   hir(i)%active = 				&
-      (hir(i)%lat .GE. cbox%slat .AND.		&
-       hir(i)%lat .LE. cbox%nlat .AND.		&
-       hir(i)%lon .GE. cbox%wlon .AND.		&
+   hir(i)%active =                     & 
+      (hir(i)%lat .GE. cbox%slat .AND. &
+       hir(i)%lat .LE. cbox%nlat .AND. &
+       hir(i)%lon .GE. cbox%wlon .AND. &
        hir(i)%lon .LE. cbox%elon      )
    ENDDO
  ENDIF

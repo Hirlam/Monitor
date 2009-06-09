@@ -12,7 +12,7 @@ SUBROUTINE read_gp
 
  IMPLICIT NONE
 
- INTEGER :: i,ii,j,k,l,o,   &
+ INTEGER :: i,j,k,o,        &
             ierr,           &
             date,fctime,    &
             jstart,         &

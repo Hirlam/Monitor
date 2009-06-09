@@ -39,9 +39,9 @@ SUBROUTINE verify
  ! Local
  !
 
- INTEGER :: i,j,k,l,m,n,o,oo,ii,aerr,                   &
+ INTEGER :: i,j,k,l,n,o,oo,ii,                          &
             jj,jjstart,jjcheck(nfclengths),             &
-            yer_ind,mon_ind,tim_ind,nmax,               &
+            tim_ind,                                    &
             mindate(maxstn),maxdate(maxstn),            &
             wdate,wtime,                                &
             maxper,                                     &
@@ -50,10 +50,9 @@ SUBROUTINE verify
             timing_id_loop,                             &
             timing_id_plot,                             &
             ind_pe(nparver,nfclengths),                 &
-            lyear,year_map(12) = 0,                     &
-            cdate,ctime,                                &
+            year_map(12) = 0,                           &
             par_active(nparver),                        &
-            len_scat,per_ind,iscat
+            len_scat,per_ind
 
  INTEGER, ALLOCATABLE :: periods(:)
 
@@ -67,7 +66,6 @@ SUBROUTINE verify
  LOGICAL :: stat_file_found  = .FALSE.
 
  CHARACTER(LEN=50) :: fname = '',cmon=''
- CHARACTER(LEN=50) :: otag = ''
 
  TYPE (statpar), ALLOCATABLE :: allstat(:,:)
 
@@ -256,7 +254,7 @@ SUBROUTINE verify
 
  IF ( lcontingency ) CALL ini_cont(nexp,mpre_cla,mparver,   &
                                    cont_class,cont_param,   &
-                                   cont_ind,cont_lim,tag)
+                                   cont_ind,cont_lim)
 
  !
  ! Allocate array for timeserie statistics
@@ -409,8 +407,8 @@ SUBROUTINE verify
 
        IF (obs(i)%o(jj)%date > wdate) CYCLE FC_CYCLE
 
-       OBS_TEST :				&
-       IF(obs(i)%o(jj)%date == wdate .AND.	&
+       OBS_TEST :                             &
+       IF(obs(i)%o(jj)%date == wdate .AND.    &
           obs(i)%o(jj)%time == wtime ) THEN
 
           found_right_time = .TRUE.
@@ -678,14 +676,14 @@ SUBROUTINE verify
           DO l=1,maxper
              IF ( lprint_timeserie_stat ) &
              CALL print_p_stat(lunout,time_stat_max,nparver,        &
-                  obs(i)%stnr,nrun,time_stat(1:time_stat_max),      &
+                  obs(i)%stnr,time_stat(1:time_stat_max),           &
                   par_active,periods(l),periods(l+1),               &
                   used_hours(:,l,:),used_fclen(:,l,:))
 #ifdef MAGICS
        IF (TRIM(graphics) == 'MAGICS' ) THEN
              IF ( ltimeserie_stat ) &
-             CALL plot_p_stat(lunout,time_stat_max,nparver,         &
-                  obs(i)%stnr,nrun,time_stat(1:time_stat_max),      &
+             CALL plot_p_stat(time_stat_max,nparver,                &
+                  obs(i)%stnr,time_stat(1:time_stat_max),           &
                   par_active,periods(l),periods(l+1),               &
                   used_hours(:,l,:),used_fclen(:,l,:))
        ENDIF
@@ -729,19 +727,19 @@ SUBROUTINE verify
 
          ! Print frequency distribution
          IF ( lprint_freq .AND. leach_station )              &
-         CALL print_freq(lunout,nparver,obs(i)%stnr,nrun,    &
+         CALL print_freq(lunout,nparver,obs(i)%stnr,         &
               scat_data(:,l),                                &
-              periods(l),periods(l+1),par_active,            &
+              periods(l),par_active,                         &
               used_hours(:,l,:),used_fclen(:,l,:))
 
          IF ( lprint_scat .AND. leach_station)                     &
-            CALL print_scat(lunout,nparver,obs(i)%stnr,nrun,       &
+            CALL print_scat(lunout,nparver,obs(i)%stnr,            &
                  scat_data(:,l),periods(l),periods(l+1),           &
                  par_active,lplot_scat,                            &
                  used_hours(:,l,:),used_fclen(:,l,:))
 
          IF ( lprint_comp .AND. leach_station)                     &
-            CALL print_scat(lunout,nparver,obs(i)%stnr,nrun,       &
+            CALL print_scat(lunout,nparver,obs(i)%stnr,            &
                  scat_data(:,l),periods(l),periods(l+1),           &
                  par_active,.FALSE.,                               &
                  used_hours(:,l,:),used_fclen(:,l,:))
@@ -751,21 +749,21 @@ SUBROUTINE verify
 
          ! Plot normal scatterplot
          IF ( lplot_scat .AND. leach_station)                      &
-            CALL plot_scat_comp(lunout,nparver,obs(i)%stnr,nrun,   &
+            CALL plot_scat_comp(nparver,obs(i)%stnr,               &
                  scat_data(:,l),periods(l),periods(l+1),           &
                  par_active,lplot_scat,                            &
                  used_hours(:,l,:),used_fclen(:,l,:))
 
          ! Plot Xcrossplot
          IF ( lplot_comp .AND. leach_station)                      &
-            CALL plot_scat_comp(lunout,nparver,obs(i)%stnr,nrun,   &
+            CALL plot_scat_comp(nparver,obs(i)%stnr,               &
                  scat_data(:,l),periods(l),periods(l+1),           &
                  par_active,.FALSE.,                               &
                  used_hours(:,l,:),used_fclen(:,l,:))
 
          ! Plot frequency distribution
          IF ( lplot_freq .AND. leach_station )               &
-         CALL plot_freq_new(lunout,nparver,obs(i)%stnr,nrun, &
+         CALL plot_freq_new(nparver,obs(i)%stnr,             &
               scat_data(:,l),                                &
               periods(l),periods(l+1),par_active,            &
               used_hours(:,l,:),used_fclen(:,l,:))
@@ -821,14 +819,14 @@ SUBROUTINE verify
            ENDDO
            IF (lprint_timeserie_stat ) &
            CALL print_p_stat(lunout,all_time_stat_max,nparver,0,  &
-                nrun,all_time_stat,par_active,                    &
+                all_time_stat,par_active,                         &
                 periods(l),periods(l+1),                          &
                 used_hours(:,l,:),used_fclen(:,l,:))
 #ifdef MAGICS
          IF (TRIM(graphics) == 'MAGICS' ) THEN
            IF (ltimeserie_stat ) &
-           CALL plot_p_stat(lunout,all_time_stat_max,nparver,0,   &
-                nrun,all_time_stat,par_active,                    &
+           CALL plot_p_stat(all_time_stat_max,nparver,0,          &
+                all_time_stat,par_active,                         &
                 periods(l),periods(l+1),                          &
                 used_hours(:,l,:),used_fclen(:,l,:))
          ENDIF
@@ -892,20 +890,20 @@ SUBROUTINE verify
 
        ! Plot frequency distribution
        IF ( lprint_freq )                        &
-       CALL print_freq(lunout,nparver,0,nrun,    &
+       CALL print_freq(lunout,nparver,0,         &
             all_scat_data(:,l),                  &
-            periods(l),periods(l+1),par_active,  &
+            periods(l),par_active,               &
             used_hours(:,l,:),used_fclen(:,l,:))
 
        IF ( lprint_scat)                             &
-       CALL print_scat(lunout,nparver,0,nrun,        &
+       CALL print_scat(lunout,nparver,0,             &
             all_scat_data(:,l),                      &
             periods(l),periods(l+1),                 &
             par_active,lplot_scat,                   &
             used_hours(:,l,:),used_fclen(:,l,:))
 
        IF ( lprint_comp)                             &
-       CALL print_scat(lunout,nparver,0,nrun,        &
+       CALL print_scat(lunout,nparver,0,             &
             all_scat_data(:,l),                      &
             periods(l),periods(l+1),                 &
             par_active,.FALSE.,                      &
@@ -917,7 +915,7 @@ SUBROUTINE verify
        ! Plot normal scatterplot
        
        IF ( lplot_scat)                              &
-       CALL plot_scat_comp(lunout,nparver,0,nrun,    &
+       CALL plot_scat_comp(nparver,0,                &
             all_scat_data(:,l),                      &
             periods(l),periods(l+1),                 &
             par_active,lplot_scat,                   &
@@ -926,7 +924,7 @@ SUBROUTINE verify
        ! Plot Xcrossplot
 
        IF ( lplot_comp)                              &
-       CALL plot_scat_comp(lunout,nparver,0,nrun,    &
+       CALL plot_scat_comp(nparver,0,                &
             all_scat_data(:,l),                      &
             periods(l),periods(l+1),                 &
             par_active,.FALSE.,                      &
@@ -934,7 +932,7 @@ SUBROUTINE verify
 
        ! Plot frequency distribution
        IF ( lplot_freq )                         &
-       CALL plot_freq_new(lunout,nparver,0,nrun, &
+       CALL plot_freq_new(nparver,0,             &
             all_scat_data(:,l),                  &
             periods(l),periods(l+1),par_active,  &
             used_hours(:,l,:),used_fclen(:,l,:))

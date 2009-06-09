@@ -26,14 +26,13 @@ c     http://www.cnrm.meteo.fr/gmapdoc/meshtml/DOC_odb
       character*(*) outfile
       integer lenoutfile
 
-      integer ilenin,ipos,i,j,no
-      real lat,lon,alt,obs,vert
+      integer j
+      real vert
       integer nlev
 
 c ODB based ascii-files variables
 
       CHARACTER*8 CSTAID_ODB 
-      CHARACTER*400 CLINE
       INTEGER IUNIT,icount
 
       integer IOBTYP_ODB,ICODETYPE_ODB,IVARNO_ODB
@@ -42,7 +41,6 @@ c ODB based ascii-files variables
       integer ISTATUS_REJHDR_ODB,ISTATUS_ACTBOD_ODB,ISTATUS_BLKBOD_ODB
       integer ISTATUS_PASBOD_ODB,ISTATUS_REJBOD_ODB
       real RLAT_ODB,RLON_ODB,RPRESS_ODB,RANDEP_ODB,RFGDEP_ODB,ROBS_ODB
-      real RFINOE_ODB
       integer iflgact,iflgrej,iflgpas,iflgblk
       parameter (iunit=10)    
 
@@ -55,7 +53,6 @@ c
 c
 c     loop over odb based ascii-file
 c
- 2    CONTINUE
       OPEN(UNIT=IUNIT,FORM='FORMATTED',STATUS='UNKNOWN',ERR=206)
 c 200  READ(IUNIT,'(A500)',END=210,ERR=205) CLINE
  200    continue 

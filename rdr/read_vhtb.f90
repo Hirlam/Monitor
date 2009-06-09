@@ -8,21 +8,18 @@ SUBROUTINE read_vhtb
  IMPLICIT NONE
 
 
- INTEGER :: i,ii,j,k,l,			&
-            ierr = 0,			&
-            cdate = 999999,		&
-            ctime = 999999,		&
-            wdate = 999999,		&
-            wtime = 999999,		&
-            istnr = 0,			&
-            stat_i,				&
-            num_temp,num_stat,	&
-            num_temp_lev,		&
-            stations(100000),	&
-            max_found_stat,		&
-            timing_id
-            
- 
+ INTEGER :: i,ii,k,                     &
+            ierr = 0,                   &
+            cdate = 999999,             &
+            ctime = 999999,             &
+            wdate = 999999,             &
+            wtime = 999999,             &
+            istnr = 0,                  &
+            stat_i,                     &
+            num_temp,num_stat,          &
+            num_temp_lev,               &
+            stations(100000),           &
+            max_found_stat
  
  REAL :: lat,lon,height,val(8)
 
@@ -88,7 +85,7 @@ SUBROUTINE read_vhtb
 
        READ_STATION_OBS : DO k=1,num_stat
 
-          READ(lunin,*,iostat=ierr)istnr,lat,lon,	&
+          READ(lunin,*,iostat=ierr)istnr,lat,lon,&
           height,val
 
       !    IF (print_read > 1 ) WRITE(6,*)'READ'

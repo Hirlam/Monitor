@@ -7,7 +7,7 @@ SUBROUTINE read_mod_mast
 
  IMPLICIT NONE
 
- INTEGER :: date,time,i,ii,j,k,kk,l,o,ierr, &
+ INTEGER :: ii,k,kk,o,ierr,           &
             cdate,ctime,              &
             wdate,wtime,ll,stat_i,    &
             fc_ind,                   &

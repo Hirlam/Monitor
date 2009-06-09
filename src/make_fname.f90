@@ -18,9 +18,8 @@ SUBROUTINE make_fname(prefix,time,id,tag,        &
  INTEGER,          INTENT(IN ) :: time,id,output_type,output_mode
  CHARACTER(LEN=*), INTENT(OUT) :: fname
 
- !Local
+ ! Local
 
- INTEGER :: i
  CHARACTER(LEN=8) :: ctime,clevel,cid
  CHARACTER(LEN=4) :: ext
  

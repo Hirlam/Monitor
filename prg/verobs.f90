@@ -37,7 +37,7 @@ PROGRAM verobs
  IF ( ierr /=0 ) THEN
    WRITE(6,namver)
    WRITE(6,*)
-   WRITE(6,*)'Error reading namelist file fort.10'
+   WRITE(6,*)'Error reading namelist file fort.10',ierr
    CALL abort
  ENDIF
 
@@ -93,7 +93,6 @@ PROGRAM verobs
     ! Loop over all namelists found
     !
 
-
     WRITE(6,*)'THIS nrun is nr:', nrun 
 
     IF( release_memory.AND.nrun > 1) THEN
@@ -109,6 +108,7 @@ PROGRAM verobs
     IF ( lquality_control  ) CALL quality_control
     IF ( lverify           ) CALL verify
 
+    CALL FLUSH(6)
     !
     ! Re-init namelist and read again
     !

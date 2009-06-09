@@ -1,4 +1,4 @@
-SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
+SUBROUTINE plot_vert(nexp,nlev,nparver,ntimver,           &
                      s,stnr,yymm,yymm2,par_active,uh,uf)
 
  !
@@ -22,10 +22,9 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
                   show_times,use_fclen,timdiff,time_shift,      &
                   z_is_pressure,len_lab
 
-
  IMPLICIT NONE
 
- INTEGER,           INTENT(IN) :: lunout,nexp,nlev,nparver,     &
+ INTEGER,           INTENT(IN) :: nexp,nlev,nparver,            &
                                   ntimver,stnr,yymm,yymm2,      &
                                   par_active(nparver)
  TYPE (statistics), INTENT(IN) :: s(nexp,nparver,ntimver)
@@ -50,9 +49,8 @@ SUBROUTINE plot_vert(lunout,nexp,nlev,nparver,ntimver,     &
  LOGICAL :: legend_done = .FALSE.
 
  CHARACTER(LEN=100      ) :: wtext =' ',wtext1=' ',my_tag
- CHARACTER(LEN=100      ) :: fname =' ',wname =' '
+ CHARACTER(LEN=100      ) :: fname =' '
  CHARACTER(LEN=len_lab  ) :: ob_short=''
- CHARACTER(LEN=7  ) :: cnum_case = '       '
  CHARACTER(LEN=1  ) :: prefix    = ' '
  CHARACTER(LEN=10 ) :: chour    = ' '
 

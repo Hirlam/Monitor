@@ -7,26 +7,24 @@ SUBROUTINE read_vobs_temp_y4
  IMPLICIT NONE
 
 
- INTEGER :: i,ii,j,k,kk,kkk,l,kk_lev,       &
-            ierr = 0,			&
-            cdate = 999999,		&
-            ctime = 999999,		&
-            wdate = 999999,		&
-            wtime = 999999,		&
-            istnr = 0,			&
-            stat_i,				&
-            num_temp,num_stat,	&
-            num_temp_lev,		&
-            my_temp_lev,		&
-            stations(100000),	&
-            max_found_stat,		&
+ INTEGER :: i,ii,k,kk,kkk,kk_lev,       &
+            ierr = 0,                   &
+            cdate = 999999,             &
+            ctime = 999999,             &
+            wdate = 999999,             &
+            wtime = 999999,             &
+            istnr = 0,                  &
+            stat_i,                     &
+            num_temp,num_stat,          &
+            num_temp_lev,               &
+            my_temp_lev,                &
+            stations(100000),           &
+            max_found_stat,             &
             wrk(mparver)
- 
  
  REAL :: lat,lon,val(6)
 
- LOGICAL :: allocated_this_time(maxstn),	&
-            found_any_time,use_stnlist
+ LOGICAL :: use_stnlist
 
  CHARACTER(LEN=150) :: fname =' '
  CHARACTER(LEN= 10) ::  cwrk =' '

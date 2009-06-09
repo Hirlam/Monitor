@@ -1,4 +1,4 @@
-SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active,uh,uf)
+SUBROUTINE plot_freq_new(nparver,nr,scat,p1,p2,par_active,uh,uf)
 
  !
  ! Plot Frequency distribution
@@ -25,7 +25,7 @@ SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active,uh,uf)
  REAL,    PARAMETER :: spxl      = 23. ! SUB_PAGE_X_LENGTH
 
  ! Input
- INTEGER, INTENT(IN) :: lunout,nparver,nr,nrun,     &
+ INTEGER, INTENT(IN) :: nparver,nr,                 &
                         p1,p2,                      &
                         par_active(nparver)
 
@@ -36,7 +36,7 @@ SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active,uh,uf)
 
 
  ! Local
- INTEGER :: i,j,k,l,m,n,ncl,       		&
+ INTEGER :: i,j,k,m,n,ncl,                      &
             timing_id,lnexp,pp1,period
 
  REAL :: dcla,fdat_sum,bar_width,               &
@@ -51,7 +51,6 @@ SUBROUTINE plot_freq_new(lunout,nparver,nr,nrun,scat,p1,p2,par_active,uh,uf)
  CHARACTER(LEN=100) :: fname = ''
  CHARACTER(LEN=90) :: wtext = '',wtext2 = ''
  CHARACTER(LEN=20) :: wname = ''
- CHARACTER(LEN=20) :: cdum  = ''
 
 !-----------------------------------------------------
  ! Init timing counter

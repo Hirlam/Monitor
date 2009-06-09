@@ -1,4 +1,4 @@
-SUBROUTINE print_scat(lunout,nparver,nr,nrun,        &
+SUBROUTINE print_scat(lunout,nparver,nr,             &
            scat,p1,p2,par_active,full_scatter,       &
            uh,uf)
 
@@ -22,7 +22,7 @@ SUBROUTINE print_scat(lunout,nparver,nr,nrun,        &
 
  ! INPUT
 
- INTEGER,            INTENT(IN) :: lunout,nparver,nr,nrun,p1,p2
+ INTEGER,            INTENT(IN) :: lunout,nparver,nr,p1,p2
  INTEGER,            INTENT(IN) :: par_active(nparver)
  TYPE(scatter_type), INTENT(IN) :: scat(nparver)
  LOGICAL,            INTENT(IN) :: full_scatter,uh(nparver,0:23), &
@@ -42,10 +42,8 @@ SUBROUTINE print_scat(lunout,nparver,nr,nrun,        &
  CHARACTER(LEN= 50) :: my_tag   =' '
  CHARACTER(LEN=100) :: wtext    =' ', &
                        axist(2) =' ', &
-                       wtext2   =' ', &
                        wtext3   =' ', &
                        wtext4   =' ', &
-                       wname    =' ', &
                        titln    =' '
  CHARACTER(LEN=  1) :: prefix   =' '
  CHARACTER(LEN= 80) :: title    =' '
@@ -53,8 +51,6 @@ SUBROUTINE print_scat(lunout,nparver,nr,nrun,        &
  REAL :: minax(2),maxax(2),rtmp
 
  REAL, ALLOCATABLE :: val(:,:)
-
- LOGICAL :: scatflag = .TRUE.
 
  !
  !-----------------------------------------------------

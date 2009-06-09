@@ -4,9 +4,6 @@ USE data, ONLY : data_to_verify,data_source
 
 IMPLICIT NONE
 
-CHARACTER(LEN=60) :: info = 'Your are running case '
-CHARACTER(LEN=2)  :: ci   = ' '
-
 !---------------------------------------
 
  IF (LEN(TRIM(data_source)) > 0 ) THEN
@@ -98,26 +95,6 @@ CHARACTER(LEN=2)  :: ci   = ' '
 
     CALL read_vobs
     CALL read_vfld_precip
-
- CASE(10)
-
-    CALL read_voqc
-    CALL read_vfld_hirvda
-
- CASE(11)
-
-    CALL read_voqc_temp
-    CALL read_vfld_temp_hirvda
-
- CASE(14)
-
-    CALL read_voqc_y4
-    CALL read_vfld_hirvda_y4
-
- CASE(15)
-
-    CALL read_voqc_temp_y4
-    CALL read_vfld_temp_hirvda_y4
 
  CASE(16)
 

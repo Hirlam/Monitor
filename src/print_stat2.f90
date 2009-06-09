@@ -46,7 +46,6 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
 
  TYPE(print_pointer), ALLOCATABLE :: pdat(:)
 
- LOGICAL :: legend_done    = .FALSE.
  LOGICAL :: no_data_at_all = .FALSE.
 
  CHARACTER(LEN=100) :: wtext=' '

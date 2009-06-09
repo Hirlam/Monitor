@@ -40,15 +40,15 @@ SUBROUTINE read_auto
 !  29     - nederbörd 3 timmar, summa av 914
 !  30     - nederbörd 6 eller 12 timmar (915)
 
- INTEGER :: i,ii,j,k,l,			&
-            ierr = 0,			&
-            cdate = 999999,		&
-            ctime = 999999,		&
-            wdate = 999999,		&
-            wtime = 999999,		&
-            istnr = 0,			&
-            stat_i,			&
-            stations(100000),      	&
+ INTEGER :: i,ii,                  &
+            ierr = 0,              &
+            cdate = 999999,        &
+            ctime = 999999,        &
+            wdate = 999999,        &
+            wtime = 999999,        &
+            istnr = 0,             &
+            stat_i,                &
+            stations(100000),      &
             max_found_stat
             
  

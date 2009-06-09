@@ -9,7 +9,6 @@ SUBROUTINE read_vfld_temp
 
  USE data
  USE functions
- USE timing
  USE constants
 
  IMPLICIT NONE
@@ -18,22 +17,22 @@ SUBROUTINE read_vfld_temp
  INTEGER :: i,ii,j,k,kk,kkk,l,ll,       &
             kk_lev,                     &
             ierr = 0,aerr=0,            &
-            cdate = 999999,		&
-            ctime = 999999,		&
-            wdate = 999999,		&
-            wtime = 999999,		&
-            istnr = 0,			&
-            stat_i,			&
-            num_temp,num_stat,	        &
+            cdate = 999999,             &
+            ctime = 999999,             &
+            wdate = 999999,             &
+            wtime = 999999,             &
+            istnr = 0,                  &
+            stat_i,                     &
+            num_temp,num_stat,          &
             num_temp_lev,my_temp_lev,   &
-            stations(100000),	        &
-            max_found_stat,		&
-            timing_id,wrk(mparver),     &
+            stations(100000),           &
+            max_found_stat,             &
+            wrk(mparver),               &
             version_flag
  
  REAL :: lat,lon,hgt,val(8)
 
- LOGICAL :: allocated_this_time(maxstn),	&
+ LOGICAL :: allocated_this_time(maxstn),&
             found_any_time,use_stnlist,lfound
 
  CHARACTER(LEN=200) :: fname = ' '
@@ -41,8 +40,6 @@ SUBROUTINE read_vfld_temp
  CHARACTER(LEN= 02) :: cfclen  ='  '
 
 !----------------------------------------------------------
-
- 999 format(1x,i5.5,2F8.3,f5.0,f5.0,f6.1,f6.1,f6.1,f7.1,f6.1,en13.3e2)
 
  stations       = 0
  max_found_stat = 0

@@ -15,23 +15,23 @@ SUBROUTINE read_vfld
  IMPLICIT NONE
 
  INTEGER :: i,ii,j,k,l,ll,              &
-            ierr = 0,			&
-            cdate = 999999,		&
-            ctime = 999999,		&
-            wdate = 999999,		&
-            wtime = 999999,		&
-            istnr = 0,			&
-            stat_i,				&
-            num_temp,num_stat,	&
-            num_temp_lev,		&
-            stations(100000),	&
-            max_found_stat,		&
+            ierr = 0,                   &
+            cdate = 999999,             &
+            ctime = 999999,             &
+            wdate = 999999,             &
+            wtime = 999999,             &
+            istnr = 0,                  &
+            stat_i,                     &
+            num_temp,num_stat,          &
+            num_temp_lev,               &
+            stations(100000),           &
+            max_found_stat,             &
             aerr,version_flag
  
  
  REAL :: lat,lon,hgt,val(15)
 
- LOGICAL :: allocated_this_time(maxstn),	&
+ LOGICAL :: allocated_this_time(maxstn),&
             found_any_time,use_stnlist,lfound
 
  CHARACTER(LEN=200) :: fname = ' '

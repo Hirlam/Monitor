@@ -6,18 +6,17 @@ SUBROUTINE read_radiation
 
  IMPLICIT NONE
 
- INTEGER :: date,time,		&
-            i,k,ierr,		&
+ INTEGER :: date,time,          &
+            i,k,ierr,           &
             cdate,ctime,        &
             wdate,wtime,tinc,   &
             ind
  
- INTEGER :: tt,rh,dd,ff,gh,dh,iln,ss,lw,mark,m(9)
+ INTEGER :: tt,rh,dd,ff,gh,dh,iln,ss,lw,mark
  INTEGER :: test_mark
 
  CHARACTER(LEN=70) :: fname='/data/proj/Radiation/bfr/XXXX/20710001.bfr'
  CHARACTER(LEN=70) :: wname=' '
- CHARACTER(LEN=70) :: ename='/data/proj/Radiation/bfr/XXXX/20710001.BFR'
 
 !------------------------------------------
 

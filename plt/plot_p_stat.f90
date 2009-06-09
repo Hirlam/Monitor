@@ -1,4 +1,4 @@
-SUBROUTINE plot_p_stat(lunout,ntim,npar,nr,nrun,     &
+SUBROUTINE plot_p_stat(ntim,npar,nr,                 &
                        time_stat,par_active,         &
                        period1,period2,uh,uf)
 
@@ -7,24 +7,24 @@ SUBROUTINE plot_p_stat(lunout,ntim,npar,nr,nrun,     &
 
  IMPLICIT NONE
 
- INTEGER :: lunout,ntim,npar,nr,nrun,par_active(npar),period1,period2
+ INTEGER :: ntim,npar,nr,par_active(npar),period1,period2
  TYPE(stat_obs) :: time_stat(ntim)
 
  LOGICAL :: uh(npar,0:23),uf(npar,0:maxfclenval)
 
- CALL plot_p_stat_diff(lunout,ntim,npar,nr,nrun,     &
+ CALL plot_p_stat_diff(ntim,npar,nr,                 &
                        time_stat,.false.,par_active, &
                        period1,period2,uh,uf)
 
  IF (ldiff )                                         &
- CALL plot_p_stat_diff(lunout,ntim,npar,nr,nrun,     &
+ CALL plot_p_stat_diff(ntim,npar,nr,                 &
                        time_stat,.true.,par_active,  &
                        period1,period2,uh,uf)
 
  RETURN
 END SUBROUTINE plot_p_stat
 
-SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
+SUBROUTINE plot_p_stat_diff(ntim,npar,nr,               &
                             time_stat,ldiff,par_active, &
                             period1,period2,uh,uf)
  ! External modules
@@ -33,8 +33,8 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
  USE timing
  USE mymagics
  USE means
- USE data, ONLY : obstype,expname,err_ind,nexp,		 &
-                  station_name,csi,	                 &
+ USE data, ONLY : obstype,expname,err_ind,nexp,          &
+                  station_name,csi,                      &
                   ltiming,tag,maxfclenval,               &
                   show_fc_length,nuse_fclen,use_fclen,   &
                   timeserie_wind,sumup_tolerance,obint,  &
@@ -49,7 +49,7 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
 
  ! INPUT
 
- INTEGER :: lunout,ntim,npar,nr,nrun,par_active(npar),    &
+ INTEGER :: ntim,npar,nr,par_active(npar),                &
             period1,period2
  TYPE(stat_obs) :: time_stat(ntim)
  LOGICAL :: ldiff,uh(npar,0:23),uf(npar,0:maxfclenval),   &
@@ -57,12 +57,10 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
 
  ! local
 
- INTEGER :: i,ii,j,k,kk,l,              &
+ INTEGER :: i,ii,j,k,                   &
             timing_id,                  &
-            ntim_use,dlen,mid(1),       &
+            ntim_use,dlen,              &
             istart,iend,maxtim
- !          date(ntim),time(ntim),	&
- !          ndate(ntim),ntime(ntim),	&
 
  REAL :: miny,maxy,diff,       &
          rcount_max,           &
@@ -71,24 +69,13 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
          rmse_min(0:nexp),rmse_max(0:nexp),rmse_ave(0:nexp), &
          stdv_min(0:nexp),stdv_max(0:nexp),stdv_ave(0:nexp)
 
- !       obs(ntim),            &
- !       rnum(ntim,nexp),      &
- !       bias(ntim,nexp),      &
- !       rmse(ntim,nexp),      &
- !       stdv(ntim,nexp),      &
-
- ! Allocatable
-
  REAL,    ALLOCATABLE :: obs(:),rnum(:,:),bias(:,:),rmse(:,:),stdv(:,:)
  INTEGER, ALLOCATABLE :: ndate(:),ntime(:),date(:),time(:)
 
-
- CHARACTER(LEN=3  ) :: cdum='   '
  CHARACTER(LEN=6  ) :: ob_short='      '
  CHARACTER(LEN=2  ) :: prefix=' '
  CHARACTER(LEN=100) :: fname=' '
  CHARACTER(LEN=120) :: wtext,wname,wtext1
-
 
 !-----------------------------------------------------
  ! Init timing counter
@@ -339,8 +326,8 @@ SUBROUTINE plot_p_stat_diff(lunout,ntim,npar,nr,nrun,   &
        maxy = 0.
     ENDIF
 
-    CALL new_page(ndate(1),ntime(1),				    &
-                  ndate(ntim_use),ntime(ntim_use),		&
+    CALL new_page(ndate(1),ntime(1),              &
+                  ndate(ntim_use),ntime(ntim_use),&
                   0.,0.,miny,maxy)
 
     !

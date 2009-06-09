@@ -15,28 +15,28 @@ SUBROUTINE read_vfld_precip
 
  IMPLICIT NONE
 
- INTEGER :: i,ii,j,jj,k,l,		&
-            ierr = 0,			&
-            odate = 999999,		&
-            otime = 999999,		&
-            cdate = 999999,		&
-            ctime = 999999,		&
-            wdate = 999999,		&
-            wtime = 999999,		&
-            istnr = 0,			&
-            stat_i,				&
-            num_temp,num_stat,	&
-            num_temp_lev,		&
-            stations(100000),	&
-            max_found_stat,		&
-            timing_id,          &
+ INTEGER :: i,ii,j,jj,k,l,              &
+            ierr = 0,                   &
+            odate = 999999,             &
+            otime = 999999,             &
+            cdate = 999999,             &
+            ctime = 999999,             &
+            wdate = 999999,             &
+            wtime = 999999,             &
+            istnr = 0,                  &
+            stat_i,                     &
+            num_temp,num_stat,          &
+            num_temp_lev,               &
+            stations(100000),           &
+            max_found_stat,             &
+            timing_id,                  &
             ind_pe(nfclengths)
 
  
  
- REAL :: lat,lon,val(8),qq
+ REAL :: lat,lon,val(8)
 
- LOGICAL :: allocated_this_time(maxstn),	&
+ LOGICAL :: allocated_this_time(maxstn),&
             found_any_time,use_stnlist
 
  CHARACTER(LEN=100) :: oname ='vfld',fname = ' '

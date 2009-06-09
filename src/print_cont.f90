@@ -8,11 +8,9 @@ SUBROUTINE print_cont(p1,p2)
 
  INTEGER, INTENT(IN) :: p1,p2
 
- INTEGER :: i,j,k,l,m,period
+ INTEGER :: i,j,l,m,period
 
  INTEGER, ALLOCATABLE :: sumcol(:)
-
- LOGICAL :: found_file
 
  CHARACTER(LEN= 25) :: cform='(A10,XXI9,X,A1,X,I9)'
  CHARACTER(LEN= 25) :: hform='(XXX,A)'

@@ -7,22 +7,20 @@ SUBROUTINE read_vobs_y4
  IMPLICIT NONE
 
 
- INTEGER :: i,ii,j,k,l,			&
-            ierr = 0,			&
-            cdate = 999999,		&
-            ctime = 999999,		&
-            wdate = 999999,		&
-            wtime = 999999,		&
-            istnr = 0,			&
-            stat_i,				&
-            num_temp,num_stat,	&
-            num_temp_lev,		&
-            stations(100000),	&
+ INTEGER :: i,ii,k,                     &
+            ierr = 0,                   &
+            cdate = 999999,             &
+            ctime = 999999,             &
+            wdate = 999999,             &
+            wtime = 999999,             &
+            istnr = 0,                  &
+            stat_i,                     &
+            num_temp,num_stat,          &
+            num_temp_lev,               &
+            stations(100000),           &
             max_found_stat
-            
  
- 
- REAL :: lat,lon,height,val(7)
+ REAL :: lat,lon,val(7)
 
  CHARACTER(LEN=150) :: fname =' '
  CHARACTER(LEN= 10) :: cwrk  =' '
@@ -173,3 +171,14 @@ SUBROUTINE read_vobs_y4
  RETURN
 
 END SUBROUTINE read_vobs_y4
+LOGICAL FUNCTION qcq(a)
+
+USE DATA, only : err_ind
+
+IMPLICIT NONE
+
+REAL    :: a
+
+ qcq = (ABS(a+99.) > 1.e-6 )
+
+END FUNCTION qcq

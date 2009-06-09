@@ -15,24 +15,24 @@ SUBROUTINE read_vfld_hirvda_y4
 
  IMPLICIT NONE
 
- INTEGER :: i,ii,j,k,l,			&
-            ierr = 0,			&
-            cdate = 999999,		&
-            ctime = 999999,		&
-            wdate = 999999,		&
-            wtime = 999999,		&
-            istnr = 0,			&
-            stat_i,				&
-            num_temp,num_stat,	&
-            num_temp_lev,		&
-            stations(100000),	&
-            max_found_stat,		&
-            timing_id,aerr
+ INTEGER :: i,ii,j,k,l,                 &
+            ierr = 0,                   &
+            cdate = 999999,             &
+            ctime = 999999,             &
+            wdate = 999999,             &
+            wtime = 999999,             &
+            istnr = 0,                  &
+            stat_i,                     &
+            num_temp,num_stat,          &
+            num_temp_lev,               &
+            stations(100000),           &
+            max_found_stat,             &
+            aerr
  
  
- REAL :: lat,lon,val(7),qq
+ REAL :: lat,lon,val(7)
 
- LOGICAL :: allocated_this_time(maxstn),	&
+ LOGICAL :: allocated_this_time(maxstn),&
             found_any_time,use_stnlist
 
  CHARACTER(LEN=200) :: fname   = ' '
@@ -42,7 +42,6 @@ SUBROUTINE read_vfld_hirvda_y4
 
 !----------------------------------------------------------
 
- 999 format(1x,i5.5,2F8.3,f5.0,f5.0,f6.1,f6.1,f6.1,f7.1,f6.1,en13.3e2)
  998 format(1x,i5.5,2F8.3,f5.0,f5.0,f6.1,f6.1,f6.1,f7.1,f6.1)
 
  stations       = 0

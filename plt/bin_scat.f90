@@ -15,24 +15,24 @@ IMPLICIT NONE
 
  ! Input
  INTEGER, INTENT(IN) :: nobs
- REAL,    INTENT(IN) :: xval(nobs),yval(nobs),	&
+ REAL,    INTENT(IN) :: xval(nobs),yval(nobs),   &
                         minx,miny,maxx,maxy
  LOGICAL, INTENT(IN) :: l_corr
  CHARACTER(LEN=*), INTENT(IN) :: ctitle,obsname,xname,yname,wtext3,wtext4
 
  ! Local
   
-  INTEGER :: nbinx,nbiny,		&
-             ibin_x,ibin_y,		&
+  INTEGER :: nbinx,nbiny,               &
+             ibin_x,ibin_y,             &
              i,ii,numrej
-  REAL                   :: 		&
-    bin_min_yx(2)=(/0.,0./)     ,	& ! min for x and y axis
-    bin_max_yx(2)=(/100.,100./) ,	& ! max for x and y axis
-    bin_inc_yx(2)=(/1,1/),    		& ! inc for x and y axis
-    bin_tic_yx(2)=(/100,100/),		& ! tick frequency for x and y axis
-    level(nlevels),			&
-    fac,magn,magn_diff,maxobs,		&
-    sumy,sumx,sumyy,sumxx,sumxy,sumxy2,	&
+  REAL                   ::             &
+    bin_min_yx(2)=(/0.,0./)     ,       & ! min for x and y axis
+    bin_max_yx(2)=(/100.,100./) ,       & ! max for x and y axis
+    bin_inc_yx(2)=(/1,1/),              & ! inc for x and y axis
+    bin_tic_yx(2)=(/100,100/),          & ! tick frequency for x and y axis
+    level(nlevels),                     &
+    fac,maxobs,                         &
+    sumy,sumx,sumyy,sumxx,sumxy,sumxy2, &
     XMEAN, YMEAN, STDEVX, STDEVY, BIAS, RMSE, STDEVD, CORR
 
   REAL, ALLOCATABLE :: biny(:),binx(:),array(:,:)
@@ -204,20 +204,19 @@ IMPLICIT NONE
     inc_axis  ,&
     inc_axisx  ,&
     level(nlevels) ,&
-    array_plot(nbinx,nbiny),	&
-                       sumy,sumx,sumyy,sumxx,sumxy,sumxy2
+    array_plot(nbinx,nbiny),&
+    sumy,sumx,sumyy,sumxx,sumxy,sumxy2
   
   LOGICAL, INTENT(INOUT) :: &
     l_level_list,l_corr
   
-  INTEGER ::  icontlev,jx,jy,isymbol
+  INTEGER :: jx,jy,isymbol
 
   REAL :: zxx(nbinx),zyy(nbinx),zmx
-  REAL :: zbnx,zbn,zmn,zbny,zymxmn,zymxsd,zxmn,zymn,zxsd,zysd,zxypc
-  REAL :: zmax,znum,zlvl1
+  REAL :: zbnx,zbn,zmn,zbny
+  REAL :: zmax
   REAL :: XHELP,XPT,XPTD, YHELP, &
     XMEAN, YMEAN, STDEVX, STDEVY, BIAS, RMSE, STDEVD, CORR, rv, sid
-  LOGICAL :: mask(nbinx,nbiny)
 
   CHARACTER (LEN=80) :: cline
   CHARACTER (LEN=*) :: ctitle,obsname,yname,xname,wtext3,wtext4
@@ -229,7 +228,7 @@ IMPLICIT NONE
 !-------------------------------------------------------------------------------
 ! Section 0: Set up super_page layout
 !-------------------------------------------------------------------------------
-  CALL defsp(4,'H',1,1)
+  CALL defsp(4,'H')
 
 !-------------------------------------------------------------------------------
 ! Section 1: First page = scatter diagram on left
@@ -467,7 +466,7 @@ RETURN
 !-------------------------------------------------------------------------------
 END SUBROUTINE mag_scatter
 
-SUBROUTINE defsp(kfmt,cdori,knxp,knyp)
+SUBROUTINE defsp(kfmt,cdori)
 !-------------------------------------------------------------------------------
 
 !     This subroutine sets magics parameters in order to define
@@ -486,12 +485,12 @@ SUBROUTINE defsp(kfmt,cdori,knxp,knyp)
 
       implicit none
 
-      integer kfmt,knxp,knyp
+      integer kfmt
       character cdori*1
 
       real :: zsppl(3:4) = (/42.0,29.7/)
       real :: zspps(3:4) = (/29.7,21.0/)
-      real zspxl,zspyl,zsxl,zsyl,zpxl,zpyl
+      real zspxl,zspyl
 
 !     Reset page parameters
 

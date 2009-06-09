@@ -1,4 +1,4 @@
-SUBROUTINE plot_stat2(lunout,nexp,nparver,ntimver,   &
+SUBROUTINE plot_stat2(nexp,nparver,ntimver,          &
                       s,stnr,yymm,yymm2,par_active,  &
                       uh,uf)
 
@@ -18,7 +18,7 @@ SUBROUTINE plot_stat2(lunout,nexp,nparver,ntimver,   &
  IMPLICIT NONE
 
  INTEGER, INTENT(IN) ::           &
- lunout,nexp,nparver,ntimver,     &
+ nexp,nparver,ntimver,            &
  stnr,yymm,yymm2,                 &
  par_active(nparver)
 
@@ -47,7 +47,6 @@ SUBROUTINE plot_stat2(lunout,nexp,nparver,ntimver,   &
  CHARACTER(LEN=100) :: wtext=' '
  CHARACTER(LEN=100) :: wtext1=' '
  CHARACTER(LEN=100) :: fname=' '
- CHARACTER(LEN= 30) :: wname=' '
  CHARACTER(LEN=  1) :: prefix = ' '
  CHARACTER(LEN=  6) :: ob_short = '      '
 

@@ -6,9 +6,9 @@ SUBROUTINE read_point
 
  IMPLICIT NONE
 
- INTEGER :: date,i,j,k,l,nl,fl,o,ierr, &
+ INTEGER :: date,i,k,l,nl,fl,o,ierr,    &
             ffclengths,ll(50),          &
-            fclen_ind(0:50),fli,       &
+            fclen_ind(0:50),fli,        &
             fpar,ind,                   &
             cdate,ctime,                &
             wdate,wtime

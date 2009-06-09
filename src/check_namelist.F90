@@ -202,4 +202,5 @@ SUBROUTINE check_namelist
  WRITE(6,*)
 
  RETURN
+
 END SUBROUTINE check_namelist

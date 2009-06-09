@@ -11,7 +11,7 @@ MODULE data
  REAL, PARAMETER :: err_ind = -999.e6 ! Error flag
 
 ! I/O
- INTEGER, PARAMETER :: lunnam  = 10	    ! Namelist unit
+ INTEGER, PARAMETER :: lunnam  = 10    ! Namelist unit
  INTEGER, PARAMETER :: lunin   = 13
  INTEGER, PARAMETER :: lunin2  = 16
  INTEGER, PARAMETER :: lunout  = 14
@@ -21,9 +21,9 @@ MODULE data
  INTEGER, PARAMETER :: len_lab = 6
  INTEGER, PARAMETER :: maxexp  = 10     ! Max experiments
                                         ! Remember to change colours in module_mymagics as well
- INTEGER, PARAMETER :: mparver = 200	! Max parameters to verify
- INTEGER, PARAMETER :: maxfclen= 48   	! Maximum number of forecast lengths
- INTEGER, PARAMETER :: maxfclenval= 240	! Maximum forecast length value in hours
+ INTEGER, PARAMETER :: mparver = 200    ! Max parameters to verify
+ INTEGER, PARAMETER :: maxfclen= 48     ! Maximum number of forecast lengths
+ INTEGER, PARAMETER :: maxfclenval= 240 ! Maximum forecast length value in hours
 
 
 ! Main arrays 
@@ -62,12 +62,12 @@ MODULE data
                                  ! for period_type 3 only a frequency of 1 and 3
                                  ! is allowed
                                  ! 
- INTEGER :: sdate  = 19990901 	 ! Start date
- INTEGER :: stime  = 0 		 ! Start time
- INTEGER :: edate  = 20000320 	 ! End date
- INTEGER :: etime  = 0 		 ! End time
- INTEGER :: edate_obs  = 0 	 ! End date for observation
- INTEGER :: etime_obs  = 0 		 ! End time for observation
+ INTEGER :: sdate  = 19990901    ! Start date
+ INTEGER :: stime  = 0           ! Start time
+ INTEGER :: edate  = 20000320    ! End date
+ INTEGER :: etime  = 0           ! End time
+ INTEGER :: edate_obs  = 0       ! End date for observation
+ INTEGER :: etime_obs  = 0       ! End time for observation
  INTEGER :: maxtim = 0           ! Estimated number of times 
                                  ! set to 0 to let the program decide
  INTEGER :: maxtim_scat = 0      ! Estimated number of times for
@@ -87,13 +87,13 @@ MODULE data
  CHARACTER(LEN=100 )  :: polyfile ='poly.dat'
 
  ! Experiment and name
- INTEGER           :: nexp = 1			! Number of experiments
+ INTEGER           :: nexp = 1                  ! Number of experiments
  CHARACTER(LEN=30) :: expname(maxexp)='OBS'     ! Name of experiments
  CHARACTER(LEN=30) :: statname='statistics.html'    ! Name of output statistics file
- CHARACTER(LEN=50) :: name='Unknown'		! Station name
- CHARACTER(LEN=50) :: tag='#'		        ! Tag on plot
- CHARACTER(LEN=99) :: obspath        ='../'	! Path to observation data
- CHARACTER(LEN=99) :: modpath(maxexp)='../'	! Path to model data
+ CHARACTER(LEN=50) :: name='Unknown'            ! Station name
+ CHARACTER(LEN=50) :: tag='#'                   ! Tag on plot
+ CHARACTER(LEN=99) :: obspath        ='../'     ! Path to observation data
+ CHARACTER(LEN=99) :: modpath(maxexp)='../'     ! Path to model data
 
  ! Fc len and times to verify
  INTEGER :: nfclengths          =  0            ! Number of fclengths to verify
@@ -265,34 +265,34 @@ MODULE data
  REAL :: my_ymax             =  err_ind !
 
  ! Flags
- LOGICAL :: ltiming          = .FALSE.	! Measure performance (use gprof instead)
- LOGICAL :: ltemp            = .FALSE.	! Multi level fields
- LOGICAL :: lfcver           = .FALSE. 	! Verify by fclength else by time of day
- LOGICAL :: leach_station    = .FALSE.	! Verify each station separately
- LOGICAL :: lallstat         = .TRUE.	! Show statistics for all stations
- LOGICAL :: lfindplot        = .FALSE.	! Call findplot obsolete at the moment
- LOGICAL :: ltimeserie       = .FALSE.	! Plot timeseries for all stations
- LOGICAL :: ltimeserie_stat  = .FALSE.	! Plot timeserie statistics 
- LOGICAL :: lprint_timeserie_stat  = .FALSE.	! Print timeserie statistics 
- LOGICAL :: lplot_freq       = .FALSE.	! Make frequency distribution plots
- LOGICAL :: lprint_freq      = .FALSE.	! Make frequency distribution printfiles
- LOGICAL :: lprint_scat      = .FALSE.	! Make scatterplots
- LOGICAL :: lplot_scat       = .FALSE.	! Make scatterplots
- LOGICAL :: lprep_xml        = .FALSE.	! Create statistics in xml format based
+ LOGICAL :: ltiming          = .FALSE.  ! Measure performance (use gprof instead)
+ LOGICAL :: ltemp            = .FALSE.  ! Multi level fields
+ LOGICAL :: lfcver           = .FALSE.  ! Verify by fclength else by time of day
+ LOGICAL :: leach_station    = .FALSE.  ! Verify each station separately
+ LOGICAL :: lallstat         = .TRUE.   ! Show statistics for all stations
+ LOGICAL :: lfindplot        = .FALSE.  ! Call findplot obsolete at the moment
+ LOGICAL :: ltimeserie       = .FALSE.  ! Plot timeseries for all stations
+ LOGICAL :: ltimeserie_stat  = .FALSE.  ! Plot timeserie statistics 
+ LOGICAL :: lprint_timeserie_stat  = .FALSE.   ! Print timeserie statistics 
+ LOGICAL :: lplot_freq       = .FALSE.  ! Make frequency distribution plots
+ LOGICAL :: lprint_freq      = .FALSE.  ! Make frequency distribution printfiles
+ LOGICAL :: lprint_scat      = .FALSE.  ! Make scatterplots
+ LOGICAL :: lplot_scat       = .FALSE.  ! Make scatterplots
+ LOGICAL :: lprep_xml        = .FALSE.  ! Create statistics in xml format based
                                         ! on scatter data
- LOGICAL :: lverify          = .TRUE.	! Call verify main subroutine
- LOGICAL :: lstat_gen        = .TRUE.	! Calculate general statistics
- LOGICAL :: lprint_selection = .FALSE.	! Print selected stations
- LOGICAL :: lprint_read      = .FALSE.	! Print diagnostics when reading, obsolete
+ LOGICAL :: lverify          = .TRUE.   ! Call verify main subroutine
+ LOGICAL :: lstat_gen        = .TRUE.   ! Calculate general statistics
+ LOGICAL :: lprint_selection = .FALSE.  ! Print selected stations
+ LOGICAL :: lprint_read      = .FALSE.  ! Print diagnostics when reading, obsolete
  INTEGER ::  print_read      = 1        ! Print diagnostics when reading
- LOGICAL :: lprint_summary   = .FALSE.	! Print comprehensive station summary
- LOGICAL :: lprint_verif     = .FALSE.	! Print diagnostics
- LOGICAL :: lprint_findp     = .FALSE.	! Print diagnostics
- LOGICAL :: lprint_do_stat   = .FALSE.	! Print diagnostics
- LOGICAL :: lplot_vert       = .FALSE.	! Create plot file for vertical temp statistics
- LOGICAL :: lprint_vert      = .FALSE.	! Create print file for vertical temp statistics
- LOGICAL :: lprint_stat      = .FALSE.	! Create plot file for statistics
- LOGICAL :: lplot_stat       = .FALSE.	! Create plot file for statistics
+ LOGICAL :: lprint_summary   = .FALSE.  ! Print comprehensive station summary
+ LOGICAL :: lprint_verif     = .FALSE.  ! Print diagnostics
+ LOGICAL :: lprint_findp     = .FALSE.  ! Print diagnostics
+ LOGICAL :: lprint_do_stat   = .FALSE.  ! Print diagnostics
+ LOGICAL :: lplot_vert       = .FALSE.  ! Create plot file for vertical temp statistics
+ LOGICAL :: lprint_vert      = .FALSE.  ! Create print file for vertical temp statistics
+ LOGICAL :: lprint_stat      = .FALSE.  ! Create plot file for statistics
+ LOGICAL :: lplot_stat       = .FALSE.  ! Create plot file for statistics
  LOGICAL :: use_database     = .FALSE.  ! Try to use database, obsolete
  LOGICAL :: release_memory   = .FALSE.  ! Release memory as soon as data have been used
  LOGICAL :: gap_filled_data  = .FALSE.  ! Allow gap filled data, obsolete
@@ -401,12 +401,12 @@ MODULE data
                  stnlist,stnlist_bl,stnlist_plot,       &
                  nexp,expname,tag,                      &
                  nparver,                               &
-                 tt_ind,ff_ind,dd_ind,uw_ind,wt_ind,	&
-                 sw_ind,lw_ind,lu_ind,ld_ind,	    	&
-                 su_ind,sd_ind,td_ind,vi_ind,		&
-                 ps_ind,pe_ind,pd_ind,rh_ind,	    	&
+                 tt_ind,ff_ind,dd_ind,uw_ind,wt_ind,    &
+                 sw_ind,lw_ind,lu_ind,ld_ind,           &
+                 su_ind,sd_ind,td_ind,vi_ind,           &
+                 ps_ind,pe_ind,pd_ind,rh_ind,           &
                  nn_ind,fi_ind,rf_ind,nr_ind,wq_ind,    &
-                 qq_ind,gs_ind,gc_ind,gr_ind,hb_ind,	&
+                 qq_ind,gs_ind,gc_ind,gr_ind,hb_ind,    &
                  tz_ind,uz_ind,tu_ind,la_ind,hg_ind,    &
                  wp_ind,wh_ind,tn_ind,tx_ind,           &
                  gg_ind,gx_ind,fx_ind,                  &
@@ -444,8 +444,8 @@ MODULE data
                  lprint_selection,                      &
                  lprint_summary,                        &
                  lprint_read,print_read,                &
-                 lprint_verif,lprint_findp,   	        &
-                 lprint_do_stat,                     	&
+                 lprint_verif,lprint_findp,             &
+                 lprint_do_stat,                        &
                  release_memory,                        &
                  lprint_freq,lplot_freq,                &
                  cbox,lpoly,polyfile,                   &
@@ -458,9 +458,9 @@ MODULE data
                  uw_lim,wt_lim,nr_lim,gr_lim,wq_lim,    &
                  nn_lim,td_lim,vi_lim,                  &
                  ff_llim,                               &
-                 sumup_tolerance,			&
-                 my_xmin,my_xmax,my_ymin,my_ymax,	&
-                 lspecial_cond,special_flag,		&
+                 sumup_tolerance,                       &
+                 my_xmin,my_xmax,my_ymin,my_ymax,       &
+                 lspecial_cond,special_flag,            &
                  gap_filled_data,ldiff,lnorm,           &
                  show_fc_length,all_var_present,        &
                  use_pos,output_type,output_mode,       &

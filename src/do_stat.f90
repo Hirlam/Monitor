@@ -10,7 +10,7 @@ SUBROUTINE do_stat(per_ind,p1,p2)
 
  ! Local
  INTEGER :: i,j,k,o,current_month,      &
-            wrk(mparver),nlev,nmax
+            wrk(mparver),nlev
  INTEGER :: vertime(ntimver),timing_id,par_active(nparver)
 
  TYPE (statistics) :: onestat(nexp)
@@ -18,7 +18,7 @@ SUBROUTINE do_stat(per_ind,p1,p2)
 
  CHARACTER(LEN=4 ) :: ttype = 'TIME'
  CHARACTER(LEN=31) :: text  = '    BIAS    RMSE    STDV     N'
- CHARACTER(LEN= 3) :: seasonal_name1(4)=(/'DJF','MAM','JJA','SON'/),		&
+ CHARACTER(LEN= 3) :: seasonal_name1(4)=(/'DJF','MAM','JJA','SON'/),       &
                       seasonal_name2(12)=(/'JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'/)
 !---------------------------------
 
@@ -133,7 +133,7 @@ SUBROUTINE do_stat(per_ind,p1,p2)
 #ifdef MAGICS
     IF (TRIM(graphics) == 'MAGICS') THEN
     IF (leach_station.AND. lplot_stat )                   &
-    CALL plot_stat2(lunout,nexp,nparver,ntimver,          &
+    CALL plot_stat2(nexp,nparver,ntimver,                 &
     stat(i)%s,stat(i)%stnr,p1(i),p2(i),par_active,        &
     used_hours(:,per_ind,:),used_fclen(:,per_ind,:))
     ENDIF
@@ -159,7 +159,7 @@ SUBROUTINE do_stat(per_ind,p1,p2)
 #ifdef MAGICS
       IF (TRIM(graphics) == 'MAGICS') THEN
       IF ( lplot_vert )                                      &
-      CALL plot_vert(lunout,nexp,nlev,nparver,ntimver,       &
+      CALL plot_vert(nexp,nlev,nparver,ntimver,              &
       stat(i)%s,stat(i)%stnr,p1(i),p2(i),par_active,         &
       used_hours(:,per_ind,:),used_fclen(:,per_ind,:))
       ENDIF
@@ -171,9 +171,9 @@ SUBROUTINE do_stat(per_ind,p1,p2)
 
  ENDDO
 
- IF ( print_bias_map ) CALL print_map(0,minval(p1),maxval(p2),0,map_type,per_ind,par_active)
- IF ( print_bias_map ) CALL print_map(0,minval(p1),maxval(p2),1,map_type,per_ind,par_active)
- IF ( print_obs_map  ) CALL print_map(0,minval(p1),maxval(p2),2,map_type,per_ind,par_active)
+ IF ( print_bias_map ) CALL print_map(0,minval(p1),maxval(p2),0,per_ind,par_active)
+ IF ( print_bias_map ) CALL print_map(0,minval(p1),maxval(p2),1,per_ind,par_active)
+ IF ( print_obs_map  ) CALL print_map(0,minval(p1),maxval(p2),2,per_ind,par_active)
 
 #ifdef MAGICS
  IF (TRIM(graphics) == 'MAGICS') THEN
@@ -249,7 +249,7 @@ SUBROUTINE do_stat(per_ind,p1,p2)
 
     IF( lplot_stat ) THEN
       IF (lprint_do_stat) WRITE(6,*)'Call plot_stat'
-      CALL plot_stat2(lunout,nexp,nparver,ntimver,     &
+      CALL plot_stat2(nexp,nparver,ntimver,            &
       statall,0,minval(p1),maxval(p2),par_active,      &
       used_hours(:,per_ind,:),used_fclen(:,per_ind,:))
     ENDIF
@@ -276,7 +276,7 @@ SUBROUTINE do_stat(per_ind,p1,p2)
 #ifdef MAGICS
     IF (TRIM(graphics) == 'MAGICS') THEN
        IF ( lplot_vert )                                &
-       CALL plot_vert(lunout,nexp,nlev,nparver,ntimver, &
+       CALL plot_vert(nexp,nlev,nparver,ntimver,        &
                       statall,0,MINVAL(p1),MAXVAL(p2),  &
                       par_active,                       &
                       used_hours(:,per_ind,:),          &

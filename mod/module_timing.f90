@@ -18,7 +18,7 @@ SUBROUTINE acc_timing(id,name)
 
 IMPLICIT NONE
 
-INTEGER :: i,id,id_local,count
+INTEGER :: i,id,count
 CHARACTER(LEN=*) :: name
 
 !----------------------------------
@@ -41,7 +41,7 @@ IF(id == 0) THEN
 ELSE
 
   CALL system_clock(count)
-  timing_times(id,2) = timing_times(id,2) - 		&
+  timing_times(id,2) = timing_times(id,2) - &
                        timing_times(id,1) + count
 ENDIF
 
@@ -103,12 +103,12 @@ REAL    :: timing_time
 
   DO i=1,numtiming
 
-      timing_time =						&
-      FLOAT(timing_times(i,2))/       	&
+      timing_time =                     &
+      FLOAT(timing_times(i,2))/         &
       FLOAT(count_rate)
 
-      WRITE(6,'(A20,A10,f10.5,A8)')		&
-      TRIM(timing_names(i)),' took:',	&
+      WRITE(6,'(A20,A10,f10.5,A8)')     &
+      TRIM(timing_names(i)),' took:',   &
       timing_time,' seconds'
 
   ENDDO
