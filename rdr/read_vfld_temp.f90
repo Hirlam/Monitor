@@ -88,7 +88,7 @@ SUBROUTINE read_vfld_temp
        INQUIRE(FILE=fname,EXIST=lfound)
        IF ( .NOT. lfound ) THEN
           IF (print_read > 0 ) &
-          WRITE(6,'(3A)')'No model data found for ',TRIM(cwrk),TRIM(cfclen)
+          WRITE(6,'(2A)')'No model data found for ',TRIM(fname)
           CYCLE LL_LOOP 
        ENDIF
     ENDDO SUB_EXP_LOOP
@@ -120,6 +120,7 @@ SUBROUTINE read_vfld_temp
           SELECT CASE (version_flag)
           CASE(0)
              READ(lunin,*,iostat=ierr)istnr,lat,lon
+             hgt = err_ind
           CASE(1:2)
              READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt
           CASE DEFAULT

@@ -83,7 +83,7 @@ SUBROUTINE read_vfld
        INQUIRE(FILE=fname,EXIST=lfound)
        IF ( .NOT. lfound ) THEN
           IF (print_read > 0 ) &
-          WRITE(6,'(3A)')'No model data found for ',TRIM(cwrk),TRIM(cfclen)
+          WRITE(6,'(3A)')'No model data found for ',TRIM(fname)
           CYCLE LL_LOOP 
        ENDIF
     ENDDO SUB_EXP_LOOP
