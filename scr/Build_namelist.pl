@@ -106,6 +106,7 @@
 
  };
 
+
  # Define variable specific things
  foreach ( split(' ',$inpar) ) {
 
@@ -171,7 +172,7 @@
  @lists=('nameread');
  &set_def;
  &join_lists ;
- &print_list ;
+ &print_list($default) ;
 
 
  # Define the areas
@@ -192,8 +193,26 @@
    # Set default tag according to area
    $def{'def'}{'TAG'} = '\''.$area.'\'' ;
 
+   #
+   # Make sure STNLIST is defined only once and 
+   # that we have trailing zeros in the stnlist
+   #
 
+   if ( exists $areas{$area}{'STNLIST'} ) {
+   unless ( $areas{$area}{'STNLIST'} =~ /\*/ ) {
+      $nstnlist = split(',',$areas{$area}{'STNLIST'});
+      $nstn_not_used = $nameread{'read_section'}{'MAXSTN'}-$nstnlist ;
+      $areas{$area}{'STNLIST'} = $areas{$area}{'STNLIST'}.','.$nstn_not_used.'*0';
+   } ;
+   } else {
+      $areas{$area}{'STNLIST'} = '0';
+   } ;
+   $areas{$area}{'STNLIST'}=~ s/,,/,/g ;
+
+   #
    # Merge the default list with the different plot types
+   #
+
    %tmp=();
    $default='tmp';
    @lists=('arealoop');
@@ -212,15 +231,6 @@
             ${$default}{$key}{$role}=$areas{$area}{$role};
          } ;
       } ;
-   } ;
-
-   #
-   # Modify station list according to area definiton
-   #
-   if ( exists $areas{$area}{'STNLIST'} ) {
-      $def{'def'}{'STNLIST'}=
-      $areas{$area}{'STNLIST'}.','.$nameread{'read_section'}{'MAXSTN'}.'*0',
-      $def{'def'}{'STNLIST'}=~ s/,,/,/g ;
    } ;
 
    # Set output table names
@@ -257,7 +267,7 @@
    # Print the final namelist
    #
 
-   &print_list ;
+   &print_list($default) ;
 
 };
 #################################################################
@@ -267,16 +277,17 @@ sub set_def{
 
   foreach $testop ( @lists ) {
    for $key ( keys %${testop} ) {
-	 for $role ( sort keys %{ $def{def} } ) {
-          ${$default}{$key}{$role}=$def{def}{$role};
+	 for $role ( sort keys %{ $def{'def'} } ) {
+          ${$default}{$key}{$role}=$def{'def'}{$role};
       } ;
    } ;
   } ;
 
+
 } ;
 #################################################################
 sub join_lists{
-
+ 
   foreach $testop ( @lists ) {
 
    for $key ( keys %${testop} ) {
@@ -307,10 +318,12 @@ sub merge_role{
 #################################################################
 sub print_list{
 
-  for $key ( keys %${default} ) {
+  $input = shift @_ ;
+
+  for $key ( keys %${input} ) {
      print "\&NAMVER\n";
-     for $role ( sort keys %{ ${$default}{$key} } ) {
-         print "   $role=${$default}{$key}{$role},\n";
+     for $role ( sort keys %{ ${$input}{$key} } ) {
+         print "   $role=${$input}{$key}{$role},\n";
      } ;
      print " \/\n";
   };
