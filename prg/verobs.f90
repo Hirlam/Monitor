@@ -108,7 +108,6 @@ PROGRAM verobs
     IF ( lquality_control  ) CALL quality_control
     IF ( lverify           ) CALL verify
 
-    CALL FLUSH(6)
     !
     ! Re-init namelist and read again
     !
