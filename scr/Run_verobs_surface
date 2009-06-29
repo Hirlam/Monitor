@@ -45,10 +45,12 @@ fi
 
 if [ $GRAPHICS == GNUPLOT ] ; then
  $SCR/verobs2gnuplot.pl -d || exit
+ $SCR/contingency2gnuplot.pl c_*.html || exit
  RESIZE=100%
 else
  RESIZE=75%
 fi
+
 
 [[ $WEBCALL == ""  ]] && exit
 

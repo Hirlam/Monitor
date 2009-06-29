@@ -41,6 +41,7 @@ fi
 
 if [ $GRAPHICS == GNUPLOT ] ; then
  $SCR/verobs2gnuplot.pl -d || exit
+ $SCR/contingency2gnuplot.pl c_*.html || exit
  RESIZE=100%
  ROTATE="-rotate 90"
 else
@@ -58,53 +59,62 @@ echo '</pre>' >> quality.html
 #
 # Generate browser friendly graphics
 #
+
 cp $SCR/style.xsl .
 
-mkdir vert 
+if [[ $TEMPPLOT =~ "VERT" ]] ; then
+   mkdir vert 
+   mv l*.ps l*.png *.jpg vert
+fi
+
+#Per level plots
+TARARG="*.html"
 if [ $OUTPUT_TYPE -eq 1 ] ; then
-   mv l*.ps vert
    for F in $( ls -1 *.ps ) ; do
       FF=$( basename $F .ps )
       convert -resize $RESIZE -rotate 90 $FF.ps $FF.png
    done
-   TARARG="*.png *.ps"
-elif [ $OUTPUT_TYPE -eq 2 ] ; then
-   mv l*.png vert
-   TARARG="*.png"
-elif [ $OUTPUT_TYPE -eq 3 ] ; then
-   mv l*.jpg vert
-   TARARG="*.jpg"
-fi
-tar cvf temp.tar $TARARG
-
-rm -f *.jpg *.ps *.png
-
-#Vertical
-TARARG="*.html"
-[[ $( echo $TEMPPLOT | grep XML ) ]] && TARARG="$TARARG *.xml style.xsl"
-if [ $OUTPUT_TYPE -eq 1 ] ; then
-   rm -f *.ps
-   mv vert/*.ps .
-   for F in $( ls -1 *.ps ) ; do
-      FF=$( basename $F .ps )
-      convert -resize $RESIZE $ROTATE $FF.ps $FF.png
-   done
    TARARG="$TARARG *.png *.ps"
 elif [ $OUTPUT_TYPE -eq 2 ] ; then
-   rm -f *.png
-   mv vert/*.png .
    TARARG="$TARARG *.png"
 elif [ $OUTPUT_TYPE -eq 3 ] ; then
-   rm -f *.jpg
-   mv vert/*.jpg .
    TARARG="$TARARG *.jpg"
-fi 
-tar cvf vert.tar $TARARG
-rmdir vert
+fi
+tar cvf temp.tar $TARARG
+$WEBCALL -e Temp -f temp.tar
+rm -f *.jpg *.ps *.png temp.tar
+
+
+if [[ $TEMPPLOT =~ "VERT" ]] ; then
+
+   #Vertical
+
+   TARARG="*.html"
+   [[ $( echo $TEMPPLOT | grep XML ) ]] && TARARG="$TARARG *.xml style.xsl"
+   if [ $OUTPUT_TYPE -eq 1 ] ; then
+      rm -f *.ps
+      mv vert/*.ps .
+      for F in $( ls -1 *.ps ) ; do
+         FF=$( basename $F .ps )
+         convert -resize $RESIZE $ROTATE $FF.ps $FF.png
+      done
+      TARARG="$TARARG *.png *.ps"
+   elif [ $OUTPUT_TYPE -eq 2 ] ; then
+      rm -f *.png
+      mv vert/*.png .
+      TARARG="$TARARG *.png"
+   elif [ $OUTPUT_TYPE -eq 3 ] ; then
+      rm -f *.jpg
+      mv vert/*.jpg .
+      TARARG="$TARARG *.jpg"
+   fi 
+   tar cvf vert.tar $TARARG
+   rmdir vert
+   $WEBCALL -e Prof_Temp -f vert.tar
+fi
+
 
 # Send data to WebgraF
-$WEBCALL -e Temp -f temp.tar
-$WEBCALL -e Prof_Temp -f vert.tar
 
 # Clean
 cd $SCR

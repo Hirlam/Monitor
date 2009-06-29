@@ -90,6 +90,10 @@
 	 @plottype     = (@plottype,'v') ;
 	 @plottype_txt = (@plottype_txt,'Dayvar') ; } ;
 
+ if ( exists $plots{'CONT'} ) {
+	 @plottype     = (@plottype,'c') ;
+	 @plottype_txt = (@plottype_txt,'Contingency') ; } ;
+
  # Build xml text
  @xml     = ();
  @xml_txt = ();
@@ -100,7 +104,7 @@
  } ;
 
  if ( exists $plots{'CONT'} ) {
-    @xml     = ('../Surface/contingency_[3]_[1]_[4].html',@xml);
+    @xml     = ('../Surface/c_[1]_00000000_[3]_[4]_0.html',@xml);
     @xml_txt = ('Cont '.$_,@xml_txt);
  };
  if ( exists $plots{'GEN'} ) {
@@ -120,6 +124,7 @@ $plottype_txt ='\''.join('\',\'',@plottype_txt).'\'';
 if (( exists $plots{'TIME'}   ) ||
     ( exists $plots{'DAYVAR'} ) ||
     ( exists $plots{'FREQ'}   ) ||
+    ( exists $plots{'CONT'}   ) ||
     ( exists $plots{'GEN'}    )    ) { &gen_stat ; } ;
 
 if ( exists $plots{'SCAT'} ) { &scatter ; } ;
@@ -169,25 +174,28 @@ if ( exists $plots{'MAP'}  ) { &map ;     };
  if ( exists $plots{'DAYVAR'} ) { 
 	@plottype =(@plottype,'v') ;
 	@plottype_txt =(@plottype_txt,'Dayvar') ; } ;
+ if ( exists $plots{'CONT'} ) {
+	 @plottype     = (@plottype,'c') ;
+	 @plottype_txt = (@plottype_txt,'Contingency') ; } ;
 
  @xml     = ();
  @xml_txt = ();
 
  if ( exists $plots{'XML'} ) { 
-   @xml  = (@xml,'../Prof_Temp/[4]_[1].xml');
+   @xml  = (@xml,'[4]_[1].xml');
    @xml_txt = ('Stations');
  } ;
 
  if ( exists $plots{'CONT'} ) {
-   @xml     = ('../Prof_Temp/contingency_[3].html',@xml);
+   @xml     = ('c_[1]_00000000_[3]_[4]_[5].html',@xml);
    @xml_txt = ('Cont '.$_,@xml_txt);
  };
  if ( exists $plots{'GEN'} ) {
-   @xml     = ('../Prof_Temp/TEMP_LL_[3].html',@xml);
+   @xml     = ('TEMP_LL_[3].html',@xml);
    @xml_txt = ('Stat '.$_,@xml_txt);
  };
 
-@xml     = ('../Prof_Temp/quality.html',@xml) ;
+@xml     = ('quality.html',@xml) ;
 @xml_txt = ('Quality control',@xml_txt);
 
 $xml     ='my_xml=[\''.join('\',\'',@xml).'\']';
@@ -199,6 +207,7 @@ $plottype_txt ='\''.join('\',\'',@plottype_txt).'\'';
 if (( exists $plots{'TIME'}   ) ||
     ( exists $plots{'DAYVAR'} ) ||
     ( exists $plots{'FREQ'}   ) ||
+    ( exists $plots{'CONT'}   ) ||
     ( exists $plots{'GEN'}    )    ) { &gen_stat ; } ;
 
 if ( exists $plots{'SCAT'} ) { &scatter ;     } ;

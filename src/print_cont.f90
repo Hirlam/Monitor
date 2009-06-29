@@ -33,7 +33,13 @@ SUBROUTINE print_cont(p1,p2)
 
        IF ( j /= cont_table(i)%ind ) CYCLE
 
-       contfile = 'contingency_'//TRIM(tag)//'_'//TRIM(cperiod)//'_'//TRIM(obstype(j))//'.html'
+      CALL make_fname('c',period,0,tag,           &
+                       obstype(j)(1:2),           &
+                       obstype(j)(3:len_lab),     &
+                       output_mode,2,             &
+                       contfile)
+
+       contfile = TRIM(contfile)//'.html'
 
        OPEN(UNIT=luncont,FILE=contfile)
        WRITE(luncont,*)'<pre>'
@@ -41,20 +47,22 @@ SUBROUTINE print_cont(p1,p2)
 
        ALLOCATE(sumcol(0:cont_table(i)%nclass))
 
-       cwrk = 'Contingency table for '//TRIM(tag)//' '
+       cwrk = 'Contingency table for'
        CALL pname(obstype(j),ctmp)
        cwrk = TRIM(cwrk)//' '//TRIM(ctmp)
        ctmp = obstype(j)
        ctmp(3:6) = '   '
        CALL yunit(ctmp,ctmp2)
        cwrk = TRIM(cwrk)//' ('//TRIM(ctmp2)//')'
+       WRITE(luncont,*)TRIM(cwrk)
 
+       cwrk = 'Area:'//TRIM(tag)//' '
        WRITE(luncont,*)TRIM(cwrk)
 
        IF ( period == 0 ) THEN
-          WRITE(luncont,'(A,I8,A,I8)')'Period:',p1,'-',p2
+          WRITE(luncont,'(A,I8,A,I8)')' Period:',p1,'-',p2
        ELSE
-          WRITE(luncont,'(A,I8)')'Period:',period
+          WRITE(luncont,'(A,I8)')' Period:',period
        ENDIF
 
        WRITE(luncont,*)'Limits ',cont_table(i)%limit(1:cont_table(i)%nclass)

@@ -126,15 +126,16 @@ SUBROUTINE read_vobs_temp
              CALL abort
           END SELECT 
 
-          IF(print_read>1) WRITE(6,*)istnr,lat,lon,ierr
+          IF(print_read>1) WRITE(6,*)istnr,lat,lon,hgt,ierr
 
-          IF (ierr  /= 0) THEN
-             WRITE(6,*)'Error in reading the header of the TEMP observation ',istnr,lat,lon
+          IF (ierr /= 0) THEN
+             WRITE(6,*)'Error in reading the header of the TEMP observation ',istnr,lat,lon,hgt,ierr
              CALL abort
           ENDIF
+
           IF (istnr == 0) CYCLE READ_STATION_OBS
-          IF (( ABS(lat+99) < 1.e-4 ) ) CYCLE READ_STATION_OBS
-          IF (( ABS(lon+99) < 1.e-4 ) ) CYCLE READ_STATION_OBS
+          IF (( ABS(lat+99.) < 1.e-4 ) ) CYCLE READ_STATION_OBS
+          IF (( ABS(lon+99.) < 1.e-4 ) ) CYCLE READ_STATION_OBS
 
           !
           ! Find station index
@@ -199,6 +200,8 @@ SUBROUTINE read_vobs_temp
           CASE(1:2)
              READ(lunin,*,iostat=ierr)val
           END SELECT 
+
+          IF (print_read>1) WRITE(6,*)'READ',kk,val
 
           IF (ierr /= 0 ) CYCLE READ_LEV_OBS
 
