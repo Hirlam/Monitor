@@ -1,11 +1,11 @@
-ARCH   := ecgate
-
-.DELETE_ON_ERROR:
-
+ARCH    := ecgate
 ROOTDIR := $(PWD)
+
+export ARCH ROOTDIR
 
 include $(ROOTDIR)/config/config.$(ARCH)
 
+.DELETE_ON_ERROR:
 
 ifeq ($(MAGICSFLAG),-DMAGICS)
    GLLINK := src plt rdr mod src
@@ -19,97 +19,51 @@ LIBSCMA := $(patsubst %,$(ROOTDIR)/$(ARCH)/lib/%.a,$(CMALINK))
 
 default: verobs odbstat rejstat
 
-verobs: $(ROOTDIR)/$(ARCH)/bin/verobs 
-odbstat: $(ROOTDIR)/$(ARCH)/bin/odbstat 
-rejstat: $(ROOTDIR)/$(ARCH)/bin/rejstat
-
-clean: clean_gl clean_cma allclean clean_arch
-
-cleanwrk: cleanobj_gl cleanpp_gl cleanobj_cma cleanpp_cma
-
-allclean: 
-	$(MAKE) -C tools clean ARCH=$(ARCH) ROOTDIR=$(ROOTDIR)
-	-$(RM) ./$(ARCH)/bin/*
-	-$(RMDIR) ./$(ARCH)/bin
-	-$(RM) ./$(ARCH)/lib/*
-	-$(RMDIR) ./$(ARCH)/lib
-	-$(RM) ./bin
-
-clean_arch:
-	-$(RMDIR) ./$(ARCH)
+clean:
+	-$(RM) -rf $(ARCH)
 
 ifeq ($(MAGICSFLAG),-DMAGICS)
-   GLDIRS := mod rdr plt src prg
+   GLLIBS := mod rdr plt src
 else
-   GLDIRS := mod rdr src prg
+   GLLIBS := mod rdr src
 endif
-   CMADIRS := cmastat prg
+CMALIBS := cmastat
 
-GLLIBS := $(patsubst %,$(ROOTDIR)/$(ARCH)/lib/%.a,$(GLDIRS))
-CMALIBS := $(patsubst %,$(ROOTDIR)/$(ARCH)/lib/%.a,$(CMADIRS))
+$(GLLIBS): depf90mod.x ./$(ARCH)/lib 
+	test -d $(ARCH)/$@ || $(MKDIR) $(ARCH)/$@
+	$(MAKE) -C $(ARCH)/$@ -f $(ROOTDIR)/makegl.mk ARCH=$(ARCH) TOROOT=.. $@
 
-$(CMALIBS): $(ROOTDIR)/$(ARCH)/bin/depf90mod.x ./$(ARCH)/lib 
-	-$(MKDIR)  $(ARCH)/$(patsubst $(ROOTDIR)/$(ARCH)/lib/%.a,%,$@)
-	$(MAKE) -C $(ARCH)/$(patsubst $(ROOTDIR)/$(ARCH)/lib/%.a,%,$@) -f $(ROOTDIR)/makegl.mk ARCH=$(ARCH) TOROOT=.. $@
+$(CMALIBS): depf90mod.x ./$(ARCH)/lib 
+	test -d $(ARCH)/$@ || $(MKDIR) $(ARCH)/$@
+	$(MAKE) -C $(ARCH)/$@ -f $(ROOTDIR)/makegl.mk ARCH=$(ARCH) TOROOT=.. $@
 
-$(GLLIBS): $(ROOTDIR)/$(ARCH)/bin/depf90mod.x ./$(ARCH)/lib 
-	-$(MKDIR)  $(ARCH)/$(patsubst $(ROOTDIR)/$(ARCH)/lib/%.a,%,$@)
-	$(MAKE) -C $(ARCH)/$(patsubst $(ROOTDIR)/$(ARCH)/lib/%.a,%,$@) -f $(ROOTDIR)/makegl.mk ARCH=$(ARCH) TOROOT=.. $@
+.PHONY : $(GLLIBS) $(CMALIBS)
 
-.PHONY : $(GLLIBS)
+verobs: $(GLLIBS) ./$(ARCH)/prg
+        $(MAKE) -C $(ARCH)/prg -f $(ROOTDIR)/makeexe.mk LIBS="$(LIBSGL) $(EXTLIB)" LD="$(LD)" DEPS="$+" $@
 
-$(ROOTDIR)/$(ARCH)/bin/verobs: $(ARCH) $(GLLIBS)
-	$(LD) $(ROOTDIR)/$(ARCH)/prg/verobs.o $(LIBSGL) $(EXTLIB) $(LDFLAGS) -o $@
+odbstat: $(CMALIBS) ./$(ARCH)/prg
+        $(MAKE) -C $(ARCH)/prg -f $(ROOTDIR)/makeexe.mk LIBS="$(LIBSCMA)" LD="$(LD)" DEPS="$+" $@
 
-$(ROOTDIR)/$(ARCH)/bin/odbstat: $(ARCH) $(CMALIBS)
-	$(LD) $(ROOTDIR)/$(ARCH)/prg/odbstat.o $(LIBSCMA) $(LDFLAGS) -o $@
+rejstat: $(CMALIBS) ./$(ARCH)/prg
+        $(MAKE) -C $(ARCH)/prg -f $(ROOTDIR)/makeexe.mk LIBS="$(LIBSCMA)" LD="$(LD)" DEPS="$+" $@
 
-$(ROOTDIR)/$(ARCH)/bin/rejstat: $(ARCH) $(CMALIBS)
-	$(LD) $(ROOTDIR)/$(ARCH)/prg/rejstat.o $(LIBSCMA) $(LDFLAGS) -o $@
-
-clean_gl: cleanobj_gl cleanpp_gl
-	-for dir in $(GLDIRS) ; do \
-	$(RM) -rf $(ARCH)/$$dir ; \
-	done ;
-
-cleanobj_gl:
-	-for dir in $(GLDIRS) ; do \
-	$(RM) $(ARCH)/$$dir/*.o ; \
-	done ;
-
-cleanpp_gl:
-	-for dir in $(GLDIRS) ; do \
-	$(RM) $(ARCH)/$$dir/*_pp.* ; \
-	done ;
-
-clean_cma: cleanobj_cma cleanpp_cma
-	-for dir in $(CMADIRS) ; do \
-	$(RM) -rf $(ARCH)/$$dir ; \
-	done ;
-
-cleanobj_cma:
-	-for dir in $(CMADIRS) ; do \
-	$(RM) $(ARCH)/$$dir/*.o ; \
-	done ;
-
-cleanpp_cma:
-	-for dir in $(CMADIRS) ; do \
-	$(RM) $(ARCH)/$$dir/*_pp.* ; \
-	done ;
 
 # MISC tasks
-
+# MISC tasks
 ./$(ARCH):
-	-$(MKDIR) ./$(ARCH)
-	-$(MKDIR) ./$(ARCH)/bin
-	-$(MKDIR) ./$(ARCH)/lib
-	-ln -sf   ./$(ARCH)/bin .
+	test -d $@ || $(MKDIR) $@
 
 ./$(ARCH)/bin: ./$(ARCH)
-	-$(MKDIR) ./$(ARCH)/bin
+	test -d $@ || $(MKDIR) $@
 
 ./$(ARCH)/lib: ./$(ARCH)
-	-$(MKDIR) ./$(ARCH)/lib
+	test -d $@ || $(MKDIR) $@
 
-$(ROOTDIR)/$(ARCH)/bin/depf90mod.x: ./$(ARCH)
+./$(ARCH)/prg: ./$(ARCH) ./$(ARCH)/bin
+	test -d $@ || $(MKDIR) $@
+	-ln -sf   ./$(ARCH)/bin .
+
+depf90mod.x: ./$(ARCH)/bin
 	$(MAKE) -C tools -f Makefile ARCH=$(ARCH) ROOTDIR=$(ROOTDIR) $(ROOTDIR)/$(ARCH)/bin/depf90mod.x
+
