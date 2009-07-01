@@ -28,6 +28,7 @@ SUBROUTINE ini_namelist
  ! Contingency 
  lcontingency = .FALSE.
  cont_ind     = 0
+ cont_param   = 0
 
  ! Map projection
  map_vertical_longitude = 0.

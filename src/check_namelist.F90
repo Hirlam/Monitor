@@ -18,6 +18,30 @@ SUBROUTINE check_namelist
  WRITE(6,*)'-Check namelist options-'
  WRITE(6,*)
 
+ !
+ ! Contingency settings
+ !
+
+ lcontingency = ( cont_param /= 0 )
+
+
+ !
+ ! Check what kind of statistics we are producing
+ !
+
+ IF ( .NOT. lverify                   ) WRITE(6,*)' - No verification is done '
+ IF ( ltimeserie_stat                 ) WRITE(6,*)' - Time serie verification is done '
+ IF ( plot_bias_map .OR. plot_obs_map ) WRITE(6,*)' - Maps will be created '
+ IF ( lplot_vert                      ) WRITE(6,*)' - Vertical profiles will be verified'
+ IF ( lplot_freq                      ) WRITE(6,*)' - Frequency distribution will be calculated'
+ IF ( lplot_scat                      ) WRITE(6,*)' - Scatter plots will be produced '
+ IF ( lplot_stat .AND. lfcver         ) WRITE(6,*)' - Verification against forecast will be done'
+ IF ( lplot_stat .AND. .NOT. lfcver   ) WRITE(6,*)' - Verification against time of day will be done'
+ IF ( lcontingency                    ) WRITE(6,*)' - Contingency tables will be created'
+ IF ( lprep_xml                       ) WRITE(6,*)' - XML files for stations statistics will be produced'
+
+ WRITE(6,*)
+
 
  !
  ! Check maxstn
@@ -153,13 +177,6 @@ SUBROUTINE check_namelist
  ! X plots
  all_var_present = ( ANY(corr_pairs /= 0) .OR. all_var_present )
  lplot_comp      = ( ANY(corr_pairs /= 0) )
-
-
- !
- ! Contingency settings
- !
-
- lcontingency = ( cont_param /= 0 )
 
 
  ! Graphics settings
