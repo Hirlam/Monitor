@@ -40,16 +40,14 @@ $(CMALIBS): depf90mod.x ./$(ARCH)/lib
 .PHONY : $(GLLIBS) $(CMALIBS)
 
 verobs: $(GLLIBS) ./$(ARCH)/prg
-        $(MAKE) -C $(ARCH)/prg -f $(ROOTDIR)/makeexe.mk LIBS="$(LIBSGL) $(EXTLIB)" LD="$(LD)" DEPS="$+" $@
+	$(MAKE) -C $(ARCH)/prg -f $(ROOTDIR)/makeexe.mk LIBS="$(LIBSGL) $(EXTLIB)" LD="$(LD)" DEPS="$+" $@
 
 odbstat: $(CMALIBS) ./$(ARCH)/prg
-        $(MAKE) -C $(ARCH)/prg -f $(ROOTDIR)/makeexe.mk LIBS="$(LIBSCMA)" LD="$(LD)" DEPS="$+" $@
+	$(MAKE) -C $(ARCH)/prg -f $(ROOTDIR)/makeexe.mk LIBS="$(LIBSCMA)" LD="$(LD)" DEPS="$+" $@
 
 rejstat: $(CMALIBS) ./$(ARCH)/prg
-        $(MAKE) -C $(ARCH)/prg -f $(ROOTDIR)/makeexe.mk LIBS="$(LIBSCMA)" LD="$(LD)" DEPS="$+" $@
+	$(MAKE) -C $(ARCH)/prg -f $(ROOTDIR)/makeexe.mk LIBS="$(LIBSCMA)" LD="$(LD)" DEPS="$+" $@
 
-
-# MISC tasks
 # MISC tasks
 ./$(ARCH):
 	test -d $@ || $(MKDIR) $@
