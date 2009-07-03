@@ -80,6 +80,9 @@
  if ( exists $plots{'GEN'} ) {
 	 @plottype     = (@plottype,'V');
 	 @plottype_txt = (@plottype_txt,'Fc length ver') ; } ;
+ if ( exists $plots{'SEAS'} ) {
+	 @plottype     = (@plottype,'Y');
+	 @plottype_txt = (@plottype_txt,'Seasonal') ; } ;
  if ( exists $plots{'TIME'} ) { 
 	 @plottype     = (@plottype,'PS','ps');
 	 @plottype_txt = (@plottype_txt,'Timeserie stat','Timeserie'); } ;
@@ -105,11 +108,15 @@
 
  if ( exists $plots{'CONT'} ) {
     @xml     = ('../Surface/c_[1]_00000000_[3]_[4]_0.html',@xml);
-    @xml_txt = ('Cont '.$_,@xml_txt);
+    @xml_txt = ('Cont'.$_,@xml_txt);
  };
  if ( exists $plots{'GEN'} ) {
     @xml     = ('../Surface/SURF_LL_[3].html',@xml);
-    @xml_txt = ('Stat '.$_,@xml_txt);
+    @xml_txt = ('Stat'.$_,@xml_txt);
+ };
+ if ( exists $plots{'SEAS'} ) {
+    @xml     = ('../Surface/SURF_SEAS_[3].html',@xml);
+    @xml_txt = ('Seasonal'.$_,@xml_txt);
  };
 
 @xml     = ('../Surface/quality.html',@xml) ;
@@ -125,6 +132,7 @@ if (( exists $plots{'TIME'}   ) ||
     ( exists $plots{'DAYVAR'} ) ||
     ( exists $plots{'FREQ'}   ) ||
     ( exists $plots{'CONT'}   ) ||
+    ( exists $plots{'SEAS'}   ) ||
     ( exists $plots{'GEN'}    )    ) { &gen_stat ; } ;
 
 if ( exists $plots{'SCAT'} ) { &scatter ; } ;
@@ -165,6 +173,9 @@ if ( exists $plots{'MAP'}  ) { &map ;     };
  if ( exists $plots{'GEN'} ) { 
 	@plottype =(@plottype,'V');
 	@plottype_txt =(@plottype_txt,'Fc length ver') ; } ;
+ if ( exists $plots{'SEAS'} ) { 
+	@plottype =(@plottype,'Y');
+	@plottype_txt =(@plottype_txt,'Seasonal') ; } ;
  if ( exists $plots{'TIME'} ) {
 	@plottype =(@plottype,'PS','ps');
     @plottype_txt =(@plottype_txt,'Timeserie stat','Timeserie'); } ;
@@ -188,11 +199,15 @@ if ( exists $plots{'MAP'}  ) { &map ;     };
 
  if ( exists $plots{'CONT'} ) {
    @xml     = ('c_[1]_00000000_[3]_[4]_[5].html',@xml);
-   @xml_txt = ('Cont '.$_,@xml_txt);
+   @xml_txt = ('Cont'.$_,@xml_txt);
  };
  if ( exists $plots{'GEN'} ) {
    @xml     = ('TEMP_LL_[3].html',@xml);
-   @xml_txt = ('Stat '.$_,@xml_txt);
+   @xml_txt = ('Stat'.$_,@xml_txt);
+ };
+ if ( exists $plots{'SEAS'} ) {
+   @xml     = ('TEMP_SEAS_[3].html',@xml);
+   @xml_txt = ('Seasonal'.$_,@xml_txt);
  };
 
 @xml     = ('quality.html',@xml) ;
@@ -208,6 +223,7 @@ if (( exists $plots{'TIME'}   ) ||
     ( exists $plots{'DAYVAR'} ) ||
     ( exists $plots{'FREQ'}   ) ||
     ( exists $plots{'CONT'}   ) ||
+    ( exists $plots{'SEAS'}   ) ||
     ( exists $plots{'GEN'}    )    ) { &gen_stat ; } ;
 
 if ( exists $plots{'SCAT'} ) { &scatter ;     } ;

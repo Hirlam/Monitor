@@ -202,7 +202,9 @@
    unless ( $areas{$area}{'STNLIST'} =~ /\*/ ) {
       $nstnlist = split(',',$areas{$area}{'STNLIST'});
       $nstn_not_used = $nameread{'read_section'}{'MAXSTN'}-$nstnlist ;
-      $areas{$area}{'STNLIST'} = $areas{$area}{'STNLIST'}.','.$nstn_not_used.'*0';
+      unless ( $nstn_not_used eq 0 ) {
+         $areas{$area}{'STNLIST'} = $areas{$area}{'STNLIST'}.','.$nstn_not_used.'*0';
+      } ;
    } ;
    } else {
       $areas{$area}{'STNLIST'} = '0';
@@ -234,6 +236,7 @@
    } ;
 
    # Set output table names
+   ${$default}{'SEAS'}{'STATNAME'} = '\''.$type.'_SEAS_'.$area.'.html\'' ;
    ${$default}{'GEN'}{'STATNAME'} = '\''.$type.'_LL_'.$area.'.html\'' ;
    ${$default}{'DAYVAR'}{'STATNAME'} = '\''.$type.'_HH_'.$area.'.html\'' ;
    ${$default}{'VERT'}{'STATNAME'}   = '\''.$type.'_VV_'.$area.'.html\'' ;
@@ -256,6 +259,7 @@
    unless ( exists $plots{'DAYVAR'} ) { delete ${$default}{'DAYVAR'} ; } ;
    unless ( exists $plots{'TIME'}   ) { delete ${$default}{'TIME'} ;   } ;
    unless ( exists $plots{'GEN'}    ) { delete ${$default}{'GEN'} ;    };
+   unless ( exists $plots{'SEAS'}   ) { delete ${$default}{'SEAS'} ;   };
    unless ( exists $plots{'MAP'}    ) { delete ${$default}{'MAP'} ;    };
    unless ( exists $plots{'SCAT'} || 
 	    exists $plots{'XML'}  ||

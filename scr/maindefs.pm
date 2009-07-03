@@ -32,6 +32,7 @@
      'LTIMESERIE_STAT'=>'F',
      'LSTAT_GEN'=> 'F',
      'LPLOT_STAT'=> 'F',
+     'LPLOT_SEASONAL'=> 'F',
      'LPREP_XML'=> 'F',
      'PLOT_BIAS_MAP' =>'F',
      'LFCVER'        =>'T',
@@ -45,6 +46,15 @@
 
 
 %arealoop=(
+ 'SEAS' => {
+ # Seasonal plots
+ 'LSTAT_GEN'  => 'T',
+ 'SHOW_BIAS'  => 'F',
+ 'SHOW_STDV'  => 'F',
+ 'SHOW_RMSE'  => 'F',
+ 'SHOW_OBS'   => 'T',
+ 'LPLOT_SEASONAL'=> 'T',
+ },
  'GEN' => {
  # Fclen plots
  'LSTAT_GEN'  => 'T',

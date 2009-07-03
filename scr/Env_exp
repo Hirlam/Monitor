@@ -81,6 +81,7 @@ SURFPAR="PS FF FX GG GX DD TT TN TX TD RH QQ NN PE"
 # XML    : Station statistics in xml format
 # CONT   : Contingency tables
 # VERT   : Vertical profiles only available for TEMP data
+# SEAS   : Seasonal cycle
 # 
 SURFPLOT="GEN TIME MAP FREQ SCAT CONT XML DAYVAR"
 
