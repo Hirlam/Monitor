@@ -18,7 +18,8 @@ SUBROUTINE print_freq(lunout,nparver,nr,scat,p1,par_active,uh,uf)
                   ncla,classtype,pre_fcla,               &
                   mincla,maxcla,my_ymax,my_ymin,         &
                   mpre_cla,copied_mod,copied_obs,        &
-                  period_freq,output_type,len_lab
+                  period_freq,output_type,len_lab,       &
+                  accu_int
 
  IMPLICIT NONE
 
@@ -168,7 +169,7 @@ SUBROUTINE print_freq(lunout,nparver,nr,scat,p1,par_active,uh,uf)
 
     ! Line 3
     IF ( show_fc_length ) THEN
-       CALL fclen_header(.true.,maxfclenval,uh(j,:),uf(j,:),wtext)
+       CALL fclen_header(.true.,maxfclenval,uh(j,:),uf(j,:),accu_int(j),wtext)
        WRITE(lunout,'(A,X,A)')'#HEADING_3',TRIM(wtext)
     ENDIF
 

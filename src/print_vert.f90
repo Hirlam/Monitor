@@ -20,7 +20,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
                   len_lab,period_freq,period_type,              &
                   output_type,output_mode,                      &
                   show_times,use_fclen,timdiff,time_shift,      &
-                  z_is_pressure,len_lab
+                  z_is_pressure,len_lab,accu_int
 
 
  IMPLICIT NONE
@@ -220,17 +220,17 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
     jl    = MAXLOC(par_active(j_ind:j_ind+nlev-1)) + j_ind - 1
 
     IF ( ntimver_out == 1 ) THEN
-       CALL fclen_header(.TRUE.,maxfclenval,uh(jl,:),uf(jl,:),wtext)
+       CALL fclen_header(.TRUE.,maxfclenval,uh(jl,:),uf(jl,:),accu_int(jl),wtext)
     ELSE
        IF (lfcver) THEN
           ALLOCATE(ldum(0:hour(kk)))
           ldum           = .FALSE.
           ldum(hour(kk)) = .TRUE.
-          CALL fclen_header(.TRUE.,hour(kk),uh(jl,:),ldum,wtext)
+          CALL fclen_header(.TRUE.,hour(kk),uh(jl,:),ldum,accu_int(j),wtext)
           DEALLOCATE(ldum)
        ELSE
           WRITE(chour,'(I3.2,X,A3)')hour(kk),'UTC'
-          CALL fclen_header(.TRUE.,maxfclenval,uh(jl,:),uf(jl,:),wtext)
+          CALL fclen_header(.TRUE.,maxfclenval,uh(jl,:),uf(jl,:),accu_int(j),wtext)
           wtext = 'Statistics at '//chour   //'  '//TRIM(wtext)
        ENDIF
     ENDIF

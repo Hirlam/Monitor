@@ -10,6 +10,7 @@ MODULE mymagics
  INTEGER :: clen = 0
 
  LOGICAL :: plotfcver     = .FALSE.
+ LOGICAL :: plotseason    = .FALSE.
  LOGICAL :: plotltemp     = .FALSE.
  REAL    :: plottimdiff = 1.
 
@@ -308,6 +309,8 @@ SUBROUTINE set_cdate(date,time,n,s)
    
        IF (plotltemp) THEN
           CALL PSETC ('AXIS_TITLE_TEXT',ytitle)
+       ELSEIF (plotseason) THEN
+          CALL PSETC ('AXIS_TITLE_TEXT','Day of year')
        ELSEIF (plotfcver) THEN
           CALL PSETC ('AXIS_TITLE_TEXT','Forecast length (hours)')
        ELSE

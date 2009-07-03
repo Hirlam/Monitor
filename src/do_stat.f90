@@ -48,11 +48,20 @@ SUBROUTINE do_stat(per_ind,p1,p2)
     statall   = statistics(0.,0.,0.,0,0,0.)
  ENDIF
 
- DO i=1,ntimver 
-   vertime(i)=(i-1)*timdiff + time_shift
- ENDDO
+ IF ( lfcver ) THEN
+   IF (lplot_seasonal) THEN
+     DO i=1,ntimver 
+       vertime(i)=i
+     ENDDO
+   ELSE
+     vertime = use_fclen(1:nuse_fclen)
+   ENDIF
+ ELSE
+    DO i=1,ntimver 
+      vertime(i)=(i-1)*timdiff + time_shift
+    ENDDO
+ ENDIF
 
- IF (lfcver) vertime = use_fclen(1:nuse_fclen)
  IF (lfcver) ttype='  LL'
 
  !

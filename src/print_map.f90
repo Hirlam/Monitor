@@ -26,7 +26,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,par_active)
                       lunout,               &
                       station_name,csi,     &
                       maxfclenval,          &
-                      period_freq 
+                      period_freq,accu_int
 
  IMPLICIT NONE
 
@@ -369,13 +369,13 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,par_active)
                CALL fclen_header(.TRUE.,maxfclenval,        &
                                  used_hours(j,per_ind,:),   &
                                  used_fclen(j,per_ind,:),   &
-                                 wtext)
+                                 accu_int(j),wtext)
             ENDIF
     ELSE
             CALL fclen_header(.NOT.lfcver,maxfclenval,   &
                               used_hours(j,per_ind,:),   &
                               used_fclen(j,per_ind,:),   &
-                              wtext)
+                              accu_int(j),wtext)
     ENDIF
 
 

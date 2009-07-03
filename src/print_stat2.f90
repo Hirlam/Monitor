@@ -13,7 +13,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
                   timdiff,time_shift,show_fc_length,ltiming,    &
                   show_bias,show_rmse,show_stdv,show_obs,       &
                   copied_obs,copied_mod,period_freq,period_type,&
-                  output_type
+                  output_type,accu_int,lprint_seasonal
 
  IMPLICIT NONE
 
@@ -69,8 +69,15 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
 
  ! Set output filename
 
- prefix = 'v'
- IF (lfcver) prefix = 'V'
+ IF (lfcver) THEN
+    IF ( lprint_seasonal ) THEN
+       prefix = 'Y'
+    ELSE
+       prefix = 'V'
+    ENDIF
+ ELSE
+    prefix = 'v'
+ ENDIF
  IF (yymm < 999999 ) THEN
     period = yymm
  ELSE
@@ -81,7 +88,11 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
  ! Set number of hours
 
  IF (lfcver) THEN
-   ntimver_l = nuse_fclen
+   IF ( lprint_seasonal ) THEN
+      ntimver_l = ntimver
+   ELSE
+      ntimver_l = nuse_fclen
+   ENDIF
  ELSE 
    ntimver_l = ntimver + 1
  ENDIF
@@ -94,7 +105,13 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
           hour(ntimver_l))
 
  IF (lfcver) THEN
-    hour(1:ntimver_l)=use_fclen(1:ntimver_l)
+    IF ( lprint_seasonal ) THEN
+       DO i=1,ntimver
+          hour(i)=i
+       ENDDO
+    ELSE
+       hour(1:ntimver_l)=use_fclen(1:ntimver_l)
+    ENDIF
  ELSE
     DO i=1,ntimver
        hour(i)=(i-1)*timdiff + time_shift
@@ -194,7 +211,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
 
        CALL pname(obstype(j),wtext)
        CALL fclen_header(( .NOT. lfcver .OR. ( nuse_fclen /= nfclengths )), &
-                         maxfclenval,uh(j,:),uf(j,:),wtext1)
+                         maxfclenval,uh(j,:),uf(j,:),accu_int(j),wtext1)
        wtext = TRIM(wtext)//'   '//TRIM(wtext1)
        WRITE(lunout,'(A,X,A)')'#HEADING_3',TRIM(wtext)
 
@@ -208,6 +225,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
        IF (show_rmse) npp = nexp
        IF (show_stdv) npp = npp + nexp
        IF (show_bias) npp = npp + nexp
+       IF (show_obs ) npp =   1 + nexp
     ELSE
        npp = 1 + nexp
     ENDIF
@@ -215,7 +233,12 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
     npp = npp + 1
 
     IF ( lfcver ) THEN
-       WRITE(lunout,'(A,X,I2)')'#NEXP',nexp
+       IF ( lprint_seasonal ) THEN
+          WRITE(lunout,'(A,X,I2)')'#NEXP',nexp+1
+          WRITE(lunout,'(A,I2.2X,A)')'#EXP_',0,'OBS'
+       ELSE
+          WRITE(lunout,'(A,X,I2)')'#NEXP',nexp
+       ENDIF
     ELSE
        WRITE(lunout,'(A,X,I2)')'#NEXP',nexp+1
        WRITE(lunout,'(A,I2.2X,A)')'#EXP_',0,'OBS'
@@ -229,7 +252,11 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
     CALL yunit(ob_short,ytitle)
     WRITE(lunout,'(A,X,A)')'#YLABEL',TRIM(ytitle)
     IF ( lfcver ) THEN
-       WRITE(lunout,'(A,X,A)')'#XLABEL','Forecast length'
+       IF ( lprint_seasonal ) THEN
+          WRITE(lunout,'(A,X,A)')'#XLABEL','Day of year'
+       ELSE
+          WRITE(lunout,'(A,X,A)')'#XLABEL','Forecast length'
+       ENDIF
     ELSE
        WRITE(lunout,'(A,X,A)')'#XLABEL','Hour'
     ENDIF
@@ -258,15 +285,23 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
       DO i=1,nexp
         k=k+1
         pdat(k)%v => bias(1:ntimver_l,i)
-        !WRITE(6,*)'BIAS for ',expname(i),k
         WRITE(lunout,'(A,I2.2,2(X,A))')'#COLUMN_',k+1,'BIAS',TRIM(expname(i))
       ENDDO
+     ENDIF 
+     IF ( show_obs  ) THEN
+      DO i=1,nexp
+        k=k+1
+        pdat(k)%v => bias(1:ntimver_l,i)
+        WRITE(lunout,'(A,I2.2,X,A)')'#COLUMN_',k+1,TRIM(expname(i))
+      ENDDO
+      k=k+1
+      pdat(k)%v => obs(1:ntimver_l,1)
+      WRITE(lunout,'(A,I2.2,X,A)')'#COLUMN_',k+1,'OBS'
      ENDIF 
     ELSE 
       DO i=1,nexp
         k=k+1
         pdat(k)%v => bias(1:ntimver_l,i)
-        !WRITE(6,*)'BIAS for ',expname(i),k
         WRITE(lunout,'(A,I2.2,X,A)')'#COLUMN_',k+1,TRIM(expname(i))
       ENDDO
       k=k+1

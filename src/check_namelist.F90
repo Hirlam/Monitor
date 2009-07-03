@@ -25,6 +25,8 @@ SUBROUTINE check_namelist
  lcontingency = ( cont_param /= 0 )
 
 
+ IF ( lplot_seasonal ) lplot_stat = .TRUE.
+
  !
  ! Check what kind of statistics we are producing
  !
@@ -35,7 +37,10 @@ SUBROUTINE check_namelist
  IF ( lplot_vert                      ) WRITE(6,*)' - Vertical profiles will be verified'
  IF ( lplot_freq                      ) WRITE(6,*)' - Frequency distribution will be calculated'
  IF ( lplot_scat                      ) WRITE(6,*)' - Scatter plots will be produced '
- IF ( lplot_stat .AND. lfcver         ) WRITE(6,*)' - Verification against forecast will be done'
+ IF ( lplot_stat .AND. lfcver .AND. &
+      .NOT. lplot_seasonal            ) WRITE(6,*)' - Verification against forecast will be done'
+ IF ( lplot_stat .AND. lfcver .AND. &
+      lplot_seasonal                  ) WRITE(6,*)' - Seasonal verification will be done'
  IF ( lplot_stat .AND. .NOT. lfcver   ) WRITE(6,*)' - Verification against time of day will be done'
  IF ( lcontingency                    ) WRITE(6,*)' - Contingency tables will be created'
  IF ( lprep_xml                       ) WRITE(6,*)' - XML files for stations statistics will be produced'
@@ -130,6 +135,13 @@ SUBROUTINE check_namelist
     !
 
     ntimver = nuse_fclen
+
+    ! 
+    ! Seasonal settings
+    ! 
+
+    IF ( lplot_seasonal ) ntimver = 366
+
     WRITE(6,*)'  Changed NTIMVER to', ntimver
 
  ELSE
@@ -196,10 +208,10 @@ SUBROUTINE check_namelist
     lprint_scat           = lplot_scat
     lprint_stat           = lplot_stat
     lprint_comp           = lplot_comp
+    lprint_seasonal       = lplot_seasonal
 
   CASE('MAGICS','magics')
 
-    WRITE(6,*)'  GRAPHICS is ',TRIM(graphics)
 #ifndef MAGICS
     WRITE(6,*)'  Please recompile with -DMAGICS'
     CALL abort

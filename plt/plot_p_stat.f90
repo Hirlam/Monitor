@@ -41,7 +41,8 @@ SUBROUTINE plot_p_stat_diff(ntim,npar,nr,               &
                   copied_obs,copied_mod,                 &
                   show_rmse,show_stdv,show_bias,         &
                   ltemp,lev_lst,window_pos,output_type,  &
-                  z_is_pressure,output_mode,len_lab
+                  z_is_pressure,output_mode,len_lab,     &
+                  accu_int
 
  USE functions
 
@@ -357,7 +358,7 @@ SUBROUTINE plot_p_stat_diff(ntim,npar,nr,               &
     ! Line 3
     IF ( show_fc_length ) THEN
 
-       CALL fclen_header(.true.,maxfclenval,uh(j,:),uf(j,:),wtext)
+       CALL fclen_header(.true.,maxfclenval,uh(j,:),uf(j,:),accu_int(j),wtext)
 
        IF ( timeserie_wind(j) /= 0 ) THEN
           wname = ' '

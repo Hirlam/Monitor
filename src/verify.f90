@@ -69,6 +69,10 @@ SUBROUTINE verify
 
  TYPE (statpar), ALLOCATABLE :: allstat(:,:)
 
+ ! Functions
+
+ INTEGER :: idat2c
+
  !----------------------------------------------------------
 
  !
@@ -455,9 +459,15 @@ SUBROUTINE verify
           !
 
           IF (lfcver) THEN
-             tim_ind=TRANSFER(MINLOC(ABS(use_fclen(1:nuse_fclen)-(fclen(n)))),n)
+             IF ( lplot_seasonal ) THEN
+                wdate = (obs(i)%o(jj)%date / 10000 ) * 10000 + 101
+                tim_ind = idat2c(obs(i)%o(jj)%date) - idat2c(wdate) + 1
+             ELSE
+                tim_ind=TRANSFER(MINLOC(ABS(use_fclen(1:nuse_fclen)-(fclen(n)))),n)
+             ENDIF
           ELSE
              tim_ind = wtime/timdiff+1
+             IF ( lprint_verif ) WRITE(6,*)'TIM_IND',tim_ind,wtime,timdiff
           ENDIF
 
           SELECT CASE(period_type) 
@@ -568,6 +578,8 @@ SUBROUTINE verify
              ! Add statistics when we know if all experiments where valid
              ! 
 
+             IF ( lprint_verif ) WRITE(6,*)'ALL_EXP_VERIFIED',all_exp_verified
+
              ALL_EXP_TEST : IF (all_exp_verified) THEN
 
                 ! Update min and max date used
@@ -620,6 +632,7 @@ SUBROUTINE verify
                    !
                    ! The main verification
                    !
+                   IF ( lprint_verif ) WRITE(6,*)'Add',obs(i)%o(jj)%date,obs(i)%o(jj)%time,tim_ind
  
                    allstat(i,per_ind)%par_active(k) = 1
                    DO o=1,nexp

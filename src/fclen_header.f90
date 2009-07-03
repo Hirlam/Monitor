@@ -1,15 +1,15 @@
-SUBROUTINE fclen_header(lfclen,nuf,uh,uf,txt)
+SUBROUTINE fclen_header(lfclen,nuf,uh,uf,ai,txt)
 
  IMPLICIT NONE
 
  LOGICAL,          INTENT( IN) :: lfclen
- INTEGER,          INTENT( IN) :: nuf
+ INTEGER,          INTENT( IN) :: nuf,ai
  LOGICAL,          INTENT( IN) :: uh(0:23),uf(0:nuf)
  CHARACTER(LEN=*), INTENT(OUT) :: txt
  
  ! Local
 
- INTEGER :: i,ii
+ INTEGER :: i,ii,j
 
  INTEGER, ALLOCATABLE :: fclen(:)
 
@@ -18,12 +18,14 @@ SUBROUTINE fclen_header(lfclen,nuf,uh,uf,txt)
  CHARACTER(LEN=20) :: wname = ''
  CHARACTER(LEN=50) :: whour = ''
  CHARACTER(LEN= 2) :: wh    = ''
+ CHARACTER(LEN= 5) :: txt5  = ''
 
  !-----------------------------------------------
  
  lfirst = .TRUE.
 
  whour = '{'
+ j = 0
  DO i=0,23 
     IF (uh(i)) THEN
        WRITE(wh,'(I2.2)')i
@@ -34,9 +36,13 @@ SUBROUTINE fclen_header(lfclen,nuf,uh,uf,txt)
           whour = TRIM(whour)//','//wh
        ENDIF
 
+       j = j + 1
+
     ENDIF
  ENDDO
  whour = TRIM(whour)//'}'
+
+ IF ( j > 8 ) whour = '{All hours}'
 
  IF ( lfclen ) THEN
 
@@ -57,11 +63,29 @@ SUBROUTINE fclen_header(lfclen,nuf,uh,uf,txt)
     txt =''
     IF (ii > 10 ) THEN
        wname='(2I3.2,A5,I2.2)'
-       WRITE(txt,wname)fclen(1:2),' ... ',fclen(ii)
+       IF ( ai == 0 ) THEN
+          WRITE(txt,wname)fclen(1:2),' ... ',fclen(ii)
+       ELSE
+          WRITE(txt,wname)fclen(1:2),' ... ',fclen(ii)
+       ENDIF
+
     ELSE
-       wname='(XX(1X,I2.2))'
-       WRITE(wname(2:3),'(I2.2)')MAX(ii,1)
-       WRITE(txt,wname)fclen(1:ii)
+       IF ( ai == 0 ) THEN
+          wname='(XX(1X,I2.2))'
+          WRITE(wname(2:3),'(I2.2)')MAX(ii,1)
+          WRITE(txt,wname)fclen(1:ii)
+       ELSE
+          !
+          ! Write fclen differences in case of accumulated values
+          !
+         
+          txt =''
+          DO i=1,ii
+             WRITE(txt5,'(I2.2,A1,I2.2)')fclen(1),'-',fclen(i)-ai
+             txt = TRIM(txt)//' '//txt5
+          ENDDO
+
+       ENDIF
     ENDIF
     txt = 'At '//TRIM(whour)//' +'//TRIM(txt)
  ELSE

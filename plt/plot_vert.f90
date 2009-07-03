@@ -20,7 +20,7 @@ SUBROUTINE plot_vert(nexp,nlev,nparver,ntimver,           &
                   len_lab,period_freq,period_type,              &
                   output_type,output_mode,                      &
                   show_times,use_fclen,timdiff,time_shift,      &
-                  z_is_pressure,len_lab
+                  z_is_pressure,len_lab,accu_int
 
  IMPLICIT NONE
 
@@ -275,7 +275,7 @@ SUBROUTINE plot_vert(nexp,nlev,nparver,ntimver,           &
     IF ( ntimver_out == 1 ) THEN
        IF ( show_fc_length ) THEN
           CALL PSETI('TEXT_LINE_COUNT',4)
-          CALL fclen_header(.TRUE.,maxfclenval,uh(jl,:),uf(jl,:),wtext)
+          CALL fclen_header(.TRUE.,maxfclenval,uh(jl,:),uf(jl,:),accu_int(j),wtext)
           CALL PSETC('TEXT_LINE_4',wtext)
        ENDIF
     ELSE
@@ -283,11 +283,11 @@ SUBROUTINE plot_vert(nexp,nlev,nparver,ntimver,           &
           ALLOCATE(ldum(0:hour(kk)))
           ldum           = .FALSE.
           ldum(hour(kk)) = .TRUE.
-          CALL fclen_header(.TRUE.,hour(kk),uh(jl,:),ldum,wtext)
+          CALL fclen_header(.TRUE.,hour(kk),uh(jl,:),ldum,accu_int(j),wtext)
           DEALLOCATE(ldum)
        ELSE
           WRITE(chour,'(I3.2,X,A3)')hour(kk),'UTC'
-          CALL fclen_header(.TRUE.,maxfclenval,uh(jl,:),uf(jl,:),wtext)
+          CALL fclen_header(.TRUE.,maxfclenval,uh(jl,:),uf(jl,:),accu_int(j),wtext)
           wtext = 'Statistics at '//chour   //'  '//TRIM(wtext)
        ENDIF
        CALL PSETI('TEXT_LINE_COUNT',4)

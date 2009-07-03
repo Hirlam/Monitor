@@ -124,6 +124,7 @@ MODULE data
  INTEGER :: ncla(mparver)        = 26   ! Number of classes
  INTEGER :: classtype(mparver)   = 0    ! Linear classtypes
  REAL    :: pre_fcla(mpre_cla,mparver) = 0.   ! Predefined classes
+ REAL    :: re_fcla(mpre_cla,mparver)  = 0.   ! Predefined classes
  REAL    :: maxcla(mparver)      = 0.   ! Maximum class value
  REAL    :: mincla(mparver)      = 1.   ! Minimum class value
 
@@ -271,6 +272,8 @@ MODULE data
  LOGICAL :: leach_station    = .FALSE.  ! Verify each station separately
  LOGICAL :: lallstat         = .TRUE.   ! Show statistics for all stations
  LOGICAL :: lfindplot        = .FALSE.  ! Call findplot obsolete at the moment
+ LOGICAL :: lplot_seasonal   = .FALSE.  ! Create seasonal plots
+ LOGICAL :: lprint_seasonal  = .FALSE.  ! Create seasonal plots
  LOGICAL :: ltimeserie       = .FALSE.  ! Plot timeseries for all stations
  LOGICAL :: ltimeserie_stat  = .FALSE.  ! Plot timeserie statistics 
  LOGICAL :: lprint_timeserie_stat  = .FALSE.   ! Print timeserie statistics 
@@ -386,6 +389,7 @@ MODULE data
  INTEGER :: cont_ind(mparver)   = 0
  INTEGER :: cont_class(mparver) = 0
  REAL    :: cont_lim(mpre_cla,mparver) = 0.0 !
+ REAL    :: rcont_lim(mpre_cla,mparver) = 0.0 !
 
  !
  ! Namelist 
@@ -415,6 +419,7 @@ MODULE data
                  obspath,modpath,                       &
                  lfcver,leach_station,ltiming,          &
                  lallstat,                              &
+                 lplot_seasonal,lprint_seasonal,        &
                  lfindplot,                             &
                  lstat_gen,lverify,                     & 
                  lprint_stat,lplot_stat,                &
@@ -464,7 +469,7 @@ MODULE data
                  gap_filled_data,ldiff,lnorm,           &
                  show_fc_length,all_var_present,        &
                  use_pos,output_type,output_mode,       &
-                 ncla,classtype,pre_fcla,               &
+                 ncla,classtype,pre_fcla,re_fcla,       &
                  maxcla,mincla,                         &
                  show_bias,show_rmse,show_stdv,show_obs,&
                  period_type,period_freq,pe_interval,   &
@@ -473,7 +478,8 @@ MODULE data
                  estimate_qc_limit,qc_lim_scale,        &
                  corr_pairs,flag_pairs,exp_pairs,       &
                  scat_min,scat_max,scat_magn,           &
-                 cont_ind,cont_class,cont_lim,          &
+                 cont_ind,cont_class,                   &
+                 rcont_lim,cont_lim,                    &
                  cont_param,                            &
                  graphics
 
@@ -748,7 +754,7 @@ END FUNCTION qcu
 
  IMPLICIT NONE
 
- INTEGER :: k,fc_diff
+ INTEGER :: k
 
  IF (ANY(hir%obs_is_allocated)) THEN
     WRITE(6,*)'Warning, some model stations are allocated'
@@ -756,18 +762,10 @@ END FUNCTION qcu
     CALL abort
  ENDIF
 
- ! Estimate maxtim if not given by user
- !IF (maxtim == 0) maxtim=get_maxtim(sdate,edate,1)
- IF ( nfclengths == 1 ) THEN
-    fc_diff = fcint
- ELSEIF ( fclen(1) /= 0 ) THEN
-    fc_diff = fclen(1)
- ELSE
-    fc_diff = fclen(2) - fclen(1)
- ENDIF
  maxtim=get_maxtim(sdate,edate,fcint)
 
  WRITE(6,*)'Maxtim for model data is ',maxtim
+
  !
  ! If model array is not allocated 
  ! do so and init arrays

@@ -13,7 +13,7 @@ SUBROUTINE plot_stat2(nexp,nparver,ntimver,          &
                   timdiff,time_shift,show_fc_length,ltiming,    &
                   show_bias,show_rmse,show_stdv,show_obs,       &
                   copied_obs,copied_mod,period_freq,period_type,&
-                  output_type
+                  output_type,accu_int,lplot_seasonal
 
  IMPLICIT NONE
 
@@ -63,8 +63,16 @@ SUBROUTINE plot_stat2(nexp,nparver,ntimver,          &
 
  ! Set output filename
 
- prefix = 'v'
- IF (lfcver) prefix = 'V'
+ IF ( lfcver ) THEN
+    IF ( lplot_seasonal ) THEN
+       prefix = 'Y'
+    ELSE
+       prefix = 'V'
+    ENDIF
+ ELSE
+    prefix = 'v'
+ ENDIF
+
  IF (yymm < 999999 ) THEN
     period = yymm
  ELSE
@@ -75,7 +83,11 @@ SUBROUTINE plot_stat2(nexp,nparver,ntimver,          &
  ! Set number of hours
 
  IF (lfcver) THEN
-   ntimver_l = nuse_fclen
+   IF ( lplot_seasonal ) THEN
+      ntimver_l = ntimver
+   ELSE
+      ntimver_l = nuse_fclen
+   ENDIF
  ELSE 
    ntimver_l = ntimver + 1
  ENDIF
@@ -88,7 +100,13 @@ SUBROUTINE plot_stat2(nexp,nparver,ntimver,          &
           hour(ntimver_l))
 
  IF (lfcver) THEN
-    hour(1:ntimver_l)=use_fclen(1:ntimver_l)
+    IF ( lplot_seasonal ) THEN
+       DO i=1,ntimver
+          hour(i)=i
+       ENDDO
+    ELSE
+       hour(1:ntimver_l)=use_fclen(1:ntimver_l)
+    ENDIF
  ELSE
     DO i=1,ntimver
        hour(i)=(i-1)*timdiff + time_shift
@@ -175,6 +193,7 @@ SUBROUTINE plot_stat2(nexp,nparver,ntimver,          &
     ob_short(3:6)='    '   
     CALL yunit(ob_short,ytitle)
     plotfcver   = lfcver
+    plotseason  = lplot_seasonal
     plottimdiff = FLOAT(timdiff)
     CALL new_page(0,0,0,0,hour(1),hour(ntimver_l),miny,maxy)
 
@@ -224,7 +243,7 @@ SUBROUTINE plot_stat2(nexp,nparver,ntimver,          &
     IF ( show_fc_length ) THEN
        CALL pname(obstype(j),wtext)
        CALL fclen_header(( .NOT. lfcver .OR. ( nuse_fclen /= nfclengths )), &
-                         maxfclenval,uh(j,:),uf(j,:),wtext1)
+                         maxfclenval,uh(j,:),uf(j,:),accu_int(j),wtext1)
        wtext = TRIM(wtext)//'   '//TRIM(wtext1)
        CALL PSETC('TEXT_LINE_3',wtext)
 

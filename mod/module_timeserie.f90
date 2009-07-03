@@ -23,126 +23,126 @@ MODULE timeserie
 
  SUBROUTINE allocate_timeserie(maxper,timdiff,edate_obs)
 
-
   USE data, ONLY : nuse_fclen,use_fclen,nexp,nparver,   &
-                   sdate,stime,fcint,lallstat,maxstn
+                   sdate,stime,fcint,lallstat,maxstn,   &
+                   obint
 
   USE functions, ONLY : get_maxtim
+
   IMPLICIT NONE
 
   INTEGER, INTENT(IN) :: maxper,timdiff,edate_obs
-                
 
   INTEGER :: i,ii,cdate,ctime,wdate,wtime,ierr
 
- !
- ! Allocate array for timeserie statistics
- !
+  !
+  ! Check minimum time_stat_fclen difference
+  !
 
+  time_stat_fclen_diff = -1
+  IF ( use_fclen(1)         /= -1 ) time_stat_fclen_diff = use_fclen(1)
+  IF ( time_stat_fclen_diff ==  0 ) time_stat_fclen_diff = fcint
+  time_stat_fclen_diff = MIN(fcint,time_stat_fclen_diff)
+  DO i=2,nuse_fclen
+     time_stat_fclen_diff = MIN(time_stat_fclen_diff,use_fclen(i) - use_fclen(i-1))
+  ENDDO
 
-    ii = get_maxtim(sdate,edate_obs,MIN(timdiff,fcint))
+  !
+  ! Allocate array for timeserie statistics
+  !
 
-    ALLOCATE(time_stat(ii),all_time_stat(ii),STAT=ierr)
+  ii = get_maxtim(sdate,edate_obs,time_stat_fclen_diff)
 
-    IF ( ierr /= 0 ) THEN
-       WRITE(6,*)'Could not allocate time_stat data',ierr
-    ENDIF
+  ALLOCATE(time_stat(ii),all_time_stat(ii),STAT=ierr)
 
-        time_stat_max    = 0
-    all_time_stat_max    = 0
-    all_time_stat_active = 0
+  IF ( ierr /= 0 ) THEN
+     WRITE(6,*)'Could not allocate time_stat data',ierr
+  ENDIF
 
-    cdate = sdate
-    ctime = stime
+      time_stat_max    = 0
+  all_time_stat_max    = 0
+  all_time_stat_active = 0
 
-    !
-    ! Check minimum time_stat_fclen difference
-    !
+  cdate = sdate
+  ctime = stime
 
-    time_stat_fclen_diff = -1
-    IF ( use_fclen(1)         /= -1 ) time_stat_fclen_diff = use_fclen(1)
-    IF ( time_stat_fclen_diff ==  0 ) time_stat_fclen_diff = fcint
-    time_stat_fclen_diff = MIN(fcint,time_stat_fclen_diff)
+  i = 0
+  DO 
 
-    DO i=2,nuse_fclen
-       time_stat_fclen_diff = MIN(time_stat_fclen_diff,use_fclen(i) - use_fclen(i-1))
-    ENDDO
+     i = i + 1
 
-    i = 0
-    DO 
+     ALLOCATE(                                 &
+              time_stat(i)%obs(nparver),       &            
+              time_stat(i)%bias(nexp,nparver), &
+              time_stat(i)%rmse(nexp,nparver), &
+              time_stat(i)%n(nparver),         &
+              time_stat(i)%date,               &
+              time_stat(i)%time            )
 
-       i = i + 1
+       time_stat(i)%obs  = 0.
+       time_stat(i)%bias = 0.
+       time_stat(i)%rmse = 0.
+       time_stat(i)%n    = 0
+       time_stat(i)%date = 0
+       time_stat(i)%time = 0
 
-       ALLOCATE(                                 &
-                time_stat(i)%obs(nparver),       &            
-                time_stat(i)%bias(nexp,nparver), &
-                time_stat(i)%rmse(nexp,nparver), &
-                time_stat(i)%n(nparver),         &
-                time_stat(i)%date,               &
-                time_stat(i)%time            )
+     IF (lallstat) THEN
 
-         time_stat(i)%obs  = 0.
-         time_stat(i)%bias = 0.
-         time_stat(i)%rmse = 0.
-         time_stat(i)%n    = 0
-         time_stat(i)%date = 0
-         time_stat(i)%time = 0
+        ALLOCATE(                            &
+        all_time_stat(i)%obs(nparver),       &            
+        all_time_stat(i)%bias(nexp,nparver), &            
+        all_time_stat(i)%rmse(nexp,nparver), &
+        all_time_stat(i)%n(nparver),         &
+        all_time_stat(i)%date,               &
+        all_time_stat(i)%time            )
 
-       IF (lallstat) THEN
+        all_time_stat(i)%date = cdate
+        all_time_stat(i)%time = ctime
 
-          ALLOCATE(                            &
-          all_time_stat(i)%obs(nparver),       &            
-          all_time_stat(i)%bias(nexp,nparver), &            
-          all_time_stat(i)%rmse(nexp,nparver), &
-          all_time_stat(i)%n(nparver),         &
-          all_time_stat(i)%date,               &
-          all_time_stat(i)%time            )
+        all_time_stat(i)%obs  = 0.
+        all_time_stat(i)%bias = 0.
+        all_time_stat(i)%rmse = 0.
+        all_time_stat(i)%n    = 0
 
-          all_time_stat(i)%date = cdate
-          all_time_stat(i)%time = ctime
+     ENDIF
 
-          all_time_stat(i)%obs  = 0.
-          all_time_stat(i)%bias = 0.
-          all_time_stat(i)%rmse = 0.
-          all_time_stat(i)%n    = 0
+     CALL adddtg(cdate,ctime*10000,time_stat_fclen_diff*3600,wdate,wtime)
 
-       ENDIF
+     wtime = wtime / 10000
+     cdate = wdate
+     ctime = wtime
 
-       CALL adddtg(cdate,ctime*10000,time_stat_fclen_diff*3600,wdate,wtime)
+     IF ( cdate > edate_obs ) EXIT
 
-       wtime = wtime / 10000
-       cdate = wdate
-       ctime = wtime
+  ENDDO
 
-       IF ( cdate > edate_obs ) EXIT
+      time_stat_max = 0
+  all_time_stat_max = i
 
-    ENDDO
+  ALLOCATE(tim_par_active(maxper,maxstn,nparver))
+  tim_par_active = 0
 
-        time_stat_max = 0
-    all_time_stat_max = i
+  ! Nullify unused pointers
 
-    ALLOCATE(tim_par_active(maxper,maxstn,nparver))
-    tim_par_active = 0
+  DO i=all_time_stat_max+1,ii
 
-    ! Nullify unused pointers
+     NULLIFY(time_stat(i)%obs,  &
+        time_stat(i)%bias,      &
+        time_stat(i)%rmse,      &
+        time_stat(i)%n,         &
+        time_stat(i)%date,      &
+        time_stat(i)%time)
 
-    DO i=all_time_stat_max+1,ii
+     NULLIFY(all_time_stat(i)%obs,  &
+        all_time_stat(i)%bias,      &
+        all_time_stat(i)%rmse,      &
+        all_time_stat(i)%n,         &
+        all_time_stat(i)%date,      &
+        all_time_stat(i)%time)
 
-       NULLIFY(time_stat(i)%obs,  &
-          time_stat(i)%bias,      &
-          time_stat(i)%rmse,      &
-          time_stat(i)%n,         &
-          time_stat(i)%date,      &
-          time_stat(i)%time)
+  ENDDO
 
-       NULLIFY(all_time_stat(i)%obs,  &
-          all_time_stat(i)%bias,      &
-          all_time_stat(i)%rmse,      &
-          all_time_stat(i)%n,         &
-          all_time_stat(i)%date,      &
-          all_time_stat(i)%time)
-
-    ENDDO
+  RETURN
 
  END SUBROUTINE allocate_timeserie
 
@@ -193,9 +193,10 @@ MODULE timeserie
          ! If difference between forecast hours is not constant
          ! we may have irregular times
          !
-         WRITE(6,*)'MISMATCH',oo,date,time,  &
-          time_stat(time_stat_max)%time,     &
-          time_stat(time_stat_max)%date
+
+         WRITE(6,*)'MISMATCH',date,time,     &
+          time_stat(time_stat_max)%date,     &
+          time_stat(time_stat_max)%time
 
          RETURN
 

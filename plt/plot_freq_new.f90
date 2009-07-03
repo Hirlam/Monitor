@@ -18,7 +18,8 @@ SUBROUTINE plot_freq_new(nparver,nr,scat,p1,p2,par_active,uh,uf)
                   ncla,classtype,pre_fcla,               &
                   mincla,maxcla,my_ymax,my_ymin,         &
                   mpre_cla,copied_mod,copied_obs,        &
-                  period_freq,output_type,len_lab
+                  period_freq,output_type,len_lab,       &
+                  accu_int
 
  IMPLICIT NONE
 
@@ -141,7 +142,7 @@ SUBROUTINE plot_freq_new(nparver,nr,scat,p1,p2,par_active,uh,uf)
   
        CALL freq_dist(lnexp,n,ncl,                    &
                       mincla(j),maxcla(j),classtype(j),   &
-                      pre_fcla(j,1:ncl),work,fdat,fcla)
+                      pre_fcla(1:ncl,j),work,fdat,fcla)
 
     ELSE
 
@@ -301,7 +302,7 @@ SUBROUTINE plot_freq_new(nparver,nr,scat,p1,p2,par_active,uh,uf)
     ! Line 4
     IF ( show_fc_length ) THEN
        CALL pseti('TEXT_LINE_COUNT',4)
-       CALL fclen_header(.TRUE.,maxfclenval,uh(j,:),uf(j,:),wtext)
+       CALL fclen_header(.TRUE.,maxfclenval,uh(j,:),uf(j,:),accu_int(j),wtext)
        CALL PSETC('TEXT_LINE_4',wtext)
     ENDIF
 
