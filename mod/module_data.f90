@@ -124,7 +124,6 @@ MODULE data
  INTEGER :: ncla(mparver)        = 26   ! Number of classes
  INTEGER :: classtype(mparver)   = 0    ! Linear classtypes
  REAL    :: pre_fcla(mpre_cla,mparver) = 0.   ! Predefined classes
- REAL    :: re_fcla(mpre_cla,mparver)  = 0.   ! Predefined classes
  REAL    :: maxcla(mparver)      = 0.   ! Maximum class value
  REAL    :: mincla(mparver)      = 1.   ! Minimum class value
 
@@ -389,7 +388,6 @@ MODULE data
  INTEGER :: cont_ind(mparver)   = 0
  INTEGER :: cont_class(mparver) = 0
  REAL    :: cont_lim(mpre_cla,mparver) = 0.0 !
- REAL    :: rcont_lim(mpre_cla,mparver) = 0.0 !
 
  !
  ! Namelist 
@@ -469,7 +467,7 @@ MODULE data
                  gap_filled_data,ldiff,lnorm,           &
                  show_fc_length,all_var_present,        &
                  use_pos,output_type,output_mode,       &
-                 ncla,classtype,pre_fcla,re_fcla,       &
+                 ncla,classtype,pre_fcla,               &
                  maxcla,mincla,                         &
                  show_bias,show_rmse,show_stdv,show_obs,&
                  period_type,period_freq,pe_interval,   &
@@ -478,8 +476,7 @@ MODULE data
                  estimate_qc_limit,qc_lim_scale,        &
                  corr_pairs,flag_pairs,exp_pairs,       &
                  scat_min,scat_max,scat_magn,           &
-                 cont_ind,cont_class,                   &
-                 rcont_lim,cont_lim,                    &
+                 cont_ind,cont_class,cont_lim,          &
                  cont_param,                            &
                  graphics
 
