@@ -81,7 +81,7 @@ SUBROUTINE fclen_header(lfclen,nuf,uh,uf,ai,txt)
          
           txt =''
           DO i=1,ii
-             WRITE(txt5,'(I2.2,A1,I2.2)')fclen(1),'-',fclen(i)-ai
+             WRITE(txt5,'(I2.2,A1,I2.2)')fclen(i),'-',fclen(i)-ai
              txt = TRIM(txt)//' '//txt5
           ENDDO
 
