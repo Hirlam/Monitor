@@ -21,7 +21,7 @@ MODULE timeserie
  ! -----------------------------------------------
  !
 
- SUBROUTINE allocate_timeserie(maxper,timdiff,edate_obs)
+ SUBROUTINE allocate_timeserie(maxper,edate_obs)
 
   USE data, ONLY : nuse_fclen,use_fclen,nexp,nparver,   &
                    sdate,stime,fcint,lallstat,maxstn,   &
@@ -31,7 +31,7 @@ MODULE timeserie
 
   IMPLICIT NONE
 
-  INTEGER, INTENT(IN) :: maxper,timdiff,edate_obs
+  INTEGER, INTENT(IN) :: maxper,edate_obs
 
   INTEGER :: i,ii,cdate,ctime,wdate,wtime,ierr
 

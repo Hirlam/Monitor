@@ -264,7 +264,7 @@ SUBROUTINE verify
  ! Allocate array for timeserie statistics
  !
 
- IF ( ltimeserie_stat .OR. lprint_timeserie_stat ) CALL allocate_timeserie(maxper,timdiff,edate_obs)
+ IF ( ltimeserie_stat .OR. lprint_timeserie_stat ) CALL allocate_timeserie(maxper,edate_obs)
 
  !
  ! Allocate flags for fclen/hour/time usage
