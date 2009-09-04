@@ -9,7 +9,7 @@
 # Set colors for map and scatter plots and lines
 @map_colors  = ("7","3","5","6","8","4");
 @scat_colors = ("3","5","2","6","8","1","4","9","7");
-@col_def_lt  = (1,3,4,5,2,6,8);
+@col_def_lt  = (1,2,3,4,5,6,8,7);
 
 @col_def_lt  = (0,@col_def_lt);
 
@@ -89,7 +89,7 @@ SCAN_INPUT: foreach $input_file (@FILES) {
         if ( $_ =~ /#COLUMN/ ) {
             $col_count++ ;
 
-            if ( scalar (@col_def_lt) lt $col_count) {
+            if ( scalar(@col_def_lt) < $col_count ) {
                 $col_def_lt[$col_count] = $col_count ;
             } ;
 
