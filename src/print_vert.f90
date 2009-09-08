@@ -39,6 +39,8 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
             num(nexp,nlev),                 &
             period,jl(1),npp
 
+ REAL    :: minnum,maxnum,ticnum,maxnum_t
+
  REAL, TARGET ::                   &
             bias(nexp,nlev),       &
             rmse(nexp,nlev),       &
@@ -304,6 +306,21 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
     k=k+1
     pdat(k)%v => rnum(1,1:nlev)
     WRITE(lunout,'(A,I2.2,X,A)')'#COLUMN_',k+1,'CASES'
+
+
+    minnum = MINVAL(rnum(1,1:nlev))
+    maxnum_t = MAXVAL(rnum(1,1:nlev))
+    minnum = FLOOR(LOG10(MAX(minnum,1.)))
+    maxnum = FLOOR(LOG10(MAX(maxnum_t,1.)))
+    minnum = 10.**(minnum)
+    IF ( minnum < 10. ) minnum = 0.
+    maxnum = 10.**(maxnum)
+    maxnum = CEILING(maxnum_t/maxnum)*maxnum
+    ticnum = tics(minnum,maxnum)
+
+    WRITE(lunout,'(A,X,en15.5e2)')'#MINNUM',minnum
+    WRITE(lunout,'(A,X,en15.5e2)')'#TICNUM',ticnum
+    WRITE(lunout,'(A,X,en15.5e2)')'#MAXNUM',maxnum
 
     ! End of headings
     WRITE(lunout,'(A,X,en15.5e2)')'#MISSING',err_ind

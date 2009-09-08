@@ -2,10 +2,7 @@
 # Main definition file for HARMONIE verification package
 #
 
-# Project name, will be the name on the web page
-PROJECT=monitor
-
-# Path to this project
+# Path to binaries, scripts and WebgraF page
 BASE=$SCRATCH/monitor
 
 # Definition of BIN,SCR and WRK directory
@@ -13,26 +10,35 @@ BIN=$BASE/bin
 SCR=$BASE/scr
 WRK=$BASE/wrk
 
-# Set which graphics you are using
-# MAGICS/GNUPLOT
-# To be able to use MAGICS verobs has to be compiled with -DMAGICS.
-#
-#
-export GRAPHICS=GNUPLOT
-
-# MAG_HOME for magics, not needed at ecgate
-# export MAG_HOME=
-
-#
 # Experiment names and paths,should be space separated
-#
-
 DBASE=/scratch/ms/dk/nhz/oprint
 EXP="RCR C22"
 OBSPATH=$DBASE/OBS2/
 P1=$DBASE/RCR/
 P2=$DBASE/C22/
 MODPATH="$P1 $P2"
+
+# Project name, will be the name on the web page
+PROJECT=monitor
+
+# Explanation on webpage
+HELP="Observation verification comparison between \
+      <br> FMI(RCR) \
+      <br> SMHI(C22) \
+     "
+
+# Date handling
+# PERIOD_TYPE 1 : SDATE - EDATE, 
+#             2 : SDATE - EDATE in monthly pieces
+# 
+# IDATE is the very first date for PERIOD_TYPE=2 it determines the 
+# lentght of the date menu in WebgraF
+#
+PERIOD_TYPE=1
+
+SDATE=20080901
+EDATE=20080905
+IDATE=$SDATE
 
 #
 # Single stations can be defined with comma separated
@@ -41,7 +47,6 @@ MODPATH="$P1 $P2"
 # STNLIST_PLOT="00002574,00006348"
 # STNLIST_PLOT_TXT="NORRKOPING,CABAUW"
 #
-
 STNLIST_PLOT=-1
 STNLIST_PLOT_TXT=-1
 
@@ -152,40 +157,32 @@ LEV_LST="925 850 700 600 500 300 200 150 100 50"
 # first area only
 TEMPAREAS="ALL EWGLAM"
 
+#####################
+# GRAPHICS and misc #
+#####################
+#
+# Set which graphics you are using
+# MAGICS/GNUPLOT
+# To be able to use MAGICS verobs has to be compiled with -DMAGICS.
+export GRAPHICS=GNUPLOT
+
+# MAG_HOME for magics, not needed at ecgate
+# export MAG_HOME=
+
 # Select output_type
 # 1  Postscript + PNG
 # 2  PNG
 # 3  JPEG
-
 OUTPUT_TYPE=2
 
-# Date
-# PERIOD_TYPE 1 : SDATE - EDATE, 2 : SDATE - EDATE in monthly pieces
-# 
-# IDATE is the very first date for PERIOD_TYPE=2 it determines the 
-# lentght of the date menu in WebgraF
-#
-
-PERIOD_TYPE=1
-
-SDATE=20080901
-EDATE=20080905
-IDATE=$SDATE
-
 # Run all parameters in one go
-# Possible if you have a short period/small number of stations
-# or only a few parameters
+# Impossible if you have a long period/large number of stations
+# or several parameters
 ALL_AT_ONCE=yes
 
 # WebgraF call, set WEBCALL empty if not used
 WEBGRAF_BASE=$BASE/WebgraF
 WEBCALL="$BASE/WebgraF/bin/WebgraF -p $PROJECT"
-
-# Explanation on webpage
-HELP="Observation verification comparison between \
-      <br> FMI(RCR) \
-      <br> SMHI(C22) \
-     "
 
 # Export all variables
 export PROJECT WEBCALL WEBGRAF_BASE BASE BIN MYEXP IDATE SDATE EDATE HELP SCR WRK

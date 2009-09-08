@@ -80,6 +80,15 @@ SUBROUTINE selection(flag)
 
  IF (lpoly) CALL polygon_selection
 
+ !
+ ! Flip selection
+ !
+
+ IF ( reverse_selection ) THEN
+   DO i=1,maxstn
+      IF ( hir(i)%stnr /= 0 ) hir(i)%active = ( .NOT. hir(i)%active )
+   ENDDO
+ ENDIF
 
  !
  ! Selection info

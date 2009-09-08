@@ -33,4 +33,7 @@ SUBROUTINE ini_namelist
  ! Map projection
  map_vertical_longitude = 0.
 
+ ! Selection
+ reverse_selection = .FALSE.
+
 END SUBROUTINE ini_namelist

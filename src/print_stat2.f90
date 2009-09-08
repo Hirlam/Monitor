@@ -31,6 +31,8 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
  INTEGER :: i,j,k,timing_id,ntimver_l, &
             period,npp
 
+ REAL minnum,maxnum,ticnum,maxnum_t
+
  REAL, TARGET, ALLOCATABLE :: &
             bias(:,:),        &
              obs(:,:),        &
@@ -311,6 +313,20 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
     k=k+1
     pdat(k)%v => rnum(1:ntimver_l,1)
     WRITE(lunout,'(A,I2.2,X,A)')'#COLUMN_',k+1,'CASES'
+
+    minnum = MINVAL(rnum(1:ntimver_l,1))
+    maxnum_t = MAXVAL(rnum(1:ntimver_l,1))
+    minnum = FLOOR(LOG10(MAX(minnum,1.)))
+    maxnum = FLOOR(LOG10(MAX(maxnum_t,1.)))
+    minnum = 10.**(minnum)
+    IF ( minnum < 10. ) minnum = 0.
+    maxnum = 10.**(maxnum)
+    maxnum = CEILING(maxnum_t/maxnum)*maxnum
+    ticnum = tics(minnum,maxnum)
+
+    WRITE(lunout,'(A,X,en15.5e2)')'#MINNUM',minnum
+    WRITE(lunout,'(A,X,en15.5e2)')'#TICNUM',ticnum
+    WRITE(lunout,'(A,X,en15.5e2)')'#MAXNUM',maxnum
 
     ! End of heading
     WRITE(lunout,'(A,X,en15.5e2)')'#MISSING',err_ind

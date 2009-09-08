@@ -65,7 +65,7 @@ MODULE data
  INTEGER :: sdate  = 19990901    ! Start date
  INTEGER :: stime  = 0           ! Start time
  INTEGER :: edate  = 20000320    ! End date
- INTEGER :: etime  = 0           ! End time
+ INTEGER :: etime  = 23          ! End time
  INTEGER :: edate_obs  = 0       ! End date for observation
  INTEGER :: etime_obs  = 0       ! End time for observation
  INTEGER :: maxtim = 0           ! Estimated number of times 
@@ -80,11 +80,12 @@ MODULE data
  INTEGER :: stnlist(max_maxstn)      = 0  ! Station numbers
  INTEGER :: stnlist_bl(max_maxstn)   = 0  ! Black listed stations
  INTEGER :: stnlist_plot(max_maxstn) = -1 ! Additional stations to plot
-                                    ! -1 gives none 
-                                    !  0 gives all 
- TYPE (box) :: cbox                 ! Area box (S,W,N,E) corners
- LOGICAL    :: lpoly = .FALSE.      ! Area selection by polygon
+                                          ! -1 gives none 
+                                          !  0 gives all 
+ TYPE (box) :: cbox                       ! Area box (S,W,N,E) corners
+ LOGICAL    :: lpoly = .FALSE.            ! Area selection by polygon
  CHARACTER(LEN=100 )  :: polyfile ='poly.dat'
+ LOGICAL    :: reverse_selection          ! Reverse your selection
 
  ! Experiment and name
  INTEGER           :: nexp = 1                  ! Number of experiments
@@ -452,6 +453,7 @@ MODULE data
                  release_memory,                        &
                  lprint_freq,lplot_freq,                &
                  cbox,lpoly,polyfile,                   &
+                 reverse_selection,                     &
                  data_to_verify,data_source,            &
                  ltemp,                                 &
                  use_database,                          &

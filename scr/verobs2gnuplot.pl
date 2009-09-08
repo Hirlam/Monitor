@@ -38,6 +38,12 @@ SCAN_INPUT: foreach $input_file (@FILES) {
 
     $col_count = 0 ;
 
+    if ( defined $minnum ) {
+       undef $minnum ;
+       undef $maxnum ;
+       undef $ticnum ;
+    } ;
+
     # Examine file name
 
     @tmp    = split( '_', $input_file );
@@ -79,6 +85,25 @@ SCAN_INPUT: foreach $input_file (@FILES) {
         if ( $_ =~ /#XMAX/   ) { @tmp = split (' ',$_ ) ; $xmax   = $tmp[1]; next SCAN_FILE; }
         if ( $_ =~ /#YMIN/   ) { @tmp = split (' ',$_ ) ; $ymin   = $tmp[1]; next SCAN_FILE; }
         if ( $_ =~ /#YMAX/   ) { @tmp = split (' ',$_ ) ; $ymax   = $tmp[1]; next SCAN_FILE; }
+        if ( $_ =~ /#MINNUM/ ) {
+            $minnum = substr( $_, 10 );
+            $minnum =~ s/^\s+//;
+            $minnum =~ s/\s+$//;
+            print "MINNUM $minnum \n";
+            next SCAN_FILE;
+        }
+        if ( $_ =~ /#MAXNUM/ ) {
+            $maxnum = substr( $_, 10 );
+            $maxnum =~ s/^\s+//;
+            $maxnum =~ s/\s+$//;
+            next SCAN_FILE;
+        }
+        if ( $_ =~ /#TICNUM/ ) {
+            $ticnum = substr( $_, 10 );
+            $ticnum =~ s/^\s+//;
+            $ticnum =~ s/\s+$//;
+            next SCAN_FILE;
+        }
         if ( $_ =~ /#MISSING/ ) {
             $missing = substr( $_, 10 );
             $missing =~ s/^\s+//;
@@ -202,7 +227,7 @@ sub plot_command {
         if ( $i gt 0 ) { $plot = "$plot,"; }
         $plot = $plot . " '$input_file' using 1:" . $col_def[$i]{COLUMN};
         if ( $col_def[$i]{LEGEND} =~ /CASES/ ) {
-          $plot = $plot . " title '$col_def[$i]{LEGEND}' with linespoints lt 0 lw 2 axis x1y2 ";
+          $plot = $plot . " axes x1y2 title '$col_def[$i]{LEGEND}' with linespoints lt 0 lw 2 ";
         } else {
           $plot = $plot . " title '$col_def[$i]{LEGEND}' with linespoints lt $col_def[$i]{LT} lw 2 pt $col_def[$i]{PT}";
 	}
@@ -238,12 +263,23 @@ EOF
 #################################################################
 sub timeserie {
 
+  if ( defined $minnum ) {
+    print GP <<EOF;
+set y2range [$minnum:$maxnum]
+set y2label "No cases"
+set y2tics $minnum,$ticnum,$maxnum
+EOF
+  } else {
     print GP <<EOF;
 set y2range [0:]
 set y2label "No cases"
 set y2tics 0,1000
+EOF
+  } ;
+
+    print GP <<EOF;
 set xdata time
-set format x "%d/%m\\n%H"
+set format x "%d/%m"
 EOF
 
     &plot_command ;
@@ -254,11 +290,20 @@ EOF
 #################################################################
 sub gen_stat {
 
+  if ( defined $minnum ) {
+    print GP <<EOF;
+set y2range [$minnum:$maxnum]
+set y2label "No cases"
+set y2tics $minnum,$ticnum,$maxnum
+EOF
+  } else {
     print GP <<EOF;
 set y2range [0:]
 set y2label "No cases"
 set y2tics 0,1000
 EOF
+
+    } ;
 
     &plot_command ;
 
@@ -268,12 +313,21 @@ EOF
 #################################################################
 sub plot_vert {
 
+  if ( defined $minnum ) {
+    print GP <<EOF;
+set yrange [10:1000] reverse
+set x2range [$minnum:$maxnum]
+set x2label "No cases"
+set x2tics $minnum,$ticnum,$maxnum
+EOF
+  } else {
     print GP <<EOF;
 set yrange [10:1000] reverse
 set x2range [0:]
 set x2label "No cases"
-set x2tics 0,300
+#set x2tics 0,300
 EOF
+  } ;
     $plot = "plot ";
 
     $i = -1;

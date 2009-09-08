@@ -164,7 +164,7 @@ EOF
 # make labels for each experiment and for the isolines:
 $i=0;
 foreach $exp (@enames) {$i++; 
-$y=0.02;$x=$i/7-0.05;
+$y=0.02+0.03*int(($i-1)/3);$x=0.01+(($i-1)%3)/3;
 print GP "set label '$exp' at $x,$y textcolor lt $colors[$i-1] \n";
  }
 print GP <<EOF; 

@@ -12,7 +12,7 @@ SUBROUTINE print_cont(p1,p2)
 
  INTEGER, ALLOCATABLE :: sumcol(:)
 
- CHARACTER(LEN= 25) :: cform='(A10,XXI9,X,A1,X,I9)'
+ CHARACTER(LEN= 25) :: cform='(A20,XXI9,X,A1,X,I9)'
  CHARACTER(LEN= 25) :: hform='(XXX,A)'
  CHARACTER(LEN= 20) :: ctmp = '',ctmp2 = ''
  CHARACTER(LEN=100) :: cwrk = ''
@@ -79,7 +79,6 @@ SUBROUTINE print_cont(p1,p2)
              sumcol(m) = SUM(cont_table(i)%table(l,m,:))
           ENDDO
 
-          !WRITE(luncont,*)'Experiment ',TRIM(expname(l))
           WRITE(luncont,hform)'OBSERVATION'
           DO m=0,cont_table(i)%nclass
              IF ( m == cont_table(i)%nclass/2 ) THEN
