@@ -173,6 +173,7 @@ export GRAPHICS=GNUPLOT
 # 1  Postscript + PNG
 # 2  PNG
 # 3  JPEG
+# 4  SVG
 OUTPUT_TYPE=2
 
 # Run all parameters in one go

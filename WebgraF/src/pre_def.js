@@ -76,6 +76,7 @@ var do_subset 	= false
 var do_manip  	= false
 var do_send  	= false
 var do_debug  	= false
+var do_slide  	= true
 var info_start  = false
 var user        = "nada"
 var size_fig    = 1.0

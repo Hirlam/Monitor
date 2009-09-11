@@ -849,16 +849,27 @@ function dirPic(fg,action,ft,tdstyle)
 {
    if ( tdstyle == undefined ) { tdstyle = '' }
    fgs = ""
-   if ( do_resize ) {
+
+   re  = /svg$/ ;
+
+   if ( ! fg.match(re)) {
       myimage = new Image()
       myimage.src = fg
-      if (myimage.height != 0 ) {hgt = myimage.height * size_fig }
-      if (myimage.width  != 0 ) {wdt = myimage.width  * size_fig }
-      if ( wdt != 0 || hgt != 0 ){ fgs =" width="+wdt+" height="+hgt+" " }
+      if ( do_resize ) {
+         if (myimage.height != 0 ) {hgt = myimage.height * size_fig }
+         if (myimage.width  != 0 ) {wdt = myimage.width  * size_fig }
+         if ( wdt != 0 || hgt != 0 ){ fgs =" width="+wdt+" height="+hgt+" " }
+      }
    }
+   
    tfg = " No plot available "
 
-   return "<td "+tdstyle+"><a href='javascript:parent." +action+ "' a><img alt='" +tfg+ "' title='" +ft+ "' src='" +fg+ "'"+ fgs+" border='0'></a></td>"
+   if ( fg.match(re)) {
+     // .svg file must be embedded
+     return "<td "+tdstyle+"><a href='javascript:parent." +action+ "' a><embed src='"+fg+"'"+ fgs+" /embed></a></td>"
+   } else {
+     return "<td "+tdstyle+"><a href='javascript:parent." +action+ "' a><img alt='" +tfg+ "' title='" +ft+ "' src='" +fg+ "'"+ fgs+" border='0'></a></td>"
+   }
 
 }
 // --------------------------------------------------------
@@ -922,8 +933,10 @@ function all_head( ) {
     }
  }
 
+ if ( do_slide ) {
  if ( sli_menu.active && sli_menu.p == this.ind ) { this.txt += dirFig('stop.gif','slideShow(-99)',lang[pre_lan].stop)             }
         else { this.txt += dirFig('right.gif',("slideShow("+this.ind+")"),lang[pre_lan].slid,'width=10') }
+ } 
 
  if (this.typ == 1 ) { this.txt += "</tr><tr>"+dirFig('up1.gif',("getFig("+this.ind+","+this.cri(1)+")"),lang[pre_lan].down) }
  if (this.typ == 0 ) { this.txt += "</tr>" }
@@ -1373,6 +1386,13 @@ function fix_input_text(input_list){
 }
 //--------------------------------------------------------------------------------------------------------------------
 function init() {
+
+ // First check if we are deling with svg files
+ re  = /svg$/ ;
+ if ( ext.match(re) ) {
+    do_slide  = false
+    do_resize = false
+ } 
 
  input_text = fix_input_text(input_list)
  if ( title == "" ) { title = findProject(0) +"/" + input_text[choice_ind]  }

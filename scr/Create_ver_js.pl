@@ -17,7 +17,7 @@
  foreach ( @plots ) { $plots{$_} = 1 ; } ;
 
  # File extentions
- @ext = ('','png','1.png','1.jpg');
+ @ext = ('','png','1.png','1.jpg','svg');
  $EXT = $ext[$ENV{OUTPUT_TYPE}] ;
 
  # Experiment

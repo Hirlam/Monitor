@@ -87,6 +87,10 @@ elif [ $OUTPUT_TYPE -eq 3 ] ; then
    for F in $( $SCR/Create_file_list.pl .jpg ) ; do
       tar rvf fig.tar $F
    done
+elif [ $OUTPUT_TYPE -eq 4 ] ; then
+   for F in $( $SCR/Create_file_list.pl .svg ) ; do
+      tar rvf fig.tar $F
+   done
 fi
 
 # Send data to WebgraF

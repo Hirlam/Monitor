@@ -12,8 +12,8 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
 
     print "Process:$input_file \n";
 
-    @heading   = ();
-    @workfiles     = ();
+    @heading    = ();
+    @workfiles  = ();
     @limits     = ();
     @enames     = ();
     $missing = -99;
@@ -24,19 +24,27 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
     @tmp    = split( '.html', $input_file );
     $prefix = shift(@tmp);
 
+    @EXT = ('','.ps','.1.png','.1.jpg','.svg') ;
+
     # PS or PNG as output
     if ( $ENV{OUTPUT_TYPE} eq 1 ) {
-        $output_file = $prefix . ".ps";
         $terminal    = "set terminal postscript landscape enhanced colour";
-    }
-    else {
-        $output_file = $prefix . ".1.png";
+    } elsif ( $ENV{OUTPUT_TYPE} eq 2 ) {
         $terminal    = "set terminal png";
+    } elsif ( $ENV{OUTPUT_TYPE} eq 3 ) {
+        $terminal    = "set terminal jpeg";
+    } elsif ( $ENV{OUTPUT_TYPE} eq 4 ) {
+        $terminal    = "set terminal svg enhanced fsize 8 ";
+    } else {
+      die "Unknown OUTPUT_TYPE $ENV{OUTPUT_TYPE}\n";
     }
+    
+    $output_file = $prefix . $EXT[$ENV{OUTPUT_TYPE}] ;
 
     open FILE, "< $input_file";
 
     SCAN_FILE: while (<FILE>) {
+
         #  
         # Scan through the file and extract the necessary information
         #

@@ -64,7 +64,7 @@ cp $SCR/style.xsl .
 
 if [[ $TEMPPLOT =~ "VERT" ]] ; then
    mkdir vert 
-   mv l*.ps l*.png *.jpg vert
+   mv l*.ps l*.png *.jpg l*.svg vert
 fi
 
 #Per level plots
@@ -79,6 +79,8 @@ elif [ $OUTPUT_TYPE -eq 2 ] ; then
    TARARG="$TARARG *.png"
 elif [ $OUTPUT_TYPE -eq 3 ] ; then
    TARARG="$TARARG *.jpg"
+elif [ $OUTPUT_TYPE -eq 4 ] ; then
+   TARARG="$TARARG *.svg"
 fi
 tar cvf temp.tar $TARARG
 $WEBCALL -e Temp -f temp.tar
@@ -107,6 +109,10 @@ if [[ $TEMPPLOT =~ "VERT" ]] ; then
       rm -f *.jpg
       mv vert/*.jpg .
       TARARG="$TARARG *.jpg"
+   elif [ $OUTPUT_TYPE -eq 4 ] ; then
+      rm -f *.svg
+      mv vert/*.svg .
+      TARARG="$TARARG *.svg"
    fi 
    tar cvf vert.tar $TARARG
    rmdir vert

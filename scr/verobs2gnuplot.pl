@@ -50,15 +50,22 @@ SCAN_INPUT: foreach $input_file (@FILES) {
     $prefix = shift(@tmp);
     @tmp    = split( '.txt', $input_file );
 
+    @EXT = ('','.ps','.1.png','.1.jpg','.svg') ;
+
     # PS or PNG as output
     if ( $ENV{OUTPUT_TYPE} eq 1 ) {
-        $output_file = shift(@tmp) . ".ps";
         $terminal    = "set terminal postscript landscape enhanced colour";
-    }
-    else {
-        $output_file = shift(@tmp) . ".1.png";
+    } elsif ( $ENV{OUTPUT_TYPE} eq 2 ) {
         $terminal    = "set terminal png";
+    } elsif ( $ENV{OUTPUT_TYPE} eq 3 ) {
+        $terminal    = "set terminal jpeg";
+    } elsif ( $ENV{OUTPUT_TYPE} eq 4 ) {
+        $terminal    = "set terminal svg enhanced fsize 8 ";
+    } else {
+      die "Unknown OUTPUT_TYPE $ENV{OUTPUT_TYPE}\n";
     }
+    
+    $output_file = shift(@tmp) . $EXT[$ENV{OUTPUT_TYPE}] ;
 
     open FILE, "< $input_file";
 
@@ -89,7 +96,6 @@ SCAN_INPUT: foreach $input_file (@FILES) {
             $minnum = substr( $_, 10 );
             $minnum =~ s/^\s+//;
             $minnum =~ s/\s+$//;
-            print "MINNUM $minnum \n";
             next SCAN_FILE;
         }
         if ( $_ =~ /#MAXNUM/ ) {
@@ -176,7 +182,7 @@ SCAN_INPUT: foreach $input_file (@FILES) {
             &timeserie;
             last PLOT_TYPES;
         }
-        if ( $prefix =~ /v/ || $prefix =~ /V/ ) {
+        if ( $prefix =~ /v/ || $prefix =~ /V/ || $prefix =~ /y/ || $prefix =~ /Y/ ) {
             &gen_stat;
             last PLOT_TYPES;
         }
@@ -248,6 +254,7 @@ sub header {
 
     print GP <<EOF;
 $terminal
+$font
 set output '$output_file'
 set missing "$missing"
 set title "$heading"
