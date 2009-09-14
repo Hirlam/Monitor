@@ -19,6 +19,7 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype,per_ind)
                       maxfclenval,nparver,  &
                       used_hours,used_fclen,&
                       timdiff,time_shift,   &
+                      accu_int,             &
                       use_fclen,show_times, &
                       map_bias_interval,    &
                       map_rmse_interval,    &
@@ -507,7 +508,7 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype,per_ind)
                CALL fclen_header(.TRUE.,maxfclenval,        &
                                  used_hours(j,per_ind,:),   &
                                  used_fclen(j,per_ind,:),   &
-                                 wtext)
+                                 accu_int,wtext)
                CALL PSETI ('TEXT_LINE_COUNT', 4)
                CALL PSETC('TEXT_LINE_4',wtext)
             ENDIF
@@ -515,7 +516,7 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype,per_ind)
             CALL fclen_header(.NOT.lfcver,maxfclenval,   &
                               used_hours(j,per_ind,:),   &
                               used_fclen(j,per_ind,:),   &
-                              wtext)
+                              accu_int,wtext)
             CALL PSETI ('TEXT_LINE_COUNT', 4)
             CALL PSETC('TEXT_LINE_4',wtext)
          ENDIF
