@@ -62,7 +62,7 @@ echo '</pre>' >> quality.html
 
 cp $SCR/style.xsl .
 
-if [[ $TEMPPLOT =~ "VERT" ]] ; then
+if [ `echo $TEMPPLOT | grep -c VERT` -gt 0 ] ; then
    mkdir vert 
    mv l*.ps l*.png *.jpg l*.svg vert
 fi
@@ -87,12 +87,12 @@ $WEBCALL -e Temp -f temp.tar
 rm -f *.jpg *.ps *.png temp.tar
 
 
-if [[ $TEMPPLOT =~ "VERT" ]] ; then
+if [ `echo $TEMPPLOT | grep -c VERT` -gt 0 ] ; then
 
    #Vertical
 
    TARARG="*.html"
-   [[ $( echo $TEMPPLOT | grep XML ) ]] && TARARG="$TARARG *.xml style.xsl"
+   [ `echo $TEMPPLOT | grep -c XML` -gt 0 ] && TARARG="$TARARG *.xml style.xsl"
    if [ $OUTPUT_TYPE -eq 1 ] ; then
       rm -f *.ps
       mv vert/*.ps .

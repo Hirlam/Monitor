@@ -66,7 +66,7 @@ rm -f fig.tar
 
 cp $SCR/style.xsl .
 tar cvf fig.tar *.html
-[[ $( echo $SURFPLOT | grep XML ) ]] && tar rvf fig.tar *.xml style.xsl
+[[ `echo $SURFPLOT | grep -c XML` -gt 0 ]] && tar rvf fig.tar *.xml style.xsl
 
 if [ $OUTPUT_TYPE -eq 1 ] ; then
    for F in $( $SCR/Create_file_list.pl .ps ) ; do
