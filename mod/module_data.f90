@@ -652,7 +652,7 @@ LOGICAL FUNCTION qcl(diff,k)
     ELSEIF (k.EQ.qq_ind) THEN
        diff_lim = qq_llim
     ELSE
-       diff_lim = diff + 1.
+       diff_lim = diff - 1.
     ENDIF
 
  ENDIF
@@ -734,7 +734,7 @@ LOGICAL FUNCTION qcu(diff,k)
     ELSEIF (k.EQ.qq_ind) THEN
        diff_lim = qq_ulim
     ELSE
-       diff_lim = diff - 1.
+       diff_lim = diff + 1.
     ENDIF
 
  ENDIF
