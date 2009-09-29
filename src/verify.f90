@@ -216,7 +216,7 @@ SUBROUTINE verify
     DO j=1,maxper
     DO i=1,maxstn
        ALLOCATE(allstat(i,j)%s(nexp,nparver,ntimver))
-       ALLOCATE(allstat(i,j)%par_active(nparver))
+       ALLOCATE(allstat(i,j)%par_active(nparver,ntimver))
     ENDDO
     ENDDO
 
@@ -233,7 +233,7 @@ SUBROUTINE verify
 
     DO i=1,maxstn
        ALLOCATE(stat(i)%s(nexp,nparver,ntimver))
-       ALLOCATE(stat(i)%par_active(nparver))
+       ALLOCATE(stat(i)%par_active(nparver,ntimver))
     ENDDO
 
     DO i = 1,maxstn
@@ -275,6 +275,11 @@ SUBROUTINE verify
 
  used_fclen   = .FALSE.
  used_hours   = .FALSE.
+
+ !
+ ! Set value for number of active stations
+ ! 
+ par_active = 0
 
  !
  ! Prepare xml file for station statistics
@@ -333,7 +338,7 @@ SUBROUTINE verify
     ENDIF
 
     IF (hir(i)%stnr /= obs(i)%stnr) THEN
-       WRITE(6,*)'Your stations does not agree',hir(i)%stnr,obs(i)%stnr
+       WRITE(6,*)'Your stations does not agree',hir(i)%stnr,obs(i)%stnr,i
        CALL abort
     ENDIF
 
@@ -506,11 +511,6 @@ SUBROUTINE verify
              all_exp_verified = .TRUE.
              tmpdiff          = 0.
 
-             !
-             ! Special conditions
-             !
-
-             !!!IF ( lspecial_cond ) CALL special_cond(I!
 
              EXP_LOOP : DO o=1,nexp
 
@@ -634,7 +634,7 @@ SUBROUTINE verify
                    !
                    IF ( lprint_verif ) WRITE(6,*)'Add',obs(i)%o(jj)%date,obs(i)%o(jj)%time,tim_ind
  
-                   allstat(i,per_ind)%par_active(k) = 1
+                   allstat(i,per_ind)%par_active(k,tim_ind) = 1
                    DO o=1,nexp
                       CALL add_stat(allstat(i,per_ind)%s(o,k,tim_ind), &
                            obs(i)%o(jj)%val(k),tmpdiff(o))

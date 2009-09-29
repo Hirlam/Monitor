@@ -34,6 +34,10 @@
    u='Dew point temperature'
  CASE('TT')
    u='Temperature'
+ CASE('TN')
+   u='Min temp'
+ CASE('TX')
+   u='Max temp'
  CASE('VI')
    u='Visibility'
  CASE('FF')

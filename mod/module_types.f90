@@ -104,7 +104,8 @@ MODULE types
     LOGICAL :: active
 
     ! Active parameters
-    INTEGER, POINTER :: par_active(:)
+    ! nparver,ntimver
+    INTEGER, POINTER :: par_active(:,:)
 
     ! (nexp,nparver,ntimver)
     TYPE (statistics), POINTER :: s(:,:,:) 

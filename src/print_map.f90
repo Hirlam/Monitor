@@ -1,4 +1,4 @@
-SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,par_active)
+SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
 
  !
  ! Plot maps of station statistics
@@ -33,17 +33,18 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,par_active)
  ! Input
 
  INTEGER, INTENT(IN) :: stnr,yymm,yymm2,ptype,   &
-                        per_ind,par_active(nparver)
+                        per_ind,rar_active(nparver,ntimver)
 
  ! Local
 
  INTEGER, PARAMETER :: maxint = 6
 
- INTEGER :: i,j,k,kk,l,ll,m,            &
+ INTEGER :: i,j,k,kk,kki,l,ll,m,        &
             hour(ntimver),              &
             maxn,                       &
             numstn,period,              &
-            nexp_plot,ntimver_out
+            nexp_plot,ntimver_out,      &
+            map_hour
 
  INTEGER, ALLOCATABLE :: stn(:)
 
@@ -139,12 +140,30 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,par_active)
 
  PAR_LOOP : DO j=1,nparver
 
-    FC_LOOP  : DO kk=1,ntimver_out
+    FC_LOOP  : DO kki=1,ntimver_out
 
        !
        ! Plot only the requested hours
+       ! Map min/max temp at 00|12 to 06|18
        !
-       IF ( ntimver_out /= 1 .AND. .NOT. ANY( show_times == hour(kk) )) CYCLE
+       IF ( ( obstype(j)(1:2) == 'TN'   .OR.  &
+              obstype(j)(1:2) == 'TX' ) .AND. &
+                      ntimver == 4      .AND. &
+                ( ntimver_out /= 1 )    .AND. &
+                ( show_times(1) == 0  ) .AND. &
+                ( show_times(2) == 12 ) .AND. &
+                ( show_times(3) == -1 ) .AND. &
+            .NOT. lfcver                      &
+          ) THEN
+          IF (.NOT. ANY( show_times == hour(kki) )) CYCLE
+          IF ( hour(kki) == 0  ) kk = 2
+          IF ( hour(kki) == 12 ) kk = 4
+          map_hour = hour(kki)
+       ELSE
+          IF ( ntimver_out /= 1 .AND. .NOT. ANY( show_times == hour(kki) )) CYCLE
+          kk = kki
+          map_hour = hour(kki)
+       ENDIF
 
        !
        ! Copy data and estimate max/min values 
@@ -291,7 +310,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,par_active)
              my_tag = TRIM(tag)//'_ALL'
           ELSE
              chour = ' '
-             WRITE(chour,'(I2.2)')hour(kk)
+             WRITE(chour,'(I2.2)')map_hour
              my_tag = TRIM(tag)//'_'//TRIM(chour)
           ENDIF
 
@@ -316,7 +335,11 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,par_active)
     ENDIF
     IF (stnr == 0) THEN
        wname=''
-       WRITE(wname(1:5),'(I5)')par_active(j)
+       IF ( ntimver_out == 1 ) THEN
+          WRITE(wname(1:5),'(I5)')MAXVAL(rar_active(j,:))
+       ELSE
+          WRITE(wname(1:5),'(I5)')rar_active(j,kk)
+       ENDIF
        wtext=TRIM(wname)//' stations'
        IF ( TRIM(tag) /= '#' ) wtext='Area: '//TRIM(tag)//'  '//TRIM(wtext)
     ENDIF
