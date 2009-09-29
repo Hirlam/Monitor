@@ -1,5 +1,5 @@
 SUBROUTINE plot_vert(nexp,nlev,nparver,ntimver,           &
-                     s,stnr,yymm,yymm2,par_active,uh,uf)
+                     s,stnr,yymm,yymm2,rar_active,uh,uf)
 
  !
  ! Plot vertical profile of RMS,STD and BIAS 
@@ -26,14 +26,14 @@ SUBROUTINE plot_vert(nexp,nlev,nparver,ntimver,           &
 
  INTEGER,           INTENT(IN) :: nexp,nlev,nparver,            &
                                   ntimver,stnr,yymm,yymm2,      &
-                                  par_active(nparver)
+                                  rar_active(nparver,ntimver)
  TYPE (statistics), INTENT(IN) :: s(nexp,nparver,ntimver)
 
  LOGICAL,           INTENT(IN) :: uh(nparver,0:23),uf(nparver,0:maxfclenval)
 
 ! Local
 
- INTEGER :: i,j,jj,j_ind,k,kk,timing_id,    &
+ INTEGER :: i,j,jj,j_ind,k,kk,kkk,timing_id,&
             ntimver_out,hour(ntimver),      &
             period,jl(1)
 
@@ -224,7 +224,11 @@ SUBROUTINE plot_vert(nexp,nlev,nparver,ntimver,           &
     IF (stnr == 0) THEN
        wtext='Statistics for      stations'
        j_ind = (j/nlev-1)*nlev + 1
-       jj = MAXVAL(par_active(j_ind:j_ind+nlev-1))
+       IF ( ntimver_out == 1 ) THEN
+          jj = MAXVAL(rar_active(j_ind:j_ind+nlev-1,:))
+       ELSE
+          jj = MAXVAL(rar_active(j_ind:j_ind+nlev-1,kk))
+       ENDIF
        WRITE(wtext(1:4),'(I4)')jj
        wtext=TRIM(wtext(1:4))//' stations'
        IF ( TRIM(tag) /= '#' ) wtext=TRIM(wtext)//' Area: '//TRIM(tag)
@@ -271,7 +275,15 @@ SUBROUTINE plot_vert(nexp,nlev,nparver,ntimver,           &
     ! Line 4
     ! First find corret index for fclenth usage
     j_ind = (j/nlev-1)*nlev + 1
-    jl    = MAXLOC(par_active(j_ind:j_ind+nlev-1)) + j_ind - 1
+    IF ( ntimver_out == 1 ) THEN
+       jl = 0
+       DO kkk=1,ntimver
+          jl = MAX(jl,MAXLOC(rar_active(j_ind:j_ind+nlev-1,kkk)) + j_ind - 1)
+       ENDDO
+    ELSE
+          jl = MAXLOC(rar_active(j_ind:j_ind+nlev-1,kk)) + j_ind - 1
+    ENDIF
+
     IF ( ntimver_out == 1 ) THEN
        IF ( show_fc_length ) THEN
           CALL PSETI('TEXT_LINE_COUNT',4)

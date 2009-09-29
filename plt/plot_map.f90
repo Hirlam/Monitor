@@ -1,4 +1,4 @@
-SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype,per_ind)
+SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype,per_ind,rar_active)
 
  !
  ! Plot maps of station statistics
@@ -39,18 +39,20 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype,per_ind)
 
  ! Input
 
- INTEGER, INTENT(IN) :: stnr,yymm,yymm2,ptype,mtype,per_ind
+ INTEGER, INTENT(IN) :: stnr,yymm,yymm2,ptype,mtype,&
+                        per_ind,rar_active(nparver,ntimver)
 
  ! Local
 
  INTEGER, PARAMETER :: maxint = 6
 
- INTEGER :: i,j,k,kk,l,ll,m,            &
+ INTEGER :: i,j,k,kk,kki,l,ll,m,        &
             hour(ntimver),              &
             maxn,timing_id,             &
             numstn,period,              &
             min_stnr,max_stnr,mid(1),   &
-            nexp_plot,ntimver_out
+            nexp_plot,ntimver_out,      &
+            map_hour
 
  INTEGER, ALLOCATABLE :: stn(:),mcount(:)
 
@@ -165,12 +167,30 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype,per_ind)
 
  PAR_LOOP : DO j=1,nparver
 
-    FC_LOOP  : DO kk=1,ntimver_out
+    FC_LOOP  : DO kki=1,ntimver_out
 
        !
        ! Plot only the requested hours
+       ! Map min/max temp at 00|12 to 06|18
        !
-       IF ( ntimver_out /= 1 .AND. .NOT. ANY( show_times == hour(kk) )) CYCLE
+       IF ( ( obstype(j)(1:2) == 'TN'   .OR.  &
+              obstype(j)(1:2) == 'TX' ) .AND. &
+                      ntimver == 4      .AND. &
+                ( ntimver_out /= 1 )    .AND. &
+                ( show_times(1) == 0  ) .AND. &
+                ( show_times(2) == 12 ) .AND. &
+                ( show_times(3) == -1 ) .AND. &
+            .NOT. lfcver                      &
+          ) THEN
+          IF (.NOT. ANY( show_times == hour(kki) )) CYCLE
+          IF ( hour(kki) == 0  ) kk = 2
+          IF ( hour(kki) == 12 ) kk = 4
+          map_hour = hour(kki)
+       ELSE
+          IF ( ntimver_out /= 1 .AND. .NOT. ANY( show_times == hour(kki) )) CYCLE
+          kk = kki
+          map_hour = hour(kki)
+       ENDIF
 
        !
        ! Copy data and estimate max/min values 
@@ -305,7 +325,7 @@ SUBROUTINE plot_map(stnr,yymm,yymm2,ptype,mtype,per_ind)
                my_tag = TRIM(tag)//'_ALL'
             ELSE
                chour = ' '
-               WRITE(chour,'(I2.2)')hour(kk)
+               WRITE(chour,'(I2.2)')map_hour
                my_tag = TRIM(tag)//'_'//TRIM(chour)
             ENDIF
             my_tag = TRIM(my_tag)//'_'//TRIM(expname(i))
