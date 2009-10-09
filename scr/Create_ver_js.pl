@@ -166,7 +166,7 @@ mname = ['Type','Period','Station','Area','Time (UTC)','Parameter','Dum']
 loc = ['l','t','t','t','l','l','l']
 $download
 
-pdir ='Prof_Temp/'
+pdir ='Temp_prof/'
 ext='$EXT'
 help = '$ENV{HELP}'; hide_help = false ;
 do_send = true ;
@@ -290,8 +290,8 @@ pdir ='$pdir/'
 ext='$EXT'
 help = '${HELP}'; hide_help = false ;
 do_send = true ;
-$xml_txt
-$xml
+$xml_cont_txt
+$xml_cont
 
 " ;
 close INPUT ;
@@ -437,10 +437,6 @@ sub finalize_plot {
    @xml_txt = ('Stations');
  } ;
 
- if ( exists $plots{'CONT'} ) {
-    @xml     = ("../$pdir/c_[1]_00000000_[3]_[4]_0.html",@xml);
-    @xml_txt = ("Cont".$_,@xml_txt);
- };
  if ( exists $plots{'GEN'} ) {
     @xml     = ("../$pdir/TABLE_LL_[3].html",@xml);
     @xml_txt = ("Stat".$_,@xml_txt);
@@ -453,8 +449,16 @@ sub finalize_plot {
 @xml     = ("../$pdir/quality.html",@xml) ;
 @xml_txt = ("Quality control",@xml_txt);
 
+if ( exists $plots{'CONT'} ) {
+    @xml_cont     = (@xml,"../$pdir/c_[1]_00000000_[3]_[4]_0.html");
+    @xml_cont_txt = (@xml_txt,"Cont");
+};
+
 $xml     ='my_xml=[\''.join('\',\'',@xml).'\']';
 $xml_txt ='my_xml_txt=[\''.join('\',\'',@xml_txt).'\']';
+
+$xml_cont     ='my_xml=[\''.join('\',\'',@xml_cont).'\']';
+$xml_cont_txt ='my_xml_txt=[\''.join('\',\'',@xml_cont_txt).'\']';
 
 $plottype     ='\''.join('\',\'',@plottype).'\'';
 $plottype_txt ='\''.join('\',\'',@plottype_txt).'\'';

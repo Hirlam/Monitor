@@ -116,7 +116,7 @@ if [ `echo $TEMPPLOT | grep -c VERT` -gt 0 ] ; then
    fi 
    tar cvf vert.tar $TARARG
    rmdir vert
-   $WEBCALL -e Prof_Temp -f vert.tar
+   $WEBCALL -e Temp_prof -f vert.tar
 fi
 
 
