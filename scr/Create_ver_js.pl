@@ -9,12 +9,11 @@
  use plotdefs ;
  use maindefs ;
 
+ $WEBCALL=$ENV{WEBCALL} ;
+
  #
  # Define which things to plot
  #
-
- @plots = split(' ',$ENV{SURFPLOT}) ;
- foreach ( @plots ) { $plots{$_} = 1 ; } ;
 
  # File extentions
  @ext = ('','png','1.png','1.jpg','svg');
@@ -54,181 +53,75 @@
 
  if ( $TYPE =~/SURF/ ) {
 
- #
- # Surface 
- #
+    #
+    # Surface 
+    #
 
- $type ="Surface" ;
- $pdir = $type ;
+    @plots = ();
 
- @par=split(' ',$ENV{SURFPAR});
- $partext='\''.join('\',\'',@par).'\'';
- $npar = scalar(@par) -1 ;
+    @plots = split(' ',$ENV{SURFPLOT}) ;
+    foreach ( @plots ) { $plots{$_} = 1 ; } ;
 
- @text = ();
- foreach $par ( @par ) { @text = (@text,$plotdefs{$par}{'TEXT'}) ; } ;
- $text='\''.join('\',\'',@text).'\'';
+    $type ="Surface" ;
+    $pdir = $type ;
 
+    @par=split(' ',$ENV{SURFPAR});
+    $partext='\''.join('\',\'',@par).'\'';
+    $npar = scalar(@par) -1 ;
 
+    @text = ();
+    foreach $par ( @par ) { @text = (@text,$plotdefs{$par}{'TEXT'}) ; } ;
+    $text='\''.join('\',\'',@text).'\'';
 
- # Create text for general page (Surface/Temp)
- # based on users choice
+    if ( exists $plots{'CONT'} ) {
 
- @plottype     =();
- @plottype_txt =();
+       @skill_par  = ();
+       @skill_text = ();
 
- if ( exists $plots{'GEN'} ) {
-	 @plottype     = (@plottype,'V');
-	 @plottype_txt = (@plottype_txt,'Fc length ver') ; } ;
- if ( exists $plots{'SEAS'} ) {
-	 @plottype     = (@plottype,'Y');
-	 @plottype_txt = (@plottype_txt,'Seasonal') ; } ;
- if ( exists $plots{'TIME'} ) { 
-	 @plottype     = (@plottype,'PS','ps');
-	 @plottype_txt = (@plottype_txt,'Timeserie stat','Timeserie'); } ;
- if ( exists $plots{'FREQ'} ) { 
-	 @plottype     = (@plottype,'f') ;
-	 @plottype_txt = (@plottype_txt,'Freq dist.') ; } ;
- if ( exists $plots{'DAYVAR'} ) {
-	 @plottype     = (@plottype,'v') ;
-	 @plottype_txt = (@plottype_txt,'Dayvar') ; } ;
+       foreach $par ( @par ) {
+ 
+          if ( exists $plotdefs{$par}{'CONT_CLASS'} ) {
+             @skill_par  = (@skill_par,$par) ;
+             @skill_text = (@skill_text,$plotdefs{$par}{'TEXT'}) ; } ;
+          } ;
+         $skill_partext='\''.join('\',\'',@skill_par).'\'';
+         $skill_text='\''.join('\',\'',@skill_text).'\'';
+        
+         $nskill = scalar (@skill_par) ;
 
- if ( exists $plots{'CONT'} ) {
-	 @plottype     = (@plottype,'c') ;
-	 @plottype_txt = (@plottype_txt,'Contingency') ; } ;
+         delete $plots{'CONT'} if ( $nskill == 0 ) ;
 
- # Build xml text
- @xml     = ();
- @xml_txt = ();
+    } ;
 
- if ( exists $plots{'XML'} ) { 
-   @xml  = (@xml,'../Surface/[4]_[1].xml');
-   @xml_txt = ('Stations');
- } ;
-
- if ( exists $plots{'CONT'} ) {
-    @xml     = ('../Surface/c_[1]_00000000_[3]_[4]_0.html',@xml);
-    @xml_txt = ('Cont'.$_,@xml_txt);
- };
- if ( exists $plots{'GEN'} ) {
-    @xml     = ('../Surface/SURF_LL_[3].html',@xml);
-    @xml_txt = ('Stat'.$_,@xml_txt);
- };
- if ( exists $plots{'SEAS'} ) {
-    @xml     = ('../Surface/SURF_SEAS_[3].html',@xml);
-    @xml_txt = ('Seasonal'.$_,@xml_txt);
- };
-
-@xml     = ('../Surface/quality.html',@xml) ;
-@xml_txt = ('Quality control',@xml_txt);
-
-$xml     ='my_xml=[\''.join('\',\'',@xml).'\']';
-$xml_txt ='my_xml_txt=[\''.join('\',\'',@xml_txt).'\']';
-
-$plottype     ='\''.join('\',\'',@plottype).'\'';
-$plottype_txt ='\''.join('\',\'',@plottype_txt).'\'';
-
-if (( exists $plots{'TIME'}   ) ||
-    ( exists $plots{'DAYVAR'} ) ||
-    ( exists $plots{'FREQ'}   ) ||
-    ( exists $plots{'CONT'}   ) ||
-    ( exists $plots{'SEAS'}   ) ||
-    ( exists $plots{'GEN'}    )    ) { &gen_stat ; } ;
-
-if ( exists $plots{'SCAT'} ) { &scatter ; } ;
-if ( exists $plots{'MAP'}  ) { &map ;     }; 
+    &finalize_plot ;
 
 } else {
 
- #
- # Define which things to plot for temp
- #
+    #
+    # Temp
+    #
 
- %plots = ();
+    @plots = ();
+    
+    @plots = split(' ',$ENV{TEMPPLOT}) ;
+    foreach ( @plots ) { $plots{$_} = 1 ; } ;
 
- @plots = split(' ',$ENV{TEMPPLOT}) ;
- foreach ( @plots ) { $plots{$_} = 1 ; } ;
+    $type ="Temp" ;
+    $pdir = $type ;
 
- # 
- # Temp
- # 
+    @lev = split(' ',$ENV{LEV_LST});
+    $nlev = scalar(@lev) -1 ;
+    $lev_lst ='\''.join('\',\'',@lev).'\'';
 
- $type ="Temp" ;
- $pdir = $type ;
- @text = ();
+    @par=split(' ',$ENV{TEMPPAR});
+    $partext='\''.join('\',\'',@par).'\'';
+    $npar = scalar(@par) -1 ;
 
- @lev = split(' ',$ENV{LEV_LST});
- $nlev = scalar(@lev) -1 ;
- $lev_lst ='\''.join('\',\'',@lev).'\'';
+    @text = ();
+    foreach $par ( @par ) { @text = (@text,$plotdefs{$par}{'TEXT_TEMP'}) ; } ;
+    $text='\''.join('\',\'',@text).'\'';
 
- @par=split(' ',$ENV{TEMPPAR});
- $partext='\''.join('\',\'',@par).'\'';
- $npar = scalar(@par) -1 ;
- foreach $par ( @par ) { @text = (@text,$plotdefs{$par}{'TEXT_TEMP'}) ; } ;
- $text='\''.join('\',\'',@text).'\'';
-
- @plottype     =();
- @plottype_txt =();
-
- if ( exists $plots{'GEN'} ) { 
-	@plottype =(@plottype,'V');
-	@plottype_txt =(@plottype_txt,'Fc length ver') ; } ;
- if ( exists $plots{'SEAS'} ) { 
-	@plottype =(@plottype,'Y');
-	@plottype_txt =(@plottype_txt,'Seasonal') ; } ;
- if ( exists $plots{'TIME'} ) {
-	@plottype =(@plottype,'PS','ps');
-    @plottype_txt =(@plottype_txt,'Timeserie stat','Timeserie'); } ;
- if ( exists $plots{'FREQ'} ) { 
-	@plottype =(@plottype,'F') ;
-	@plottype_txt =(@plottype_txt,'Freq dist.') ; } ;
- if ( exists $plots{'DAYVAR'} ) { 
-	@plottype =(@plottype,'v') ;
-	@plottype_txt =(@plottype_txt,'Dayvar') ; } ;
- if ( exists $plots{'CONT'} ) {
-	 @plottype     = (@plottype,'c') ;
-	 @plottype_txt = (@plottype_txt,'Contingency') ; } ;
-
- @xml     = ();
- @xml_txt = ();
-
- if ( exists $plots{'XML'} ) { 
-   @xml  = (@xml,'[4]_[1].xml');
-   @xml_txt = ('Stations');
- } ;
-
- if ( exists $plots{'CONT'} ) {
-   @xml     = ('c_[1]_00000000_[3]_[4]_[5].html',@xml);
-   @xml_txt = ('Cont'.$_,@xml_txt);
- };
- if ( exists $plots{'GEN'} ) {
-   @xml     = ('TEMP_LL_[3].html',@xml);
-   @xml_txt = ('Stat'.$_,@xml_txt);
- };
- if ( exists $plots{'SEAS'} ) {
-   @xml     = ('TEMP_SEAS_[3].html',@xml);
-   @xml_txt = ('Seasonal'.$_,@xml_txt);
- };
-
-@xml     = ('quality.html',@xml) ;
-@xml_txt = ('Quality control',@xml_txt);
-
-$xml     ='my_xml=[\''.join('\',\'',@xml).'\']';
-$xml_txt ='my_xml_txt=[\''.join('\',\'',@xml_txt).'\']';
-
-$plottype     ='\''.join('\',\'',@plottype).'\'';
-$plottype_txt ='\''.join('\',\'',@plottype_txt).'\'';
-
-if (( exists $plots{'TIME'}   ) ||
-    ( exists $plots{'DAYVAR'} ) ||
-    ( exists $plots{'FREQ'}   ) ||
-    ( exists $plots{'CONT'}   ) ||
-    ( exists $plots{'SEAS'}   ) ||
-    ( exists $plots{'GEN'}    )    ) { &gen_stat ; } ;
-
-if ( exists $plots{'SCAT'} ) { &scatter ;     } ;
-if ( exists $plots{'MAP'}  ) { &map ;         }; 
-if ( exists $plots{'VERT'} ) { &profile ;     }; 
+    &finalize_plot ;
 
 };
 
@@ -283,7 +176,7 @@ $xml_txt
 " ;
 
 close INPUT ;
-$web='$WEBCALL -e Prof_'.$type.' -f input.js';
+$web="$WEBCALL -e ${type}_prof -f input.js";
 system($web);
 
 } ;
@@ -354,7 +247,57 @@ $xml
 " ;
 close INPUT ;
 
-$web='$WEBCALL -e Map_'.$type.' -f input.js';
+$web="$WEBCALL -e ${type}_map -f input.js";
+print "$web\n";
+system($web);
+
+} ;
+##################################
+##################################
+##################################
+sub cont {
+
+ #
+ # Skill scores
+ #
+
+ open INPUT, "> input.js" ;
+ print INPUT "
+// Input file
+
+title = '$type skill scores'
+
+framec='Teal'
+
+v[0] = ['c','kc','aic','frc','fbc','f'] ;
+t[0] = ['Wilson diagram','Kuiper skill score','Area index','False alarme rate','Freq bias','Frequency']
+v[1] = [$period_v[$period_type]]
+t[1] = [$period_t[$period_type]]
+v[2] = ['00000000']
+t[2] = ['ALL']
+v[3] =[$areas] ;
+t[3] = v[3] ;
+v[4] = [$skill_partext]
+t[4] = [$skill_text]
+v[5] =[$lev_lst]
+v[5] =v[5].reverse()
+t[5] =v[5]
+
+mname = ['Type','Period','Station','Area','Parameter','Level']
+loc =['l','l','t','l','t','l','l','t']
+$download
+pdir ='$pdir/'
+ext='$EXT'
+help = '${HELP}'; hide_help = false ;
+do_send = true ;
+$xml_txt
+$xml
+
+" ;
+close INPUT ;
+
+$web="$WEBCALL -e ${type}_skill -f input.js";
+print "$web\n";
 system($web);
 
 } ;
@@ -402,7 +345,8 @@ $xml
 
 close INPUT ;
 
-$web='$WEBCALL -e '.$type.' -f input.js';
+$web="$WEBCALL -e $type -f input.js";
+print "$web\n";
 system($web);
 
 } ;
@@ -452,7 +396,81 @@ $xml
 
 close INPUT ;
 
-$web='$WEBCALL -e '.$type.'_scat -f input.js';
+$web="$WEBCALL -e ${type}_scat -f input.js";
+print "$web\n";
 system($web);
 
 } ;
+##################################
+##################################
+##################################
+sub finalize_plot {
+
+ # Create text for general page (Surface/Temp)
+ # based on users choice
+
+ @plottype     =();
+ @plottype_txt =();
+
+ if ( exists $plots{'GEN'} ) {
+	 @plottype     = (@plottype,'V');
+	 @plottype_txt = (@plottype_txt,'Fc length ver') ; } ;
+ if ( exists $plots{'SEAS'} ) {
+	 @plottype     = (@plottype,'Y');
+	 @plottype_txt = (@plottype_txt,'Seasonal') ; } ;
+ if ( exists $plots{'TIME'} ) { 
+	 @plottype     = (@plottype,'PS','ps');
+	 @plottype_txt = (@plottype_txt,'Timeserie stat','Timeserie'); } ;
+ if ( exists $plots{'FREQ'} ) { 
+	 @plottype     = (@plottype,'f') ;
+	 @plottype_txt = (@plottype_txt,'Freq dist.') ; } ;
+ if ( exists $plots{'DAYVAR'} ) {
+	 @plottype     = (@plottype,'v') ;
+	 @plottype_txt = (@plottype_txt,'Dayvar') ; } ;
+
+ # Build xml text
+ @xml     = ();
+ @xml_txt = ();
+
+ if ( exists $plots{'XML'} ) { 
+   @xml  = (@xml,"../$pdir/[4]_[1].xml");
+   @xml_txt = ('Stations');
+ } ;
+
+ if ( exists $plots{'CONT'} ) {
+    @xml     = ("../$pdir/c_[1]_00000000_[3]_[4]_0.html",@xml);
+    @xml_txt = ("Cont".$_,@xml_txt);
+ };
+ if ( exists $plots{'GEN'} ) {
+    @xml     = ("../$pdir/TABLE_LL_[3].html",@xml);
+    @xml_txt = ("Stat".$_,@xml_txt);
+ };
+ if ( exists $plots{'SEAS'} ) {
+    @xml     = ("../$pdir/TABL_SEAS_[3].html",@xml);
+    @xml_txt = ("Seasonal".$_,@xml_txt);
+ };
+
+@xml     = ("../$pdir/quality.html",@xml) ;
+@xml_txt = ("Quality control",@xml_txt);
+
+$xml     ='my_xml=[\''.join('\',\'',@xml).'\']';
+$xml_txt ='my_xml_txt=[\''.join('\',\'',@xml_txt).'\']';
+
+$plottype     ='\''.join('\',\'',@plottype).'\'';
+$plottype_txt ='\''.join('\',\'',@plottype_txt).'\'';
+
+if (( exists $plots{'TIME'}   ) ||
+    ( exists $plots{'DAYVAR'} ) ||
+    ( exists $plots{'FREQ'}   ) ||
+    ( exists $plots{'SEAS'}   ) ||
+    ( exists $plots{'GEN'}    )    ) { &gen_stat ; } ;
+
+if ( exists $plots{'SCAT'} ) { &scatter ; } ;
+if ( exists $plots{'MAP'}  ) { &map ;     }; 
+if ( exists $plots{'CONT'} ) { &cont ;    }; 
+
+# Vertical profiles
+if ( $TYPE eq 'TEMP' && exists $plots{'VERT'} ) { &profile ; };
+
+
+}

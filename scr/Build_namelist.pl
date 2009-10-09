@@ -236,10 +236,10 @@
    } ;
 
    # Set output table names
-   ${$default}{'SEAS'}{'STATNAME'} = '\''.$type.'_SEAS_'.$area.'.html\'' ;
-   ${$default}{'GEN'}{'STATNAME'} = '\''.$type.'_LL_'.$area.'.html\'' ;
-   ${$default}{'DAYVAR'}{'STATNAME'} = '\''.$type.'_HH_'.$area.'.html\'' ;
-   ${$default}{'VERT'}{'STATNAME'}   = '\''.$type.'_VV_'.$area.'.html\'' ;
+   ${$default}{'SEAS'}{'STATNAME'}   = '\'TABLE_SEAS_'.$area.'.html\'' ;
+   ${$default}{'GEN'}{'STATNAME'}    = '\'TABLE_LL_'.$area.'.html\'' ;
+   ${$default}{'DAYVAR'}{'STATNAME'} = '\'TABLE_HH_'.$area.'.html\'' ;
+   ${$default}{'VERT'}{'STATNAME'}   = '\'TABLE_VV_'.$area.'.html\'' ;
 
    # Modify scatter plot settings
    unless ( exists $plots{'SCAT'} ) { ${$default}{'scat_ver'}{'LPLOT_SCAT'   } = 'F' ; } ;

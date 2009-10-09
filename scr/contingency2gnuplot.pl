@@ -7,6 +7,9 @@
 #
 # Author: Calle Fortelius, June 2009, based on verobs2gnuplot.pl
 #
+@col_def_lt  = (1,2,3,4,5,6,8,7);
+@col_def_lt  = (0,@col_def_lt);
+
 
 SCAN_INPUT: foreach $input_file (@ARGV) {
 
@@ -39,8 +42,6 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
       die "Unknown OUTPUT_TYPE $ENV{OUTPUT_TYPE}\n";
     }
     
-    $output_file = $prefix . $EXT[$ENV{OUTPUT_TYPE}] ;
-
     open FILE, "< $input_file";
 
     SCAN_FILE: while (<FILE>) {
@@ -57,6 +58,7 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
             @TMP = split(' ',$line); 
             $unit = pop(@TMP);
             $unit =~ s/\((.*)\)/$1/;
+            $line =~ s/Contingency table//;
             push(@heading,$line);
             next SCAN_FILE;
         }
@@ -89,16 +91,17 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
                                                  # events exceeding he last threshold.
 	   $datascan=0;
            $classes=scalar(@thresholds);
-           push(@workfiles, $prefix . "_" . $exp . ".scores");
+           push(@workfiles,      $prefix . "_" . $exp . ".scores");
 
-           #for (my $f=0; $f <= $classes; $f++){
-              #for (my $o=0; $o <= $classes; $o++){ 
-              #   print "$AoA[$f][$o] ";} 
-              #print "\n";	   }
-
-           open (SCOREFILE, ">$workfiles[@workfiles-1]");
+           open (SCOREFILE,  ">$workfiles[@workfiles-1]");
            for (my $class=0; $class <= $classes-1; $class++){
+
                my $a = 0;my $b = 0;my $c = 0;my $d = 0;
+
+               # forecast\obs observed not obs
+               # forecast        a       b
+               # not forecast    c       d
+
                for (my $o=$class+1; $o <= $classes; $o++){ # obs yes; fc yes
                for (my $f=$class+1; $f <= $classes; $f++){ $a = $a + $AoA[$f][$o] }}
 
@@ -110,26 +113,77 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
 
                for (my $o=0; $o <= $class; $o++){           # obs no; fc no
                for (my $f=0; $f <= $class; $f++){ $d = $d + $AoA[$f][$o] }}
+
+               my $nn=$a+$b+$c+$d;
+
+               #False alarm RATIO:
                my $FAR = $missing; if ($a+$b > 0) {$FAR = $b/($a+$b);}
+               #Probability of detection:
                my $POD = $missing; if ($a+$c > 0) {$POD = $a/($a+$c);}
-               print SCOREFILE " @thresholds[$class] $FAR $POD";
+               #False alarm RATE:
+               my $FA  = $missing; if( $b+$d > 0) {$FA  = $b/($b+$d);}
+               #Kuipers index:
+               my $KUI = $missing; if ($a+$c > 0 and $b+$d > 0) {$KUI = ($a*$d-$b*$c)/(($b + $d)*($a + $c));}
+               # Frequency bias
+               my $FBI = $missing; if ($a+$c > 0) {$FBI = ($a + $b)/($a + $c);}
+               #Area index:
+               my $AI = $missing;
+               unless ($b == 0 or $c == 0) {
+
+                  $AI=($a*$d-$b*$c)/(($b + $d)*($a + $c)) + $c / ($b + $d) *              
+                       log( $nn * $c /(( $a+$c)*($c+$d))) + $b / ($a + $c) * 
+                       log( $nn * $b /(( $b+$d)*($a+$b)));
+
+                  if ( ($a*$d-$b*$c)/(($b + $d)*($a + $c)) < 0) {$AI=-$AI;}
+
+	       }
+               #Observed frequency important weather:
+               my $OFREQ = $missing; {$OFREQ=(($a+$c)/$nn);}
+               #Modelled frequencey important weather:
+               my $MFREQ = $missing; {$MFREQ=(($a+$b)/$nn);}
+	   
+               print SCOREFILE  " @thresholds[$class] $FAR $POD $FA $KUI $FBI $AI $OFREQ $MFREQ \n";
 	   } #loop over classes
-           print SCORFEFILE "\n"; close (SCOREFILE);
+           print SCOREFILE "\n"; close (SCOREFILE);
+
       next SCAN_FILE; }
  }
 close FILE;
 
 # Set colors for score plots
-@colors = ("-1","1","3","4","8","5","6","9","7");
+@colors  = ("-1","1","3","4","8","5","6","9","7");
 @markers = ("-1","1","3","4","8","5","6","9","7");
 #
-# Write the plotting file
-&header;
+# Wilson plot
+$output_file = $prefix . $EXT[$ENV{OUTPUT_TYPE}] ;
+&header("Contingency table");
 &plot_wilson;
 
-# Call gnuplot
-system("gnuplot plot.gp");
-print "Created:$output_file \n";
+# False alarm rate
+$output_file = "fr".$prefix . $EXT[$ENV{OUTPUT_TYPE}] ;
+&header("False alarm rate") ;
+&gen_plot('FAR',4);
+&freq ;
+
+#Kuiper skill score
+$output_file = "k".$prefix . $EXT[$ENV{OUTPUT_TYPE}] ;
+&header("Kupiers skill score");
+&gen_plot('KSS',5);
+
+#Frequency bias
+$output_file = "fb".$prefix . $EXT[$ENV{OUTPUT_TYPE}] ;
+&header("Frequency bias") ;
+&gen_plot('Freq bias',6);
+
+# Area index
+$output_file = "ai".$prefix . $EXT[$ENV{OUTPUT_TYPE}] ;
+&header("Area index") ;
+&gen_plot('AI',7);
+
+#Frequency
+$output_file = "f".$prefix . $EXT[$ENV{OUTPUT_TYPE}] ;
+&header("Frequency") ;
+&freq ;
 
 next SCAN_INPUT;}
 
@@ -137,24 +191,33 @@ next SCAN_INPUT;}
 #################################################################
 #################################################################
 #################################################################
+sub plot {
+   # plot the files
+   system("gnuplot plot1.gp");
+   print "Created:$output_file \n";
+}
+#################################################################
+#################################################################
+#################################################################
 sub header {
 
     # Create header
     $len_head = scalar(@heading) ;
-    $heading =$heading[0];
+    $heading =$_[0].$heading[0];
     for ($i=1;$i<$len_head;$i++ ) { $heading=$heading."\\n  $heading[$i]"; } ;
 
-    open GP, ">plot.gp";
+    open GP, ">plot1.gp";
 
     print GP <<EOF;
 $terminal
-set output '$output_file'
+set output "$output_file"
 set missing "$missing"
 set title "$heading" 
 
 set style line 1 lt 0 lw 1 pt 5 # use black thin lines
 set style line 2 lt 8 lw 1 pt 1 # use black thicker lines
 EOF
+
 }
 #################################################################
 #################################################################
@@ -169,12 +232,15 @@ set xrange [0:1]
 #unset key
 EOF
 
-# make labels for each experiment and for the isolines:
+# make labels for each experiment
 $i=0;
-foreach $exp (@enames) {$i++; 
-$y=0.02+0.03*int(($i-1)/3);$x=0.01+(($i-1)%3)/3;
-print GP "set label '$exp' at $x,$y textcolor lt $colors[$i-1] \n";
+foreach $exp (@enames) {
+   $i++;
+   $y=0.02+0.03*int(($i-1)/3);$x=0.01+(($i-1)%3)/3;
+   print GP "set label '$exp' at $x,$y textcolor lt $colors[$i-1] \n";
  }
+
+# make labels for the isolines:
 print GP <<EOF; 
 set label '1.2' at 0.18,0.97 textcolor lt 0
 set label '1.5' at 0.35,0.97 textcolor lt 0
@@ -195,7 +261,7 @@ foreach (@workfiles) {
      print GP <<EOF;
      '$workfiles[$f]' using $x:$y title '$title' with points pointtype $t lt $linetype, \\
 EOF
-}}
+   }}
 # The next lined will add the frequency bias and the threat score to the plot:
 print GP <<EOF;
 0.2*(1-x) title 'bias' ls 1,\\
@@ -220,4 +286,88 @@ print GP <<EOF;
 
 
 EOF
-close GP   }
+close GP
+
+&plot ;
+
+}
+#################################################################
+#################################################################
+#################################################################
+sub gen_plot {
+
+ ($yunit,$i) = @_ ;
+
+print GP <<EOF;
+set grid
+set xlabel "$unit"
+set ylabel "$yunit"
+EOF
+
+$plot = "plot ";
+
+    $f=-1;
+    foreach (@workfiles) {
+	$f++;
+        if ( $f gt 0 ) { $plot = "$plot,"; }
+        $plot .="'$_' using 1:$i title '$enames[$f]' with linespoints lt $col_def_lt[$f+1] lw 2 pt 7";
+    } ;
+
+print GP "$plot";
+close GP
+
+&plot ;
+
+}
+#################################################################
+#################################################################
+#################################################################
+sub fbias{
+
+print GP <<EOF;
+set grid
+set xlabel "$unit"
+set ylabel "Frequency bias"
+EOF
+
+$plot = "plot ";
+
+    $f=-1;
+    foreach (@workfiles) {
+	$f++;
+        if ( $f gt 0 ) { $plot = "$plot,"; }
+        $plot .="'$_' using 1:6 title '$enames[$f]' with linespoints lt $col_def_lt[$f+1] lw 2 pt 7";
+    } ;
+
+print GP "$plot";
+close GP
+
+&plot ;
+
+}
+#################################################################
+#################################################################
+#################################################################
+sub freq{
+
+print GP <<EOF;
+set grid
+set xlabel "$unit"
+set ylabel "Frequency"
+EOF
+
+$plot = "plot ";
+
+    $f=-1;
+    $plot .="'$workfiles[0]' using 1:8 title 'OBS' with linespoints lt $col_def_lt[$f+1] lw 2 pt 7";
+    foreach (@workfiles) {
+	$f++;
+        $plot .=",'$_' using 1:9 title '$enames[$f]' with linespoints lt $col_def_lt[$f+1] lw 2 pt 7";
+    } ;
+
+print GP "$plot";
+close GP
+
+&plot ;
+
+}
