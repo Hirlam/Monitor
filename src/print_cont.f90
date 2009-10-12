@@ -1,4 +1,5 @@
-SUBROUTINE print_cont(p1,p2)
+SUBROUTINE print_cont(p1,p2,nr,par_active,    &
+                      uh,uf)
 
  USE data
  USE contingency
@@ -6,7 +7,10 @@ SUBROUTINE print_cont(p1,p2)
 
  IMPLICIT NONE
 
- INTEGER, INTENT(IN) :: p1,p2
+ INTEGER, INTENT(IN) :: p1,p2,nr,par_active(nparver)
+
+ LOGICAL,            INTENT(IN) :: uh(nparver,0:23),   &
+                                   uf(nparver,0:maxfclenval)
 
  INTEGER :: i,j,l,m,period
 
@@ -15,7 +19,7 @@ SUBROUTINE print_cont(p1,p2)
  CHARACTER(LEN= 25) :: cform='(A20,XXI9,X,A1,X,I9)'
  CHARACTER(LEN= 25) :: hform='(XXX,A)'
  CHARACTER(LEN= 20) :: ctmp = '',ctmp2 = ''
- CHARACTER(LEN=100) :: cwrk = ''
+ CHARACTER(LEN=100) :: cwrk = '',wname=''
  CHARACTER(LEN=  8) :: cperiod = ''
 
  !----------------------------------------------------------------
@@ -56,14 +60,39 @@ SUBROUTINE print_cont(p1,p2)
        cwrk = TRIM(cwrk)//' ('//TRIM(ctmp2)//')'
        WRITE(luncont,*)TRIM(cwrk)
 
-       cwrk = 'Area:'//TRIM(tag)//' '
-       WRITE(luncont,*)TRIM(cwrk)
+       ! Line 1
+       IF(ALLOCATED(station_name).AND. nr > 0 ) THEN
+          cwrk=' Station: '//trim(station_name(csi))
+       ELSE
+          WRITE(cwrk(1:8),'(I8)')nr
+          cwrk=' Station: '//trim(cwrk(1:8))
+       ENDIF
+       IF (nr == 0) THEN
+          wname=''
+          WRITE(wname(1:5),'(I5)')par_active(j)
+          cwrk=TRIM(wname)//' stations'
+          IF ( TRIM(tag) /= '#' ) cwrk=' Area: '//TRIM(tag)//'  '//TRIM(cwrk)
+       ENDIF
+
+       WRITE(luncont,'(A)')TRIM(cwrk)
+
+       ! Line 3
+       IF ( show_fc_length ) THEN
+          CALL fclen_header(.TRUE.,maxfclenval,        &
+                            uh(j,:),uf(j,:),           &
+                            accu_int(j),cwrk)
+
+       ENDIF
+
 
        IF ( period == 0 ) THEN
-          WRITE(luncont,'(A,I8,A,I8)')' Period:',p1,'-',p2
+          wname=''
+          WRITE(wname,'(A,I8,A,I8)')' Period:',p1,'-',p2
        ELSE
-          WRITE(luncont,'(A,I8)')' Period:',period
+          WRITE(wname,'(A,I8)')' Period:',period
        ENDIF
+       cwrk =TRIM(wname)//'  '//TRIM(cwrk)
+       WRITE(luncont,'(A)')TRIM(cwrk)
 
        WRITE(luncont,*)'Limits ',cont_table(i)%limit(1:cont_table(i)%nclass)
        WRITE(luncont,*)'Each class is data <= limit, the very last > last limit'

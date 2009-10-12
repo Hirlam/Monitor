@@ -17,6 +17,7 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
 
     @heading    = ();
     @workfiles  = ();
+    @workfiles2 = ();
     @limits     = ();
     @enames     = ();
     $missing = -99;
@@ -91,9 +92,12 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
                                                  # events exceeding he last threshold.
 	   $datascan=0;
            $classes=scalar(@thresholds);
-           push(@workfiles,      $prefix . "_" . $exp . ".scores");
+           push(@workfiles, $prefix . "_" . $exp . ".scores");
+           push(@workfiles2,$prefix . "_" . $exp . ".scores2");
 
-           open (SCOREFILE,  ">$workfiles[@workfiles-1]");
+           open (SCOREFILE, ">$workfiles[@workfiles-1]");
+           open (SCOREFILE2,">$workfiles2[@workfiles2-1]");
+
            for (my $class=0; $class <= $classes-1; $class++){
 
                my $a = 0;my $b = 0;my $c = 0;my $d = 0;
@@ -142,9 +146,13 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
                #Modelled frequencey important weather:
                my $MFREQ = $missing; {$MFREQ=(($a+$b)/$nn);}
 	   
-               print SCOREFILE  " @thresholds[$class] $FAR $POD $FA $KUI $FBI $AI $OFREQ $MFREQ \n";
+               print SCOREFILE  " @thresholds[$class] $FAR $POD";
+               print SCOREFILE2 "@thresholds[$class] $FAR $POD $FA $KUI $FBI $AI $OFREQ $MFREQ $nn \n";
 	   } #loop over classes
-           print SCOREFILE "\n"; close (SCOREFILE);
+
+           print SCOREFILE "\n";
+           close (SCOREFILE);
+           close (SCOREFILE2);
 
       next SCAN_FILE; }
  }
@@ -229,7 +237,6 @@ set xlabel "False alarm ratio"
 set ylabel "Hit rate (bias and Threat score)"
 set yrange [0:1]
 set xrange [0:1]
-#unset key
 EOF
 
 # make labels for each experiment
@@ -307,36 +314,10 @@ EOF
 $plot = "plot ";
 
     $f=-1;
-    foreach (@workfiles) {
+    foreach (@workfiles2) {
 	$f++;
         if ( $f gt 0 ) { $plot = "$plot,"; }
         $plot .="'$_' using 1:$i title '$enames[$f]' with linespoints lt $col_def_lt[$f+1] lw 2 pt 7";
-    } ;
-
-print GP "$plot";
-close GP
-
-&plot ;
-
-}
-#################################################################
-#################################################################
-#################################################################
-sub fbias{
-
-print GP <<EOF;
-set grid
-set xlabel "$unit"
-set ylabel "Frequency bias"
-EOF
-
-$plot = "plot ";
-
-    $f=-1;
-    foreach (@workfiles) {
-	$f++;
-        if ( $f gt 0 ) { $plot = "$plot,"; }
-        $plot .="'$_' using 1:6 title '$enames[$f]' with linespoints lt $col_def_lt[$f+1] lw 2 pt 7";
     } ;
 
 print GP "$plot";
@@ -359,8 +340,8 @@ EOF
 $plot = "plot ";
 
     $f=-1;
-    $plot .="'$workfiles[0]' using 1:8 title 'OBS' with linespoints lt $col_def_lt[$f+1] lw 2 pt 7";
-    foreach (@workfiles) {
+    $plot .="'$workfiles2[0]' using 1:8 title 'OBS' with linespoints lt $col_def_lt[$f+1] lw 2 pt 7";
+    foreach (@workfiles2) {
 	$f++;
         $plot .=",'$_' using 1:9 title '$enames[$f]' with linespoints lt $col_def_lt[$f+1] lw 2 pt 7";
     } ;
