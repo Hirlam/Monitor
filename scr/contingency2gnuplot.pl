@@ -142,9 +142,9 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
 
 	       }
                #Observed frequency important weather:
-               my $OFREQ = $missing; {$OFREQ=(($a+$c)/$nn);}
+               my $OFREQ = $missing; if ($nn > 0)  {$OFREQ=(($a+$c)/$nn);}
                #Modelled frequencey important weather:
-               my $MFREQ = $missing; {$MFREQ=(($a+$b)/$nn);}
+               my $MFREQ = $missing;  if ($nn > 0) {$MFREQ=(($a+$b)/$nn);}
 	   
                print SCOREFILE  " @thresholds[$class] $FAR $POD";
                print SCOREFILE2 "@thresholds[$class] $FAR $POD $FA $KUI $FBI $AI $OFREQ $MFREQ $nn \n";
