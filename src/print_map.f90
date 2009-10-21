@@ -169,8 +169,10 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
        ! Copy data and estimate max/min values 
        !
 
-       maxn = 0
-       lmax = 0.
+       maxn   = 0
+       lmax   = 0.
+       numstn = 0
+
        DO i=1,nexp 
 
          ll = 0
@@ -289,19 +291,27 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
        !
        ! Loop over all experiments
        !
+       
+       IF ( numstn == 0 ) THEN
+          minlon = -15.
+          maxlon =  15
+          minlat =   0.
+          maxlat =  90.
+       ELSE
+          minlon=MINVAL(lon(1:numstn))
+          maxlon=MAXVAL(lon(1:numstn))
+          minlat=MINVAL(lat(1:numstn))
+          maxlat=MAXVAL(lat(1:numstn))
+       ENDIF
 
        carea = '['
-       minlon=MINVAL(lon(1:numstn))
-       WRITE(cdum,'(I3)')NINT(minlon-1.)
+       WRITE(cdum,'(I5)')NINT(minlon-1.)
        carea = TRIM(carea)//TRIM(cdum)//':'
-       maxlon=MAXVAL(lon(1:numstn))
-       WRITE(cdum(1:5),'(I3)')NINT(maxlon+1.)
+       WRITE(cdum(1:5),'(I5)')NINT(maxlon+1.)
        carea = TRIM(carea)//TRIM(cdum)//']['
-       minlat=MINVAL(lat(1:numstn))
-       WRITE(cdum(1:5),'(I3)')NINT(minlat-1.)
+       WRITE(cdum(1:5),'(I5)')NINT(minlat-1.)
        carea = TRIM(carea)//TRIM(cdum)//':'
-       maxlat=MAXVAL(lat(1:numstn))
-       WRITE(cdum(1:5),'(I3)')NINT(maxlat+1.)
+       WRITE(cdum(1:5),'(I5)')NINT(maxlat+1.)
        carea = TRIM(carea)//TRIM(cdum)//']'
 
        EXP_LOOP : DO i=1,nexp_plot 
