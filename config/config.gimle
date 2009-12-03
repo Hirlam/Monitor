@@ -22,11 +22,7 @@ MODEXT := mod
 
 # Link
 LD          := $(FC)
-ifeq ($(MAGICSFLAG),-DMAGICS)
-LDFLAGS     := -O3 -xW -I/usr/lib -lglib-2.0 -traceback -g -checkbounds
-else
-LDFLAGS     := -O3 -xW -I/usr/lib -lglib-2.0 -traceback -g 
-endif
+LDFLAGS     := -O3 -xW -traceback -g 
 #-Bstatic -static
 
 # AR
