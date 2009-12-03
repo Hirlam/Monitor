@@ -191,6 +191,13 @@ SUBROUTINE check_namelist
  lplot_comp      = ( ANY(corr_pairs /= 0) )
 
 
+ !
+ ! Contingency settings
+ !
+
+ lcontingency = ( cont_param /= 0 )
+
+
  ! Graphics settings
 
  WRITE(6,*)'  GRAPHICS is ',TRIM(graphics)

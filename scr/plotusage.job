@@ -47,9 +47,9 @@ if [ ! "$MINLAT" ] ; then
    MINLON=-180.
    MAXLON=180.
 else
-   MAXLAT=$( cat ${FILE}.dat | sort -n | tail -1  | cut -c2-10 )
-   MINLON=$( cat ${FILE}.dat | sort -n --key=2  | head -1  | cut -c15-25 )
-   MAXLON=$( cat ${FILE}.dat | sort -n --key=2  | tail -1  | cut -c15-25 )
+   MAXLAT=$( cat ${FILE}.dat | sort -n -k 1 | tail -1  | cut -f 2 -d " " )
+   MINLON=$( cat ${FILE}.dat | sort -n -k 2 | head -1  | cut -f 3 -d " " )
+   MAXLON=$( cat ${FILE}.dat | sort -n -k 2 | tail -1  | cut -f 3 -d " " )
 fi
 
 
