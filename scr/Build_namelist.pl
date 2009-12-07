@@ -76,12 +76,12 @@
     # Define TEMP specific things
     #
 
-    if ( $ENV{ALL_AT_ONCE} eq "no" ) {
-       if ( defined $ENV{"LEV_LST_$inpar"} ) {
+    if ( $ENV{ALL_AT_ONCE} eq "no" && defined $ENV{"LEV_LST_$inpar"} ) {
        @lev = split(' ',$ENV{"LEV_LST_$inpar"});
     } else {
        @lev = split(' ',$ENV{LEV_LST});
     }
+
     $nlev = scalar(@lev);
     $nameread{'read_section'}{'LEV_LST'} = join(',',@lev);
     $nameread{'read_section'}{'LTEMP'} = 'T';
