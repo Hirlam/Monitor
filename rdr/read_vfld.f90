@@ -113,6 +113,7 @@ SUBROUTINE read_vfld
           SELECT CASE(version_flag)
  
           CASE(0)
+             hgt = err_ind
              READ(lunin,*,iostat=ierr)istnr,lat,lon,val(1:8)
           CASE(1)
              READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val(1:10)
@@ -292,7 +293,7 @@ SUBROUTINE read_vfld
           IF (la_ind /= 0 ) hir(stat_i)%o(i)%nal(l,j,la_ind) = hir(stat_i)%lat
 
           ! Station height
-          IF (hg_ind /= 0 ) hir(stat_i)%o(i)%nal(l,j,hg_ind) = hir(stat_i)%hgt
+          IF (hg_ind /= 0 ) hir(stat_i)%o(i)%nal(l,j,hg_ind) = hgt
 
        ENDDO READ_STATION_MOD
 

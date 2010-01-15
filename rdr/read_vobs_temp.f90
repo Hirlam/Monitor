@@ -43,7 +43,7 @@ SUBROUTINE read_vobs_temp
  ! Copy time
 
  cdate = sdate
- ctime = stime
+ ctime = stime * 10000
 
  wrk = 0
  WHERE ( lev_lst > 0 ) wrk = 1
@@ -79,8 +79,8 @@ SUBROUTINE read_vobs_temp
           wdate = cdate
           wtime = ctime
           CALL adddtg(wdate,wtime,obint*3600,cdate,ctime)
-          IF(cdate.gt.edate) EXIT TIME_LOOP
-          IF(cdate >= edate .AND. ctime/10000 > etime) EXIT TIME_LOOP
+          IF(cdate >  edate_obs) EXIT TIME_LOOP
+          IF(cdate >= edate_obs .AND. ctime/10000 > etime_obs) EXIT TIME_LOOP
 
           i = i - 1
           CYCLE TIME_LOOP
@@ -105,7 +105,7 @@ SUBROUTINE read_vobs_temp
           wdate = cdate
           wtime = ctime
           CALL adddtg(wdate,wtime,obint*3600,cdate,ctime)
-          IF(cdate > edate) EXIT TIME_LOOP
+          IF(cdate > edate_obs) EXIT TIME_LOOP
           CYCLE TIME_LOOP
        ENDIF
 
@@ -240,8 +240,8 @@ SUBROUTINE read_vobs_temp
     wdate = cdate
     wtime = ctime
     CALL adddtg(wdate,wtime,obint*3600,cdate,ctime)
-    IF(cdate > edate) EXIT TIME_LOOP
-    IF(cdate >= edate .AND. ctime/10000 > etime) EXIT TIME_LOOP
+    IF(cdate >  edate_obs) EXIT TIME_LOOP
+    IF(cdate >= edate_obs .AND. ctime/10000 > etime_obs) EXIT TIME_LOOP
 
  ENDDO TIME_LOOP
 

@@ -10,7 +10,7 @@ SUBROUTINE check_namelist
  
  IMPLICIT NONE
 
- INTEGER :: i,j
+ INTEGER :: i,j,ctime
 
  !---------------------------------------------
 
@@ -183,7 +183,9 @@ SUBROUTINE check_namelist
 
 
  ! Adjust last obs date and time according to forecast length
- CALL adddtg(edate,etime,3600*MAXVAL(fclen),edate_obs,etime_obs)
+ ctime = etime * 10000
+ CALL adddtg(edate,ctime,3600*MAXVAL(fclen),edate_obs,etime_obs)
+ etime_obs = etime_obs / 10000
 
 
  ! X plots
