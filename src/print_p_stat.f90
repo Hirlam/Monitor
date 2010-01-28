@@ -130,7 +130,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
     maxtim = get_maxtim(time_stat(istart)%date,time_stat(iend)%date,obint)
     ELSE
     maxtim = get_maxtim(time_stat(istart)%date,time_stat(iend)%date,    &
-                        MAX(obint,MINVAL(timeserie_wind(1:npar))))
+                        MIN(obint,MINVAL(timeserie_wind(1:npar))))
     ENDIF
  ELSE
     maxtim = get_maxtim(time_stat(istart)%date,time_stat(iend)%date,obint)

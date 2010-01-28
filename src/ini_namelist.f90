@@ -36,4 +36,7 @@ SUBROUTINE ini_namelist
  ! Selection
  reverse_selection = .FALSE.
 
+ ! Timserie window
+ timeserie_wind = 0
+
 END SUBROUTINE ini_namelist

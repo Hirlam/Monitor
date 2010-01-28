@@ -193,13 +193,28 @@ SUBROUTINE check_namelist
  lplot_comp      = ( ANY(corr_pairs /= 0) )
 
 
- !
  ! Contingency settings
- !
 
  lcontingency = ( cont_param /= 0 )
 
 
+ ! Do not allow timserie_wind < obint because it is not meaningful
+
+ IF ( ltimeserie_stat ) THEN
+    DO i=1,nparver
+       IF ( timeserie_wind(i) < obint .AND. &
+            timeserie_wind(i) > 0           ) THEN
+
+          WRITE(6,*)'timserie_wind < obint not allowed'
+          WRITE(6,*)'Parameter,obint,timeserie_wind:', &
+          obstype(i),obint,timeserie_wind(i)
+    
+          CALL abort
+
+       ENDIF
+    ENDDO
+ ENDIF
+ 
  ! Graphics settings
 
  WRITE(6,*)'  GRAPHICS is ',TRIM(graphics)
