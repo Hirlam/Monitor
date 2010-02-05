@@ -64,7 +64,7 @@ cp $SCR/style.xsl .
 
 if [ `echo $TEMPPLOT | grep -c VERT` -gt 0 ] ; then
    mkdir vert 
-   mv l*.ps l*.png *.jpg l*.svg vert
+   mv l*.ps l*.png l*.jpg l*.svg vert
 fi
 
 #Per level plots
