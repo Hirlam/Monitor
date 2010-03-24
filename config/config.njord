@@ -1,0 +1,43 @@
+ARCH=njord
+
+
+# CPP
+MACHINECPP :=
+CPP     := /usr/ccs/lib/cpp   
+
+# C
+CC      := xlc_r
+CCFLAGS := -g -O -q64 -qwarn64 $(MACHINECPP)
+
+# Fortran
+FC := xlf90_r
+FREE       := -qfree=f90 -qsuffix=f=f90 -qsuffix=cpp=F90
+FIXED      := -qfixed
+MYFCFLAGS := -q64 -qwarn64 -g -O3 -qstrict -qfullpath -qmaxmem=-1 -qextname
+
+# Modules
+MODNAME = $(shell echo $(*F) | tr "[:upper:]" "[:lower:]")
+MODEXT := mod
+
+# Link
+LD          := xlf90_r
+LDFLAGS     := -g -q64 -b64  -bnoquiet  -qsmp=omp -lpmapi
+
+
+# AR
+AR      := ar
+ARFLAGS := -X64 rv
+MV      := mv
+RM      := rm -f
+MKDIR   := mkdir
+RMDIR   := rmdir
+
+# Flags
+FCFLAGS := $(MYFCFLAGS) -I$(ROOTDIR)/inc -I$(ROOTDIR)/$(ARCH)/mod
+CPPFLAGS := -I$(ROOTDIR)/inc 
+
+# depf90mod.x search extensions ( -f is default )
+MODEXTS=-E F90 -E F -E f90 -E -f 
+
+# EMOSLIB
+EMOSLIB := -L/home/ntnu/forecast/auxlibs/ -lgribex -lbufr
