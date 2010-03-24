@@ -39,9 +39,9 @@ CPPFLAGS := -I$(ROOTDIR)/inc $(MAGICSFLAG)
 # depf90mod.x search extensions ( -f is default )
 MODEXTS=-E F90 -E F -E f90 -E -f 
 
-# EMOSLIB
+# MAGICS
 ifeq ($(MAGICSFLAG),-DMAGICS)
-EXTLIB := -L/data/proj/hirfou/uandrae/magics/lib -lmagics -lMvDevices -lmagics -L/data/proj_ns1/hirfou/uandrae/magics/lib -lemos 
+EXTLIB :=
 else
 EXTLIB :=
 endif
