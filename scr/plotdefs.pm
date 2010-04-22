@@ -83,7 +83,8 @@
 
  'DD'=>{
    'TEXT'        => 'Wind direction',
-   'TEXT_TEMP'        => 'Wind direction',
+   'TEXT_TEMP'   => 'Wind direction',
+   'PRE_FCLA'    => '10.,30.,50.,70.,90.,110.,130.,150.,170.,190.,210.,230.,250.,270.,290.,310.,330.,350.',
    'MAP_BIAS_INTERVAL'=> '-90.,-60.,-30.,0.,30.,60.,90.',
  },
 
