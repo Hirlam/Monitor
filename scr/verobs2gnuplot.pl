@@ -6,11 +6,9 @@
 # Usage: verobs2gnuplot.pl *.txt, where *.txt is the textfiles produced by verobs
 #
 
-# Set colors for map and scatter plots and lines
-@map_colors  = ("7","3","5","6","8","4");
-@scat_colors = ("3","5","2","6","8","1","4","9","7");
-@col_def_lt  = (1,2,3,4,5,6,8,7);
+# Set colors for lines
 
+@col_def_lt  = (1,2,3,4,5,6,8,7);
 @col_def_lt  = (0,@col_def_lt);
 
 if ( $ARGV[0] eq '-d' ) {
@@ -52,15 +50,27 @@ SCAN_INPUT: foreach $input_file (@FILES) {
 
     @EXT = ('','.ps','.1.png','.1.jpg','.svg') ;
 
-    # PS or PNG as output
+    # PS or PNG as output and their color definitions for map and scatter
     if ( $ENV{OUTPUT_TYPE} eq 1 ) {
         $terminal    = "set terminal postscript landscape enhanced colour";
+        @map_colors  = ("7","3","5","6","8","4");
+        @scat_colors = ("3","5","2","6","8","1","4","9","7");
+        $map_pt=7;
     } elsif ( $ENV{OUTPUT_TYPE} eq 2 ) {
         $terminal    = "set terminal png";
+        @map_colors  = ("-1","8","5","7","1","13");
+        @scat_colors = ("8","5","2","7","9","1","13","0","-1");
+        $map_pt=13;
     } elsif ( $ENV{OUTPUT_TYPE} eq 3 ) {
         $terminal    = "set terminal jpeg";
+        @map_colors  = ("-1","8","5","7","1","13");
+        @scat_colors = ("8","5","2","7","9","1","13","0","-1");
+        $map_pt=13;
     } elsif ( $ENV{OUTPUT_TYPE} eq 4 ) {
         $terminal    = "set terminal svg enhanced fsize 8 ";
+        @map_colors  = ("7","3","5","6","8","4");
+        @scat_colors = ("3","5","2","6","8","1","4","9","7");
+        $map_pt=7;
     } else {
       die "Unknown OUTPUT_TYPE $ENV{OUTPUT_TYPE}\n";
     }
@@ -372,7 +382,7 @@ EOF
         $i++;
         if ( $i gt 0 ) { $plot = "$plot,"; }
         if ( $i <= 8 ) { $color_id = $i; } else { $color_id = 8; } ;
-        $plot = $plot . " '$input_file"."_".$_."' title '$sint[$i]' lt $scat_colors[$color_id] ps 1 pt 7";
+        $plot = $plot . " '$input_file"."_".$_."' title '$sint[$i]' lt $scat_colors[$color_id] ps 1 pt $map_pt";
     }
 
     if ( $prefix =~ /s/ || $prefix =~ /S/ ) { $plot = $plot . ", x notitle with lines lt -1"; } ;
@@ -391,6 +401,6 @@ EOF
     foreach (@sfile) {
         $i++;
         if ( $i gt 0 ) { $plot = "$plot,"; }
-        $plot = $plot . " '$input_file"."_".$_."' title '$sint[$i] $sintu[$i]' lt $map_colors[$i] ps 1 pt 7";
+        $plot = $plot . " '$input_file"."_".$_."' title '$sint[$i] $sintu[$i]' lt $map_colors[$i] ps 1 pt $map_pt";
     }
 }
