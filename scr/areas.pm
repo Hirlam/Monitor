@@ -699,7 +699,7 @@
   'CEeurope' => {
    'CBOX%ACTIVE' => 'T',
    'CBOX%SLAT' => '35.',
-   'CBOX%WLON' => '0.',
+   'CBOX%WLON' => '10.',
    'CBOX%NLAT' => '60.',
    'CBOX%ELON' => '60.',
    'MAP_SCALE'=>5.0e7,
