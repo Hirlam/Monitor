@@ -222,7 +222,7 @@ SUBROUTINE verify
 
     DO j = 1,maxper
     DO i = 1,maxstn
-       allstat(i,j)%s = statistics(0.,0.,0.,0,0,0.)
+       allstat(i,j)%s = statistics(0.,0.,0.,0,0,0.,0.,0.,0.,0.)
        allstat(i,j)%par_active = 0
     ENDDO
     ENDDO
@@ -237,7 +237,7 @@ SUBROUTINE verify
     ENDDO
 
     DO i = 1,maxstn
-       stat(i)%s = statistics(0.,0.,0.,0,0,0.)
+       stat(i)%s = statistics(0.,0.,0.,0,0,0.,0.,0.,0.,0.)
        stat(i)%par_active = 0
     ENDDO
 
@@ -705,18 +705,8 @@ SUBROUTINE verify
      ENDIF
 
      IF (lallstat) CALL add_all_time_stat
-
      ! Clear single station time_stat
-     DO o=1,all_time_stat_max
-         time_stat(o)%obs  = 0.
-         time_stat(o)%bias = 0.
-         time_stat(o)%rmse = 0.
-         time_stat(o)%n    = 0
-         time_stat(o)%date = 0
-         time_stat(o)%time = 0
-     ENDDO
-
-     time_stat_max = 0
+     CALL clear_single_time_stat
 
    ENDIF
 

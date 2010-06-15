@@ -61,6 +61,7 @@
  'LPLOT_STAT' => 'T',
  'SHOW_BIAS' => 'T',
  'SHOW_RMSE' => 'T',
+ 'SHOW_VAR'  => 'T',
  },
 
  'MAP' => {
@@ -93,6 +94,7 @@
   'LFCVER'     => 'F',
   'USE_FCLEN'  => join(',',split(' ',$ENV{FCLEN_DAYVAR})),
   'SHOW_OBS'   => 'T',
+  'SHOW_VAR'   => 'F',
  },
 
  'VERT' => {

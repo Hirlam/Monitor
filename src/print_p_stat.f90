@@ -40,6 +40,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
                   timeserie_wind,sumup_tolerance,obint,  &
                   copied_obs,copied_mod,                 &
                   show_rmse,show_stdv,show_bias,show_obs,&
+                  show_var,show_skw,                     &
                   ltemp,lev_lst,window_pos,output_type,  &
                   z_is_pressure,output_mode,len_lab,     &
                   accu_int
@@ -79,14 +80,13 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
 
  REAL,    ALLOCATABLE, TARGET :: obs(:),rnum(:,:),bias(:,:),rmse(:,:),stdv(:,:)
  INTEGER, ALLOCATABLE :: ndate(:),ntime(:),date(:),time(:)
-
-
+ REAL,    ALLOCATABLE, TARGET :: stdvi(:,:),skw(:,:),stdvo(:),skwo(:)
+ REAL    :: zobs,zfc,zslask2
  CHARACTER(LEN=30 ) :: cform='   '
  CHARACTER(LEN=6  ) :: ob_short='      '
  CHARACTER(LEN=2  ) :: prefix=' '
  CHARACTER(LEN=100) :: fname=' '
  CHARACTER(LEN=120) :: wtext,wname,wtext1
-
 
 !-----------------------------------------------------
  ! Init timing counter
@@ -137,21 +137,6 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
  ENDIF
  maxtim = MAX(maxtim,ntim)
 
-    npp = 0
-    IF ( ldiff ) THEN
-       IF (show_rmse) THEN
-          npp = nexp
-       ENDIF
-       IF (show_stdv) THEN
-          npp = npp + nexp
-       ENDIF
-       IF (show_bias) THEN
-          npp = npp + nexp
-       ENDIF
-    ELSE
-       npp =  nexp
-    ENDIF
-
  ALLOCATE(ndate(maxtim),        &
           ntime(maxtim),        &
            date(maxtim),        &
@@ -161,6 +146,13 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
            rmse(maxtim,nexp),   &
            stdv(maxtim,nexp),   &
            rnum(maxtim,nexp))
+
+ IF ( show_var .OR. show_skw )  &
+ ALLOCATE(                      &
+          stdvo(maxtim),        &
+           skwo(maxtim),        &
+          stdvi(maxtim,nexp),   &
+            skw(maxtim,nexp))
 
  NPAR_LOOP : DO j=1,npar
 
@@ -178,6 +170,13 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
     rmse = 0.
     stdv = 0.
     obs  = 0.
+
+    IF ( show_var .OR. show_skw ) THEN
+       stdvi= 0.
+       stdvo= 0.
+       skw  = 0.
+       skwo = 0.
+    ENDIF
 
     rnum_min = 0.
     rnum_max = 0.
@@ -214,7 +213,6 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
              rmse(ii,k) = SQRT(    time_stat(i)%rmse(k,j)/rnum(ii,k) )
              stdv(ii,k) = SQRT(ABS(time_stat(i)%rmse(k,j)/rnum(ii,k) - &
                                   (time_stat(i)%bias(k,j)/rnum(ii,k))**2))
-
           ELSE
              bias(ii,k) = ( time_stat(i)%bias(k,j) +              &
                             time_stat(i)%obs(j)      ) / rnum(ii,k)
@@ -223,6 +221,47 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
 
              IF ( k == 1 ) THEN
                 obs(ii) = time_stat(i)%obs(j) / rnum(ii,k)
+             ENDIF
+
+             IF ( show_var .OR. show_skw ) THEN
+
+                !
+                ! Model std and skewness:
+                !
+
+                zobs = time_stat(i)%obs(j) / rnum(ii,k) ! Mean obs value
+                zfc  = bias(ii,k) + zobs                ! Mean forecast value
+
+                stdvi(ii,k) =SQRT(ABS(time_stat(i)%s2(k,j)/rnum(ii,k) - &
+                                      zfc**2))
+
+                zslask2 = time_stat(i)%s3(k,j)/rnum(ii,k) &
+                     -  3*time_stat(i)%s2(k,j)/rnum(ii,k)*zfc &
+                     +  2*zfc**3
+
+                IF(zslask2 < 0.)then 
+                   skw(ii,k) = - (-zslask2)**0.333333
+                ELSE
+                   skw(ii,k) = zslask2**0.333333
+                ENDIF
+
+                !
+                ! Obs std and skewness:
+                !
+
+                stdvo(ii) =SQRT(ABS(time_stat(i)%obs2(j)/rnum(ii,k) - &
+                                      zobs**2))
+
+                zslask2 = time_stat(i)%obs3(j)/rnum(ii,k) &
+                     -  3*time_stat(i)%obs2(j)/rnum(ii,k)*zobs &
+                     +  2*zobs**3
+
+                IF(zslask2 < 0)then
+                   skwo(ii) = - (-zslask2)**0.333333
+                ELSE
+                   skwo(ii) = zslask2**0.333333
+                ENDIF 
+
              ENDIF
 
           ENDIF
@@ -369,6 +408,8 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
        IF (show_bias) npp = npp + nexp
     ELSE
        npp = 1 + nexp
+       IF ( show_var ) npp = 1 + nexp + npp
+       IF ( show_skw ) npp = 1 + nexp + npp
     ENDIF
     ! Add one column for number of cases 
     npp = npp + 1
@@ -425,6 +466,16 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
       k=k+1
       pdat(k)%v => obs(1:ntim_use)
       WRITE(lunout,'(A,I2.2,X,A)')'#COLUMN_',k+2,'OBS'
+      IF ( show_var ) THEN
+         DO i=1,nexp
+           k=k+1
+           pdat(k)%v => stdvi(1:ntim_use,i)
+           WRITE(lunout,'(A,I2.2,2(X,A))')'#COLUMN_',k+2,'STDVI',TRIM(expname(i))
+         ENDDO
+         k=k+1
+         pdat(k)%v => stdvo(1:ntim_use)
+         WRITE(lunout,'(A,I2.2,2(X,A))')'#COLUMN_',k+2,'STDVO','OBS'
+      ENDIF
     ENDIF
     k=k+1
     pdat(k)%v => rnum(1:ntim_use,1)
@@ -466,6 +517,8 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
  ENDDO NPAR_LOOP
 
  DEALLOCATE(ndate,ntime,date,time,obs,bias,rmse,stdv,rnum)
+
+ IF ( show_var .OR. show_skw ) DEALLOCATE(stdvi,stdvo,skw,skwo)
 
  RETURN
 

@@ -413,8 +413,25 @@ sub finalize_plot {
  @plottype_txt =();
 
  if ( exists $plots{'GEN'} ) {
-	 @plottype     = (@plottype,'V');
-	 @plottype_txt = (@plottype_txt,'Fc length ver') ; } ;
+
+   @plottype     = (@plottype,'V');
+   @plottype_txt = (@plottype_txt,'Fc length ver') ; 
+ 
+   if ( exists $arealoop{'GEN'}{'SHOW_VAR'} ) {
+      if ( $arealoop{'GEN'}{'SHOW_VAR'} eq 'T' ) {
+	 @plottype     = (@plottype,'V_VAR',);
+	 @plottype_txt = (@plottype_txt,'Fc length var') ; 
+     };
+   } ;
+   if ( exists $arealoop{'GEN'}{'SHOW_SKW'} ) {
+      if ( $arealoop{'GEN'}{'SHOW_SKW'} eq 'T' ) {
+	 @plottype     = (@plottype,'V_SKW');
+	 @plottype_txt = (@plottype_txt,'Fc length skw') ; 
+     };
+   } ;
+
+ } ;
+
  if ( exists $plots{'SEAS'} ) {
 	 @plottype     = (@plottype,'Y');
 	 @plottype_txt = (@plottype_txt,'Seasonal') ; } ;
@@ -426,8 +443,22 @@ sub finalize_plot {
 	 @plottype_txt = (@plottype_txt,'Freq dist.') ; } ;
  if ( exists $plots{'DAYVAR'} ) {
 	 @plottype     = (@plottype,'v') ;
-	 @plottype_txt = (@plottype_txt,'Dayvar') ; } ;
+	 @plottype_txt = (@plottype_txt,'Dayvar') ;
 
+   if ( exists $arealoop{'DAYVAR'}{'SHOW_VAR'} ) {
+      if ( $arealoop{'DAYVAR'}{'SHOW_VAR'} eq 'T' ) {
+	 @plottype     = (@plottype,'v_VAR',);
+	 @plottype_txt = (@plottype_txt,'Dayvar var') ; 
+     };
+   } ;
+   if ( exists $arealoop{'DAYVAR'}{'SHOW_SKW'} ) {
+      if ( $arealoop{'DAYVAR'}{'SHOW_SKW'} eq 'T' ) {
+	 @plottype     = (@plottype,'v_SKW');
+	 @plottype_txt = (@plottype_txt,'Dayvar skw') ; 
+     };
+   } ;
+
+ } ;
  # Build xml text
  @xml     = ();
  @xml_txt = ();

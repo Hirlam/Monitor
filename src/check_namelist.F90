@@ -31,14 +31,14 @@ SUBROUTINE check_namelist
  ! Check what kind of statistics we are producing
  !
 
- IF ( .NOT. lverify                   ) WRITE(6,*)' - No verification is done '
+ IF ( .NOT. lverify                   ) WRITE(6,*)' - No verification is done, only reading and/or QC'
  IF ( ltimeserie_stat                 ) WRITE(6,*)' - Time serie verification is done '
  IF ( plot_bias_map .OR. plot_obs_map ) WRITE(6,*)' - Maps will be created '
  IF ( lplot_vert                      ) WRITE(6,*)' - Vertical profiles will be verified'
  IF ( lplot_freq                      ) WRITE(6,*)' - Frequency distribution will be calculated'
  IF ( lplot_scat                      ) WRITE(6,*)' - Scatter plots will be produced '
  IF ( lplot_stat .AND. lfcver .AND. &
-      .NOT. lplot_seasonal            ) WRITE(6,*)' - Verification against forecast will be done'
+      .NOT. lplot_seasonal            ) WRITE(6,*)' - Verification against forecast time will be done'
  IF ( lplot_stat .AND. lfcver .AND. &
       lplot_seasonal                  ) WRITE(6,*)' - Seasonal verification will be done'
  IF ( lplot_stat .AND. .NOT. lfcver   ) WRITE(6,*)' - Verification against time of day will be done'

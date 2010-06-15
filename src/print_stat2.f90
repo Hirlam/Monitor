@@ -12,6 +12,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
                   nfclengths,nuse_fclen,tag,                    &
                   timdiff,time_shift,show_fc_length,ltiming,    &
                   show_bias,show_rmse,show_stdv,show_obs,       &
+                  show_var,show_skw,                            &
                   copied_obs,copied_mod,period_freq,period_type,&
                   output_type,accu_int,lprint_seasonal
 
@@ -29,16 +30,21 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
 ! Local
 
  INTEGER :: i,j,k,timing_id,ntimver_l, &
-            period,npp
+            period,npp,ntypes,n
 
- REAL minnum,maxnum,ticnum,maxnum_t
+ REAL minnum,maxnum,ticnum,maxnum_t,   &
+      zfc,zslask2
 
  REAL, TARGET, ALLOCATABLE :: &
             bias(:,:),        &
-             obs(:,:),        &
             rmse(:,:),        &
             stdv(:,:),        &
-            rnum(:,:)
+             skw(:,:),        &
+           stdvi(:,:),        &
+            skwo(:),          &
+           stdvo(:),          &
+             obs(:),          &
+            rnum(:)
 
  INTEGER, ALLOCATABLE :: hour(:)
 
@@ -54,8 +60,9 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
  CHARACTER(LEN=100) :: wtext1=' '
  CHARACTER(LEN=100) :: fname=' '
  CHARACTER(LEN= 30) :: wname=' '
- CHARACTER(LEN=  1) :: prefix = ' '
+ CHARACTER(LEN= 10) :: prefix = ' '
  CHARACTER(LEN=  6) :: ob_short = '      '
+ CHARACTER(LEN=  6) :: ctype(4) = ' '
  CHARACTER(LEN=30 ) :: cform='   '
 
 !------------------------------------------
@@ -63,29 +70,20 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
  timing_id = 0
  IF (ltiming) CALL acc_timing(timing_id,'print_stat2')
 
+ ! Force settings
  IF ( show_obs ) THEN
     show_rmse = .FALSE. 
     show_bias = .FALSE. 
     show_stdv = .FALSE. 
  ENDIF
 
- ! Set output filename
+ ! Set period
 
- IF (lfcver) THEN
-    IF ( lprint_seasonal ) THEN
-       prefix = 'Y'
-    ELSE
-       prefix = 'V'
-    ENDIF
- ELSE
-    prefix = 'v'
- ENDIF
  IF (yymm < 999999 ) THEN
     period = yymm
  ELSE
     period = 0
  ENDIF
-
 
  ! Set number of hours
 
@@ -99,13 +97,47 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
    ntimver_l = ntimver + 1
  ENDIF
 
+ ! Allocate
+
  ALLOCATE(bias(ntimver_l,nexp),         &
-          rmse(ntimver_l,nexp),         &
-          stdv(ntimver_l,nexp),         &
-          rnum(ntimver_l,nexp),         &
-           obs(ntimver_l,nexp),         &
+           obs(ntimver_l),              &
+          rnum(ntimver_l),              &
           hour(ntimver_l))
 
+ IF ( show_rmse .OR. show_stdv .OR. show_skw )          &
+ ALLOCATE(rmse(ntimver_l,nexp),                         &
+          stdv(ntimver_l,nexp))
+
+ IF ( show_var .OR. show_skw )                          &
+ ALLOCATE(stdvi(ntimver_l,nexp),stdvo(ntimver_l),       &
+          skw(ntimver_l,nexp),skwo(ntimver_l))
+
+
+ ! Examine what to do 
+
+ ntypes = 0
+ 
+ IF ( show_obs ) THEN
+   ntypes = ntypes + 1 
+   ctype(ntypes) = 'OBS'
+ ENDIF
+
+ IF ( show_rmse .OR. show_bias .OR. show_stdv ) THEN
+   ntypes = ntypes + 1 
+   ctype(ntypes) = 'BIAS'
+ ENDIF
+
+ IF ( show_var ) THEN
+   ntypes = ntypes + 1 
+   ctype(ntypes) = 'VAR'
+ ENDIF
+
+ IF ( show_skw ) THEN
+   ntypes = ntypes + 1 
+   ctype(ntypes) = 'SKW'
+ ENDIF
+
+ ! Fill the hour array
  IF (lfcver) THEN
     IF ( lprint_seasonal ) THEN
        DO i=1,ntimver
@@ -126,6 +158,124 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
 
  DO j=1,nparver
 
+    no_data_at_all = (MAXVAL(s(:,j,:)%n) == 0)
+
+    IF ( no_data_at_all ) THEN
+
+       rnum = 0.
+        obs = 0.
+       bias = 0.
+       IF ( show_rmse .OR. show_stdv ) THEN
+          rmse = 0.
+          stdv = 0.
+       ENDIF
+       IF ( show_var .OR. show_skw ) THEN
+         stdvi = 0.
+         stdvo = 0.
+           skw = 0.
+          skwo = 0.
+       ENDIF
+
+    ELSE
+
+       DO k=1,ntimver
+          rnum(k) = MAX(1.,FLOAT(s(1,j,k)%n))
+       ENDDO
+       DO k=1,ntimver
+           obs(k) = s(1,j,k)%obs /rnum(k)
+       ENDDO
+
+       DO i=1,nexp
+       DO k=1,ntimver
+          bias(k,i) =      s(i,j,k)%bias/rnum(k)
+       ENDDO
+       ENDDO
+
+       IF ( show_rmse .OR. show_stdv ) THEN
+          DO i=1,nexp
+          DO k=1,ntimver
+             rmse(k,i) = SQRT(s(i,j,k)%rmse/rnum(k))
+             stdv(k,i) = SQRT(ABS(s(i,j,k)%rmse/rnum(k) - (s(i,j,k)%bias/rnum(k))**2))
+          ENDDO
+          ENDDO
+       ENDIF
+
+       IF ( show_var .OR. show_skw ) THEN
+         DO i=1,nexp
+         DO k=1,ntimver
+           zfc  = bias(k,i)+obs(k)
+           stdvi(k,i) = SQRT(ABS(s(i,j,k)%s2/rnum(k) - zfc**2))
+
+           zslask2 = s(i,j,k)%s3/rnum(k) - 3*s(i,j,k)%s2/rnum(k)*zfc + 2*zfc**3
+
+           IF(zslask2 < 0.)then
+              skw(k,i) = - (-zslask2)**0.333333
+           ELSE
+              skw(k,i) = zslask2**0.333333
+           ENDIF
+
+           stdvo(k) = SQRT(ABS(s(i,j,k)%obs2/rnum(k) - obs(k)**2))
+
+           zslask2 =   s(i,j,k)%obs3/rnum(k) -   &
+                     3*s(i,j,k)%obs2/rnum(k)*obs(k) + 2*obs(k)**3
+
+           IF(zslask2 < 0)then
+              skwo(k) = - (-zslask2)**0.333333
+           ELSE
+              skwo(k) = zslask2**0.333333
+           ENDIF
+
+         ENDDO
+         ENDDO
+       ENDIF
+
+       IF (.NOT.lfcver) THEN
+
+          rnum(ntimver_l) = rnum(1)
+           obs(ntimver_l) =  obs(1)
+          bias(ntimver_l,:) = bias(1,:)
+
+          IF ( show_rmse .OR. show_stdv ) THEN
+            rmse(ntimver_l,:) = rmse(1,:)
+            stdv(ntimver_l,:) = stdv(1,:)
+          ENDIF
+
+          IF ( show_var .OR. show_skw ) THEN
+            stdvi(ntimver_l,:) = stdvi(1,:)
+              skw(ntimver_l,:) = skw(1,:)
+            stdvo(ntimver_l)   = stdvo(1)
+             skwo(ntimver_l)   = skwo(1)
+          ENDIF
+
+       ENDIF
+
+       IF ( show_obs) THEN
+         DO i=1,nexp
+            bias(:,i) = bias(:,i) + obs
+         ENDDO
+       ENDIF
+    
+    ENDIF ! no_data_at_all
+
+    ! Set output filename
+
+    PLOT_TYPE : DO n=1,ntypes
+
+    IF (lfcver) THEN
+       IF ( lprint_seasonal ) THEN
+          prefix = 'Y'
+       ELSE
+          prefix = 'V'
+       ENDIF
+    ELSE
+       prefix = 'v'
+    ENDIF
+
+    SELECT CASE(TRIM(ctype(n)))
+    CASE ('VAR','SKW')
+       prefix = TRIM(prefix)//'_'//TRIM(ctype(n))
+    END SELECT
+
     IF ( output_mode == 2 ) THEN
        CALL make_fname(prefix,period,stnr,tag,     &
                        obstype(j)(1:2),            &
@@ -135,39 +285,6 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
        CALL open_output(fname)
     ENDIF
 
-    no_data_at_all = (MAXVAL(s(:,j,:)%n) == 0)
-
-    IF ( no_data_at_all ) THEN
-
-       rnum = 0.
-        obs = 0.
-       bias = 0.
-       rmse = 0.
-       stdv = 0.
-
-    ELSE
-
-       DO i=1,nexp
-       DO k=1,ntimver
-          rnum(k,i) = MAX(1.,float(s(i,j,k)%n))
-           obs(k,i) =      s(i,j,k)%obs /rnum(k,i)
-          bias(k,i) =      s(i,j,k)%bias/rnum(k,i)
-          rmse(k,i) = sqrt(s(i,j,k)%rmse/rnum(k,i))
-          stdv(k,i) = sqrt(ABS(s(i,j,k)%rmse/rnum(k,i) - (s(i,j,k)%bias/rnum(k,i))**2))
-       ENDDO
-       ENDDO
-
-       IF (.NOT.lfcver) THEN
-          rnum(ntimver_l,:) = rnum(1,:)
-           obs(ntimver_l,:) =  obs(1,:)
-          bias(ntimver_l,:) = bias(1,:)
-          rmse(ntimver_l,:) = rmse(1,:)
-          stdv(ntimver_l,:) = stdv(1,:)
-       ENDIF
-
-       IF ( show_obs) bias = bias + obs
-    
-    ENDIF ! no_data_at_all
 
     ! Create headers
  
@@ -223,19 +340,24 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
     WRITE(lunout,'(A,X,A)')'#PAR',TRIM(obstype(j))
 
     npp = 0
-    IF ( lfcver ) THEN
-       IF (show_rmse) npp = nexp
+    SELECT CASE(TRIM(ctype(n)))
+    CASE('OBS')
+       npp =   1 + nexp
+    CASE('BIAS')
+       IF (show_rmse) npp = npp + nexp
        IF (show_stdv) npp = npp + nexp
        IF (show_bias) npp = npp + nexp
-       IF (show_obs ) npp =   1 + nexp
-    ELSE
-       npp = 1 + nexp
-    ENDIF
+    CASE('VAR')
+       npp = 1 + nexp + npp
+    CASE('SKW')
+       npp = 1 + nexp + npp
+    END SELECT
+
     ! Add one column for number of cases 
     npp = npp + 1
 
     IF ( lfcver ) THEN
-       IF ( lprint_seasonal ) THEN
+       IF ( lprint_seasonal .OR. TRIM(ctype(n)) /= 'BIAS' ) THEN
           WRITE(lunout,'(A,X,I2)')'#NEXP',nexp+1
           WRITE(lunout,'(A,I2.2X,A)')'#EXP_',0,'OBS'
        ELSE
@@ -245,6 +367,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
        WRITE(lunout,'(A,X,I2)')'#NEXP',nexp+1
        WRITE(lunout,'(A,I2.2X,A)')'#EXP_',0,'OBS'
     ENDIF
+
     DO i=1,nexp
        WRITE(lunout,'(A,I2.2X,A)')'#EXP_',i,expname(i)
     ENDDO
@@ -268,7 +391,10 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
     ALLOCATE(pdat(npp))
   
     k = 0
-    IF (lfcver) THEN
+    SELECT CASE(TRIM(ctype(n)))
+
+    CASE('BIAS')
+
      IF ( show_rmse ) THEN
       DO i=1,nexp
         k=k+1
@@ -290,32 +416,46 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
         WRITE(lunout,'(A,I2.2,2(X,A))')'#COLUMN_',k+1,'BIAS',TRIM(expname(i))
       ENDDO
      ENDIF 
-     IF ( show_obs  ) THEN
+
+     CASE('OBS')
       DO i=1,nexp
         k=k+1
         pdat(k)%v => bias(1:ntimver_l,i)
         WRITE(lunout,'(A,I2.2,X,A)')'#COLUMN_',k+1,TRIM(expname(i))
       ENDDO
       k=k+1
-      pdat(k)%v => obs(1:ntimver_l,1)
+      pdat(k)%v => obs(1:ntimver_l)
       WRITE(lunout,'(A,I2.2,X,A)')'#COLUMN_',k+1,'OBS'
-     ENDIF 
-    ELSE 
+
+     CASE('VAR')
+
       DO i=1,nexp
         k=k+1
-        pdat(k)%v => bias(1:ntimver_l,i)
-        WRITE(lunout,'(A,I2.2,X,A)')'#COLUMN_',k+1,TRIM(expname(i))
+        pdat(k)%v => stdvi(1:ntimver_l,i)
+        WRITE(lunout,'(A,I2.2,2(X,A))')'#COLUMN_',k+1,'STDV',TRIM(expname(i))
       ENDDO
       k=k+1
-      pdat(k)%v => obs(1:ntimver_l,1)
-      WRITE(lunout,'(A,I2.2,X,A)')'#COLUMN_',k+1,'OBS'
-    ENDIF
+      pdat(k)%v => stdvo(1:ntimver_l)
+      WRITE(lunout,'(A,I2.2,2(X,A))')'#COLUMN_',k+1,'STDV','OBS'
+
+     CASE('SKW')
+      DO i=1,nexp
+        k=k+1
+        pdat(k)%v => skw(1:ntimver_l,i)
+        WRITE(lunout,'(A,I2.2,2(X,A))')'#COLUMN_',k+1,'SKW',TRIM(expname(i))
+      ENDDO
+      k=k+1
+      pdat(k)%v => skwo(1:ntimver_l)
+      WRITE(lunout,'(A,I2.2,2(X,A))')'#COLUMN_',k+1,'SKW','OBS'
+
+    END SELECT
+
     k=k+1
-    pdat(k)%v => rnum(1:ntimver_l,1)
+    pdat(k)%v => rnum(1:ntimver_l)
     WRITE(lunout,'(A,I2.2,X,A)')'#COLUMN_',k+1,'CASES'
 
-    minnum = MINVAL(rnum(1:ntimver_l,1))
-    maxnum_t = MAXVAL(rnum(1:ntimver_l,1))
+    minnum = MINVAL(rnum(1:ntimver_l))
+    maxnum_t = MAXVAL(rnum(1:ntimver_l))
     minnum = FLOOR(LOG10(MAX(minnum,1.)))
     maxnum = FLOOR(LOG10(MAX(maxnum_t,1.)))
     minnum = 10.**(minnum)
@@ -346,10 +486,21 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
     ENDDO
     DEALLOCATE(pdat)
 
+    ENDDO PLOT_TYPE
+
  ENDDO
 
  ! Clear memory
- DEALLOCATE(obs,bias,rmse,stdv,rnum,hour)
+ IF(ALLOCATED(obs)  ) DEALLOCATE(obs)
+ IF(ALLOCATED(bias) ) DEALLOCATE(bias)
+ IF(ALLOCATED(rmse) ) DEALLOCATE(rmse)
+ IF(ALLOCATED(stdv) ) DEALLOCATE(stdv)
+ IF(ALLOCATED(rnum) ) DEALLOCATE(rnum)
+ IF(ALLOCATED(hour) ) DEALLOCATE(hour)
+ IF(ALLOCATED(skwo) ) DEALLOCATE(skwo)
+ IF(ALLOCATED(skw)  ) DEALLOCATE(skw)
+ IF(ALLOCATED(stdvi)) DEALLOCATE(stdvi)
+ IF(ALLOCATED(stdvo)) DEALLOCATE(stdvo)
 
  IF (ltiming) CALL acc_timing(timing_id,'print_stat2')
 

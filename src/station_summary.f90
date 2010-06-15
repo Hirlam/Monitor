@@ -20,6 +20,7 @@ SUBROUTINE station_summary
 
  m = 0
  n = 0
+ k_max = 0
 
  WRITE(6,*)
  WRITE(6,*)'--- STATION SUMMARY ---'

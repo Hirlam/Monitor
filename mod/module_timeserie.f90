@@ -13,6 +13,9 @@ MODULE timeserie
 
  INTEGER, ALLOCATABLE :: tim_par_active(:,:,:)
 
+ ! Switch for internal stdv and skewness
+ LOGICAL :: do_vs = .FALSE.
+
  TYPE (stat_obs), ALLOCATABLE :: time_stat(:),all_time_stat(:)
 
  CONTAINS
@@ -25,7 +28,7 @@ MODULE timeserie
 
   USE data, ONLY : nuse_fclen,use_fclen,nexp,nparver,   &
                    sdate,stime,fcint,lallstat,maxstn,   &
-                   obint
+                   obint,show_var,show_skw
 
   USE functions, ONLY : get_maxtim
 
@@ -66,6 +69,8 @@ MODULE timeserie
   cdate = sdate
   ctime = stime
 
+  do_vs = ( show_var .OR. show_skw )
+
   i = 0
   DO 
 
@@ -79,12 +84,28 @@ MODULE timeserie
               time_stat(i)%date,               &
               time_stat(i)%time            )
 
-       time_stat(i)%obs  = 0.
-       time_stat(i)%bias = 0.
-       time_stat(i)%rmse = 0.
-       time_stat(i)%n    = 0
-       time_stat(i)%date = 0
-       time_stat(i)%time = 0
+     time_stat(i)%obs  = 0.
+     time_stat(i)%bias = 0.
+     time_stat(i)%rmse = 0.
+     time_stat(i)%n    = 0
+     time_stat(i)%date = 0
+     time_stat(i)%time = 0
+
+     IF ( do_vs ) THEN
+
+       ALLOCATE(                               &
+              time_stat(i)%obs2(nparver),      &
+              time_stat(i)%obs3(nparver),      &
+              time_stat(i)%s2(nexp,nparver),   &
+              time_stat(i)%s3(nexp,nparver))
+
+       time_stat(i)%obs2 = 0.
+       time_stat(i)%obs3 = 0.
+       time_stat(i)%s2   = 0.
+       time_stat(i)%s3   = 0. 
+
+     ENDIF
+
 
      IF (lallstat) THEN
 
@@ -103,6 +124,20 @@ MODULE timeserie
         all_time_stat(i)%bias = 0.
         all_time_stat(i)%rmse = 0.
         all_time_stat(i)%n    = 0
+
+        IF ( do_vs ) THEN
+           ALLOCATE(                            &
+           all_time_stat(i)%obs2(nparver),      &
+           all_time_stat(i)%obs3(nparver),      &
+           all_time_stat(i)%s2(nexp,nparver),   &
+           all_time_stat(i)%s3(nexp,nparver))
+
+           all_time_stat(i)%obs2 = 0.
+           all_time_stat(i)%obs3 = 0.
+           all_time_stat(i)%s2   = 0.
+           all_time_stat(i)%s3   = 0. 
+
+        ENDIF
 
      ENDIF
 
@@ -126,19 +161,35 @@ MODULE timeserie
 
   DO i=all_time_stat_max+1,ii
 
-     NULLIFY(time_stat(i)%obs,  &
+     NULLIFY(                   &
+        time_stat(i)%obs,       &
         time_stat(i)%bias,      &
         time_stat(i)%rmse,      &
         time_stat(i)%n,         &
         time_stat(i)%date,      &
         time_stat(i)%time)
 
-     NULLIFY(all_time_stat(i)%obs,  &
-        all_time_stat(i)%bias,      &
-        all_time_stat(i)%rmse,      &
-        all_time_stat(i)%n,         &
-        all_time_stat(i)%date,      &
+     NULLIFY(                   &
+        all_time_stat(i)%obs,   &
+        all_time_stat(i)%bias,  &
+        all_time_stat(i)%rmse,  &
+        all_time_stat(i)%n,     &
+        all_time_stat(i)%date,  &
         all_time_stat(i)%time)
+
+     IF ( do_vs ) THEN
+
+        NULLIFY(                   &
+           time_stat(i)%obs2,      &
+           time_stat(i)%obs3,      &
+           time_stat(i)%s2,        &
+           time_stat(i)%s3,        &
+           all_time_stat(i)%obs2,  &
+           all_time_stat(i)%obs3,  &
+           all_time_stat(i)%s2,    &
+           all_time_stat(i)%s3)
+         
+     ENDIF
 
   ENDDO
 
@@ -155,13 +206,15 @@ MODULE timeserie
 
   IMPLICIT NONE
 
+  ! Input
   INTEGER, INTENT(IN) :: per_ind,station_ind,par_ind,    &
                          date,time,nexp
 
   REAL,    INTENT(IN) :: obs_data,exp_diff(nexp)
 
-
+  ! Local
   INTEGER :: oo,this_stat_time
+  REAL    :: p_data(nexp)
 
   !--------------------------------------------------------
   
@@ -218,10 +271,18 @@ MODULE timeserie
      oo = this_stat_time
   ENDIF
 
+  p_data = exp_diff + obs_data
   time_stat(oo)%obs(par_ind)    = time_stat(oo)%obs(par_ind)    + obs_data
   time_stat(oo)%bias(:,par_ind) = time_stat(oo)%bias(:,par_ind) + exp_diff
   time_stat(oo)%rmse(:,par_ind) = time_stat(oo)%rmse(:,par_ind) + exp_diff**2
   time_stat(oo)%n(par_ind)      = time_stat(oo)%n(par_ind) + 1
+
+  IF ( do_vs ) THEN
+     time_stat(oo)%obs2(par_ind)   = time_stat(oo)%obs2(par_ind)   + obs_data**2
+     time_stat(oo)%obs3(par_ind)   = time_stat(oo)%obs3(par_ind)   + obs_data**3
+     time_stat(oo)%s2(:,par_ind)   = time_stat(oo)%s2(:,par_ind)   + p_data**2
+     time_stat(oo)%s3(:,par_ind)   = time_stat(oo)%s3(:,par_ind)   + p_data**3
+  ENDIF
 
   tim_par_active(per_ind,station_ind,par_ind) = 1
 
@@ -254,6 +315,14 @@ MODULE timeserie
               all_time_stat(o)%bias = all_time_stat(o)%bias + time_stat(oo)%bias 
               all_time_stat(o)%rmse = all_time_stat(o)%rmse + time_stat(oo)%rmse 
               all_time_stat(o)%n    = all_time_stat(o)%n    + time_stat(oo)%n    
+
+              IF ( do_vs ) THEN
+                 all_time_stat(o)%obs2 = all_time_stat(o)%obs2 + time_stat(oo)%obs2
+                 all_time_stat(o)%obs3 = all_time_stat(o)%obs3 + time_stat(oo)%obs3 
+                 all_time_stat(o)%s2   = all_time_stat(o)%s2   + time_stat(oo)%s2
+                 all_time_stat(o)%s3   = all_time_stat(o)%s3   + time_stat(oo)%s3
+              ENDIF
+
               this_stat_time = oo + 1
               EXIT TIME_STAT_LOOP 
 
@@ -291,6 +360,15 @@ MODULE timeserie
                      time_stat(i)%n,       &
                      time_stat(i)%date,    &
                      time_stat(i)%time)
+
+          IF ( do_vs ) THEN
+             DEALLOCATE(                   &
+                     time_stat(i)%obs2,    &
+                     time_stat(i)%obs3,    &
+                     time_stat(i)%s2,      &
+                     time_stat(i)%s3)
+          ENDIF
+
        ENDDO
 
        DEALLOCATE(time_stat)
@@ -309,6 +387,15 @@ MODULE timeserie
                      all_time_stat(i)%n,       &
                      all_time_stat(i)%date,    &
                      all_time_stat(i)%time)
+
+          IF ( do_vs ) THEN
+             DEALLOCATE(                       &
+                     all_time_stat(i)%obs2,    &
+                     all_time_stat(i)%obs3,    &
+                     all_time_stat(i)%s2,      &
+                     all_time_stat(i)%s3)
+          ENDIF
+
        ENDDO
 
        DEALLOCATE(all_time_stat)
@@ -318,5 +405,39 @@ MODULE timeserie
     IF ( ALLOCATED(tim_par_active) ) DEALLOCATE(tim_par_active)
 
  END SUBROUTINE clear_timeserie
+
+ !
+ ! --------------------------------------------------------
+ !
+
+ SUBROUTINE clear_single_time_stat
+
+   ! Clear single station time_stat
+
+   IMPLICIT NONE
+
+   INTEGER :: o
+
+
+   DO o=1,time_stat_max
+      time_stat(o)%obs  = 0.
+      time_stat(o)%bias = 0.
+      time_stat(o)%rmse = 0.
+      time_stat(o)%n    = 0
+      time_stat(o)%date = 0
+      time_stat(o)%time = 0
+   ENDDO
+   IF ( do_vs ) THEN
+      DO o=1,time_stat_max
+         time_stat(o)%obs2 = 0.
+         time_stat(o)%obs3 = 0.
+         time_stat(o)%s2   = 0.
+         time_stat(o)%s3   = 0.
+      ENDDO
+   ENDIF
+
+   time_stat_max = 0
+
+ END SUBROUTINE clear_single_time_stat
 
 END MODULE timeserie

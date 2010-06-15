@@ -256,6 +256,8 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
        CASE(2)
           user_interval = ( ABS( map_obs_interval(1,j) -   &
                             map_obs_interval(maxint+1,j) ) > 1.e-6 )
+       CASE DEFAULT
+          user_interval = .FALSE.
        END SELECT
 
        IF ( .NOT. user_interval ) THEN

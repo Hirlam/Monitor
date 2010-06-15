@@ -11,6 +11,37 @@
 @col_def_lt  = (1,2,3,4,5,6,8,7);
 @col_def_lt  = (0,@col_def_lt);
 
+# Check output type end extension
+
+$OUTPUT_TYPE = $ENV{OUTPUT_TYPE} or $OUTPUT_TYPE = 2 ;
+
+# PS/PNG/JPG/SVG as output and their color definitions for map and scatter
+if ( $OUTPUT_TYPE eq 1 ) {
+    $terminal    = "set terminal postscript landscape enhanced colour";
+    @map_colors  = ("7","3","5","6","8","4");
+    @scat_colors = ("3","5","2","6","8","1","4","9","7");
+    $map_pt=7;
+} elsif ( $OUTPUT_TYPE eq 2 ) {
+    $terminal    = "set terminal png";
+    @map_colors  = ("-1","8","5","7","1","13");
+    @scat_colors = ("8","5","2","7","9","1","13","0","-1");
+    $map_pt=13;
+} elsif ( $OUTPUT_TYPE eq 3 ) {
+    $terminal    = "set terminal jpeg";
+    @map_colors  = ("-1","8","5","7","1","13");
+    @scat_colors = ("8","5","2","7","9","1","13","0","-1");
+    $map_pt=13;
+} elsif ( $OUTPUT_TYPE eq 4 ) {
+    $terminal    = "set terminal svg enhanced fsize 8 ";
+    @map_colors  = ("7","3","5","6","8","4");
+    @scat_colors = ("3","5","2","6","8","1","4","9","7");
+    $map_pt=7;
+} else {
+    die "Unknown OUTPUT_TYPE $OUTPUT_TYPE\n";
+} ;
+    
+@EXT = ('','.ps','.1.png','.1.jpg','.svg') ;
+
 if ( $ARGV[0] eq '-d' ) {
 
  print" Scanning $ENV{PWD} for *.txt files \n";
@@ -48,34 +79,8 @@ SCAN_INPUT: foreach $input_file (@FILES) {
     $prefix = shift(@tmp);
     @tmp    = split( '.txt', $input_file );
 
-    @EXT = ('','.ps','.1.png','.1.jpg','.svg') ;
 
-    # PS or PNG as output and their color definitions for map and scatter
-    if ( $ENV{OUTPUT_TYPE} eq 1 ) {
-        $terminal    = "set terminal postscript landscape enhanced colour";
-        @map_colors  = ("7","3","5","6","8","4");
-        @scat_colors = ("3","5","2","6","8","1","4","9","7");
-        $map_pt=7;
-    } elsif ( $ENV{OUTPUT_TYPE} eq 2 ) {
-        $terminal    = "set terminal png";
-        @map_colors  = ("-1","8","5","7","1","13");
-        @scat_colors = ("8","5","2","7","9","1","13","0","-1");
-        $map_pt=13;
-    } elsif ( $ENV{OUTPUT_TYPE} eq 3 ) {
-        $terminal    = "set terminal jpeg";
-        @map_colors  = ("-1","8","5","7","1","13");
-        @scat_colors = ("8","5","2","7","9","1","13","0","-1");
-        $map_pt=13;
-    } elsif ( $ENV{OUTPUT_TYPE} eq 4 ) {
-        $terminal    = "set terminal svg enhanced fsize 8 ";
-        @map_colors  = ("7","3","5","6","8","4");
-        @scat_colors = ("3","5","2","6","8","1","4","9","7");
-        $map_pt=7;
-    } else {
-      die "Unknown OUTPUT_TYPE $ENV{OUTPUT_TYPE}\n";
-    }
-    
-    $output_file = shift(@tmp) . $EXT[$ENV{OUTPUT_TYPE}] ;
+    $output_file = shift(@tmp) . $EXT[$OUTPUT_TYPE] ;
 
     open FILE, "< $input_file";
 
@@ -168,6 +173,8 @@ SCAN_INPUT: foreach $input_file (@FILES) {
           if ( $col_def[$i]{LEGEND} =~/RMSE/ ) {  $col_def[$i]{PT} = 7 } ;
           if ( $col_def[$i]{LEGEND} =~/BIAS/ ) {  $col_def[$i]{PT} = 4 } ;
           if ( $col_def[$i]{LEGEND} =~/STDV/ ) {  $col_def[$i]{PT} = 3 } ;
+          if ( $col_def[$i]{LEGEND} =~/VAR/  ) {  $col_def[$i]{PT} = 3 } ;
+          if ( $col_def[$i]{LEGEND} =~/SKW/  ) {  $col_def[$i]{PT} = 3 } ;
    
           if ( $nexp ne 0 ) { $col_def[$i]{LT} = $col_def_lt[1 + $i % $nexp] ; } ;
    

@@ -92,6 +92,11 @@ MODULE types
     REAL    :: bias
     INTEGER :: n,r
     REAL    :: mabe
+!  needed for standard deviation calculation : s2 = sum of p**2
+!  p is forecast value. d:o for observations
+    REAL    :: s2,obs2
+!  needed for skewness calculation : s3 = sum of p**3,d:o for observations
+    REAL    :: s3,obs3
  END TYPE statistics
 
  ! 
@@ -139,9 +144,9 @@ MODULE types
  TYPE stat_obs
     INTEGER, POINTER :: date,time
     ! (nparver)
-    REAL,    POINTER :: obs(:)
+    REAL,    POINTER :: obs(:),obs2(:),obs3(:)
     ! (nexp,nparver)
-    REAL,    POINTER :: bias(:,:)
+    REAL,    POINTER :: bias(:,:),s2(:,:),s3(:,:)
     REAL,    POINTER :: rmse(:,:)
     ! nparver
     INTEGER, POINTER :: n(:)

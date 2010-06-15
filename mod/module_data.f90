@@ -336,7 +336,9 @@ MODULE data
  LOGICAL :: show_bias        = .TRUE.   ! Plot bias
  LOGICAL :: show_rmse        = .TRUE.   ! Plot rmse
  LOGICAL :: show_stdv        = .FALSE.  ! Plot stdv
- LOGICAL :: show_obs         = .FALSE.  ! Plot full obs turns the others to false
+ LOGICAL :: show_var         = .FALSE.  ! Plot forecasts and obs 'internal' stdv
+ LOGICAL :: show_skw         = .FALSE.  ! Plot forecasts and obs 'internal' skewness
+ LOGICAL :: show_obs         = .FALSE.  ! Plot full obs turns bias/rmse/stdv to false
 
 
  ! Special conditions
@@ -472,6 +474,7 @@ MODULE data
                  ncla,classtype,pre_fcla,               &
                  maxcla,mincla,                         &
                  show_bias,show_rmse,show_stdv,show_obs,&
+                 show_var,show_skw,                     &
                  period_type,period_freq,pe_interval,   &
                  print_qc,accu_int,                     &
                  lquality_control,qc_fclen,qc_lim,      &

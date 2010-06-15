@@ -50,7 +50,7 @@ SUBROUTINE do_stat(per_ind,p1,p2)
 
  IF (lallstat) THEN
     ALLOCATE(statall(nexp,nparver,ntimver))
-    statall   = statistics(0.,0.,0.,0,0,0.)
+    statall   = statistics(0.,0.,0.,0,0,0.,0.,0.,0.,0.)
  ENDIF
 
  IF ( lfcver ) THEN
@@ -115,7 +115,7 @@ SUBROUTINE do_stat(per_ind,p1,p2)
 
     DO j=1,nparver
 
-       onestat = statistics(0.,0.,0.,0,0,0.)
+       onestat = statistics(0.,0.,0.,0,0,0.,0.,0.,0.,0.)
 
        DO k=1,ntimver
 
@@ -237,7 +237,7 @@ SUBROUTINE do_stat(per_ind,p1,p2)
 
     LOOP_NPARVER : DO j=1,nparver
 
-       onestat = statistics(0.,0.,0.,0,0,0.)
+       onestat = statistics(0.,0.,0.,0,0,0.,0.,0.,0.,0.)
 
        DO k=1,ntimver
 
@@ -335,6 +335,10 @@ SUBROUTINE acc_stat(s,p,i,j,k)
    s%bias = s%bias + p%bias
    s%rmse = s%rmse + p%rmse
    s%obs  = s%obs  + p%obs
+   s%obs2 = s%obs2 + p%obs2
+   s%obs3 = s%obs3 + p%obs3
+   s%s2   = s%s2   + p%s2
+   s%s3   = s%s3   + p%s3
    s%mabe = s%mabe + p%mabe
 
  RETURN

@@ -39,4 +39,8 @@ SUBROUTINE ini_namelist
  ! Timserie window
  timeserie_wind = 0
 
+ ! Show settings
+ show_var = .FALSE.
+ show_skw = .FALSE.
+
 END SUBROUTINE ini_namelist
