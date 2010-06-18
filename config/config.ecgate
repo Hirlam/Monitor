@@ -1,8 +1,8 @@
 ARCH=ecgate
 
 # Magics flag
-# If this is not set only tables will be produced
-MAGICSFLAG := -DMAGICS
+# If this is not set only plotting through gnuplot is available
+MAGICSFLAG := 
 
 # CPP
 MACHINECPP :=
