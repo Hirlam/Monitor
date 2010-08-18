@@ -129,6 +129,7 @@ SUBROUTINE read_vobs_temp
           IF(print_read>1) WRITE(6,*)istnr,lat,lon,hgt,ierr
 
           IF (ierr /= 0) THEN
+             WRITE(6,*)'Problem in ',TRIM(fname)
              WRITE(6,*)'Error in reading the header of the TEMP observation ',istnr,lat,lon,hgt,ierr
              CALL abort
           ENDIF

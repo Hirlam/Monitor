@@ -17,7 +17,7 @@ SUBROUTINE print_cont(p1,p2,nr,par_active,    &
  INTEGER, ALLOCATABLE :: sumcol(:)
 
  CHARACTER(LEN= 25) :: cform='(A20,XXI9,X,A1,X,I9)'
- CHARACTER(LEN= 25) :: hform='(XXX,A)'
+ CHARACTER(LEN= 25) :: hform='(XXXX,A)'
  CHARACTER(LEN= 20) :: ctmp = '',ctmp2 = ''
  CHARACTER(LEN=100) :: cwrk = '',wname=''
  CHARACTER(LEN=  8) :: cperiod = ''
@@ -98,7 +98,7 @@ SUBROUTINE print_cont(p1,p2,nr,par_active,    &
        WRITE(luncont,*)'Each class is data <= limit, the very last > last limit'
        WRITE(luncont,*)'Total number of values',cont_table(i)%nval
 
-       WRITE(hform(2:3),'(I2.2)')(cont_table(i)%nclass/2+1)*9+10
+       WRITE(hform(2:4),'(I3.3)')(cont_table(i)%nclass/2+1)*9+10
        WRITE(cform(6:7),'(I2.2)')cont_table(i)%nclass+1
 
 
