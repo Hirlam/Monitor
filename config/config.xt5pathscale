@@ -1,4 +1,4 @@
-ARCH=xt4pathscale
+ARCH=xt5pathscale
 
 # Magics flag
 # If this is not set only tables will be produced
