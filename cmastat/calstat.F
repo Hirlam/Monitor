@@ -74,6 +74,7 @@ c
       OPEN(UNIT=IUNIT,FORM='FORMATTED',STATUS='UNKNOWN',ERR=206)
     
 c 200  READ(IUNIT,'(A500)',END=210,ERR=205) CLINE
+      icount = 0
  200  continue
       icount=icount+1
 c                write(6,*) 'magnus innan',CLINE 

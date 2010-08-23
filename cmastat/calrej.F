@@ -55,6 +55,7 @@ c     loop over odb based ascii-file
 c
       OPEN(UNIT=IUNIT,FORM='FORMATTED',STATUS='UNKNOWN',ERR=206)
 c 200  READ(IUNIT,'(A500)',END=210,ERR=205) CLINE
+      icount = 0
  200    continue 
       icount=icount+1
        READ(iunit,*,END=210,ERR=205) IOBTYP_ODB,ICODETYPE_ODB,

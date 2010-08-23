@@ -15,13 +15,13 @@
       integer i
 
       write(*,'(A)')'======================================'
-      write(*,'(A)') outstr(1:length)
+      write(*,'(A)') trim(outstr)
       write(*,'(A22,i10)') 'First guess statistics',levels
       write(*,'(A17,5A12)') vertcor(1:vlen),
      $     'noofobs','rms','bias','abs(bias)','level'
 
       write(iun,'(A)')'======================================'
-      write(iun,'(A)') outstr(1:length)
+      write(iun,'(A)') trim(outstr)
       write(iun,'(A22,i10)') 'First guess statistics',levels
       write(iun,'(A17,5A12)') vertcor(1:vlen),
      $     'noofobs','rms','bias','abs(bias)','level'
