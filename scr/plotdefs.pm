@@ -38,11 +38,13 @@
  },
  
  'TN'=>{
+   'TWIND_SURF'  => 12,
    'TEXT'        => 'Min T2m',
    'MAP_BIAS_INTERVAL'=> '-6.,-4.,-2.,0.,2.,4.,6.',
  },
  
  'TX'=>{
+   'TWIND_SURF'  => 12,
    'TEXT'        => 'Max T2m',
    'MAP_BIAS_INTERVAL'=> '-6.,-4.,-2.,0.,2.,4.,6.',
  },

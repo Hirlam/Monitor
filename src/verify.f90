@@ -489,12 +489,20 @@ SUBROUTINE verify
           NPARVER_LOOP : DO k=1,nparver
 
              !
-             ! Loop over all variables
+             ! Loop over all variables, cycle if no observations available
              !
 
              IF(ABS(obs(i)%o(jj)%val(k)-err_ind) <= 1.e-6) CYCLE NPARVER_LOOP
 
              IF (lprint_verif) WRITE(6,*)'DO VER ',OBSTYPE(k),obs(i)%o(jj)%val(k)
+
+             !
+             ! Tmax and Tmin can only be verified at 06 and 18 UTC
+             ! and for forecast lengths >= 12h
+             !
+
+             IF( ( obstype(k)(1:2)== 'TN' .OR. obstype(k)(1:2)== 'TX'   ) .AND. &
+                 ( fclen(n) < 12 .OR. ( wtime /= 6 .AND. wtime /= 18  ) ) )CYCLE NPARVER_LOOP
 
              !
              ! All EXP should have data, else do not verify

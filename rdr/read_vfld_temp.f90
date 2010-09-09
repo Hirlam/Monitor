@@ -121,7 +121,7 @@ SUBROUTINE read_vfld_temp
           CASE(0)
              READ(lunin,*,iostat=ierr)istnr,lat,lon
              hgt = err_ind
-          CASE(1:2)
+          CASE(1:3)
              READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt
           CASE DEFAULT
           END SELECT 

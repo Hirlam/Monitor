@@ -30,7 +30,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
 ! Local
 
  INTEGER :: i,j,k,timing_id,ntimver_l, &
-            period,npp,ntypes,n
+            period,npp,ntypes,n,case_i
 
  REAL minnum,maxnum,ticnum,maxnum_t,   &
       zfc,zslask2
@@ -44,7 +44,8 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
             skwo(:),          &
            stdvo(:),          &
              obs(:),          &
-            rnum(:)
+            rnum(:),          &
+            snum(:)
 
  INTEGER, ALLOCATABLE :: hour(:)
 
@@ -102,6 +103,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
  ALLOCATE(bias(ntimver_l,nexp),         &
            obs(ntimver_l),              &
           rnum(ntimver_l),              &
+          snum(ntimver_l),              &
           hour(ntimver_l))
 
  IF ( show_rmse .OR. show_stdv .OR. show_skw )          &
@@ -163,6 +165,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
     IF ( no_data_at_all ) THEN
 
        rnum = 0.
+       snum = 0.
         obs = 0.
        bias = 0.
        IF ( show_rmse .OR. show_stdv ) THEN
@@ -180,6 +183,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
 
        DO k=1,ntimver
           rnum(k) = MAX(1.,FLOAT(s(1,j,k)%n))
+          snum(k) = FLOAT(s(1,j,k)%n)
        ENDDO
        DO k=1,ntimver
            obs(k) = s(1,j,k)%obs /rnum(k)
@@ -451,7 +455,8 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
     END SELECT
 
     k=k+1
-    pdat(k)%v => rnum(1:ntimver_l)
+    pdat(k)%v => snum(1:ntimver_l)
+    case_i = k
     WRITE(lunout,'(A,I2.2,X,A)')'#COLUMN_',k+1,'CASES'
 
     minnum = MINVAL(rnum(1:ntimver_l))
@@ -476,6 +481,11 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
     WRITE(cform(7:8),'(I2.2)')npp
 
     DO i=1,ntimver_l
+        IF ( pdat(case_i)%v(i) < 1. ) THEN
+        DO k=1,npp
+             pdat(k)%v(i) = err_ind
+        ENDDO
+        ENDIF
         WRITE(lunout,cform)hour(i),(pdat(k)%v(i),k=1,npp)
     ENDDO
 
@@ -496,6 +506,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
  IF(ALLOCATED(rmse) ) DEALLOCATE(rmse)
  IF(ALLOCATED(stdv) ) DEALLOCATE(stdv)
  IF(ALLOCATED(rnum) ) DEALLOCATE(rnum)
+ IF(ALLOCATED(snum) ) DEALLOCATE(snum)
  IF(ALLOCATED(hour) ) DEALLOCATE(hour)
  IF(ALLOCATED(skwo) ) DEALLOCATE(skwo)
  IF(ALLOCATED(skw)  ) DEALLOCATE(skw)

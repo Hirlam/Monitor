@@ -29,7 +29,7 @@ SUBROUTINE read_vfld
             aerr,version_flag
  
  
- REAL :: lat,lon,hgt,val(15)
+ REAL :: lat,lon,hgt,val(15),rtmp
 
  LOGICAL :: allocated_this_time(maxstn),&
             found_any_time,use_stnlist,lfound
@@ -118,7 +118,27 @@ SUBROUTINE read_vfld
           CASE(1)
              READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val(1:10)
           CASE(2)
+
              READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val(1:15)
+
+             IF ( ALL( ABS(val(11:12) - -99. )> 1.e-6 ) ) THEN
+
+                !
+                ! Swap Tmax and Tmin since they are wrong in some versions of 
+                ! the version 2 files
+                !
+
+                IF ( val(11) < val(12) ) THEN
+                     rtmp = val(11)
+                  val(11) = val(12)
+                  val(12) = rtmp
+                ENDIF
+             ENDIF
+
+          CASE(3)
+
+             READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val(1:15)
+
           CASE DEFAULT
              WRITE(6,*)'Cannot handle this vfld-file version',version_flag
              CALL abort

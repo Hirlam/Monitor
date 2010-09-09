@@ -61,7 +61,8 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
  INTEGER :: i,ii,j,k,                   &
             timing_id,                  &
             ntim_use,dlen,              &
-            istart,iend,maxtim,npp
+            istart,iend,maxtim,npp,     &
+            case_i
 
  REAL minnum,maxnum,ticnum,maxnum_t
 
@@ -78,7 +79,13 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
 
  ! Allocatable
 
- REAL,    ALLOCATABLE, TARGET :: obs(:),rnum(:,:),bias(:,:),rmse(:,:),stdv(:,:)
+ REAL,    ALLOCATABLE, TARGET ::  obs(:),   &
+                                 snum(:,:), &
+                                 rnum(:,:), &
+                                 bias(:,:), &
+                                 rmse(:,:), &
+                                 stdv(:,:)
+
  INTEGER, ALLOCATABLE :: ndate(:),ntime(:),date(:),time(:)
  REAL,    ALLOCATABLE, TARGET :: stdvi(:,:),skw(:,:),stdvo(:),skwo(:)
  REAL    :: zobs,zfc,zslask2
@@ -145,6 +152,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
            bias(maxtim,nexp),   &
            rmse(maxtim,nexp),   &
            stdv(maxtim,nexp),   &
+           snum(maxtim,nexp),   &
            rnum(maxtim,nexp))
 
  IF ( show_var .OR. show_skw )  &
@@ -166,6 +174,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
     ENDIF
 
     rnum = 0.
+    snum = 0.
     bias = 0.
     rmse = 0.
     stdv = 0.
@@ -206,7 +215,8 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
           date(ii)   = time_stat(i)%date
           time(ii)   = time_stat(i)%time
 
-          rnum(ii,k) = MAX(1.,float(time_stat(i)%n(j)))
+          rnum(ii,k) = MAX(1.,FLOAT(time_stat(i)%n(j)))
+          snum(ii,k) = FLOAT(time_stat(i)%n(j))
 
           IF ( ldiff ) THEN
              bias(ii,k) =          time_stat(i)%bias(k,j)/rnum(ii,k)
@@ -478,7 +488,8 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
       ENDIF
     ENDIF
     k=k+1
-    pdat(k)%v => rnum(1:ntim_use,1)
+    pdat(k)%v => snum(1:ntim_use,1)
+    case_i = k
     WRITE(lunout,'(A,I2.2,X,A)')'#COLUMN_',k+2,'CASES'
 
     minnum = MINVAL(rnum(1:ntim_use,1))
@@ -504,7 +515,12 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
     WRITE(cform(11:12),'(I2.2)')npp
 
     DO i=1,ntim_use
-        WRITE(lunout,cform)ndate(i),ntime(i),(pdat(k)%v(i),k=1,npp)
+       IF ( pdat(case_i)%v(i) < 1. ) THEN
+         DO k=1,npp
+           pdat(k)%v(i) = err_ind
+         ENDDO
+       ENDIF
+       WRITE(lunout,cform)ndate(i),ntime(i),(pdat(k)%v(i),k=1,npp)
     ENDDO
 
     CLOSE(lunout)
@@ -516,7 +532,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
 
  ENDDO NPAR_LOOP
 
- DEALLOCATE(ndate,ntime,date,time,obs,bias,rmse,stdv,rnum)
+ DEALLOCATE(ndate,ntime,date,time,obs,bias,rmse,stdv,rnum,snum)
 
  IF ( show_var .OR. show_skw ) DEALLOCATE(stdvi,stdvo,skw,skwo)
 
