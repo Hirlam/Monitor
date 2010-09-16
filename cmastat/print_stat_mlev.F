@@ -1,9 +1,9 @@
-      subroutine print_stat_mlev(iun,outstr,length,vertcor,vlen,levels,
+      subroutine print_stat_mlev(iun,outstr,vertcor,vlen,levels,
      $     vert,rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
       implicit none
       integer iun
       character*(*) outstr,vertcor
-      integer length,vlen,levels
+      integer vlen,levels
       real vert(levels)
       real rmsfg(levels)
       real biasfg(levels)

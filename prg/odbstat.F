@@ -129,7 +129,7 @@ c     temp temperature
      $        rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
 
            call print_stat_mlev(outunit,
-     $          'TEMP temperature (K)',21,'Pressure',8,
+     $          'TEMP temperature (K)','Pressure',8,
      $          nlevelspres,refpres,rmsfg,biasfg,absbiasfg,rmsan,
      $          biasan,absbiasan,count)
          if (lpreplo) then
@@ -147,7 +147,7 @@ c     temp wind u-comp
      $       rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
 
            call print_stat_mlev(outunit,
-     $          'TEMP u-wind comp (m/s)',22,'Pressure',8,
+     $          'TEMP u-wind comp (m/s)','Pressure',8,
      $          nlevelspres,refpres,rmsfg,biasfg,absbiasfg,rmsan,
      $          biasan,absbiasan,count)
          if (lpreplo) then
@@ -165,7 +165,7 @@ c     temp wind v-comp
      $       rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
 
            call print_stat_mlev(outunit,
-     $          'TEMP v-wind comp (m/s)',22,'Pressure',8,
+     $          'TEMP v-wind comp (m/s)','Pressure',8,
      $          nlevelspres,refpres,rmsfg,biasfg,absbiasfg,rmsan,
      $          biasan,absbiasan,count)
          if (lpreplo) then
@@ -184,7 +184,7 @@ c     temp wind v-comp
      $       rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
 
            call print_stat_mlev(outunit,
-     $          'TEMP spec hum (g/kg)',20,'Pressure',8,
+     $          'TEMP spec hum (g/kg)','Pressure',8,
      $          nlevelspres,refpres,rmsfg,biasfg,absbiasfg,rmsan,
      $          biasan,absbiasan,count)
          if (lpreplo) then
@@ -216,7 +216,7 @@ c     airep temperature
      $       singlelvl,nlevelspres,refpres,lusage,'airep_T.dat',11,
      $          rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
            call print_stat_mlev(outunit,
-     $          'AIREP temperature (K)',22,'Pressure',8,
+     $          'AIREP temperature (K)','Pressure',8,
      $          nlevelspres,refpres,rmsfg,biasfg,absbiasfg,rmsan,
      $          biasan,absbiasan,count)
          if (lpreplo) then
@@ -233,7 +233,7 @@ c     airep temperature
      $       rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
 
            call print_stat_mlev(outunit,
-     $          'AIREP u-wind comp (m/s)',23,'Pressure',8,
+     $          'AIREP u-wind comp (m/s)','Pressure',8,
      $          nlevelspres,refpres,rmsfg,biasfg,absbiasfg,rmsan,
      $          biasan,absbiasan,count)
          if (lpreplo) then
@@ -250,7 +250,7 @@ c     airep temperature
      $       rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
 
            call print_stat_mlev(outunit,
-     $          'AIREP v-wind comp (m/s)',23,'Pressure',8,
+     $          'AIREP v-wind comp (m/s)','Pressure',8,
      $          nlevelspres,refpres,rmsfg,biasfg,absbiasfg,rmsan,
      $          biasan,absbiasan,count)
          if (lpreplo) then
@@ -280,7 +280,7 @@ c     pilot u-wind comp
      $      rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
 
            call print_stat_mlev(outunit,
-     $          'PILOT u-wind comp (m/s)',23,'Pressure',8,
+     $          'PILOT u-wind comp (m/s)','Pressure',8,
      $          nlevelspres,refpres,rmsfg,biasfg,absbiasfg,rmsan,
      $          biasan,absbiasan,count)
          if (lpreplo) then
@@ -297,7 +297,7 @@ c     pilot u-wind comp
      $        rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
 
            call print_stat_mlev(outunit,
-     $          'PILOT v-wind comp (m/s)',23,'Pressure',8,
+     $          'PILOT v-wind comp (m/s)','Pressure',8,
      $          nlevelspres,refpres,rmsfg,biasfg,absbiasfg,rmsan,
      $          biasan,absbiasan,count)
          if (lpreplo) then
@@ -328,7 +328,7 @@ c     synop geopotential (surface pressure)
      $      rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
 
            call print_stat_mlev(outunit,
-     $          'SYNOP surf press (hPa)',22,'Pressure',8,
+     $          'SYNOP surf press (hPa)','Pressure',8,
      $          nlevelspres,refpres,rmsfg,biasfg,absbiasfg,rmsan,
      $          biasan,absbiasan,count)
          if (lpreplo) then
@@ -359,7 +359,7 @@ c     ship geopotential (surface pressure)
      $       rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
 
            call print_stat_mlev(outunit,
-     $          'SHIP surf press (hPa)',21,'Pressure',8,
+     $          'SHIP surf press (hPa)','Pressure',8,
      $          nlevelspres,refpres,rmsfg,biasfg,absbiasfg,rmsan,
      $          biasan,absbiasan,count)
          if (lpreplo) then
@@ -389,7 +389,7 @@ c     METAR gepotential (surface pressure)
      $       rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
 
            call print_stat_mlev(outunit,
-     $          'METAR surf press (hPa)',23,'Pressure',8,
+     $          'METAR surf press (hPa)','Pressure',8,
      $          nlevelspres,refpres,rmsfg,biasfg,absbiasfg,rmsan,
      $          biasan,absbiasan,count)
          if (lpreplo) then
@@ -419,7 +419,7 @@ c     DRIBU gepotential (surface pressure)
      $       rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
 
            call print_stat_mlev(outunit,
-     $          'DRIBU surf press (hPa)',23,'Pressure',8,
+     $          'DRIBU surf press (hPa)','Pressure',8,
      $          nlevelspres,refpres,rmsfg,biasfg,absbiasfg,rmsan,
      $          biasan,absbiasan,count)
          if (lpreplo) then
