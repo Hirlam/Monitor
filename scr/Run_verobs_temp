@@ -1,17 +1,23 @@
 #!/bin/sh
 
-set -ax
+set -a
 
 #
 # Run verobs for surface variables
 #
 
-# Spec
+if [ $# -eq 1 ] ; then
+   ENV_EXP=$1
+else
+   echo "Please give an Env_exp file"
+   exit 1
+fi
+[[ -s $ENV_EXP ]] || { echo "Please give an existing Env_exp file" ; exit 1 ; }
 
-. ./Env_exp
-
+. $ENV_EXP  || { echo "Could not source $ENV_EXP" ; exit 1 ; }
 
 cd $SCR || exit
+
 DIR=TEMP
 mkdir $WRK/${DIR}_$$ || exit
 

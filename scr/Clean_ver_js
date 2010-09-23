@@ -1,23 +1,27 @@
 #!/bin/sh
 
-. ./Env_exp
+#
+# Remove the project defined in Env_exp from WebgraF
+#
+
+if [ $# -eq 1 ] ; then
+   ENV_EXP=$1
+else
+   echo "Please give an Env_exp file"
+   exit 1
+fi
+[[ -s $ENV_EXP ]] || { echo "Please give an existing Env_exp file" ; exit 1 ; }
+
+. $ENV_EXP  || { echo "Could not source $ENV_EXP" ; exit 1 ; }
 
 [[ $WEBCALL == "" ]] && exit
 
-if [ $# -eq 1 ] ; then
-   echo 
-   echo "Remove all plots from $PROJECT/$1"
-   echo
-   $WEBCALL -e $1 -r
-else
-  echo 
-  echo " Removed all plots from $PROJECT"
-  echo 
-  $WEBCALL -r
-fi
+$WEBCALL -r
 
 echo 
-echo " Your new WebgraF content"
+echo " Removed all plots from $PROJECT"
 echo 
+echo 
+echo " Your new WebgraF content:"
 
 $WEBCALL -l

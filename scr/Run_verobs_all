@@ -1,8 +1,15 @@
 #!/bin/sh
 
 set -ax
+if [ $# -eq 1 ] ; then
+   ENV_EXP=$1
+else
+   echo "Please give an Env_exp file"
+   exit 1
+fi
+[[ -s $ENV_EXP ]] || { echo "Please give an existing Env_exp file" ; exit 1 ; }
 
-./Clean_ver_js       || exit
-./Run_verobs_surface || exit
-./Run_verobs_temp    || exit
-./Transport_ver      || exit
+./Clean_ver_js       $ENV_EXP || exit
+./Run_verobs_surface $ENV_EXP || exit
+./Run_verobs_temp    $ENV_EXP || exit
+./Transport_ver      $ENV_EXP || exit

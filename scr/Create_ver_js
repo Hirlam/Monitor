@@ -1,9 +1,24 @@
 #!/bin/sh
 
-set -a
+set -ax
 
-. ./Env_exp
+if [ $# -ge 1 ] ; then
+   ENV_EXP=$1
+      TARG=$2
+else
+   echo "Please give an Env_exp file"
+   exit 1
+fi
+
+[[ -s $ENV_EXP ]] || { echo "Please give an existing Env_exp file" ; exit 1 ; }
+
+. $ENV_EXP  || { echo "Could not source $ENV_EXP" ; exit 1 ; }
 
 [[ $WEBCALL == "" ]] && exit
 
-./Create_ver_js.pl $1
+if [ $TARG = "TEMP" -o $TARG = "SURF" ] ; then
+   ./Create_ver_js.pl $1
+else
+   echo "Please give SURF or TEMP as argument" 
+   exit
+fi

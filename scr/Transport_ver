@@ -1,13 +1,21 @@
 #!/bin/sh
 
-. ./Env_exp
+if [ $# -eq 1 ] ; then
+   ENV_EXP=$1
+else
+   echo "Please give an Env_exp file"
+   exit 1
+fi
+[[ -s $ENV_EXP ]] || { echo "Please give an existing Env_exp file" ; exit 1 ; }
 
-[[ $WEBCALL == "" ]] && exit
+. $ENV_EXP  || { echo "Could not source $ENV_EXP" ; exit 1 ; }
+[[ $WEBCALL == "" ]] && exit 1
 
 $WEBCALL -x
 
 echo "Your verification results are stored in $PWD/${PROJECT}_export.tar"
 echo "Copy to your local machine, untar and open ${PROJECT}_export/index.html in your browser"
 
-#$WEBCALL -t
-#md5sum ${PROJECT}___transport.tar > ${PROJECT}___transport.tar_md5sum
+$WEBCALL -t
+
+echo "Your verification results are stored in $PWD/${PROJECT}___transport.tar"
