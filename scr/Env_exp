@@ -2,51 +2,53 @@
 # Main definition file for HARMONIE verification package
 #
 
-# Project name, will be the name on the web page
-PROJECT=AO_H_SCAND55_12_vs_13
-
-# Path to this project
-BASE=$PWD/..
+# Path to binaries, scripts and WebgraF page
+BASE=$( dirname $PWD )
 
 # Definition of BIN,SCR and WRK directory
-BIN=$BASE/../commit_monitor/bin
+BIN=$BASE/bin
 SCR=$BASE/scr
 WRK=$BASE/wrk
 
-# Set which graphics you are using
-# MAGICS/GNUPLOT
-# To be able to use MAGICS verobs has to be compiled with -DMAGICS.
-#
-#
-export GRAPHICS=GNUPLOT
-
-# MAG_HOME for magics, not needed at ecgate
-# export MAG_HOME=
-
-#
 # Experiment names and paths,should be space separated
-#
-
-DBASE=/local_disk/scratch/alaro_35h1/dat
-EXP="AO_H_SCAND55_12 AO_H_SCAND55_13"
-OBSPATH=$DBASE/obs/
-P1=$DBASE/AO_H_SCAND55_13/
-P2=$DBASE/AO_H_SCAND55_13/
+DBASE=/scratch/ms/dk/nhz/oprint
+EXP="RCR C22"
+OBSPATH=$DBASE/OBS2/
+P1=$DBASE/RCR/
+P2=$DBASE/C22/
 MODPATH="$P1 $P2"
+
+# Project name, will be the name on the web page
+PROJECT=monitor
 
 # Explanation on webpage
 HELP="Observation verification comparison between \
-      <br> AO_H_SCAND55_12: HARMONIE 35h1.2 \
-      <br> AO_H_SCAND55_13: HARMONIE 35h1.3 \
+      <br> FMI(RCR) \
+      <br> SMHI(C22) \
      "
+
+# Date handling
+# PERIOD_TYPE 1 : SDATE - EDATE, 
+#             2 : SDATE - EDATE in monthly pieces
+# 
+# IDATE is the very first date for PERIOD_TYPE=2 it determines the 
+# lentght of the date menu in WebgraF
+#
+PERIOD_TYPE=1
+
+SDATE=20080901
+EDATE=20080905
+IDATE=$SDATE
 
 #
 # Single stations can be defined with comma separated
 # station number and a text for the web page
 #
+# STNLIST_PLOT="00002574,00006348"
+# STNLIST_PLOT_TXT="NORRKOPING,CABAUW"
+#
 STNLIST_PLOT=-1
 STNLIST_PLOT_TXT=-1
-#
 
 ######################
 # Surface parameters #
@@ -72,7 +74,7 @@ STNLIST_PLOT_TXT=-1
 #
 
 # Active parameters
-SURFPAR="PS FF DD TT RH QQ NN PE"
+SURFPAR="PS FF FX GG GX DD TT TN TX TD RH QQ NN PE"
 
 # Things to plot:
 # GEN    : General forcast length statistics
@@ -84,6 +86,7 @@ SURFPAR="PS FF DD TT RH QQ NN PE"
 # XML    : Station statistics in xml format
 # CONT   : Contingency tables
 # VERT   : Vertical profiles only available for TEMP data
+# SEAS   : Seasonal cycle
 # 
 SURFPLOT="GEN TIME MAP FREQ SCAT CONT XML DAYVAR"
 
@@ -91,30 +94,27 @@ SURFPLOT="GEN TIME MAP FREQ SCAT CONT XML DAYVAR"
 # Note that XML statistics will be defined for the
 # first area only
 #
-SURFAREAS="ALL"
+SURFAREAS="ALL EWGLAM Scandinavia Greenland Denmark Finland IrelandEngland Netherland Norway SpainPortugal Sweden"
 
 # Interval in hours between observations
-OBINT_SURF=03
+OBINT_SURF=06
 
 # Assimilation cycle interval
 FCINT_SURF=06
 
 # Forecast lengths used for verification
-FCLEN_SURF="00 03 06 09 12 15"
+FCLEN_SURF="00 06 12 18 24 30 36 42 48"
 
 # Forecast lengths used in daily variation calculations
-FCLEN_DAYVAR="06 09 12 15"
+FCLEN_DAYVAR="24 48"
 
 # Forecast lengths used in scatter/frequency plots
 # and contingency tables. Keep the number of used forecast
 # lengths reasonable
-FCLEN_SCAT=$FCLEN_DAYVAR
+FCLEN_SCAT="06 18 30 42"
 
 # Forecast lengths used in timeserie plots
-FCLEN_SURF_TIME=$FCLEN_DAYVAR
-
-# Forecast lengths used in maps
-FCLEN_MAP=$FCLEN_DAYVAR
+FCLEN_SURF_TIME="24"
 
 ########################
 # Upper air parameters #
@@ -131,60 +131,59 @@ FCLEN_MAP=$FCLEN_DAYVAR
 # FI : Geopotential
 #
 
-TEMPPAR="TT FF DD FI RH QQ"
+TEMPPAR="TT TD FF DD FI RH QQ"
 
 TEMPPLOT="GEN TIME VERT"
 
 # Interval in hours between observations
-OBINT_TEMP=06
+OBINT_TEMP=12
 # Assimilation cycle interval
-FCINT_TEMP=06
+FCINT_TEMP=12
 
 # Forecast lengths used for verification
-FCLEN_TEMP="00 06 12"
+FCLEN_TEMP="00 06 12 18 24 36 48"
 
 # Forecast lengths used for vertical profiles
-FCLEN_TEMP_VERT="06 12"
+FCLEN_TEMP_VERT="06 12 18 24 36 48"
 
 # Forecast lengths used in timeserie plots
-FCLEN_TEMP_TIME="06 12"
+FCLEN_TEMP_TIME="24"
 
 # TEMP levels to be verified
-LEV_LST="925 850 700 500 300 200 150 100 50"
+LEV_LST="925 850 700 600 500 300 200 150 100 50"
 # TEMP levels for TD and RH are limited to lower ones
-#LEV_LST_TD="925 850 700 500 300 "
-#LEV_LST_RH="925 850 700 500 300 "
+LEV_LST_TD="925 850 700 500 300 "
+LEV_LST_RH="925 850 700 500 300 "
 
 
 # Areas for TEMP verification
 # Note that XML statistics will be defined for the
 # first area only
-TEMPAREAS="ALL"
+TEMPAREAS="ALL EWGLAM"
+
+#####################
+# GRAPHICS and misc #
+#####################
+#
+# Set which graphics you are using
+# MAGICS/GNUPLOT
+# To be able to use MAGICS verobs has to be compiled with -DMAGICS.
+export GRAPHICS=GNUPLOT
+
+# MAG_HOME for magics, not needed at ecgate
+# export MAG_HOME=
 
 # Select output_type
 # 1  Postscript + PNG
 # 2  PNG
 # 3  JPEG
-
+# 4  SVG
 OUTPUT_TYPE=2
 
-# Date
-# PERIOD_TYPE 1 : SDATE - EDATE, 2 : SDATE - EDATE in monthly pieces
-# 
-# IDATE is the very first date for PERIOD_TYPE=2 it determines the 
-# lentght of the date menu in WebgraF
-#
-
-PERIOD_TYPE=1
-
-SDATE=20100801
-EDATE=20100802
-IDATE=20100801
-
 # Run all parameters in one go
-# Possible if you have a short period/small number of stations
-# or only a few parameters
-ALL_AT_ONCE=yes 
+# Impossible if you have a long period/large number of stations
+# or several parameters
+ALL_AT_ONCE=yes
 
 # WebgraF call, set WEBCALL empty if not used
 WEBGRAF_BASE=$BASE/WebgraF
