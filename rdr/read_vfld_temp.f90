@@ -13,6 +13,7 @@ SUBROUTINE read_vfld_temp
 
  IMPLICIT NONE
 
+ REAL, PARAMETER :: mflag = -99.
 
  INTEGER :: i,ii,j,k,kk,kkk,l,ll,       &
             kk_lev,                     &
@@ -218,7 +219,7 @@ SUBROUTINE read_vfld_temp
 
           READ_LEV_MOD : DO kk=1,num_temp_lev
 
-          val = -99.
+          val = mflag
 
           SELECT CASE(version_flag)
           CASE(0)
@@ -241,22 +242,22 @@ SUBROUTINE read_vfld_temp
 
           ! Do not use levels below model topography
           IF ( (ABS(hgt    - err_ind ) > 1.e-6) .AND. &
-               (ABS(val(2) + 99.     ) > 1.e-6) .AND. &
+               (ABS(val(2) - mflag   ) > 1.e-6) .AND. &
                     val(2) < hgt                     ) CYCLE READ_LEV_MOD
 
-          IF((fi_ind /= 0 ) .AND. qca(val(2),-99.)) &
+          IF((fi_ind /= 0 ) .AND. qca(val(2),mflag)) &
           hir(stat_i)%o(i)%nal(l,j,kk_lev+ my_temp_lev*(fi_ind-1)) = val(2)
-          IF((tt_ind /= 0 ) .AND. qca(val(3),-99.)) &
+          IF((tt_ind /= 0 ) .AND. qca(val(3),mflag)) &
           hir(stat_i)%o(i)%nal(l,j,kk_lev+ my_temp_lev*(tt_ind-1)) = val(3) - tzero
-          IF((rh_ind /= 0 ) .AND. qca(val(4),-99.)) &
+          IF((rh_ind /= 0 ) .AND. qca(val(4),mflag)) &
           hir(stat_i)%o(i)%nal(l,j,kk_lev+ my_temp_lev*(rh_ind-1)) = val(4)
-          IF((dd_ind /= 0 ) .AND. qca(val(5),-99.)) &
+          IF((dd_ind /= 0 ) .AND. qca(val(5),mflag)) &
           hir(stat_i)%o(i)%nal(l,j,kk_lev+ my_temp_lev*(dd_ind-1)) = val(5)
-          IF((ff_ind /= 0 ) .AND. qca(val(6),-99.)) &
+          IF((ff_ind /= 0 ) .AND. qca(val(6),mflag)) &
           hir(stat_i)%o(i)%nal(l,j,kk_lev+ my_temp_lev*(ff_ind-1)) = val(6)
-          IF((qq_ind /= 0 ) .AND. qca(val(7),-99.)) &
+          IF((qq_ind /= 0 ) .AND. qca(val(7),mflag)) &
           hir(stat_i)%o(i)%nal(l,j,kk_lev+ my_temp_lev*(qq_ind-1)) = val(7) * 1.e3
-          IF((td_ind /= 0 ) .AND. qca(val(8),-99.)) &
+          IF((td_ind /= 0 ) .AND. qca(val(8),mflag)) &
           hir(stat_i)%o(i)%nal(l,j,kk_lev+ my_temp_lev*(td_ind-1)) = val(8)
 
 
