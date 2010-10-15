@@ -191,7 +191,7 @@
    $area_num++ ;
 
    # Only plot single stations for the first area
-   if ( $area_num gt 1 ) { ${$default}{'def'}{'STNLIST_PLOT'} = '-1' } ;
+   if ( $area_num gt 1 ) { $def{'def'}{'STNLIST_PLOT'} = '-1' } ;
 
    # Set default tag according to area
    $def{'def'}{'TAG'} = '\''.$area.'\'' ;
