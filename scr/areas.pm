@@ -1,4 +1,10 @@
  %areas=(
+  'masl_300m' => {
+   'STNLIST'=> 0,
+   'LSTN_HGT_CHECK'=>'.T.,',
+   'HGT_ULIM'=>1.e6,
+   'HGT_LLIM'=>300.,
+   },
   'ALL' => {
    'STNLIST'=> 0,
    'MAP_SCALE'=>5.0e7,

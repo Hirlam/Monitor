@@ -107,6 +107,26 @@ SUBROUTINE selection(flag)
  ENDIF
 
  !
+ ! Station height selection
+ !
+
+ IF ( lstn_hgt_check ) THEN
+   WRITE(6,*)
+   WRITE(6,*)'Station height selection'
+   ii = 0
+   DO i=1,maxstn
+      IF ( ( hir(i)%hgt > hgt_ulim .OR. hir(i)%hgt < hgt_llim) .AND. hir(i)%active) THEN
+         hir(i)%active = .FALSE.
+      ELSEIF ( hir(i)%active) THEN
+        WRITE(6,*)hir(i)%stnr,hir(i)%hgt
+        ii = ii + 1
+      ENDIF
+   ENDDO
+   WRITE(6,*)'Found ',ii,'stations'
+   WRITE(6,*)
+ ENDIF
+
+ !
  ! Black listed stations
  !
 

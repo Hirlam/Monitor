@@ -36,6 +36,9 @@ SUBROUTINE ini_namelist
  ! Selection
  reverse_selection = .FALSE.
 
+ ! Station height selection
+ lstn_hgt_check = .FALSE.
+
  ! Timserie window
  timeserie_wind = 0
 

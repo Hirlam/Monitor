@@ -87,6 +87,10 @@ MODULE data
  CHARACTER(LEN=100 )  :: polyfile ='poly.dat'
  LOGICAL    :: reverse_selection          ! Reverse your selection
 
+ LOGICAL    :: lstn_hgt_check             ! Station height selection
+ REAL       :: hgt_llim,hgt_ulim          ! Lower and upper limit for stations
+                                          ! in meters
+
  ! Experiment and name
  INTEGER           :: nexp = 1                  ! Number of experiments
  CHARACTER(LEN=30) :: expname(maxexp)='OBS'     ! Name of experiments
@@ -483,7 +487,9 @@ MODULE data
                  scat_min,scat_max,scat_magn,           &
                  cont_ind,cont_class,cont_lim,          &
                  cont_param,                            &
-                 graphics
+                 graphics,                              &
+                 lstn_hgt_check,hgt_llim,hgt_ulim
+
 
 CONTAINS
 
