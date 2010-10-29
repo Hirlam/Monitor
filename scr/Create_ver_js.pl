@@ -118,7 +118,13 @@
     $npar = scalar(@par) -1 ;
 
     @text = ();
-    foreach $par ( @par ) { @text = (@text,$plotdefs{$par}{'TEXT_TEMP'}) ; } ;
+    foreach $par ( @par ) { 
+        if ( exists($plotdefs{$par}{'TEXT_TEMP'}) ) {
+          @text = (@text,$plotdefs{$par}{'TEXT_TEMP'}) ; 
+        } else {
+          @text = (@text,$plotdefs{$par}{'TEXT'}) ; 
+        } ;
+    } ;
     $text='\''.join('\',\'',@text).'\'';
 
     &finalize_plot ;
