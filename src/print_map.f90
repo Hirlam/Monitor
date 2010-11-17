@@ -7,8 +7,8 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
  !
 
  ! Modules
- USE mymagics
  USE timing
+ USE constants, ONLY : seasonal_name1,seasonal_name2
  USE data,     ONLY : maxstn,lfcver,        &
                       nexp,tag,output_type, &
                       output_mode,len_lab,  &

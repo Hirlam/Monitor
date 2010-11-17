@@ -3,7 +3,6 @@ SUBROUTINE print_cont(p1,p2,nr,par_active,    &
 
  USE data
  USE contingency
- USE mymagics
 
  IMPLICIT NONE
 

@@ -3,9 +3,9 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
                        uh,uf)
 
  USE types, ONLY : statistics
- USE mymagics
  USE functions
  USE timing
+ USE constants, ONLY : seasonal_name1,seasonal_name2
  USE data, ONLY : obstype,expname,station_name,                 &
                   csi,use_fclen,lfcver,                         &
                   maxfclenval,len_lab,output_mode,              &
@@ -14,7 +14,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
                   show_bias,show_rmse,show_stdv,show_obs,       &
                   show_var,show_skw,                            &
                   copied_obs,copied_mod,period_freq,period_type,&
-                  output_type,accu_int,lprint_seasonal
+                  output_type,accu_int,lprint_seasonal,err_ind
 
  IMPLICIT NONE
 
@@ -61,6 +61,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
  CHARACTER(LEN=100) :: wtext1=' '
  CHARACTER(LEN=100) :: fname=' '
  CHARACTER(LEN= 30) :: wname=' '
+ CHARACTER(LEN= 20) :: ytitle=' '
  CHARACTER(LEN= 10) :: prefix = ' '
  CHARACTER(LEN=  6) :: ob_short = '      '
  CHARACTER(LEN=  6) :: ctype(4) = ' '

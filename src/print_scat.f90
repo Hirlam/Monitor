@@ -10,12 +10,12 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
 
  USE types
  USE timing
+ USE constants, ONLY : seasonal_name1,seasonal_name2
  USE data, ONLY : obstype,expname,err_ind,nexp,station_name,csi, &
                   tag,show_fc_length,output_type,output_mode,    &
                   mparver,corr_pairs,flag_pairs,exp_pairs,       &
                   period_freq,maxfclenval,                       &
                   scat_min,scat_max,scat_magn,len_lab,accu_int
- USE mymagics
  USE functions
 
  IMPLICIT NONE

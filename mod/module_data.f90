@@ -20,7 +20,6 @@ MODULE data
  INTEGER, PARAMETER :: lunqc   = 48
  INTEGER, PARAMETER :: len_lab = 6
  INTEGER, PARAMETER :: maxexp  = 10     ! Max experiments
-                                        ! Remember to change colours in module_mymagics as well
  INTEGER, PARAMETER :: mparver = 200    ! Max parameters to verify
  INTEGER, PARAMETER :: maxfclen= 48     ! Maximum number of forecast lengths
  INTEGER, PARAMETER :: maxfclenval= 240 ! Maximum forecast length value in hours

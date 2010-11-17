@@ -9,9 +9,9 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
  !
 
  USE types, ONLY : statistics
- USE mymagics
  USE functions
  USE timing
+ USE constants, ONLY : seasonal_name1,seasonal_name2
  USE data, ONLY : obstype,expname,station_name,                 &
                   csi,lfcver,maxfclenval,                       &
                   lev_lst,ltemp,nfclengths,                     &
@@ -20,7 +20,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
                   len_lab,period_freq,period_type,              &
                   output_type,output_mode,                      &
                   show_times,use_fclen,timdiff,time_shift,      &
-                  z_is_pressure,len_lab,accu_int
+                  z_is_pressure,len_lab,accu_int,err_ind
 
 
  IMPLICIT NONE
@@ -59,6 +59,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
  CHARACTER(LEN=len_lab  ) :: ob_short=''
  CHARACTER(LEN=1  ) :: prefix    = ' '
  CHARACTER(LEN=10 ) :: chour    = ' '
+ CHARACTER(LEN=30 ) :: ytitle=''
  CHARACTER(LEN=30 ) :: cform='   '
 
  LOGICAL, ALLOCATABLE :: ldum(:)

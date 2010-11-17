@@ -8,7 +8,6 @@ SUBROUTINE print_freq(lunout,nparver,nr,scat,p1,par_active,uh,uf)
 
  USE types
  USE functions
- USE mymagics
  USE timing
  USE data, ONLY : nexp,station_name,err_ind,csi,obstype, &
                   expname,gr_ind,pe_ind,pd_ind,          &
@@ -49,9 +48,10 @@ SUBROUTINE print_freq(lunout,nparver,nr,scat,p1,par_active,uh,uf)
 
  CHARACTER(LEN=100) :: fname = ''
  CHARACTER(LEN=90) :: wtext = '',wtext1=''
- CHARACTER(LEN=20) :: wname = ''
+ CHARACTER(LEN=20) :: wname = '', ytitle = ''
  CHARACTER(LEN=30) :: cform = ''
  CHARACTER(LEN=len_lab  ) :: ob_short=''
+
 
 !-----------------------------------------------------
  ! Init timing counter

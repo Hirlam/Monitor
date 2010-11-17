@@ -31,7 +31,6 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
 
  USE types
  USE timing
- USE mymagics
  USE means
  USE data, ONLY : obstype,expname,err_ind,nexp,          &
                   station_name,csi,                      &
@@ -90,6 +89,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
  REAL,    ALLOCATABLE, TARGET :: stdvi(:,:),skw(:,:),stdvo(:),skwo(:)
  REAL    :: zobs,zfc,zslask2
  CHARACTER(LEN=30 ) :: cform='   '
+ CHARACTER(LEN=20 ) :: ytitle=''
  CHARACTER(LEN=6  ) :: ob_short='      '
  CHARACTER(LEN=2  ) :: prefix=' '
  CHARACTER(LEN=100) :: fname=' '

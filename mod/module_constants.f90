@@ -1,4 +1,5 @@
  MODULE constants
+
   IMPLICIT NONE
 
   REAL, PARAMETER :: gravit    = 9.80665                ! Constant of gravity
@@ -11,5 +12,10 @@
   REAL, PARAMETER :: tzero     = 273.15
   REAL, PARAMETER :: melt_heat = 3.34e5 ! J/kg
   REAL, PARAMETER :: rair      = 2.8704E2
+
+  CHARACTER(LEN=3), PARAMETER  ::                      &
+  seasonal_name1(4)=(/'DJF','MAM','JJA','SON'/),       &
+  seasonal_name2(12)=(/'JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'/)
+
 
  END MODULE constants
