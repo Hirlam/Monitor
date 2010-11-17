@@ -195,6 +195,10 @@ SCAN_INPUT: foreach $input_file (@FILES) {
 
     PLOT_TYPES: {
 
+        if ( $prefix =~ /sign/ ) {
+            &plot_sign;
+            last PLOT_TYPES;
+        }
         if ( $prefix =~ /ps/ || $prefix =~ /PS/ ) {
             &timeserie;
             last PLOT_TYPES;
@@ -237,6 +241,33 @@ SCAN_INPUT: foreach $input_file (@FILES) {
     print "Created:$output_file \n";
 
 }
+#################################################################
+#################################################################
+#################################################################
+sub plot_sign {
+  
+  if ( defined $minnum ) {
+    print GP <<EOF;
+set y2range [$minnum:$maxnum]
+set y2label "No cases"
+set y2tics $minnum,$ticnum,$maxnum
+EOF
+  } else {
+    print GP <<EOF;
+set y2range [0:]
+set y2label "No cases"
+set y2tics 0,1000
+EOF
+  } ;
+
+   $plot = "plot '$input_file' notitle with errorbars lw 4, ";
+   $plot = $plot . "'$input_file' using 1:2 notitle with linespoints lw 2, ";
+   $plot = $plot . "'${input_file}n' using 1:2 axes x1y2 title 'Cases' with linespoints lt 0 lw 2 ";
+
+}
+#################################################################
+#################################################################
+#################################################################
 #################################################################
 #################################################################
 #################################################################

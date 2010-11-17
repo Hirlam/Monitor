@@ -58,6 +58,16 @@ MODULE types
  END TYPE scatter_type
 
  !
+ ! Significance stat
+ !
+
+ TYPE sign_type
+   INTEGER          :: date,time
+   INTEGER, POINTER :: n(:,:,:)
+   REAL,    POINTER :: r(:,:,:)
+ END TYPE sign_type
+
+ !
  ! Observation
  !
 

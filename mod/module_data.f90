@@ -396,6 +396,13 @@ MODULE data
  REAL    :: cont_lim(mpre_cla,mparver) = 0.0 !
 
  !
+ ! Significance test settings
+ !
+
+ LOGICAL :: lsign_test       = .FALSE.        ! Perform student-t test
+ INTEGER :: control_exp_nr   = 1              ! Which experiment is the control
+ INTEGER :: sign_time_diff   = -1             ! Min time difference in days for sign test. -1 implies fcint
+ !
  ! Namelist 
  !
  namelist/namver/sdate,stime,edate,etime,               &
@@ -487,6 +494,8 @@ MODULE data
                  cont_ind,cont_class,cont_lim,          &
                  cont_param,                            &
                  graphics,                              &
+                 lsign_test,control_exp_nr,             &
+                 sign_time_diff,                        &
                  lstn_hgt_check,hgt_llim,hgt_ulim
 
 

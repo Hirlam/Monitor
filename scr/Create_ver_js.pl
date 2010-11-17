@@ -21,8 +21,8 @@
 
  # Experiment
 
- @exp=split(' ',$ENV{EXP});
- $nexp = scalar(@exp) -1 ;
+ my @exp=split(' ',$ENV{EXP});
+ $nexp = scalar(@exp) ;
  $expname ='\''.join('\',\'',@exp).'\'';
  $nlev = 0 ; 
  $lev_lst = 0;
@@ -273,7 +273,7 @@ sub cont {
 
 title = '$type skill scores'
 
-framec='Teal'
+framec='RoyalBlue'
 
 v[0] = ['c','kc','aic','frc','fbc','f'] ;
 t[0] = ['Wilson diagram','Kuiper skill score','Area index','False alarme rate','Freq bias','Frequency']
@@ -410,6 +410,65 @@ system($web);
 ##################################
 ##################################
 ##################################
+sub sign {
+#
+# Significance test definition file
+#
+
+ $refexp =shift @exp ;
+ foreach (@exp) {
+    $tmp =$refexp."_".$_;
+    @tmp =(@tmp,$tmp);
+ } ;
+
+$sexpname ='\''.join('\',\'',@tmp).'\'';
+
+open INPUT, "> input.js" ;
+
+print INPUT "
+
+title = '$type significane test'
+
+framec='OliveDrab'
+
+v[0] = ['sign']
+t[0] = ['Significance']
+v[1] = [$period_v[$period_type]]
+t[1] = [$period_t[$period_type]]
+v[2] = [$stations]
+t[2] = [$stations_txt]
+v[3] =  [$areas] ;
+t[3] = v[3] ;
+v[4] = [$partext]
+t[4] = [$text]
+v[5] = [$lev_lst]
+v[5] = v[5].reverse()
+t[5] = v[5]
+v[6] = [$sexpname]
+t[6] = [$sexpname]
+
+mname = ['Type','Period','Station','Area','Parameter','Level','Exp']
+loc = ['l','t','t','t','l','l','t']
+spec_name =[0,1,2,3,6,4,5]
+$download
+pdir ='$type/'
+ext='$EXT'
+help = '$ENV{HELP}'; hide_help = false ;
+do_send = true ;
+$xml_txt
+$xml
+" ;
+
+close INPUT ;
+
+$web="$WEBCALL -e ${type}_sign -f input.js";
+print "$web\n";
+system($web);
+
+} ;
+##################################
+##################################
+##################################
 sub finalize_plot {
 
  # Create text for general page (Surface/Temp)
@@ -509,6 +568,7 @@ if (( exists $plots{'TIME'}   ) ||
 if ( exists $plots{'SCAT'} ) { &scatter ; } ;
 if ( exists $plots{'MAP'}  ) { &map ;     }; 
 if ( exists $plots{'CONT'} ) { &cont ;    }; 
+if ( exists $plots{'GEN'} && $nexp gt 1 ) { &sign ;    } ;
 
 # Vertical profiles
 if ( $TYPE eq 'TEMP' && exists $plots{'VERT'} ) { &profile ; };

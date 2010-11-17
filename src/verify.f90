@@ -32,6 +32,7 @@ SUBROUTINE verify
  USE timeserie
  USE functions
  USE timing
+ USE sign_data
 
  IMPLICIT NONE
 
@@ -265,6 +266,10 @@ SUBROUTINE verify
  !
 
  IF ( ltimeserie_stat .OR. lprint_timeserie_stat ) CALL allocate_timeserie(maxper,edate_obs)
+
+ ! Allocate array for significance test
+ 
+ IF ( lsign_test ) CALL allocate_sign_data
 
  !
  ! Allocate flags for fclen/hour/time usage
@@ -651,6 +656,17 @@ SUBROUTINE verify
                 ENDIF 
 
 
+                IF ( lsign_test ) THEN
+
+                   !
+                   ! Accumulate significance statistics
+                   !
+
+                   CALL add_sign_stat(hir(i)%o(j)%date,hir(i)%o(j)%time,n,k,nexp,tmpdiff)
+
+                ENDIF
+
+
              ENDIF ALL_EXP_TEST
 
           ENDDO NPARVER_LOOP
@@ -804,6 +820,12 @@ SUBROUTINE verify
 
       scat_data%n = 0
 
+
+   ENDIF
+
+   IF ( lsign_test ) THEN
+      IF ( lallstat ) CALL add_all_sign_stat
+      CALL reset_sign_stat
    ENDIF
 
  ENDDO STATION_CYCLE
@@ -984,10 +1006,15 @@ SUBROUTINE verify
     ENDDO
  ENDIF
 
+
  !
  ! Deallocate
  !
 
+ ! Significance test arrays
+ IF ( lsign_test   ) CALL clear_sign_data
+
+ ! Contingency arrays
  IF ( lcontingency ) CALL clear_cont
 
  IF ( ALLOCATED(periods)) DEALLOCATE(periods)

@@ -17,7 +17,7 @@ fi
 [[ $WEBCALL == "" ]] && exit
 
 if [ $TARG = "TEMP" -o $TARG = "SURF" ] ; then
-   ./Create_ver_js.pl $1
+   ./Create_ver_js.pl $2
 else
    echo "Please give SURF or TEMP as argument" 
    exit

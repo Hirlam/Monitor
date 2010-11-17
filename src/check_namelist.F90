@@ -24,6 +24,14 @@ SUBROUTINE check_namelist
 
  lcontingency = ( cont_param /= 0 )
 
+ !
+ ! Significance test
+ !
+ IF( .NOT. lfcver .OR. nexp == 1) THEN
+    ! Significance test only if fcver
+    lsign_test = .FALSE.
+ ENDIF
+
 
  IF ( lplot_seasonal ) lplot_stat = .TRUE.
 
@@ -39,6 +47,8 @@ SUBROUTINE check_namelist
  IF ( lplot_scat                      ) WRITE(6,*)' - Scatter plots will be produced '
  IF ( lplot_stat .AND. lfcver .AND. &
       .NOT. lplot_seasonal            ) WRITE(6,*)' - Verification against forecast time will be done'
+ IF ( lsign_test .AND. lfcver .AND. &
+      nexp > 1                        ) WRITE(6,*)' - Significance test will be done'
  IF ( lplot_stat .AND. lfcver .AND. &
       lplot_seasonal                  ) WRITE(6,*)' - Seasonal verification will be done'
  IF ( lplot_stat .AND. .NOT. lfcver   ) WRITE(6,*)' - Verification against time of day will be done'

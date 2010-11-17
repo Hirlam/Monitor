@@ -264,6 +264,18 @@ SUBROUTINE do_stat(per_ind,p1,p2)
       used_hours(:,per_ind,:),used_fclen(:,per_ind,:))
     ENDIF
 
+    IF ( lsign_test .AND. lallstat ) THEN
+
+       !
+       ! Print significance test
+       !
+
+       CALL print_sign_test(lunout,nexp,nparver,          &
+         0,minval(p1),maxval(p2),par_active,              &
+         used_hours(:,per_ind,:),used_fclen(:,per_ind,:))
+
+    ENDIF
+
 #ifdef MAGICS
     IF (TRIM(graphics) == 'MAGICS') THEN
 
