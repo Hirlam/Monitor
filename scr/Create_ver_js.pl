@@ -448,7 +448,7 @@ v[6] = [$sexpname]
 t[6] = [$sexpname]
 
 mname = ['Type','Period','Station','Area','Parameter','Level','Exp']
-loc = ['l','t','t','t','l','l','t']
+loc = ['l','t','t','t','l','t','t']
 spec_name =[0,1,2,3,6,4,5]
 $download
 pdir ='$type/'
@@ -568,7 +568,12 @@ if (( exists $plots{'TIME'}   ) ||
 if ( exists $plots{'SCAT'} ) { &scatter ; } ;
 if ( exists $plots{'MAP'}  ) { &map ;     }; 
 if ( exists $plots{'CONT'} ) { &cont ;    }; 
-if ( exists $plots{'GEN'} && $nexp gt 1 ) { &sign ;    } ;
+
+if ( exists $arealoop{'GEN'}{'LSIGN_TEST'} ) {
+   if ( exists $plots{'GEN'} && 
+        $nexp gt 1           &&  
+        $arealoop{'GEN'}{'LSIGN_TEST'} eq 'T' ) { &sign ; } ;
+}
 
 # Vertical profiles
 if ( $TYPE eq 'TEMP' && exists $plots{'VERT'} ) { &profile ; };
