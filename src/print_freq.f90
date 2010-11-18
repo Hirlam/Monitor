@@ -178,11 +178,11 @@ SUBROUTINE print_freq(lunout,nparver,nr,scat,p1,par_active,uh,uf)
 
     WRITE(lunout,'(A,X,I2)')'#NEXP',nexp+1
     DO i=1,nexp
-       WRITE(lunout,'(A,I2.2X,A)')'#EXP_',i,TRIM(expname(i))
-       WRITE(lunout,'(A,I2.2X,A)')'#COLUMN_',i+1,TRIM(expname(i))
+       WRITE(lunout,'(A,I2.2,X,A)')'#EXP_',i,TRIM(expname(i))
+       WRITE(lunout,'(A,I2.2,X,A)')'#COLUMN_',i+1,TRIM(expname(i))
     ENDDO
-    WRITE(lunout,'(A,I2.2X,A)')'#EXP_',lnexp,'OBS'
-    WRITE(lunout,'(A,I2.2X,A)')'#COLUMN_',lnexp+1,'OBS'
+    WRITE(lunout,'(A,I2.2,X,A)')'#EXP_',lnexp,'OBS'
+    WRITE(lunout,'(A,I2.2,X,A)')'#COLUMN_',lnexp+1,'OBS'
 
     ob_short = obstype(j)
     ob_short(3:6) = '   '

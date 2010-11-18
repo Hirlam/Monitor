@@ -364,17 +364,17 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
     IF ( lfcver ) THEN
        IF ( lprint_seasonal .OR. TRIM(ctype(n)) /= 'BIAS' ) THEN
           WRITE(lunout,'(A,X,I2)')'#NEXP',nexp+1
-          WRITE(lunout,'(A,I2.2X,A)')'#EXP_',0,'OBS'
+          WRITE(lunout,'(A,I2.2,X,A)')'#EXP_',0,'OBS'
        ELSE
           WRITE(lunout,'(A,X,I2)')'#NEXP',nexp
        ENDIF
     ELSE
        WRITE(lunout,'(A,X,I2)')'#NEXP',nexp+1
-       WRITE(lunout,'(A,I2.2X,A)')'#EXP_',0,'OBS'
+       WRITE(lunout,'(A,I2.2,X,A)')'#EXP_',0,'OBS'
     ENDIF
 
     DO i=1,nexp
-       WRITE(lunout,'(A,I2.2X,A)')'#EXP_',i,expname(i)
+       WRITE(lunout,'(A,I2.2,X,A)')'#EXP_',i,expname(i)
     ENDDO
 
     ob_short = obstype(j)

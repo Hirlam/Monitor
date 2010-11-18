@@ -61,7 +61,8 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
             timing_id,                  &
             ntim_use,dlen,              &
             istart,iend,maxtim,npp,     &
-            case_i
+            case_i,                     &
+            i1,i2,min_diff_avail,ut
 
  REAL minnum,maxnum,ticnum,maxnum_t
 
@@ -171,6 +172,51 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
                        output_mode,output_type,   &
                        fname)
        CALL open_output(fname)
+    ENDIF
+
+    ! Calculate shortest available time difference
+    i1 = -1 
+    i2 = -1
+    min_diff_avail = 24
+    DO i=0,23
+     IF ( uh(j,i) ) THEN
+       IF ( i1 == -1 ) THEN
+         i1 = i
+       ELSEIF ( i2 == -1 ) THEN	
+         i2 = i
+       ELSE
+         i1 = i2
+         i2 = i
+         min_diff_avail = MIN(min_diff_avail,i2-i1)
+       ENDIF
+     ENDIF
+    ENDDO
+   
+    i1 = -1 
+    i2 = -1
+    DO i=0,maxfclenval
+     IF ( uf(j,i) ) THEN
+       IF ( i1 == -1 ) THEN
+         i1 = i
+       ELSEIF ( i2 == -1 ) THEN	
+         i2 = i
+       ELSE
+         i1 = i2
+         i2 = i
+         min_diff_avail = MIN(min_diff_avail,i2-i1)
+       ENDIF
+     ENDIF
+    ENDDO
+
+    IF ( timeserie_wind(j) == 0 ) THEN
+      ut = 0
+    ELSE
+      ut = MAX(min_diff_avail,timeserie_wind(j))
+    ENDIF
+ 
+    IF ( ut /= timeserie_wind(j)) THEN
+      CALL pname(obstype(j),wtext)
+      WRITE(6,*)'Changed timeserie window to:',ut,' for ',TRIM(wtext)
     ENDIF
 
     rnum = 0.
@@ -288,13 +334,13 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
       ntime = time
       dlen  = ii
 
-      IF (timeserie_wind(j) /= 0 .AND. dlen /= 0 ) THEN
+      IF (ut /= 0 .AND. dlen /= 0 ) THEN
 
          IF ( k == 1 ) THEN
 
            CALL carefull_sumup(           &
            obs,ndate,ntime,               &
-           ii,maxtim,timeserie_wind(j),dlen, &
+           ii,maxtim,ut,dlen, &
            data_min(0),data_max(0),       &
            data_ave(0),ndate(1),00,       &
            sumup_tolerance,obint,         &
@@ -307,7 +353,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
 
            CALL carefull_sumup(           &
            rnum(:,k),ndate(:),ntime(:),   &
-           ii,maxtim,timeserie_wind(j),dlen, &
+           ii,maxtim,ut,dlen, &
            rnum_min(k),rnum_max(k),       &
            rnum_ave(k),ndate(1),00,       &
            sumup_tolerance,obint,         &
@@ -318,7 +364,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
 
            CALL carefull_sumup(           &
            bias(:,k),ndate(:),ntime(:),   &
-           ii,maxtim,timeserie_wind(j),dlen, &
+           ii,maxtim,ut,dlen, &
            data_min(k),data_max(k),       &
            data_ave(k),ndate(1),00,       &
            sumup_tolerance,obint,         &
@@ -331,7 +377,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
 
               CALL carefull_sumup(           &
               rmse(:,k),ndate(:),ntime(:),   &
-              ii,maxtim,timeserie_wind(j),dlen, &
+              ii,maxtim,ut,dlen, &
               rmse_min(k),rmse_max(k),       &
               rmse_ave(k),ndate(1),00,       &
               sumup_tolerance,obint,         &
@@ -342,7 +388,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
 
               CALL carefull_sumup(           &
               stdv(:,k),ndate(:),ntime(:),   &
-              ii,maxtim,timeserie_wind(j),dlen, &
+              ii,maxtim,ut,dlen, &
               stdv_min(k),stdv_max(k),       &
               stdv_ave(k),ndate(1),00,       &
               sumup_tolerance,obint,         &
@@ -398,9 +444,9 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
 
        CALL fclen_header(.true.,maxfclenval,uh(j,:),uf(j,:),accu_int(j),wtext)
 
-       IF ( timeserie_wind(j) /= 0 ) THEN
+       IF ( ut /= 0 ) THEN
           wname = ' '
-          WRITE(wname(1:3),'(I3)')timeserie_wind(j)
+          WRITE(wname(1:3),'(I3)')ut
           wtext = TRIM(wtext)//'  Window:'//TRIM(wname)//'h'
        ENDIF
 
@@ -428,10 +474,10 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
        WRITE(lunout,'(A,X,I2)')'#NEXP',nexp
     ELSE
        WRITE(lunout,'(A,X,I2)')'#NEXP',nexp+1
-       WRITE(lunout,'(A,I2.2X,A)')'#EXP_',0,'OBS'
+       WRITE(lunout,'(A,I2.2,X,A)')'#EXP_',0,'OBS'
     ENDIF
     DO i=1,nexp
-       WRITE(lunout,'(A,I2.2X,A)')'#EXP_',i,expname(i)
+       WRITE(lunout,'(A,I2.2,X,A)')'#EXP_',i,expname(i)
     ENDDO
 
     ob_short = obstype(j)
