@@ -182,7 +182,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
      IF ( uh(j,i) ) THEN
        IF ( i1 == -1 ) THEN
          i1 = i
-       ELSEIF ( i2 == -1 ) THEN	
+       ELSEIF ( i2 == -1 ) THEN
          i2 = i
        ELSE
          i1 = i2
@@ -198,7 +198,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
      IF ( uf(j,i) ) THEN
        IF ( i1 == -1 ) THEN
          i1 = i
-       ELSEIF ( i2 == -1 ) THEN	
+       ELSEIF ( i2 == -1 ) THEN
          i2 = i
        ELSE
          i1 = i2
