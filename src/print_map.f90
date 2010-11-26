@@ -142,6 +142,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
 
     FC_LOOP  : DO kki=1,ntimver_out
 
+       kk = 0
        !
        ! Plot only the requested hours
        ! Map min/max temp at 00|12 to 06|18

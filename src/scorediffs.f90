@@ -44,7 +44,7 @@ SUBROUTINE scorediffs(exp1,exp2,nfclen,par,     &
         y(l) = SQRT( all_sign_stat(i)%r(exp2,j,par) /  &
                        all_sign_stat(i)%n(1,j,par) )
 
-        ncases(j) = ncases(j) + all_sign_stat(i)%n(1,j,par)
+        ncases(j) = ncases(j) + l
 
       ENDDO 
 
