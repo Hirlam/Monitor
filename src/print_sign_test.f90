@@ -168,6 +168,7 @@ SUBROUTINE print_sign_test(lunout,nexp,nparver,         &
     WRITE(lunout,'(A)')'#END'
 
     DO k=1,nuse_fclen
+        IF ( ncases(k) == 0 ) sdiff(k,:) = err_ind
         WRITE(lunout,'(I4,2(en15.5e2))')use_fclen(k),sdiff(k,:)
     ENDDO
 
