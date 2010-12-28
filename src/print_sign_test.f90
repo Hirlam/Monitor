@@ -33,7 +33,7 @@ SUBROUTINE print_sign_test(lunout,nexp,nparver,         &
  CHARACTER(LEN=100) :: wtext=' '
  CHARACTER(LEN=100) :: wtext1=' '
  CHARACTER(LEN=100) :: fname=' '
- CHARACTER(LEN= 30) :: wname=' '
+ CHARACTER(LEN= 60) :: wname=' '
  CHARACTER(LEN= 10) :: prefix = ' '
  CHARACTER(LEN=  6) :: ob_short = '      '
 
