@@ -184,6 +184,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
          i1 = i
        ELSEIF ( i2 == -1 ) THEN
          i2 = i
+         min_diff_avail = MIN(min_diff_avail,i2-i1)
        ELSE
          i1 = i2
          i2 = i
@@ -200,6 +201,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
          i1 = i
        ELSEIF ( i2 == -1 ) THEN
          i2 = i
+         min_diff_avail = MIN(min_diff_avail,i2-i1)
        ELSE
          i1 = i2
          i2 = i
