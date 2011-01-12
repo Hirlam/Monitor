@@ -10,12 +10,12 @@
  #
  # Main plotting definitions are defined in maindefs.pm
  # Parameter definitions are defined in plotdefs.pm
- # Different areas are defined in areas.pm
+ # Different selections are defined in selection.pm
  #
  # Ulf Andrae, SMHI, 2008
  #
 
- use areas ;
+ use selection ;
  use plotdefs ;
  use maindefs ;
 
@@ -90,7 +90,7 @@
        $nameread{'read_section'}{'DATA_SOURCE'} = '\'vfld_temp\'';
     };
 
-    $arealoop{'TIME'}{'USE_FCLEN'} = join(',',split(' ',$ENV{FCLEN_TEMP_TIME})) ;
+    $selectionloop{'TIME'}{'USE_FCLEN'} = join(',',split(' ',$ENV{FCLEN_TEMP_TIME})) ;
 
  } else {
 
@@ -106,7 +106,7 @@
        $nameread{'read_section'}{'DATA_SOURCE'} = '\'vfld\'';
     };
 
-    $arealoop{'TIME'}{'USE_FCLEN'} = join(',',split(' ',$ENV{FCLEN_SURF_TIME})) ;
+    $selectionloop{'TIME'}{'USE_FCLEN'} = join(',',split(' ',$ENV{FCLEN_SURF_TIME})) ;
 
  };
 
@@ -146,20 +146,20 @@
 	 $k = ($i-1)*$nlev + $ilev ;
          if ( exists $tmp{$_}{'CONT_CLASS'} ) {
             $j++ ;
-	    $arealoop{'scat_ver'}{'CONT_CLASS('.$j.')'}=$tmp{$_}{'CONT_CLASS'};
-            $arealoop{'scat_ver'}{'CONT_IND('.$j.')'}=$k ;
-            $arealoop{'scat_ver'}{'CONT_LIM(1:'.$tmp{$_}{'CONT_CLASS'}.','.$j.')'  }=$tmp{$_}{'CONT_LIM'};
+	    $selectionloop{'scat_ver'}{'CONT_CLASS('.$j.')'}=$tmp{$_}{'CONT_CLASS'};
+            $selectionloop{'scat_ver'}{'CONT_IND('.$j.')'}=$k ;
+            $selectionloop{'scat_ver'}{'CONT_LIM(1:'.$tmp{$_}{'CONT_CLASS'}.','.$j.')'  }=$tmp{$_}{'CONT_LIM'};
          } ;
 
          if ( exists $tmp{$_}{'PRE_FCLA'} ) {
-            $arealoop{'scat_ver'}{'PRE_FCLA(:,'.$k.')'}=$tmp{$_}{'PRE_FCLA'};
+            $selectionloop{'scat_ver'}{'PRE_FCLA(:,'.$k.')'}=$tmp{$_}{'PRE_FCLA'};
          } ;
 
          if ( exists $plots{'MAP'} ) {
-		 $arealoop{'MAP'}{'MAP_BIAS_INTERVAL(1:7,'.$k.')'}=$tmp{$_}{'MAP_BIAS_INTERVAL'}; 
+		 $selectionloop{'MAP'}{'MAP_BIAS_INTERVAL(1:7,'.$k.')'}=$tmp{$_}{'MAP_BIAS_INTERVAL'}; 
 	 } ;
 
-         $arealoop{'TIME'}{'TIMESERIE_WIND('.$k.')'}=$tmp{$_}{'TWIND_'.$type};
+         $selectionloop{'TIME'}{'TIMESERIE_WIND('.$k.')'}=$tmp{$_}{'TWIND_'.$type};
          $nameread{'read_section'}{'QC_LIM_SCALE('.$k.')'}=$tmp{$_}{'QC_LIM_SCALE'};
 
          $ilev++ ;
@@ -167,11 +167,11 @@
 
  } ;
 
- if ( $j gt 0 ) { $arealoop{'scat_ver'}{'CONT_PARAM'}=$j; } ;
- if ( exists $plots{'DAYVAR'} ) { $arealoop{'DAYVAR'}{'NTIMVER'}=24/$obint ; } ;
- if ( exists $plots{'VERT'}   ) { $arealoop{'VERT'}{'NTIMVER'}=24/$obint   ; } ;
+ if ( $j gt 0 ) { $selectionloop{'scat_ver'}{'CONT_PARAM'}=$j; } ;
+ if ( exists $plots{'DAYVAR'} ) { $selectionloop{'DAYVAR'}{'NTIMVER'}=24/$obint ; } ;
+ if ( exists $plots{'VERT'}   ) { $selectionloop{'VERT'}{'NTIMVER'}=24/$obint   ; } ;
  if ( exists $plots{'MAP'}    ) {
-    if ( $arealoop{'MAP'}{'LFCVER'} =~/F/) { $arealoop{'MAP'}{'NTIMVER'}=24/$obint   ; }; 
+    if ( $selectionloop{'MAP'}{'LFCVER'} =~/F/) { $selectionloop{'MAP'}{'NTIMVER'}=24/$obint   ; }; 
  }; 
 
  $nameread{'read_section'}{'NPARVER'} = $i*$nlev ;
@@ -185,50 +185,57 @@
  &print_list($default) ;
 
 
- # Define the areas
- @areas = split(' ',$ENV{$type."AREAS"}) ;
+ # Define the selections
+ if ( $ENV{$type."SELECTION"} ) {
+   @selections = split(' ',$ENV{$type."SELECTION"}) ;
+ } else {
+   if ( $ENV{$type."AREAS"} ) {
+      die "${type}AREAS is depreciated please use ${type}SELECTION instead \n";
+   } 
+   die "Please give ${type}SELECTION \n";
+ } ;
 
- # Build the namelist for each area
- $area_num = 0;
+ # Build the namelist for each selection
+ $selection_num = 0;
 
- foreach $area ( @areas ) {
+ foreach $selection ( @selections ) {
 
-   unless  (  exists $areas{$area} ) { die "$area not defined in areas.pm \n"; } ;
+   unless  (  exists $selections{$selection} ) { die "$selection not defined in selection.pm \n"; } ;
 
-   $area_num++ ;
+   $selection_num++ ;
 
-   # Only plot single stations for the first area
-   if ( $area_num gt 1 ) { $def{'def'}{'STNLIST_PLOT'} = '-1' } ;
+   # Only plot single stations for the first selection
+   if ( $selection_num gt 1 ) { $def{'def'}{'STNLIST_PLOT'} = '-1' } ;
 
-   # Set default tag according to area
-   $def{'def'}{'TAG'} = '\''.$area.'\'' ;
+   # Set default tag according to selection
+   $def{'def'}{'TAG'} = '\''.$selection.'\'' ;
 
    #
    # Make sure STNLIST is defined only once and 
    # that we have trailing zeros in the stnlist
    #
 
-   if ( exists $areas{$area}{'STNLIST'} ) {
-   unless ( $areas{$area}{'STNLIST'} =~ /\*/ ) {
-      $nstnlist = split(',',$areas{$area}{'STNLIST'});
+   if ( exists $selections{$selection}{'STNLIST'} ) {
+   unless ( $selections{$selection}{'STNLIST'} =~ /\*/ ) {
+      $nstnlist = split(',',$selections{$selection}{'STNLIST'});
       $nstn_not_used = $nameread{'read_section'}{'MAXSTN'}-$nstnlist ;
       unless ( $nstn_not_used eq 0 ) {
-         $areas{$area}{'STNLIST'} = $areas{$area}{'STNLIST'}.','.$nstn_not_used.'*0';
+         $selections{$selection}{'STNLIST'} = $selections{$selection}{'STNLIST'}.','.$nstn_not_used.'*0';
       } ;
    } ;
    } else {
-      $areas{$area}{'STNLIST'} = '0';
+      $selections{$selection}{'STNLIST'} = '0';
    } ;
-   $areas{$area}{'STNLIST'}=~ s/,,/,/g ;
+   $selections{$selection}{'STNLIST'}=~ s/,,/,/g ;
 
    #
    # Make conditional selections if set
    #
 
-   if ( exists $areas{$area}{'COND%IND'} ) {
+   if ( exists $selections{$selection}{'COND%IND'} ) {
 
      $i++ ;
-     @PAR = split(',',$areas{$area}{'COND%IND'}) ;
+     @PAR = split(',',$selections{$selection}{'COND%IND'}) ;
      $cond_param = scalar(@PAR) ;
 
      @ind = () ;
@@ -236,20 +243,20 @@
       @ind = (@ind,$par_ind{$par}) ;
      } ;
       
-     for $cond ( keys %{ $areas{$area} } ) {
+     for $cond ( keys %{ $selections{$selection} } ) {
        if ( $cond =~/COND/ )  {
          @tmp = split('%',$cond) ;
          if ( @tmp[1] eq 'IND' ) {
            $cc = $tmp[0]."(1:$cond_param)%".$tmp[1] ;
-           $areas{$area}{$cc} = join(',',@ind);
+           $selections{$selection}{$cc} = join(',',@ind);
          } else {
            $cc = "$tmp[0](1:$cond_param)%$tmp[1]" ;
-           $areas{$area}{$cc} = $areas{$area}{$cond} ;
+           $selections{$selection}{$cc} = $selections{$selection}{$cond} ;
          } ;
-         delete ( $areas{$area}{$cond} ) ;
+         delete ( $selections{$selection}{$cond} ) ;
        } ;
      } ;
-     $areas{$area}{'COND_PARAM'} = $cond_param ;
+     $selections{$selection}{'COND_PARAM'} = $cond_param ;
 
    } ;
     
@@ -259,29 +266,29 @@
 
    %tmp=();
    $default='tmp';
-   @lists=('arealoop');
+   @lists=('selectionloop');
    &set_def ;
    &join_lists ;
 
-   # Merge user defined tag and area
-   &merge_role('tmp','arealoop','TAG','\'','_'.$area.'\'');
+   # Merge user defined tag and selection
+   &merge_role('tmp','selectionloop','TAG','\'','_'.$selection.'\'');
 
-   # Copy the area map settings
-   for $role ( keys %{ $areas{$area} } ) {
+   # Copy the selection map settings
+   for $role ( keys %{ $selections{$selection} } ) {
       if ( $role =~/MAP/ && exists $plots{'MAP'} ) {
-        ${$default}{'MAP'}{$role}=$areas{$area}{$role};
+        ${$default}{'MAP'}{$role}=$selections{$selection}{$role};
       } else {
          for $key ( keys %${default} ) {
-            ${$default}{$key}{$role}=$areas{$area}{$role};
+            ${$default}{$key}{$role}=$selections{$selection}{$role};
          } ;
       } ;
    } ;
 
    # Set output table names
-   ${$default}{'SEAS'}{'STATNAME'}   = '\'TABLE_SEAS_'.$area.'.html\'' ;
-   ${$default}{'GEN'}{'STATNAME'}    = '\'TABLE_LL_'.$area.'.html\'' ;
-   ${$default}{'DAYVAR'}{'STATNAME'} = '\'TABLE_HH_'.$area.'.html\'' ;
-   ${$default}{'VERT'}{'STATNAME'}   = '\'TABLE_VV_'.$area.'.html\'' ;
+   ${$default}{'SEAS'}{'STATNAME'}   = '\'TABLE_SEAS_'.$selection.'.html\'' ;
+   ${$default}{'GEN'}{'STATNAME'}    = '\'TABLE_LL_'.$selection.'.html\'' ;
+   ${$default}{'DAYVAR'}{'STATNAME'} = '\'TABLE_HH_'.$selection.'.html\'' ;
+   ${$default}{'VERT'}{'STATNAME'}   = '\'TABLE_VV_'.$selection.'.html\'' ;
 
    # Modify scatter plot settings
    unless ( exists $plots{'SCAT'} ) { ${$default}{'scat_ver'}{'LPLOT_SCAT'   } = 'F' ; } ;
@@ -289,8 +296,8 @@
    unless ( exists $plots{'XML'}  ) { ${$default}{'scat_ver'}{'LPREP_XML'    } = 'F' ; } ;
    unless ( exists $plots{'CONT'} ) { ${$default}{'scat_ver'}{'CONT_PARAM'   } =  0  ; } ;
 
-   # Only produce xml for the first area
-   if ( $area_num gt 1 ) { ${$default}{'scat_ver'}{'LPREP_XML'} = 'F' } ;
+   # Only produce xml for the first selection
+   if ( $selection_num gt 1 ) { ${$default}{'scat_ver'}{'LPREP_XML'} = 'F' } ;
 
 
    # 

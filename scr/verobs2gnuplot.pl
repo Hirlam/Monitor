@@ -99,7 +99,7 @@ SCAN_INPUT: foreach $input_file (@FILES) {
             next SCAN_FILE;
         }
 
-        if ( $_ =~ /#AREA/ )   { $area = substr( $_, 5 ); next SCAN_FILE; }
+        if ( $_ =~ /#SELECTION/ )   { $selection = substr( $_, 11 ); next SCAN_FILE; }
         if ( $_ =~ /#NEXP/ )   { $nexp = substr( $_, 5 ); next SCAN_FILE; }
         if ( $_ =~ /#YLABEL/ ) { $ylabel = substr( $_, 8 ); next SCAN_FILE; }
         if ( $_ =~ /#XLABEL/ ) { $xlabel = substr( $_, 8 ); next SCAN_FILE; }
@@ -434,7 +434,7 @@ sub plot_map {
 print GP <<EOF;
 set key outside 
 EOF
-    $plot = "plot ".$area." 'coast.dat' notit with lines lt -1,";
+    $plot = "plot ".$selection." 'coast.dat' notit with lines lt -1,";
     $i = -1;
     foreach (@sfile) {
         $i++;

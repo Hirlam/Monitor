@@ -113,7 +113,7 @@ SUBROUTINE print_sign_test(lunout,nexp,nparver,         &
        wname=''
        WRITE(wname(1:5),'(I5)')par_active(j)
        wtext=TRIM(wname)//' stations'
-       IF ( TRIM(tag) /= '#' ) wtext='Area: '//TRIM(tag)//' using '//TRIM(wtext)
+       IF ( TRIM(tag) /= '#' ) wtext='Selection: '//TRIM(tag)//' using '//TRIM(wtext)
     ENDIF
     WRITE(lunout,'(A,X,A)')'#HEADING_2',TRIM(wtext)
 

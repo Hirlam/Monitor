@@ -304,7 +304,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
        wname=''
        WRITE(wname(1:5),'(I5)')par_active(j)
        wtext=TRIM(wname)//' stations'
-       IF ( TRIM(tag) /= '#' ) wtext='Area: '//TRIM(tag)//' using '//TRIM(wtext)
+       IF ( TRIM(tag) /= '#' ) wtext='Selection: '//TRIM(tag)//' using '//TRIM(wtext)
     ENDIF
     WRITE(lunout,'(A,X,A)')'#HEADING_1',TRIM(wtext)
 

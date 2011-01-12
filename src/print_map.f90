@@ -354,7 +354,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
           WRITE(wname(1:5),'(I5)')rar_active(j,kk)
        ENDIF
        wtext=TRIM(wname)//' stations'
-       IF ( TRIM(tag) /= '#' ) wtext='Area: '//TRIM(tag)//'  '//TRIM(wtext)
+       IF ( TRIM(tag) /= '#' ) wtext='Selection: '//TRIM(tag)//'  '//TRIM(wtext)
     ENDIF
 
     wtext = 'Exp: '//TRIM(expname(i))//'   '//TRIM(wtext)
@@ -424,7 +424,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
     WRITE(lunout,'(A,X,A)')'#YLABEL','Lat'
 
 
-          WRITE(lunout,'(2A)')'#AREA ',TRIM(carea)
+          WRITE(lunout,'(2A)')'#SELECTION ',TRIM(carea)
 
           DO l=2,maxint+1
 

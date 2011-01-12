@@ -3,7 +3,7 @@
 	<xsl:template match="/">
 	<html>
 	<body>
-		<h1> Station statistics for area: <xsl:value-of select="STAT/TAG"/></h1>
+		<h1> Station statistics for selection: <xsl:value-of select="STAT/TAG"/></h1>
 		<h1> Period <xsl:value-of select="STAT/PERIOD"/>  </h1>
 		<h1> Parameter: 
 		     <xsl:value-of select="STAT/VAR"/> 

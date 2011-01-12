@@ -159,7 +159,7 @@ SUBROUTINE print_freq(lunout,nparver,nr,scat,p1,par_active,uh,uf)
        wname=''
        WRITE(wname(1:5),'(I5)')par_active(j)
        wtext=TRIM(wname)//' stations'
-       IF ( TRIM(tag) /= '#' ) wtext='Area: '//TRIM(tag)//'  '//TRIM(wtext)
+       IF ( TRIM(tag) /= '#' ) wtext='Selection: '//TRIM(tag)//'  '//TRIM(wtext)
     ENDIF
     WRITE(lunout,'(A,X,A)')'#HEADING_1',TRIM(wtext)
 

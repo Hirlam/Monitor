@@ -27,9 +27,9 @@
  $nlev = 0 ; 
  $lev_lst = 0;
 
- # Area
- @areas = split(' ',$ENV{$TYPE.'AREAS'});
- $areas ='\''.join('\',\'',@areas).'\'';
+ # Selection
+ @selections = split(' ',$ENV{$TYPE.'SELECTION'});
+ $selections ='\''.join('\',\'',@selections).'\'';
 
  # Time handling
  $period_type = $ENV{PERIOD_TYPE}; 
@@ -139,8 +139,8 @@ sub profile {
 # Vert
 #
 
-if ( exists $arealoop{'VERT'}{'SHOW_TIMES'} ) {
- $prof_hours ='\''.join('\',\'',split(',',$arealoop{'VERT'}{'SHOW_TIMES'})).'\'';
+if ( exists $selectionloop{'VERT'}{'SHOW_TIMES'} ) {
+ $prof_hours ='\''.join('\',\'',split(',',$selectionloop{'VERT'}{'SHOW_TIMES'})).'\'';
 } else {
 $prof_hours = '\'ALL\'';
  }; 
@@ -159,7 +159,7 @@ v[1] = [$period_v[$period_type]]
 t[1] = [$period_t[$period_type]]
 v[2] = [$stations]
 t[2] = [$stations_txt]
-v[3] =[$areas] ;
+v[3] =[$selections] ;
 t[3] = v[3] ;
 v[4] =[$prof_hours] ;
 t[4] =v[4]
@@ -167,7 +167,7 @@ v[5] = [$partext]
 t[5] = [$text]
 v[6] =[0] ;
 t[6] =[0] ;
-mname = ['Type','Period','Station','Area','Time (UTC)','Parameter','Dum']
+mname = ['Type','Period','Station','Selection','Time (UTC)','Parameter','Dum']
 
 loc = ['l','t','t','t','l','l','l']
 $download
@@ -196,13 +196,13 @@ sub map {
  # Bias maps
  #
 
- if ( exists $arealoop{'MAP'}{'SHOW_TIMES'} ) {
-    $map_hours ='\''.join('\',\'',split(',',$arealoop{'MAP'}{'SHOW_TIMES'})).'\'';
+ if ( exists $selectionloop{'MAP'}{'SHOW_TIMES'} ) {
+    $map_hours ='\''.join('\',\'',split(',',$selectionloop{'MAP'}{'SHOW_TIMES'})).'\'';
  } else {
     $map_hours = '\'ALL\'';
  }; 
 
- if ( $arealoop{'MAP'}{'LFCVER'} eq 'T' ) {
+ if ( $selectionloop{'MAP'}{'LFCVER'} eq 'T' ) {
     $map_prefix ='\'M\'' ;
     $map_hour_title ='\'Fclen\'' ;
  } else {
@@ -224,7 +224,7 @@ v[1] = [$period_v[$period_type]]
 t[1] = [$period_t[$period_type]]
 v[2] = ['00000000']
 t[2] = ['ALL']
-v[3] =[$areas] ;
+v[3] =[$selections] ;
 t[3] = v[3] ;
 v[4] = [$partext]
 t[4] = [$text]
@@ -240,7 +240,7 @@ t[8] = ['Bias','Rmse']
 
 spec_name =[0,8,1,2,3,7,6,4,5]
 
-mname = ['Type','Period','Station','Area','Parameter','Level','Exp',$map_hour_title,'Error']
+mname = ['Type','Period','Station','Selection','Parameter','Level','Exp',$map_hour_title,'Error']
 loc =['l','l','t','l','t','l','l','t']
 $download
 pdir ='$pdir/'
@@ -276,12 +276,12 @@ title = '$type skill scores'
 framec='RoyalBlue'
 
 v[0] = ['c','kc','aic','frc','fbc','f'] ;
-t[0] = ['Wilson diagram','Kuiper skill score','Area index','False alarme rate','Freq bias','Frequency']
+t[0] = ['Wilson diagram','Kuiper skill score','Selection index','False alarme rate','Freq bias','Frequency']
 v[1] = [$period_v[$period_type]]
 t[1] = [$period_t[$period_type]]
 v[2] = ['00000000']
 t[2] = ['ALL']
-v[3] =[$areas] ;
+v[3] =[$selections] ;
 t[3] = v[3] ;
 v[4] = [$skill_partext]
 t[4] = [$skill_text]
@@ -289,7 +289,7 @@ v[5] =[$lev_lst]
 v[5] =v[5].reverse()
 t[5] =v[5]
 
-mname = ['Type','Period','Station','Area','Parameter','Level']
+mname = ['Type','Period','Station','Selection','Parameter','Level']
 loc =['l','l','t','l','t','l','l','t']
 $download
 pdir ='$pdir/'
@@ -328,7 +328,7 @@ v[1] = [$period_v[$period_type]]
 t[1] = [$period_t[$period_type]]
 v[2] = [$stations]
 t[2] = [$stations_txt]
-v[3] =[$areas] ;
+v[3] =[$selections] ;
 t[3] = v[3] ;
 v[4] = [$partext];
 t[4] = [$text]
@@ -339,7 +339,7 @@ loc = ['l','t','t','t','l','t']
 
 $download ;
 
-mname = ['Type','Period','Station','Area','Parameter','Level']
+mname = ['Type','Period','Station','Selection','Parameter','Level']
 help = '$ENV{HELP}'; hide_help = false ;
 pdir ='$type/'
 ext='$EXT'
@@ -378,7 +378,7 @@ v[1] = [$period_v[$period_type]]
 t[1] = [$period_t[$period_type]]
 v[2] = [$stations]
 t[2] = [$stations_txt]
-v[3] =  [$areas] ;
+v[3] = [$selections] ;
 t[3] = v[3] ;
 v[4] = [$partext]
 t[4] = [$text]
@@ -388,7 +388,7 @@ t[5] = v[5]
 v[6] = [$expname]
 t[6] = [$expname]
 
-mname = ['Type','Period','Station','Area','Parameter','Level','Exp']
+mname = ['Type','Period','Station','Selection','Parameter','Level','Exp']
 loc = ['l','t','t','t','l','l','t']
 spec_name =[0,1,2,3,6,4,5]
 $download
@@ -437,7 +437,7 @@ v[1] = [$period_v[$period_type]]
 t[1] = [$period_t[$period_type]]
 v[2] = [$stations]
 t[2] = [$stations_txt]
-v[3] =  [$areas] ;
+v[3] = [$selections] ;
 t[3] = v[3] ;
 v[4] = [$partext]
 t[4] = [$text]
@@ -447,7 +447,7 @@ t[5] = v[5]
 v[6] = [$sexpname]
 t[6] = [$sexpname]
 
-mname = ['Type','Period','Station','Area','Parameter','Level','Exp']
+mname = ['Type','Period','Station','Selection','Parameter','Level','Exp']
 loc = ['l','t','t','t','l','t','t']
 spec_name =[0,1,2,3,6,4,5]
 $download
@@ -482,14 +482,14 @@ sub finalize_plot {
    @plottype     = (@plottype,'V');
    @plottype_txt = (@plottype_txt,'Fc length ver') ; 
  
-   if ( exists $arealoop{'GEN'}{'SHOW_VAR'} ) {
-      if ( $arealoop{'GEN'}{'SHOW_VAR'} eq 'T' ) {
+   if ( exists $selectionloop{'GEN'}{'SHOW_VAR'} ) {
+      if ( $selectionloop{'GEN'}{'SHOW_VAR'} eq 'T' ) {
 	 @plottype     = (@plottype,'V_VAR',);
 	 @plottype_txt = (@plottype_txt,'Fc length var') ; 
      };
    } ;
-   if ( exists $arealoop{'GEN'}{'SHOW_SKW'} ) {
-      if ( $arealoop{'GEN'}{'SHOW_SKW'} eq 'T' ) {
+   if ( exists $selectionloop{'GEN'}{'SHOW_SKW'} ) {
+      if ( $selectionloop{'GEN'}{'SHOW_SKW'} eq 'T' ) {
 	 @plottype     = (@plottype,'V_SKW');
 	 @plottype_txt = (@plottype_txt,'Fc length skw') ; 
      };
@@ -510,14 +510,14 @@ sub finalize_plot {
 	 @plottype     = (@plottype,'v') ;
 	 @plottype_txt = (@plottype_txt,'Dayvar') ;
 
-   if ( exists $arealoop{'DAYVAR'}{'SHOW_VAR'} ) {
-      if ( $arealoop{'DAYVAR'}{'SHOW_VAR'} eq 'T' ) {
+   if ( exists $selectionloop{'DAYVAR'}{'SHOW_VAR'} ) {
+      if ( $selectionloop{'DAYVAR'}{'SHOW_VAR'} eq 'T' ) {
 	 @plottype     = (@plottype,'v_VAR',);
 	 @plottype_txt = (@plottype_txt,'Dayvar var') ; 
      };
    } ;
-   if ( exists $arealoop{'DAYVAR'}{'SHOW_SKW'} ) {
-      if ( $arealoop{'DAYVAR'}{'SHOW_SKW'} eq 'T' ) {
+   if ( exists $selectionloop{'DAYVAR'}{'SHOW_SKW'} ) {
+      if ( $selectionloop{'DAYVAR'}{'SHOW_SKW'} eq 'T' ) {
 	 @plottype     = (@plottype,'v_SKW');
 	 @plottype_txt = (@plottype_txt,'Dayvar skw') ; 
      };
@@ -569,10 +569,10 @@ if ( exists $plots{'SCAT'} ) { &scatter ; } ;
 if ( exists $plots{'MAP'}  ) { &map ;     }; 
 if ( exists $plots{'CONT'} ) { &cont ;    }; 
 
-if ( exists $arealoop{'GEN'}{'LSIGN_TEST'} ) {
+if ( exists $selectionloop{'GEN'}{'LSIGN_TEST'} ) {
    if ( exists $plots{'GEN'} && 
         $nexp gt 1           &&  
-        $arealoop{'GEN'}{'LSIGN_TEST'} eq 'T' ) { &sign ; } ;
+        $selectionloop{'GEN'}{'LSIGN_TEST'} eq 'T' ) { &sign ; } ;
 }
 
 # Vertical profiles

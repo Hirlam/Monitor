@@ -46,7 +46,7 @@
 ) ;
 
 
-%arealoop=(
+%selectionloop=(
  'SEAS' => {
  # Seasonal plots
  'LSTAT_GEN'  => 'T',

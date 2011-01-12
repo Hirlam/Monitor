@@ -1,10 +1,10 @@
- %areas=(
+ %selections=(
   'temp_and_wind_limit' => {
-    'COND%IND' => 'TT,FF',
-    'COND%ULIM' => '10.,10.',
-    'COND%LLIM' => '5.,0.',
-    'COND%LOBS' => 'T,T',
-    'COND%ALL_MOD' => 'T,T',
+    'COND%IND' => 'TT,TT',
+    'COND%ULIM' => ' 5.,-20.',
+    'COND%LLIM' => '-1.,-25.',
+    'COND%LOBS' => 'T,F',
+    'COND%ALL_MOD' => 'T,F',
   },
   'masl_300m' => {
    'STNLIST'=> 0,

@@ -188,7 +188,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
        ENDIF
        WRITE(wtext(1:4),'(I4)')jj
        wtext=TRIM(wtext(1:4))//' stations'
-       IF ( TRIM(tag) /= '#' ) wtext=TRIM(wtext)//' Area: '//TRIM(tag)
+       IF ( TRIM(tag) /= '#' ) wtext=TRIM(wtext)//' Selection: '//TRIM(tag)
     ENDIF
     WRITE(lunout,'(A,X,A)')'#HEADING_1',TRIM(wtext)
     

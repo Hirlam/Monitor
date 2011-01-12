@@ -70,7 +70,7 @@ SUBROUTINE print_cont(p1,p2,nr,par_active,    &
           wname=''
           WRITE(wname(1:5),'(I5)')par_active(j)
           cwrk=TRIM(wname)//' stations'
-          IF ( TRIM(tag) /= '#' ) cwrk=' Area: '//TRIM(tag)//'  '//TRIM(cwrk)
+          IF ( TRIM(tag) /= '#' ) cwrk=' Selection: '//TRIM(tag)//'  '//TRIM(cwrk)
        ENDIF
 
        WRITE(luncont,'(A)')TRIM(cwrk)

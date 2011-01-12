@@ -85,10 +85,10 @@ SURFPAR="TT RH FF LU GR UW WT WQ TZ"
 # 
 SURFPLOT="GEN TIME DAYVAR"
 
-# Areas for surface verification as defined in areas.pm
+# Selection for surface verification as defined in selection.pm
 # Note that XML statistics will be defined for the
-# first area only
-SURFAREAS="ALL"
+# first selection only
+SURFSELECTION="ALL"
 
 # Interval in hours between observations
 OBINT_SURF=01
@@ -135,10 +135,10 @@ FCLEN_TEMP="00 06 12 18 24 36 48"
 # TEMP levels to be verified
 LEV_LST="925 850 700 500 300 250 200 100 50"
 
-# Areas for TEMP verification
+# Selection for TEMP verification
 # Note that XML statistics will be defined for the
-# first area only
-TEMPAREAS="ALL EWGLAM"
+# first selection only
+TEMPSELECTION="ALL EWGLAM"
 
 # Select output_type
 # 1  Postscript + PNG
@@ -170,7 +170,7 @@ HELP=""
 # Export all variables
 export PROJECT WEBCALL WEBGRAF_BASE BASE BIN MYEXP IDATE SDATE EDATE HELP SCR WRK
 export OUTPUT_TYPE PERIOD_TYPE
-export LEV_LST SURFPAR TEMPPAR AREAS
+export LEV_LST SURFPAR TEMPPAR
 export OBINT_SURF FCINT_SURF FCLEN_SURF FCLEN_DAYVAR FCLEN_SCAT
 export OBINT_TEMP FCINT_TEMP FCLEN_TEMP  
 export SURFPLOT TEMPPLOT

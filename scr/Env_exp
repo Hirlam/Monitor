@@ -90,11 +90,11 @@ SURFPAR="PS FF FX GG GX DD TT TN TX TD RH QQ NN PE"
 # 
 SURFPLOT="GEN TIME MAP FREQ SCAT CONT XML DAYVAR"
 
-# Areas for surface verification as defined in areas.pm
+# Selection for surface verification as defined in selection.pm
 # Note that XML statistics will be defined for the
-# first area only
+# first selection only
 #
-SURFAREAS="ALL EWGLAM Scandinavia Greenland Denmark Finland IrelandEngland Netherland Norway SpainPortugal Sweden"
+SURFSELECTION="ALL EWGLAM Scandinavia Greenland Denmark Finland IrelandEngland Netherland Norway SpainPortugal Sweden"
 
 # Interval in hours between observations
 OBINT_SURF=06
@@ -156,10 +156,10 @@ LEV_LST_TD="925 850 700 500 300 "
 LEV_LST_RH="925 850 700 500 300 "
 
 
-# Areas for TEMP verification
+# Selection for TEMP verification
 # Note that XML statistics will be defined for the
-# first area only
-TEMPAREAS="ALL EWGLAM"
+# first selection only
+TEMPSELECTION="ALL EWGLAM"
 
 #####################
 # GRAPHICS and misc #
@@ -192,7 +192,7 @@ WEBCALL="$BASE/WebgraF/bin/WebgraF -p $PROJECT"
 # Export all variables
 export PROJECT WEBCALL WEBGRAF_BASE BASE BIN MYEXP IDATE SDATE EDATE HELP SCR WRK
 export OUTPUT_TYPE PERIOD_TYPE
-export LEV_LST LEV_LST_RH LEV_LST_TD SURFPAR TEMPPAR AREAS
+export LEV_LST LEV_LST_RH LEV_LST_TD SURFPAR TEMPPAR 
 export OBINT_SURF FCINT_SURF 
 export FCLEN_SURF FCLEN_DAYVAR FCLEN_SCAT FCLEN_SURF_TIME
 export OBINT_TEMP FCINT_TEMP FCLEN_TEMP FCLEN_TEMP_VERT FCLEN_TEMP_TIME
