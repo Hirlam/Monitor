@@ -25,6 +25,15 @@ SUBROUTINE ini_namelist
  ! Clear use_fclen
  use_fclen = -1
  
+ ! Conditional
+ lconditional = .FALSE.
+ cond_param   = 0
+ cond%ind     = -1
+ cond%llim    = -err_ind
+ cond%ulim    =  err_ind
+ cond%lobs    = .TRUE.
+ cond%all_mod = .TRUE.
+
  ! Contingency 
  lcontingency = .FALSE.
  cont_ind     = 0

@@ -65,6 +65,7 @@ SUBROUTINE verify
  LOGICAL :: demand_equal     = .TRUE.
  LOGICAL :: lscat_array      = .FALSE.
  LOGICAL :: stat_file_found  = .FALSE.
+ LOGICAL :: use_this         = .FALSE.
 
  CHARACTER(LEN=50) :: fname = '',cmon=''
 
@@ -490,6 +491,21 @@ SUBROUTINE verify
           END SELECT
 
           IF ( lstat_gen ) allstat(i,per_ind)%active = .TRUE.
+
+          !
+          ! Call conditional selection if asked for
+          !
+
+          IF ( lconditional ) THEN
+
+             CALL conditional(nexp,nfclengths,nparver,n, &
+                              obs(i)%o(jj)%val,          &
+                              hir(i)%o( j)%nal,          &
+                              use_this)
+                      
+             IF ( .NOT. use_this ) CYCLE FC_CYCLE
+
+          ENDIF
 
           NPARVER_LOOP : DO k=1,nparver
 

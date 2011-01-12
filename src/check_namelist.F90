@@ -19,6 +19,12 @@ SUBROUTINE check_namelist
  WRITE(6,*)
 
  !
+ ! Conditional settings
+ !
+
+ lconditional = ( cond_param /= 0 )
+
+ !
  ! Contingency settings
  !
 
@@ -53,6 +59,7 @@ SUBROUTINE check_namelist
       lplot_seasonal                  ) WRITE(6,*)' - Seasonal verification will be done'
  IF ( lplot_stat .AND. .NOT. lfcver   ) WRITE(6,*)' - Verification against time of day will be done'
  IF ( lcontingency                    ) WRITE(6,*)' - Contingency tables will be created'
+ IF ( lconditional                    ) WRITE(6,*)' - Data selection is conditional'
  IF ( lprep_xml                       ) WRITE(6,*)' - XML files for stations statistics will be produced'
 
  WRITE(6,*)

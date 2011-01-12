@@ -1,4 +1,11 @@
  %areas=(
+  'temp_and_wind_limit' => {
+    'COND%IND' => 'TT,FF',
+    'COND%ULIM' => '10.,10.',
+    'COND%LLIM' => '5.,0.',
+    'COND%LOBS' => 'T,T',
+    'COND%ALL_MOD' => 'T,T',
+  },
   'masl_300m' => {
    'STNLIST'=> 0,
    'LSTN_HGT_CHECK'=>'.T.,',

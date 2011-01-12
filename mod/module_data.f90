@@ -386,6 +386,12 @@ MODULE data
                                               ! The actual number of levels are
                                               ! scat_magn / 4 
 
+ ! Conditional flags
+
+ LOGICAL :: lconditional = .FALSE.
+ INTEGER :: cond_param   = 0
+ TYPE(conditional_type) cond(mparver)
+
  ! Contingency flags
 
  LOGICAL :: lcontingency = .FALSE.
@@ -493,6 +499,7 @@ MODULE data
                  scat_min,scat_max,scat_magn,           &
                  cont_ind,cont_class,cont_lim,          &
                  cont_param,                            &
+                 cond_param,cond,                       &
                  graphics,                              &
                  lsign_test,control_exp_nr,             &
                  sign_time_diff,                        &

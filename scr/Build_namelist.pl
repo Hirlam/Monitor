@@ -62,7 +62,6 @@
  # Define variables
  #
 
- $i=0;
  $j=0;
  %tmp =();
 
@@ -111,8 +110,16 @@
 
  };
 
+ # Set index for all parameters, to be used laters
+ $i=0;
+ %par_ind = ();
+ foreach ( split(' ',$inpar) ) {
+    $i++ ;
+   $par_ind{$_} = $i  ;
+ } ;
 
  # Define variable specific things
+ $i=0;
  foreach ( split(' ',$inpar) ) {
 
       $i++ ;
@@ -214,6 +221,38 @@
    } ;
    $areas{$area}{'STNLIST'}=~ s/,,/,/g ;
 
+   #
+   # Make conditional selections if set
+   #
+
+   if ( exists $areas{$area}{'COND%IND'} ) {
+
+     $i++ ;
+     @PAR = split(',',$areas{$area}{'COND%IND'}) ;
+     $cond_param = scalar(@PAR) ;
+
+     @ind = () ;
+     foreach $par ( @PAR ) {
+      @ind = (@ind,$par_ind{$par}) ;
+     } ;
+      
+     for $cond ( keys %{ $areas{$area} } ) {
+       if ( $cond =~/COND/ )  {
+         @tmp = split('%',$cond) ;
+         if ( @tmp[1] eq 'IND' ) {
+           $cc = $tmp[0]."(1:$cond_param)%".$tmp[1] ;
+           $areas{$area}{$cc} = join(',',@ind);
+         } else {
+           $cc = "$tmp[0](1:$cond_param)%$tmp[1]" ;
+           $areas{$area}{$cc} = $areas{$area}{$cond} ;
+         } ;
+         delete ( $areas{$area}{$cond} ) ;
+       } ;
+     } ;
+     $areas{$area}{'COND_PARAM'} = $cond_param ;
+
+   } ;
+    
    #
    # Merge the default list with the different plot types
    #

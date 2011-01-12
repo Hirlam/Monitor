@@ -3,6 +3,18 @@ MODULE types
  IMPLICIT NONE
 
  ! 
+ ! Conditional type
+ !
+
+ TYPE conditional_type
+    INTEGER :: ind
+    REAL    :: llim,ulim
+    LOGICAL :: lobs
+    LOGICAL :: all_mod
+ END TYPE conditional_type
+
+
+ ! 
  ! Contingeny type
  !
 
