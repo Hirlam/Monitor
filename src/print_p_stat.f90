@@ -351,7 +351,16 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
            ndate = date
            ntime = time
 
-         ENDIF
+           CALL carefull_sumup(           &
+           snum(:,k),ndate(:),ntime(:),   &
+           ii,maxtim,ut,dlen, &
+           rnum_min(k),rnum_max(k),       &
+           rnum_ave(k),ndate(1),00,       &
+           sumup_tolerance,obint,         &
+           err_ind,window_pos,.false.)
+
+           ndate = date
+           ntime = time
 
            CALL carefull_sumup(           &
            rnum(:,k),ndate(:),ntime(:),   &
@@ -363,6 +372,8 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
 
            ndate = date
            ntime = time
+
+         ENDIF
 
            CALL carefull_sumup(           &
            bias(:,k),ndate(:),ntime(:),   &

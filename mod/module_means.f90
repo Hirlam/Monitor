@@ -106,7 +106,7 @@ MODULE means
          IF ( dhour > 0 ) EXIT FIND_TIMES
 
          ! YES we found a suitable time
-         IF(ABS(data(i)-err_ind).GT. 1.e-6) THEN
+         IF(ABS(data(i)-err_ind) > 1.e-6) THEN
             wrk = wrk + data(i)
             jj  = jj  + 1
          ENDIF
@@ -176,9 +176,9 @@ MODULE means
 
    ! Copy back
 
-   data = tmp
-   date = ldate
-   time = ltime
+   data(1:dlen) =   tmp(1:dlen)
+   date(1:dlen) = ldate(1:dlen)
+   time(1:dlen) = ltime(1:dlen)
 
    RETURN
 
