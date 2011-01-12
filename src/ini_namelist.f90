@@ -32,7 +32,7 @@ SUBROUTINE ini_namelist
  cond%llim    = -err_ind
  cond%ulim    =  err_ind
  cond%lobs    = .TRUE.
- cond%all_mod = .TRUE.
+ cond%all_mod = .FALSE.
 
  ! Contingency 
  lcontingency = .FALSE.
