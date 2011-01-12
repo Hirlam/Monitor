@@ -67,7 +67,7 @@ SUBROUTINE read_vobs
 
        IF (ierr /= 0) THEN
   
-          IF( print_read > 0 )WRITE(6,'(2A)')'Could not open:',TRIM(fname)
+          IF( print_read > 0 )WRITE(6,'(2A)')'MISS ',TRIM(fname)
 
           wdate = cdate
           wtime = ctime
@@ -79,7 +79,7 @@ SUBROUTINE read_vobs
 
        ENDIF
 
-       IF (print_read > 0 ) WRITE(6,*)'READ ',TRIM(fname)
+       IF (print_read > 0 ) WRITE(6,'(2A)')'READ ',TRIM(fname)
 
        version_flag = 0
 

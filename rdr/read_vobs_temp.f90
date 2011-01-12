@@ -72,9 +72,9 @@ SUBROUTINE read_vobs_temp
 
        OPEN(lunin,file=fname,status='old',iostat=ierr)
 
-       IF (ierr.NE.0) THEN
+       IF (ierr /= 0) THEN
   
-          IF( print_read > 0 ) WRITE(6,*)'Could not open:',TRIM(fname)
+          IF( print_read > 0 ) WRITE(6,'(2A)')'MISS ',TRIM(fname)
 
           wdate = cdate
           wtime = ctime

@@ -89,7 +89,7 @@ SUBROUTINE read_vfld_temp
        INQUIRE(FILE=fname,EXIST=lfound)
        IF ( .NOT. lfound ) THEN
           IF (print_read > 0 ) &
-          WRITE(6,'(2A)')'No model data found for ',TRIM(fname)
+          WRITE(6,'(2A)')'MISS ',TRIM(fname)
           CYCLE LL_LOOP 
        ENDIF
     ENDDO SUB_EXP_LOOP
