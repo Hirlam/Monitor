@@ -83,13 +83,16 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
               if ( (@line[0] * 1) ne @line[0] )
               {$exp = $line[0];  push(@enames,$exp); shift(@line);} # not a number, but expname
               push @AoA, [@line] ; next SCAN_FILE; }
-        if ( ($line =~ /SUM/) && $datascan ){  # We have now read the entire table and are ready for 
-                                                 # spliting in into multiple 2 by 2 contingency tables
-                                                 # correspondiong to the respective thresholds. The event
-                                                 # to be verified is that "there was more than $threshold
-                                                 # mm of precipitation". Note that for n classes there are
-                                                 # n+1 values, as the last value contains the number of 
-                                                 # events exceeding he last threshold.
+        if ( ($line =~ /SUM/) && $datascan ){ 
+
+           # We have now read the entire table and are ready for
+           # spliting in into multiple 2 by 2 contingency tables
+           # correspondiong to the respective thresholds. The event
+           # to be verified is that "there was more than $threshold
+           # mm of precipitation". Note that for n classes there are
+           # n+1 values, as the last value contains the number of
+           # events exceeding he last threshold.
+
 	   $datascan=0;
            $classes=scalar(@thresholds);
            push(@workfiles, $prefix . "_" . $exp . ".scores");
@@ -141,13 +144,35 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
                   if ( ($a*$d-$b*$c)/(($b + $d)*($a + $c)) < 0) {$AI=-$AI;}
 
 	       }
+	       # Symmetric Extreme Dependency Score (Hogan et al. 2009, QJRMS):
+               my $SEDS = $missing;
+               unless ( $a == 0 or $a == $nn ) {
+                 $SEDS=( ( log( ($a+$b)/$nn ) + log( ($a+$c)/$nn ) ) / 
+                         log($a/$nn) ) - 1;
+               }
+	       # Extremal Dependency Index
+               # (Ferro and Stephenson, submitted to Wea. and Forecasting, 2010):
+               my $EDI = $missing;
+               unless ( $a == 0 or $b == 0 or ( $c == 0 and $d == 0 ) ) {
+                 $EDI=( log($b/($b+$d)) - log($a/($a+$c)) ) / 
+                      ( log($b/($b+$d)) + log($a/($a+$c)) );
+               }
+	       # Symmetric Extremal Dependency Index
+               # (Ferro and Stephenson, submitted to Wea. and Forecasting, 2010):
+               my $SEDI = $missing;
+               unless ( $a == 0 or $b == 0 or $c == 0 or $d == 0 ) {
+                 $SEDI=( log($b/($b+$d)) - log($a/($a+$c)) -
+                         log(1-($b/($b+$d))) + log(1-($a/($a+$c))) ) /
+                       ( log($b/($b+$d)) + log($a/($a+$c)) +
+                         log(1-($b/($b+$d))) + log(1-($a/($a+$c)))  );
+               }
                #Observed frequency important weather:
                my $OFREQ = $missing; if ($nn > 0)  {$OFREQ=(($a+$c)/$nn);}
                #Modelled frequencey important weather:
                my $MFREQ = $missing;  if ($nn > 0) {$MFREQ=(($a+$b)/$nn);}
 	   
                print SCOREFILE  " @thresholds[$class] $FAR $POD";
-               print SCOREFILE2 "@thresholds[$class] $FAR $POD $FA $KUI $FBI $AI $OFREQ $MFREQ $nn \n";
+               print SCOREFILE2 "@thresholds[$class] $FAR $POD $FA $KUI $FBI $AI $SEDS $EDI $SEDI $OFREQ $MFREQ $nn \n";
 	   } #loop over classes
 
            print SCOREFILE "\n";
@@ -187,6 +212,21 @@ $output_file = "fb".$prefix . $EXT[$ENV{OUTPUT_TYPE}] ;
 $output_file = "ai".$prefix . $EXT[$ENV{OUTPUT_TYPE}] ;
 &header("Area index") ;
 &gen_plot('AI',7);
+
+# SEDS
+$output_file = "seds".$prefix . $EXT[$ENV{OUTPUT_TYPE}] ;
+&header("Symmetric Extreme Dependency Score") ;
+&gen_plot('SEDS',8);
+
+# EDI
+$output_file = "edi".$prefix . $EXT[$ENV{OUTPUT_TYPE}] ;
+&header("Extremal Dependency Index") ;
+&gen_plot('EDI',9);
+
+# SEDI
+$output_file = "sedi".$prefix . $EXT[$ENV{OUTPUT_TYPE}] ;
+&header("Symmetric Extremal Dependency Index") ;
+&gen_plot('SEDI',10);
 
 #Frequency
 $output_file = "f".$prefix . $EXT[$ENV{OUTPUT_TYPE}] ;
@@ -340,10 +380,10 @@ EOF
 $plot = "plot ";
 
     $f=-1;
-    $plot .="'$workfiles2[0]' using 1:8 title 'OBS' with linespoints lt $col_def_lt[$f+1] lw 2 pt 7";
+    $plot .="'$workfiles2[0]' using 1:11 title 'OBS' with linespoints lt $col_def_lt[@workfiles2+1] lw 2 pt 7";
     foreach (@workfiles2) {
 	$f++;
-        $plot .=",'$_' using 1:9 title '$enames[$f]' with linespoints lt $col_def_lt[$f+1] lw 2 pt 7";
+        $plot .=",'$_' using 1:12 title '$enames[$f]' with linespoints lt $col_def_lt[$f+1] lw 2 pt 7";
     } ;
 
 print GP "$plot";

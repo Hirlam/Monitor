@@ -176,6 +176,8 @@ pdir ='Temp_prof/'
 ext='$EXT'
 help = '$ENV{HELP}'; hide_help = false ;
 do_send = true ;
+do_show_remember = true ;
+do_remember = true ;
 $xml
 $xml_txt
 
@@ -247,6 +249,8 @@ pdir ='$pdir/'
 ext='$EXT'
 help = '${HELP}'; hide_help = false ;
 do_send = true ;
+do_show_remember = true ;
+do_remember = true ;
 $xml_txt
 $xml
 
@@ -275,8 +279,8 @@ title = '$type skill scores'
 
 framec='RoyalBlue'
 
-v[0] = ['c','kc','aic','frc','fbc','f'] ;
-t[0] = ['Wilson diagram','Kuiper skill score','Selection index','False alarme rate','Freq bias','Frequency']
+v[0] = ['c','kc','sedsc','edic','sedic','aic','frc','fbc','f'] ;
+t[0] = ['Wilson diagram','Kuiper skill score','Symmetric Extreme Dependency Score','Extremal Dependency Index','Symmetric Extremal Dependency Index','Area index','False alarme rate','Freq bias','Frequency']
 v[1] = [$period_v[$period_type]]
 t[1] = [$period_t[$period_type]]
 v[2] = ['00000000']
@@ -296,6 +300,8 @@ pdir ='$pdir/'
 ext='$EXT'
 help = '${HELP}'; hide_help = false ;
 do_send = true ;
+do_show_remember = true ;
+do_remember = true ;
 $xml_cont_txt
 $xml_cont
 
@@ -344,6 +350,8 @@ help = '$ENV{HELP}'; hide_help = false ;
 pdir ='$type/'
 ext='$EXT'
 do_send = true ;
+do_show_remember = true ;
+do_remember = true ;
 $xml_txt
 $xml
 ";
@@ -396,6 +404,8 @@ pdir ='$type/'
 ext='$EXT'
 help = '$ENV{HELP}'; hide_help = false ;
 do_send = true ;
+do_show_remember = true ;
+do_remember = true ;
 $xml_txt
 $xml
 " ;
@@ -455,6 +465,8 @@ pdir ='$type/'
 ext='$EXT'
 help = '$ENV{HELP}'; hide_help = false ;
 do_send = true ;
+do_show_remember = true ;
+do_remember = true ;
 $xml_txt
 $xml
 " ;
