@@ -23,10 +23,16 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
     $missing = -99;
 
 
-    # Examine file name
+    # Examine file name and parameter tag
 
     @tmp    = split( '.html', $input_file );
     $prefix = shift(@tmp);
+
+    # Set log/normal scale depending on parameter
+    @tmp    = split( '_', $prefix );
+    $partag = $tmp[-2];
+    $xscale = "";
+    if ( $partag eq "PE" ) { $xscale="set logscale x" ; } ;
 
     @EXT = ('','.ps','.1.png','.1.jpg','.svg') ;
 
@@ -349,6 +355,7 @@ print GP <<EOF;
 set grid
 set xlabel "$unit"
 set ylabel "$yunit"
+$xscale
 EOF
 
 $plot = "plot ";
@@ -375,6 +382,7 @@ print GP <<EOF;
 set grid
 set xlabel "$unit"
 set ylabel "Frequency"
+$xscale
 EOF
 
 $plot = "plot ";

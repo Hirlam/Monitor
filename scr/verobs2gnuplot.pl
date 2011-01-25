@@ -76,13 +76,16 @@ SCAN_INPUT: foreach $input_file (@FILES) {
     # Examine file name
 
     @tmp    = split( '_', $input_file );
+    $partag = $tmp[-2];
     $prefix = shift(@tmp);
     @tmp    = split( '.txt', $input_file );
 
-
     $output_file = shift(@tmp) . $EXT[$OUTPUT_TYPE] ;
-
     open FILE, "< $input_file";
+
+    # Set log/normal scale depending on parameter
+    $xscale = "";
+    if ( $partag eq "PE" ) { $xscale="set logscale x" ; } ;
 
     SCAN_FILE: while (<FILE>) {
 
@@ -402,6 +405,7 @@ EOF
 #################################################################
 #################################################################
 sub plot_freq {
+    print GP "$xscale \n";
     &plot_command ;
 EOF
 }
