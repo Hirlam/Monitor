@@ -36,17 +36,18 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
 
     @EXT = ('','.ps','.1.png','.1.jpg','.svg') ;
 
-    # PS or PNG as output
-    if ( $ENV{OUTPUT_TYPE} eq 1 ) {
+    # PS,PNG,JPG or SVG as output
+    if ( $ENV{OUTPUT_TYPE} ) { $output_type = $ENV{OUTPUT_TYPE} }else { $output_type=1; } ;
+    if ( $output_type eq 1 ) {
         $terminal    = "set terminal postscript landscape enhanced colour";
-    } elsif ( $ENV{OUTPUT_TYPE} eq 2 ) {
+    } elsif ( $output_type eq 2 ) {
         $terminal    = "set terminal png";
-    } elsif ( $ENV{OUTPUT_TYPE} eq 3 ) {
+    } elsif ( $output_type eq 3 ) {
         $terminal    = "set terminal jpeg";
-    } elsif ( $ENV{OUTPUT_TYPE} eq 4 ) {
+    } elsif ( $output_type eq 4 ) {
         $terminal    = "set terminal svg enhanced fsize 8 ";
     } else {
-      die "Unknown OUTPUT_TYPE $ENV{OUTPUT_TYPE}\n";
+        die "Unknown OUTPUT_TYPE $output_type\n";
     }
     
     open FILE, "< $input_file";
@@ -212,43 +213,42 @@ close FILE;
 @markers = ("-1","1","3","4","8","5","6","9","7");
 #
 # Wilson plot
-$output_file = $prefix . $EXT[$ENV{OUTPUT_TYPE}] ;
+$output_file = $prefix . $EXT[$output_type] ;
 &header("Contingency table");
 &plot_wilson;
 
 # False alarm rate
-$output_file = "fr".$prefix . $EXT[$ENV{OUTPUT_TYPE}] ;
+$output_file = "fr".$prefix . $EXT[$output_type] ;
 &header("False alarm rate") ;
 &gen_plot('FAR',4);
-&freq ;
 
 #Kuiper skill score
-$output_file = "k".$prefix . $EXT[$ENV{OUTPUT_TYPE}] ;
+$output_file = "k".$prefix . $EXT[$output_type] ;
 &header("Kupiers skill score");
 &gen_plot('KSS',5);
 
 #Frequency bias
-$output_file = "fb".$prefix . $EXT[$ENV{OUTPUT_TYPE}] ;
+$output_file = "fb".$prefix . $EXT[$output_type] ;
 &header("Frequency bias") ;
 &gen_plot('Freq bias',6);
 
 # Area index
-$output_file = "ai".$prefix . $EXT[$ENV{OUTPUT_TYPE}] ;
+$output_file = "ai".$prefix . $EXT[$output_type] ;
 &header("Area index") ;
 &gen_plot('AI',7);
 
 # SEDS
-$output_file = "seds".$prefix . $EXT[$ENV{OUTPUT_TYPE}] ;
+$output_file = "seds".$prefix . $EXT[$output_type] ;
 &header("Symmetric Extreme Dependency Score") ;
 &gen_plot('SEDS',8);
 
 # EDI
-$output_file = "edi".$prefix . $EXT[$ENV{OUTPUT_TYPE}] ;
+$output_file = "edi".$prefix . $EXT[$output_type] ;
 &header("Extremal Dependency Index") ;
 &gen_plot('EDI',9);
 
 # SEDI
-$output_file = "sedi".$prefix . $EXT[$ENV{OUTPUT_TYPE}] ;
+$output_file = "sedi".$prefix . $EXT[$output_type] ;
 &header("Symmetric Extremal Dependency Index") ;
 &gen_plot('SEDI',10);
 
@@ -258,7 +258,7 @@ $output_file = "ets".$prefix . $EXT[$ENV{OUTPUT_TYPE}] ;
 &gen_plot('ETS',11);
 
 #Frequency
-$output_file = "f".$prefix . $EXT[$ENV{OUTPUT_TYPE}] ;
+$output_file = "f".$prefix . $EXT[$output_type] ;
 &header("Frequency") ;
 &freq ;
 
@@ -333,6 +333,7 @@ foreach (@workfiles) {
      $x=3*$t+2; $y=3*$t+3;
      if($f eq 0){@xx = split('\.',$threshold);$title=$xx[0] . "." .  substr($xx[1],0,2) . " $unit";}
      else {$title="";}
+     &ptitle ;
      $t++;
      print GP <<EOF;
      '$workfiles[$f]' using $x:$y title '$title' with points pointtype $t lt $linetype, \\
@@ -387,7 +388,9 @@ $plot = "plot ";
     foreach (@workfiles2) {
 	$f++;
         if ( $f gt 0 ) { $plot = "$plot,"; }
-        $plot .="'$_' using 1:$i title '$enames[$f]' with linespoints lt $col_def_lt[$f+1] lw 2 pt 7";
+        $title = $enames[$f];
+        &ptitle ;
+        $plot .="'$_' using 1:$i title '$title' with linespoints lt $col_def_lt[$f+1] lw 2 pt 7";
     } ;
 
 print GP "$plot";
@@ -414,7 +417,9 @@ $plot = "plot ";
     $plot .="'$workfiles2[0]' using 1:12 title 'OBS' with linespoints lt $col_def_lt[@workfiles2+1] lw 2 pt 7";
     foreach (@workfiles2) {
 	$f++;
-        $plot .=",'$_' using 1:13 title '$enames[$f]' with linespoints lt $col_def_lt[$f+1] lw 2 pt 7";
+        $title = $enames[$f];
+        &ptitle ;
+        $plot .=",'$_' using 1:13 title '$title' with linespoints lt $col_def_lt[$f+1] lw 2 pt 7";
     } ;
 
 print GP "$plot";
@@ -423,3 +428,7 @@ close GP
 &plot ;
 
 }
+#################################################################
+#################################################################
+#################################################################
+sub ptitle{ if ( $output_type == 1 ) { $title =~s/_/\\_/g ; } ; }
