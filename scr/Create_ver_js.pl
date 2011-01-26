@@ -279,8 +279,8 @@ title = '$type skill scores'
 
 framec='RoyalBlue'
 
-v[0] = ['c','kc','sedsc','edic','sedic','aic','frc','fbc','f'] ;
-t[0] = ['Wilson diagram','Kuiper skill score','Symmetric Extreme Dependency Score','Extremal Dependency Index','Symmetric Extremal Dependency Index','Area index','False alarme rate','Freq bias','Frequency']
+v[0] = ['c','kc','etsc','sedsc','edic','sedic','aic','frc','fbc','fc'] ;
+t[0] = ['Wilson diagram','Kuiper skill score','Equitable threat score','Symmetric Extreme Dependency Score','Extremal Dependency Index','Symmetric Extremal Dependency Index','Area index','False alarme rate','Freq bias','Frequency']
 v[1] = [$period_v[$period_type]]
 t[1] = [$period_t[$period_type]]
 v[2] = ['00000000']

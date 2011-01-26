@@ -70,7 +70,7 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
             next SCAN_FILE;
         }
 
-        if ( $line =~ /Area/ )   {
+        if ( $line =~ /Selection/ )   {
            push(@heading,$line);
            next SCAN_FILE; }
 
@@ -172,13 +172,31 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
                        ( log($b/($b+$d)) + log($a/($a+$c)) +
                          log(1-($b/($b+$d))) + log(1-($a/($a+$c)))  );
                }
-               #Observed frequency important weather:
+               #Range: -1/3 to 1, 0 indicates no skill.   Perfect score: 1.
+               #Characteristics: Measures the fraction of observed and/or forecast events that were correctly 
+               #predicted, adjusted for hits associated with random chance (for example, it is easier to 
+               #correctly forecast rain occurrence in a wet climate than in a dry climate). The ETS is often 
+               #used in the verification of rainfall in NWP models because its "equitability" allows scores to
+               #be compared more fairly across different regimes. Sensitive to hits. Because it penalises 
+               #both misses and false alarms in the same way, it does not distinguish the source of forecast 
+               #error.
+               # ETS =  a-random_hits                            (a+b)(a+c) 
+               #       ________________    , where random hits ________________
+               #        a+b+c-random_hits                         a+b+c+d
+
+	       my $ETS = $missing;
+               unless ($nn == 0){
+                   my $randomhit=($a+$b)*($a+$c)/($nn);
+                   unless ($a+$b+$c-$randomhit == 0){$ETS = ($a-$randomhit)/($a+$b+$c-$randomhit);}
+		 }
+
+              #Observed frequency important weather:
                my $OFREQ = $missing; if ($nn > 0)  {$OFREQ=(($a+$c)/$nn);}
                #Modelled frequencey important weather:
                my $MFREQ = $missing;  if ($nn > 0) {$MFREQ=(($a+$b)/$nn);}
 	   
                print SCOREFILE  " @thresholds[$class] $FAR $POD";
-               print SCOREFILE2 "@thresholds[$class] $FAR $POD $FA $KUI $FBI $AI $SEDS $EDI $SEDI $OFREQ $MFREQ $nn \n";
+               print SCOREFILE2 "@thresholds[$class] $FAR $POD $FA $KUI $FBI $AI $SEDS $EDI $SEDI $ETS $OFREQ $MFREQ $nn \n";
 	   } #loop over classes
 
            print SCOREFILE "\n";
@@ -233,6 +251,11 @@ $output_file = "edi".$prefix . $EXT[$ENV{OUTPUT_TYPE}] ;
 $output_file = "sedi".$prefix . $EXT[$ENV{OUTPUT_TYPE}] ;
 &header("Symmetric Extremal Dependency Index") ;
 &gen_plot('SEDI',10);
+
+# ETS
+$output_file = "ets".$prefix . $EXT[$ENV{OUTPUT_TYPE}] ;
+&header("Equitable threat score") ;
+&gen_plot('ETS',11);
 
 #Frequency
 $output_file = "f".$prefix . $EXT[$ENV{OUTPUT_TYPE}] ;
@@ -388,10 +411,10 @@ EOF
 $plot = "plot ";
 
     $f=-1;
-    $plot .="'$workfiles2[0]' using 1:11 title 'OBS' with linespoints lt $col_def_lt[@workfiles2+1] lw 2 pt 7";
+    $plot .="'$workfiles2[0]' using 1:12 title 'OBS' with linespoints lt $col_def_lt[@workfiles2+1] lw 2 pt 7";
     foreach (@workfiles2) {
 	$f++;
-        $plot .=",'$_' using 1:12 title '$enames[$f]' with linespoints lt $col_def_lt[$f+1] lw 2 pt 7";
+        $plot .=",'$_' using 1:13 title '$enames[$f]' with linespoints lt $col_def_lt[$f+1] lw 2 pt 7";
     } ;
 
 print GP "$plot";
