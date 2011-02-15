@@ -313,7 +313,7 @@ $i=0;
 foreach $exp (@enames) {
    $i++;
    $y=0.02+0.03*int(($i-1)/3);$x=0.01+(($i-1)%3)/3;
-   print GP "set label '$exp' at $x,$y textcolor lt $colors[$i-1] \n";
+   print GP "set label '$exp' at $x,$y textcolor lt $col_def_lt[$i]  \n";
  }
 
 # make labels for the isolines:
@@ -327,7 +327,7 @@ EOF
 
 $f=-1;
 foreach (@workfiles) {
-   $f++; $linetype=$colors[$f];
+   $f++; $linetype=$col_def_lt[$f + 1];
    $t=0;
    foreach $threshold (@thresholds) {
      $x=3*$t+2; $y=3*$t+3;
