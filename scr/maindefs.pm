@@ -26,7 +26,7 @@
 %def=(
   'def' => {
      'LVERIFY'=>'T',
-     'LSIGN_TEST'=>'F',
+     'LSIGN_TEST'=>'T',
      'LPLOT_VERT'=>'F',
      'LPLOT_FREQ'=>'F',
      'LPLOT_SCAT'=>'F',
