@@ -26,7 +26,7 @@
 %def=(
   'def' => {
      'LVERIFY'=>'T',
-     'LSIGN_TEST'=>'T',
+     'LSIGN_TEST'=>'F',
      'LPLOT_VERT'=>'F',
      'LPLOT_FREQ'=>'F',
      'LPLOT_SCAT'=>'F',
@@ -59,7 +59,7 @@
  'GEN' => {
  # Fclen plots
  'LSTAT_GEN'  => 'T',
- 'LSIGN_TEST' => 'F',
+ 'LSIGN_TEST' => 'T',
  'SIGN_TIME_DIFF' => '-1',
  'LPLOT_STAT' => 'T',
  'SHOW_BIAS' => 'T',
