@@ -94,11 +94,16 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
 
            # We have now read the entire table and are ready for
            # spliting in into multiple 2 by 2 contingency tables
-           # correspondiong to the respective thresholds. The event
-           # to be verified is that "there was more than $threshold
-           # mm of precipitation". Note that for n classes there are
-           # n+1 values, as the last value contains the number of
-           # events exceeding he last threshold.
+           # correspondiong to the respective thresholds. The events
+           # to be verified are as follows:
+           #
+           #    1. classwise verification ($seletor=classwise)
+           #    class=0:                   datavalue <= $threshold[0]
+           #    class=i,i=1, .. classes-1: $threshold[i] < datavalue <= $threshold[i+1]
+           #    class=classes:             $threshold[classes] < value
+           #
+           #    2. thresholdwise verification ($seletor=thresholdwise)
+           #    class=i,i=0, .. classes: datavalue > $threshold[i]
 
 	   $datascan=0;
            $classes=scalar(@thresholds);
@@ -108,7 +113,7 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
            open (SCOREFILE, ">$workfiles[@workfiles-1]");
            open (SCOREFILE2,">$workfiles2[@workfiles2-1]");
 
-           for (my $class=0; $class <= $classes-1; $class++){
+           for (my $class=0; $class <= $classes; $class++){
 
                my $a = 0;my $b = 0;my $c = 0;my $d = 0;
 
@@ -116,18 +121,39 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
                # forecast        a       b
                # not forecast    c       d
 
-               for (my $o=$class+1; $o <= $classes; $o++){ # obs yes; fc yes
-               for (my $f=$class+1; $f <= $classes; $f++){ $a = $a + $AoA[$f][$o] }}
+               $selector='classes';
+#               $selector='thresholds';
+               if ($selector eq 'thresholds'){
+                  for (my $o=$class+1; $o <= $classes; $o++){ # obs yes; fc yes
+                  for (my $f=$class+1; $f <= $classes; $f++){ $a = $a + $AoA[$f][$o] }}
 
-               for (my $o=0; $o <= $class; $o++){            # obs no; fc yes
-               for (my $f=$class+1; $f <= $classes; $f++){ $b = $b + $AoA[$f][$o] }}
+                  for (my $o=0; $o <= $class; $o++){            # obs no; fc yes
+                  for (my $f=$class+1; $f <= $classes; $f++){ $b = $b + $AoA[$f][$o] }}
 
-               for (my $o=$class+1; $o <= $classes; $o++){ # obs yes; fc no
-               for (my $f=0; $f <= $class; $f++){ $c = $c + $AoA[$f][$o] }}
+                  for (my $o=$class+1; $o <= $classes; $o++){ # obs yes; fc no
+                  for (my $f=0; $f <= $class; $f++){ $c = $c + $AoA[$f][$o] }}
+ 
+                  for (my $o=0; $o <= $class; $o++){           # obs no; fc no
+                  for (my $f=0; $f <= $class; $f++){ $d = $d + $AoA[$f][$o] }}
+	       }
+	       elsif ($selector eq 'classes'){
+                  $a=$AoA[$class][$class];
 
-               for (my $o=0; $o <= $class; $o++){           # obs no; fc no
-               for (my $f=0; $f <= $class; $f++){ $d = $d + $AoA[$f][$o] }}
+                  for (my $o=0; $o <= $classes; $o++){ 
+                      unless ($o == $class) {$b = $b + $AoA[$class][$o];}
+                  }
 
+                  for (my $f=0; $f <= $classes; $f++){
+                      unless ($f == $class){$c = $c + $AoA[$f][$class];}
+                  }
+
+                  for (my $o=0; $o <= $classes; $o++){           # obs no; fc no
+                  for (my $f=0; $f <= $classes; $f++){ 
+                     unless ($o == $class or $f == $class) {$d = $d + $AoA[$f][$o];} 
+  
+                 }}
+		}
+               else {die "Your chosen selector: $selector is not supported\n"}
                my $nn=$a+$b+$c+$d;
 
                #False alarm RATIO:
@@ -196,8 +222,28 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
                #Modelled frequencey important weather:
                my $MFREQ = $missing;  if ($nn > 0) {$MFREQ=(($a+$b)/$nn);}
 	   
-               print SCOREFILE  " @thresholds[$class] $FAR $POD";
-               print SCOREFILE2 "@thresholds[$class] $FAR $POD $FA $KUI $FBI $AI $SEDS $EDI $SEDI $ETS $OFREQ $MFREQ $nn \n";
+               my $centralx=$missing; 
+               my $lowerlimit=$missing;
+               if($class == 0){ 
+                  if($xscale ne "set logscale x"){
+                      $centralx=$thresholds[$class]-0.5*abs($thresholds[$class]-$thresholds[$class+1]);
+                   }
+                  else{
+		    if ($thresholds[$class] <= 0){
+                        die "\n \n ERROR: \n Your limit of $thresholds[$class] for variable $partag \n does not allow a logarithmic scaling \n \n \n ";}
+                      $centralx=$thresholds[$class]*0.3;}
+               } 
+               elsif($class == $classes){
+                   $centralx=$thresholds[$class-1]+0.5*abs($thresholds[$class-1]-$thresholds[$class-2]);
+                   $lowerlimit=$thresholds[$class-1];
+               }
+               else {
+                   $centralx=0.5*($thresholds[$class-1]+$thresholds[$class]);
+                   $lowerlimit=$thresholds[$class-1];
+	       }
+	     
+               print SCOREFILE  "$lowerlimit $FAR $POD ";
+               print SCOREFILE2 "$centralx $lowerlimit $FAR $POD $FA $KUI $FBI $AI $SEDS $EDI $SEDI $ETS $OFREQ $MFREQ $nn \n";
 	   } #loop over classes
 
            print SCOREFILE "\n";
@@ -213,53 +259,63 @@ close FILE;
 @markers = ("-1","1","3","4","8","5","6","9","7");
 #
 # Wilson plot
+if ($ENV{'SCORELIST'}=~'WILSON'){
 $output_file = $prefix . $EXT[$output_type] ;
 &header("Contingency table");
-&plot_wilson;
+&plot_wilson; }
 
 # False alarm rate
+if ($ENV{'SCORELIST'}=~'FAR'){
 $output_file = "fr".$prefix . $EXT[$output_type] ;
 &header("False alarm rate") ;
-&gen_plot('FAR',4);
+&gen_plot('FAR',5); }
 
 #Kuiper skill score
+if ($ENV{'SCORELIST'}=~'KSS'){
 $output_file = "k".$prefix . $EXT[$output_type] ;
 &header("Kupiers skill score");
-&gen_plot('KSS',5);
+&gen_plot('KSS',6); }
 
 #Frequency bias
+if ($ENV{'SCORELIST'}=~'Frequencybias'){
 $output_file = "fb".$prefix . $EXT[$output_type] ;
 &header("Frequency bias") ;
-&gen_plot('Freq bias',6);
+&gen_plot('Freq bias',7); }
 
 # Area index
+if ($ENV{'SCORELIST'}=~'AI'){
 $output_file = "ai".$prefix . $EXT[$output_type] ;
 &header("Area index") ;
-&gen_plot('AI',7);
+&gen_plot('AI',8); }
 
 # SEDS
+if ($ENV{'SCORELIST'}=~'SEDS'){
 $output_file = "seds".$prefix . $EXT[$output_type] ;
 &header("Symmetric Extreme Dependency Score") ;
-&gen_plot('SEDS',8);
+&gen_plot('SEDS',9); }
 
 # EDI
+if ($ENV{'SCORELIST'}=~'EDI'){
 $output_file = "edi".$prefix . $EXT[$output_type] ;
 &header("Extremal Dependency Index") ;
-&gen_plot('EDI',9);
+&gen_plot('EDI',10); }
 
 # SEDI
+if ($ENV{'SCORELIST'}=~'SEDI'){
 $output_file = "sedi".$prefix . $EXT[$output_type] ;
 &header("Symmetric Extremal Dependency Index") ;
-&gen_plot('SEDI',10);
+&gen_plot('SEDI',11); }
 
 # ETS
-$output_file = "ets".$prefix . $EXT[$ENV{OUTPUT_TYPE}] ;
+if ($ENV{'SCORELIST'}=~'ETS'){
+$output_file = "ets".$prefix . $EXT[$output_type] ;
 &header("Equitable threat score") ;
-&gen_plot('ETS',11);
+&gen_plot('ETS',12); }
 
 #Frequency
+if ($ENV{'SCORELIST'}=~'Frequency'){
 $output_file = "f".$prefix . $EXT[$output_type] ;
-&header("Frequency") ;
+&header("Frequency") ; }
 &freq ;
 
 next SCAN_INPUT;}
@@ -313,7 +369,8 @@ $i=0;
 foreach $exp (@enames) {
    $i++;
    $y=0.02+0.03*int(($i-1)/3);$x=0.01+(($i-1)%3)/3;
-   print GP "set label '$exp' at $x,$y textcolor lt $col_def_lt[$i]  \n";
+   #print GP "set label '$exp' at $x,$y textcolor lt $colors[$i-1] \n";
+   print GP "set label '$exp' at $x,$y textcolor lt $col_def_lt[$i] \n";
  }
 
 # make labels for the isolines:
@@ -327,19 +384,50 @@ EOF
 
 $f=-1;
 foreach (@workfiles) {
+   #$f++; $linetype=$colors[$f];
    $f++; $linetype=$col_def_lt[$f + 1];
-   $t=0;
-   foreach $threshold (@thresholds) {
+   for(my $t=0; $t <= $classes; $t++){
      $x=3*$t+2; $y=3*$t+3;
-     if($f eq 0){@xx = split('\.',$threshold);$title=$xx[0] . "." .  substr($xx[1],0,2) . " $unit";}
+
+     if($f eq 0){
+       if ($selector eq 'classes'){
+ 
+        if($t == 0){
+           @xx = split('\.',$thresholds[$t]);
+           $upper=$xx[0] . "." .  substr($xx[1],0,2);
+           $lower="<= ";
+       }
+       elsif($t == $classes){
+           @xx = split('\.',$thresholds[$t-1]);
+           $upper=$xx[0] . "." .  substr($xx[1],0,2);
+           $lower="> ";
+       }
+       else{
+           @xx = split('\.',$thresholds[$t-1]);
+           $lower=$xx[0] . "." .  substr($xx[1],0,2) . " ... ";
+           @xx = split('\.',$thresholds[$t]);
+           $upper=$xx[0] . "." .  substr($xx[1],0,2);
+	 }        
+       }
+       elsif ($selector eq 'thresholds'){
+         $lower=""; $upper="";
+         if ($t < $classes){
+           @xx = split('\.',$thresholds[$t]);
+           $upper=$xx[0] . "." .  substr($xx[1],0,2);
+           $lower="> ";
+       }
+       }
+
+     $title=$lower . $upper . " $unit";
+     }
      else {$title="";}
      &ptitle ;
-     $t++;
+     my $tplus=$t+1;
      print GP <<EOF;
-     '$workfiles[$f]' using $x:$y title '$title' with points pointtype $t lt $linetype, \\
+     '$workfiles[$f]' using $x:$y title '$title' with points pointtype $tplus lt $linetype, \\
 EOF
    }}
-# The next lined will add the frequency bias and the threat score to the plot:
+# The next lines will add the frequency bias and the threat score to the plot:
 print GP <<EOF;
 0.2*(1-x) title 'bias' ls 1,\\
 0.4*(1-x) title '' ls 1,\\
@@ -377,23 +465,32 @@ sub gen_plot {
 
 print GP <<EOF;
 set grid
-set xlabel "$unit"
+set xlabel "$selector $unit"
 set ylabel "$yunit"
 $xscale
 EOF
+my $hgt=0.05;
+my $ctr=0;
+my $xcolumn=0;
+if ($selector eq 'classes') {$xcolumn=1}
+elsif ($selector eq 'thresholds') {$xcolumn=2}
 
-$plot = "plot ";
+foreach $threshold (@thresholds){
+   $ctr++;
+   print GP " \n set arrow  $ctr from  $threshold,graph $hgt to  $threshold,graph 0.01 lt -1 lw 2";
+}
+$plot = "\n plot ";
 
     $f=-1;
     foreach (@workfiles2) {
 	$f++;
-        if ( $f gt 0 ) { $plot = "$plot,"; }
+        if ( $f gt 0 ) { $plot = "$plot, "; }
         $title = $enames[$f];
         &ptitle ;
-        $plot .="'$_' using 1:$i title '$title' with linespoints lt $col_def_lt[$f+1] lw 2 pt 7";
+        $plot .="'$_' using $xcolumn:$i title '$title' with linespoints lt $col_def_lt[$f+1] lw 2 pt 7";
     } ;
-
 print GP "$plot";
+
 close GP
 
 &plot ;
@@ -406,20 +503,28 @@ sub freq{
 
 print GP <<EOF;
 set grid
-set xlabel "$unit"
+set xlabel "$selector $unit"
 set ylabel "Frequency"
 $xscale
 EOF
-
-$plot = "plot ";
+my $hgt=0.05;
+my $ctr=0;
+my $xcolumn=0;
+if ($selector eq 'classes') {$xcolumn=1}
+elsif ($selector eq 'thresholds') {$xcolumn=2}
+foreach $threshold (@thresholds){
+   $ctr++;
+   print GP " \n set arrow  $ctr from  $threshold,graph $hgt to  $threshold,graph 0.01 lt -1 lw 2";
+}
+$plot = "\n plot ";
 
     $f=-1;
-    $plot .="'$workfiles2[0]' using 1:12 title 'OBS' with linespoints lt $col_def_lt[@workfiles2+1] lw 2 pt 7";
+    $plot .="'$workfiles2[0]' using $xcolumn:13 title 'OBS' with linespoints lt $col_def_lt[@workfiles2+1] lw 2 pt 7";
     foreach (@workfiles2) {
 	$f++;
         $title = $enames[$f];
         &ptitle ;
-        $plot .=",'$_' using 1:13 title '$title' with linespoints lt $col_def_lt[$f+1] lw 2 pt 7";
+        $plot .=",'$_' using $xcolumn:14 title '$title' with linespoints lt $col_def_lt[$f+1] lw 2 pt 7";
     } ;
 
 print GP "$plot";

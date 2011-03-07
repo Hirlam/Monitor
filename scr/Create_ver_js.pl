@@ -267,9 +267,49 @@ system($web);
 ##################################
 sub cont {
 
+ unless ( $ENV{SCORELIST} ) { return ; } ;
+
  #
  # Skill scores
  #
+ 
+ %skill_score_def =(
+    'WILSON'        => 'c',
+    'KSS'           => 'kc',
+    'ETS'           => 'etsc',
+    'SEDS'          => 'sedsc',
+    'EDI'           => 'edic',
+    'SEDI'          => 'sedic',
+    'AI'            => 'aic',
+    'FAR'           => 'frc',
+    'Frequencybias' => 'fbc',
+    'Frequency'     => 'fc'  
+ ) ;
+
+ %skill_score_txt =(
+    'WILSON'        => 'Wilson diagram',
+    'KSS'           => 'Kuiper skill score',
+    'ETS'           => 'Equitable threat score',
+    'SEDS'          => 'Symmetric Extreme Dependency Score',
+    'EDI'           => 'Extremal Dependency Index',
+    'SEDI'          => 'Symmetric Extremal Dependency Index',
+    'AI'            => 'Area index',
+    'FAR'           => 'False alarme rate',
+    'Frequencybias' => 'Freq bias',
+    'Frequency'     => 'Frequency'
+ ) ;
+
+ @ssd = ();
+ @sst = ();
+
+ @SS = split(" ",$ENV{SCORELIST}) ;
+
+ foreach $S (@SS) {
+ @ssd = (@ssd,$skill_score_def{$S});
+ @sst = (@sst,$skill_score_txt{$S});
+ }
+ $sst='\''.join('\',\'',@sst).'\'';
+ $ssd='\''.join('\',\'',@ssd).'\'';
 
  open INPUT, "> input.js" ;
  print INPUT "
@@ -279,8 +319,8 @@ title = '$type skill scores'
 
 framec='RoyalBlue'
 
-v[0] = ['c','kc','etsc','sedsc','edic','sedic','aic','frc','fbc','fc'] ;
-t[0] = ['Wilson diagram','Kuiper skill score','Equitable threat score','Symmetric Extreme Dependency Score','Extremal Dependency Index','Symmetric Extremal Dependency Index','Area index','False alarme rate','Freq bias','Frequency']
+v[0] = [$ssd]
+t[0] = [$sst]
 v[1] = [$period_v[$period_type]]
 t[1] = [$period_t[$period_type]]
 v[2] = ['00000000']
