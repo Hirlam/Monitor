@@ -11,6 +11,9 @@
 @col_def_lt  = (1,2,3,4,5,6,8,7);
 @col_def_lt  = (0,@col_def_lt);
 
+# Line thickness
+$lw=2;
+
 # Check output type end extension
 
 $OUTPUT_TYPE = $ENV{OUTPUT_TYPE} or $OUTPUT_TYPE = 2 ;
@@ -264,8 +267,8 @@ EOF
   } ;
 
    $plot = "plot '$input_file' notitle with errorbars lw 4, ";
-   $plot = $plot . "'$input_file' using 1:2 notitle with linespoints lw 2, ";
-   $plot = $plot . "'${input_file}n' using 1:2 axes x1y2 title 'Cases' with linespoints lt 0 lw 2 ";
+   $plot = $plot . "'$input_file' using 1:2 notitle with linespoints lw $lw, ";
+   $plot = $plot . "'${input_file}n' using 1:2 axes x1y2 title 'Cases' with linespoints lt 0 lw $lw ";
 
 }
 #################################################################
@@ -284,9 +287,9 @@ sub plot_command {
         if ( $i gt 0 ) { $plot = "$plot,"; }
         $plot = $plot . " '$input_file' using 1:" . $col_def[$i]{COLUMN};
         if ( $col_def[$i]{LEGEND} =~ /CASES/ ) {
-          $plot = $plot . " axes x1y2 title '$col_def[$i]{LEGEND}' with linespoints lt 0 lw 2 ";
+          $plot = $plot . " axes x1y2 title '$col_def[$i]{LEGEND}' with linespoints lt 0 lw $lw ";
         } else {
-          $plot = $plot . " title '$col_def[$i]{LEGEND}' with linespoints lt $col_def[$i]{LT} lw 2 pt $col_def[$i]{PT}";
+          $plot = $plot . " title '$col_def[$i]{LEGEND}' with linespoints lt $col_def[$i]{LT} lw $lw pt $col_def[$i]{PT}";
 	}
     }
 
@@ -394,9 +397,9 @@ EOF
         if ( $i gt 0 ) { $plot = "$plot,"; }
         $plot = $plot . " '$input_file' using " . $col_def[$i]{COLUMN} . ":1";
         if ( $col_def[$i]{LEGEND} =~ /CASES/ ) {
-          $plot = $plot . " title '$col_def[$i]{LEGEND}' with linespoints lt 0 lw 2 axis x2y1 ";
+          $plot = $plot . " title '$col_def[$i]{LEGEND}' with linespoints lt 0 lw $lw axis x2y1 ";
         } else {
-          $plot = $plot . " title '$col_def[$i]{LEGEND}' with linespoints lt $col_def[$i]{LT} lw 2 pt $col_def[$i]{PT}";
+          $plot = $plot . " title '$col_def[$i]{LEGEND}' with linespoints lt $col_def[$i]{LT} lw $lw pt $col_def[$i]{PT}";
 	}
     }
 
