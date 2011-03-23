@@ -1,4 +1,5 @@
 SUBROUTINE scorediffs(exp1,exp2,nfclen,par,     &
+                      istart,iend,              &
                       lnorm,lztrans,confide,    &
                       diff,ncases)
 
@@ -10,6 +11,7 @@ SUBROUTINE scorediffs(exp1,exp2,nfclen,par,     &
  ! Input
  INTEGER, INTENT(IN) :: exp1,exp2
  INTEGER, INTENT(IN) :: nfclen,par
+ INTEGER, INTENT(IN) :: istart,iend
  LOGICAL, INTENT(IN) :: lnorm,lztrans
  REAL,    INTENT(IN) :: confide
 
@@ -36,7 +38,7 @@ SUBROUTINE scorediffs(exp1,exp2,nfclen,par,     &
 
       l = 0
       ncases(j) = 0
-      DO i=1,sign_stat_max
+      DO i=istart,iend
         IF ( all_sign_stat(i)%n(1,j,par) == 0 ) CYCLE 
         l = l + 1
         x(l) = SQRT( all_sign_stat(i)%r(exp1,j,par) /  &

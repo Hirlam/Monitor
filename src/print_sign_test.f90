@@ -5,6 +5,7 @@ SUBROUTINE print_sign_test(lunout,nexp,nparver,         &
  USE types, ONLY : statistics
  USE mymagics
  USE functions
+ USE sign_data, ONLY : all_sign_stat,sign_stat_max
  USE data, ONLY : obstype,expname,station_name,                 &
                   csi,use_fclen,lfcver,                         &
                   maxfclenval,len_lab,output_mode,              &
@@ -25,7 +26,7 @@ SUBROUTINE print_sign_test(lunout,nexp,nparver,         &
 
 ! Local
 
- INTEGER :: i,j,k,period,ncases(nuse_fclen)
+ INTEGER :: i,j,k,period,ncases(nuse_fclen),istart,iend
 
  REAL, ALLOCATABLE :: sdiff(:,:)
  REAL minnum,maxnum,ticnum,maxnum_t
@@ -47,6 +48,29 @@ SUBROUTINE print_sign_test(lunout,nexp,nparver,         &
     period = 0
  ENDIF
 
+ ! Select a subsection of our period
+ IF ( yymm /= 0 ) THEN
+
+    istart = 1
+    iend   = sign_stat_max
+    DO i=1,sign_stat_max
+       IF ((all_sign_stat(i)%date/100 - yymm) == 0 ) THEN
+          istart   = i 
+          EXIT
+       ENDIF
+    ENDDO
+
+    DO i=1,sign_stat_max
+       IF ((all_sign_stat(i)%date/100 - yymm2) == 0 ) THEN
+          iend   = i-1
+          EXIT
+       ENDIF
+    ENDDO
+ ELSE
+    istart = 1
+    iend   = sign_stat_max
+ ENDIF
+
  ! Set number of hours
 
  ALLOCATE(sdiff(nuse_fclen,2))
@@ -60,6 +84,7 @@ SUBROUTINE print_sign_test(lunout,nexp,nparver,         &
     DO j=1,nparver
 
       CALL  scorediffs(control_exp_nr,i,nuse_fclen,j,     &
+                       istart,iend,                       &
                        .TRUE.,.FALSE.,90.,sdiff,ncases)
 
     ! Set output filename
