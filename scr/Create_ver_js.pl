@@ -247,7 +247,7 @@ loc =['l','l','t','l','t','l','l','t']
 $download
 pdir ='$pdir/'
 ext='$EXT'
-help = '${HELP}'; hide_help = false ;
+help = '$ENV{HELP}'; hide_help = false ;
 do_send = true ;
 do_show_remember = true ;
 do_remember = true ;
@@ -338,7 +338,7 @@ loc =['l','l','t','l','t','l','l','t']
 $download
 pdir ='$pdir/'
 ext='$EXT'
-help = '${HELP}'; hide_help = false ;
+help = '$ENV{HELP}'; hide_help = false ;
 do_send = true ;
 do_show_remember = true ;
 do_remember = true ;
