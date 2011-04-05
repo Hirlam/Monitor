@@ -55,7 +55,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
 
  REAL, ALLOCATABLE :: lat(:),lon(:),dat(:,:)
 
- LOGICAL :: user_interval
+ LOGICAL :: user_interval,luh(0:23),luf(0:maxfclenval)
  LOGICAL :: print_latlon
 
  CHARACTER(LEN=100) :: wtext = ' ',wtext1 = ' '
@@ -401,17 +401,35 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
 
     ! Line 3
     IF ( ntimver_out == 1 ) THEN
-            IF ( show_fc_length ) THEN
-               CALL fclen_header(.TRUE.,maxfclenval,        &
-                                 used_hours(j,per_ind,:),   &
-                                 used_fclen(j,per_ind,:),   &
-                                 accu_int(j),wtext)
-            ENDIF
+       IF ( show_fc_length ) THEN
+          CALL fclen_header(.TRUE.,maxfclenval,        &
+                            used_hours(j,per_ind,:),   &
+                            used_fclen(j,per_ind,:),   &
+                            accu_int(j),wtext)
+       ENDIF
     ELSE
-            CALL fclen_header(.NOT.lfcver,maxfclenval,   &
-                              used_hours(j,per_ind,:),   &
-                              used_fclen(j,per_ind,:),   &
-                              accu_int(j),wtext)
+          luh = .FALSE.
+          DO k=0,23
+            IF ( .NOT. used_hours(j,per_ind,k) ) CYCLE
+            DO l=0,maxfclenval
+                IF ( .NOT. used_fclen(j,per_ind,l) ) CYCLE
+             !  WRITE(6,*)'TEST k,l',k,l,MOD(k+l,24),map_hour
+                IF( MOD(k + l,24) == map_hour) luh(k) = .TRUE.
+            ENDDO
+          ENDDO
+          luf = .FALSE.
+          DO k=0,23
+            IF ( .NOT. luh(k) ) CYCLE
+            DO l=0,maxfclenval
+               IF ( .NOT. used_fclen(j,per_ind,l) ) CYCLE
+               WRITE(6,*)'TEST k,l',k,l,MOD(k+l,24),map_hour
+               IF( MOD(k + l,24) == map_hour) luf(l) = .TRUE.
+            ENDDO
+          ENDDO
+         
+          CALL fclen_header(.NOT.lfcver,maxfclenval,   &
+                            luh,luf,                   &
+                            accu_int(j),wtext)
     ENDIF
 
 

@@ -34,7 +34,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
 
 ! Local
 
- INTEGER :: i,j,jj,j_ind,k,kk,kkk,          &
+ INTEGER :: i,j,l,jj,j_ind,k,kk,kkk,        &
             ntimver_out,hour(ntimver),      &
             num(nexp,nlev),                 &
             period,jl(1),npp
@@ -63,6 +63,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
  CHARACTER(LEN=30 ) :: cform='   '
 
  LOGICAL, ALLOCATABLE :: ldum(:)
+ LOGICAL :: luh(0:23)
 
 !------------------------------------------
 
@@ -110,6 +111,8 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
 
  DO j=nlev,nparver,nlev
   DO kk=1,ntimver_out
+
+    luh = uh(j,:)
 
     IF ( ntimver_out /= 1 .AND. .NOT. ANY( show_times == hour(kk) )) CYCLE
 
@@ -234,18 +237,26 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
     ENDIF
 
     IF ( ntimver_out == 1 ) THEN
-       CALL fclen_header(.TRUE.,maxfclenval,uh(jl,:),uf(jl,:),accu_int(jl),wtext)
+       CALL fclen_header(.TRUE.,maxfclenval,luh,uf(jl,:),accu_int(jl),wtext)
     ELSE
        IF (lfcver) THEN
           ALLOCATE(ldum(0:hour(kk)))
           ldum           = .FALSE.
           ldum(hour(kk)) = .TRUE.
-          CALL fclen_header(.TRUE.,hour(kk),uh(jl,:),ldum,accu_int(j),wtext)
+          CALL fclen_header(.TRUE.,hour(kk),luh,ldum,accu_int(j),wtext)
           DEALLOCATE(ldum)
        ELSE
-          WRITE(chour,'(I3.2,X,A3)')hour(kk),'UTC'
-          CALL fclen_header(.TRUE.,maxfclenval,uh(jl,:),uf(jl,:),accu_int(j),wtext)
-          wtext = 'Statistics at '//chour   //'  '//TRIM(wtext)
+          WRITE(chour,'(I2.2,1X,A3)')hour(kk),'UTC'
+          luh = .FALSE.
+          DO k=0,23
+            IF ( .NOT. uh(jl(1),k) ) CYCLE
+            DO l=0,maxfclenval
+                IF ( .NOT. uf(jl(1),l) ) CYCLE
+                IF( MOD(k + l,24) == hour(kk)) luh(k) = .TRUE.
+            ENDDO
+          ENDDO
+          CALL fclen_header(.TRUE.,maxfclenval,luh,uf(jl,:),accu_int(j),wtext)
+          wtext = 'Statistics at '//TRIM(chour)//'  '//TRIM(wtext)
        ENDIF
     ENDIF
     WRITE(lunout,'(A,X,A)')'#HEADING_3',TRIM(wtext)
