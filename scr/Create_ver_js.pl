@@ -142,8 +142,8 @@ sub profile {
 if ( exists $selectionloop{'VERT'}{'SHOW_TIMES'} ) {
  $prof_hours ='\''.join('\',\'',split(',',$selectionloop{'VERT'}{'SHOW_TIMES'})).'\'';
 } else {
-$prof_hours = '\'ALL\'';
- }; 
+ $prof_hours = '\'ALL\'';
+}; 
 
 
 open INPUT, "> input.js" ;
@@ -577,36 +577,36 @@ sub finalize_plot {
 
  } ;
  # Build xml text
- @xml     = ();
- @xml_txt = ();
+ @xml     = ('All');
+ @xml_txt = ('Graphics');
 
  if ( exists $plots{'XML'} ) { 
-   @xml  = (@xml,"../$pdir/[4]_[1].xml");
+   @xml  = (@xml,"$pdir/[4]_[1].xml");
    @xml_txt = ('Stations');
  } ;
 
  if ( exists $plots{'GEN'} ) {
-    @xml     = ("../$pdir/TABLE_LL_[3].html",@xml);
+    @xml     = ("$pdir/TABLE_LL_[3].html",@xml);
     @xml_txt = ("Stat".$_,@xml_txt);
  };
  if ( exists $plots{'SEAS'} ) {
-    @xml     = ("../$pdir/TABL_SEAS_[3].html",@xml);
+    @xml     = ("$pdir/TABL_SEAS_[3].html",@xml);
     @xml_txt = ("Seasonal".$_,@xml_txt);
  };
 
-@xml     = ("../$pdir/quality.html",@xml) ;
+@xml     = ("$pdir/quality.html",@xml) ;
 @xml_txt = ("Quality control",@xml_txt);
 
 if ( exists $plots{'CONT'} ) {
-    @xml_cont     = (@xml,"../$pdir/c_[1]_00000000_[3]_[4]_0.html");
+    @xml_cont     = (@xml,"$pdir/c_[1]_00000000_[3]_[4]_0.html");
     @xml_cont_txt = (@xml_txt,"Cont");
 };
 
-$xml     ='my_xml=[\''.join('\',\'',@xml).'\']';
-$xml_txt ='my_xml_txt=[\''.join('\',\'',@xml_txt).'\']';
+$xml     ='my_con=[\''.join('\',\'',@xml).'\']';
+$xml_txt ='my_con_txt=[\''.join('\',\'',@xml_txt).'\']';
 
-$xml_cont     ='my_xml=[\''.join('\',\'',@xml_cont).'\']';
-$xml_cont_txt ='my_xml_txt=[\''.join('\',\'',@xml_cont_txt).'\']';
+$xml_cont     ='my_con=[\''.join('\',\'',@xml_cont).'\']';
+$xml_cont_txt ='my_con_txt=[\''.join('\',\'',@xml_cont_txt).'\']';
 
 $plottype     ='\''.join('\',\'',@plottype).'\'';
 $plottype_txt ='\''.join('\',\'',@plottype_txt).'\'';
@@ -629,6 +629,5 @@ if ( exists $selectionloop{'GEN'}{'LSIGN_TEST'} ) {
 
 # Vertical profiles
 if ( $TYPE eq 'TEMP' && exists $plots{'VERT'} ) { &profile ; };
-
 
 }
