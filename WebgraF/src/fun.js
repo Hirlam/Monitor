@@ -174,8 +174,6 @@ function change_input(i) {
    if ( si > 0 ) { window.location = str.substr(0,str.lastIndexOf("?")) + "?choice_ind=" + passing }
    else {          window.location = window.location                    + "?choice_ind=" + passing }
 
-   //update_all('Top','top_start')
-
 }
 // --------------------------------------------------------
 function clean(p)
@@ -221,18 +219,38 @@ function menu_style(j) {
 function figName(p)
 {
 
+   is_graphics = true
    this.act = ""
    this.tmp = new Array()
    this.src = pdir
    this.txt =  "" 
    this.pos = new Array()
  
-   for (j = 0; j < (spec_name.length - 1); j++) {
+   if (my_con[con_ind] == 'All' ) {
+     for (j = 0; j < (spec_name.length - 1); j++) {
        if ( msep[j] == undefined ) { msep[j] = sep }
        this.src += mlist[spec_name[j]].v[p[spec_name[j]]] + msep[j]
+     }
+     this.src += mlist[spec_name[j]].v[p[spec_name[j]]]
+     this.src += "." + ext
+   } else {
+     this.src = my_con[con_ind]
+    // Expand [] arguments
+    while ( this.src.search("\\[") != -1 ) {
+        i1= this.src.search("\\[")
+        i2= this.src.search("\\]")
+        i3= this.src.substr(i1+1,i2-i1-1)
+        if ( this.src.search("\\,") != -1 ) {
+           hej = i3.split(",")
+           i3 = hej[0]
+        }
+        this.src = this.src.replace(this.src.substr(i1,i2-i1+1),mlist[i3].v[p[i3]])
+    } ;
+
+    if ( this.src.match(/.xml/) || this.src.match(/.html/) ) {
+       is_graphics = false
+    }
    }
-   this.src += mlist[spec_name[j]].v[p[spec_name[j]]]
-   this.src += "." + ext
 
    jj = 0
    for (j = 0; j < mlist.length ; j++) {
@@ -249,7 +267,13 @@ function figName(p)
 
    for (j = 0; j < mlist.length ; j++) { this.pos[j] = p[j] }
 
-   this.act = dirPic(this.src,("pre_getFig(["+this.pos+"])"),this.txt)
+   if ( is_graphics ) {
+     this.act = dirPic(this.src,("pre_getFig(["+this.pos+"])"),this.txt)
+     dp_src = "nada"
+   } else {
+     this.act = ""
+     dp_src = this.src
+   } 
 
    found_rem = false
    if ( ! sli_menu.active && do_remember ) {
@@ -380,7 +404,7 @@ function getFig(ind,selectedIndex) {
 
  }
  
- if ( ! on_start ) { update_all('Pic','dp','List','list','Top_left','top_left','Top','top') }
+ if ( ! on_start ) { update_all('List','list','Top_left','top_left','Top','top','Pic','dp') }
 
 }
 // --------------------------------------------------------
@@ -821,9 +845,13 @@ function update_all() {
    i = 0
    do {
 
-      p = arguments[i+1]
-      if( p.indexOf("html",0) < 0  && p.indexOf("xml",0) < 0 ) { p += ".html" }
-      parent.frames[arguments[i]].location = p
+      if ( arguments[i] == 'Pic' && dp_src != "nada" ) {
+        parent.frames['Pic'].location = dp_src
+      } else {
+        pp = arguments[i+1]
+        if( pp.indexOf("html",0) < 0  && pp.indexOf("xml",0) < 0 ) { pp += ".html" }
+        parent.frames[arguments[i]].location = pp
+      }
       i++ ; i++
 
   } while ( i < arguments.length )
@@ -842,6 +870,7 @@ function dirFig(fg,action,ft,tdstyle)
 {
    if ( tdstyle == undefined ) { tdstyle = '' }
    tfg = " No plot available "
+   tfg = fg
    return "<td "+tdstyle+"><a href='javascript:parent." +action+ "' a><img alt='" +tfg+ "' title='" +ft+ "' src='" +fg+ "' border='0'></a></td>"
 }
 // --------------------------------------------------------
@@ -863,6 +892,7 @@ function dirPic(fg,action,ft,tdstyle)
    }
    
    tfg = " No plot available "
+   tfg = fg
 
    if ( fg.match(re)) {
      // .svg file must be embedded
@@ -901,7 +931,13 @@ function all_head( ) {
  this.txt  = ""
  this.cri  = cri
 
- if (this.typ == 1 ) { this.txt += dirFig('down1.gif',("getFig("+this.ind+","+this.cri(-1)+")"),lang[pre_lan].up) }
+ if (this.typ == 1 ) { 
+    if ( this.ind == -17 ) {
+       this.txt += dirFig('down1.gif',("con_update("+this.cri(-1)+")"),lang[pre_lan].up)
+    } else {
+       this.txt += dirFig('down1.gif',("getFig("+this.ind+","+this.cri(-1)+")"),lang[pre_lan].up)
+    }
+ }
 
  if ( this.ind == -1 ) {
 
@@ -917,7 +953,12 @@ function all_head( ) {
  } else {
 
     mytitle = lang[pre_lan].mhed + " " + this.name
-    this.txt += dirTxt('width=100',this.name,("getFig("+this.ind+",-1)"),m_head,mytitle)
+
+    if ( this.ind == -17 ) {
+       this.txt += dirTxt('width=100',this.name,"nada()",m_head,mytitle)
+    } else {
+       this.txt += dirTxt('width=100',this.name,("getFig("+this.ind+",-1)"),m_head,mytitle)
+    }
     act = "adjustMenu("+this.ind+","+this.p+",true)"
 
  }
@@ -927,18 +968,25 @@ function all_head( ) {
        this.mytitle = lang[pre_lan].fltm
        this.txt += dirTxt('width=20',lang[pre_lan].flip,("flip("+this.ind+")"),m_grey,this.mytitle) 
     }
-    if ( do_delete || this.ind == -1 ) { 
+    if ( ( do_delete || this.ind == -1 ) && this.ind != -17) { 
        this.mytitle = lang[pre_lan].rtpo
        this.txt += dirTxt('width=20',lang[pre_lan].remo.substr(0,3),act,m_grey,this.mytitle) 
     }
  }
 
- if ( do_slide ) {
+ if ( do_slide && this.ind != -17 ) {
  if ( sli_menu.active && sli_menu.p == this.ind ) { this.txt += dirFig('stop.gif','slideShow(-99)',lang[pre_lan].stop)             }
         else { this.txt += dirFig('right.gif',("slideShow("+this.ind+")"),lang[pre_lan].slid,'width=10') }
  } 
 
- if (this.typ == 1 ) { this.txt += "</tr><tr>"+dirFig('up1.gif',("getFig("+this.ind+","+this.cri(1)+")"),lang[pre_lan].down) }
+ if (this.typ == 1 ) { 
+    this.txt += "</tr><tr>"
+    if ( this.ind == -17 ) {
+       this.txt += dirFig('up1.gif',("con_update("+this.cri(1)+")"),lang[pre_lan].down)
+    } else {
+    this.txt += dirFig('up1.gif',("getFig("+this.ind+","+this.cri(1)+")"),lang[pre_lan].down)
+    }
+ }
  if (this.typ == 0 ) { this.txt += "</tr>" }
 
  return this.txt
@@ -1020,6 +1068,11 @@ function sim_head() {
     case -16:
     this.act = "nada()"
     break
+
+    case -17:
+    this.act = "nada()"
+    break
+
 
  }
 
@@ -1129,7 +1182,7 @@ function gen_body( ) {
        break ;
     }
 
-    this.txt += sel_top(6,this.act,0)
+    this.txt += sel_top(6,this.act)
 
     for (jj = 0; jj < this.v.length; jj++) {
        if ( this.p == jj ) { seltext = 'selected' } else { seltext ='' }
@@ -1183,14 +1236,62 @@ function xml_update(loc) {
  parent.frames['Pic'].location = tmp
 }
 //--------------------------------------------------------------------------------------------------------------------
-function xml_body( ) { 
+function con_update(loc) { 
+ con_ind = loc
+ con_menu.p = loc
+
+ if (my_con[con_ind] == 'All' ) {
+  for ( i=0 ; i < mlist.length ; i++ ) { 
+    mlist[i].active = ( t[i].length > 1 )
+  }
+ } else {
+  for ( i=0 ; i < mlist.length ; i++ ) { 
+    mlist[i].active = false
+  }
+ } 
+
+ // Expand [] arguments
+ tmp = my_con[loc]
+
+ while ( tmp.search("\\[") != -1 ) {
+     i1= tmp.search("\\[")
+     i2= tmp.search("\\]")
+     i3= tmp.substr(i1+1,i2-i1-1)
+     if ( i3.search("\\,") != -1 ) {
+       hej = i3.split(",")
+       i3 = hej[0]
+       for (jk = 0; jk <= mlist[i3].t.length-1; jk++) { 
+         delete mlist[i3].t[jk]
+         delete mlist[i3].v[jk]
+       }
+       mlist[i3].t.length = 0
+       mlist[i3].v.length = 0
+
+       for ( i=1 ; i < hej.length ; i++ ) { 
+         mlist[i3].t[i-1] = t[i3][hej[i]]
+         mlist[i3].v[i-1] = v[i3][hej[i]]
+       }
+       pos[i3] = 0
+     } else {
+     }
+     mlist[i3].active = ( mlist[i3].t.length > 1 )
+     tmp = tmp.replace(tmp.substr(i1,i2-i1+1),'#')
+ } ;
+
+ getFig(0,pos[0])
+ if ( ! on_start ) { update_all('List','list','Top_left','top_left','Top','top','Pic','dp') }
+
+}
+//--------------------------------------------------------------------------------------------------------------------
+function con_body( ) { 
 
  this.attrib = "bgcolor='#ffffff' rowspan='1' colspan='6'"
  this.menu_style = menu_style
  this.txt        = ""
 
- this.act = "xml_update(selectedIndex)"
- this.txt += sel_top(6,this.act,0)
+ this.act = "con_update(selectedIndex)"
+ this.txt += sel_top(6,this.act)
+ this.p = con_ind
 
  for (jj = 0; jj < this.v.length; jj++) {
     if ( this.p == jj ) { seltext = 'selected' } else { seltext ='' }
@@ -1203,6 +1304,25 @@ function xml_body( ) {
 
 }
 //--------------------------------------------------------------------------------------------------------------------
+function xml_body( ) { 
+
+ this.attrib = "bgcolor='#ffffff' rowspan='1' colspan='6'"
+ this.menu_style = menu_style
+ this.txt        = ""
+
+ this.act = "xml_update(selectedIndex)"
+ this.txt += sel_top(6,this.act)
+
+ for (jj = 0; jj < this.v.length; jj++) {
+    if ( this.p == jj ) { seltext = 'selected' } else { seltext ='' }
+    this.txt += "<option " +seltext+" class="+m_item+">"+this.t[jj]+"</option>"
+ }
+
+ this.txt += "</select></td></tr>"
+
+ return this.txt
+
+}
 //--------------------------------------------------------------------------------------------------------------------
 function info_update(loc) { 
  tmp = my_info[loc]
@@ -1232,7 +1352,7 @@ function info_body( ) {
  this.txt        = ""
 
  this.act = "info_update(selectedIndex)"
- this.txt += sel_top(6,this.act,0)
+ this.txt += sel_top(6,this.act)
 
  for (jj = 0; jj < this.v.length; jj++) {
     if ( this.p == jj ) { seltext = 'selected' } else { seltext ='' }
@@ -1278,8 +1398,8 @@ function menu(ind,name,v,t,loc,typ,head,body,p,active) {
  this.head = head		// menu head function
  this.body = body		// menu body function
  this.p = p 			// Position
- this.active = active	// Active flag
- this.flip   = false
+ this.active = active	        // Active flag
+ this.flip   = false            // Allow flipping
 
  this.make_menu = make_menu
  this.my_alert  = my_alert
@@ -1314,6 +1434,8 @@ function write_list(){
  for ( i=0 ; i < mlist.length ; i++ ) {
      this.txt += mlist[order[i]].make_menu('l') 
  }
+
+ this.txt += con_menu.make_menu('l')
 
  this.txt += hel_menu.make_menu('l') 
  this.txt += inf_menu.make_menu('l') 
@@ -1356,6 +1478,7 @@ function write_top(){
 
  this.txt = "<table cellpadding='0' cellspacing='1' border='0' ><tbody><tr>"
 
+ this.txt += con_menu.make_menu('t')
  for ( i=0 ; i < mlist.length ; i++ ) {
      this.txt += "<td>"
      this.txt += mlist[order[i]].make_menu('t') 
@@ -1387,6 +1510,11 @@ function fix_input_text(input_list){
 //--------------------------------------------------------------------------------------------------------------------
 function init() {
 
+ //
+ // The main WebgraF function
+ // Here we define the different menus on display
+ //
+
  // First check if we are deling with svg files
  re  = /svg$/ ;
  if ( ext.match(re) ) {
@@ -1394,39 +1522,73 @@ function init() {
     do_resize = false
  } 
 
+ // Set text on the main drop menu
  input_text = fix_input_text(input_list)
+
+ // If no title is set the path as title
  if ( title == "" ) { title = findProject(0) +"/" + input_text[choice_ind]  }
 
+ 
+ // Define the menu that remembers what we have done
  rem_menu = new menu(-1,"rem_menu",[""],[""],'t',1,all_head,gen_body,0,false)
  rem_menu.pos = new Array()
 
+ // Menu that handles save favorites ( as cookies )
  cok_menu = new menu(-2,lang[pre_lan].favo,[""],[""],'l',0,sim_head,gen_body,-1,false)
+
+ // The slide show menu, I'm not sure it's really used anymore
  sli_menu = new menu(-3,"sli_menu" ,[""],[""],'l',0,sli_head,nada    ,-1,false)
 
+ // The top left meny, i.e. the different entries under a project
  if (input_list.length <= 1 ) { body = nada } else { body = gen_body }
  top_menu = new menu(-4,findProject(1),input_list,input_text,'l',1,sim_head,body,choice_ind,true)
 
+ // The help menu
  hel_menu = new menu(-6,lang[pre_lan].help,[""],[""],'l',0,sim_head,nada,0,( help != "" ))
+ 
+ // The download menu
  dow_menu = new menu(-7,lang[pre_lan].downl,download,download,'l',0,sim_head,dow_body,0,( download.length > 0 ))
+
+ // I have no idea?
  sus_menu = new menu(-8,lang[pre_lan].stpo,[""],[""],'s',1,sim_head,gen_body,0,true)
  sue_menu = new menu(-9,lang[pre_lan].enpo,[""],[""],'s',1,sim_head,gen_body,0,true)
 
+
+ // Handling of menu if you allow manipulation
  you_menu = new menu(-10,lang[pre_lan].youm,[1,0,0,0,1],
             [lang[pre_lan].load,lang[pre_lan].save,lang[pre_lan].dele,lang[pre_lan].clea,lang[pre_lan].rest],
             'l',0,sim_head,you_body,-1,false)
 
+ // The menu for the information text
  inf_menu = new menu(-11,lang[pre_lan].mifo,[""],[""],'l',0,sim_head,nada,0,( info != ""))
+
+ // Menu to send an URL pointing to some specific plots
  sen_menu = new menu(-12,lang[pre_lan].send,[""],[""],'l',0,sim_head,nada,0,
                      ( do_show_remember && do_send && ! do_manip && ! do_flip && ! do_delete ))
+
+ // Debug menu
  deb_menu = new menu(-13,'Debug'           ,[""],[""],'l',0,sim_head,nada,0, do_debug )
+
+ // Resize menu
  res_menu = new menu(-14,lang[pre_lan].resi,[""],[""],'l',0,sim_head,nada,0, do_resize )
 
+
+ // Handle of selected html links
  if ( my_xml_txt.length == 0 ) { my_xml_txt = my_xml }
  xml_menu = new menu(-15,my_xml_title,my_xml,my_xml_txt,'l',0,sim_head,xml_body,0, (my_xml.length > 0 ))
 
+ // Generalized handling of name parsing
+ if ( my_con.length == 0 ) { my_con = ['All'] }
+ if ( my_con_txt.length == 0 ) { my_con_txt = my_con }
+ con_menu = new menu(-17,my_con_title,my_con,my_con_txt,con_menu_loc,1,all_head,con_body,0, (my_con.length > 1 ))
+
+ 
+ // This is another info menu, more generalized...
  if ( my_info_txt.length == 0 ) { my_info_txt = my_info }
  info_menu = new menu(-16,my_info_title,my_info,my_info_txt,'l',0,sim_head,info_body,0, (my_info.length > 0 ))
 
+
+ // Loop through all user defined menus and defined them
  for ( i=0 ; i < mname.length ; i++ ) {
 
    if ( pos[i] == undefined ) { pos[i] = 0 }
@@ -1437,8 +1599,11 @@ function init() {
    
  }
 
+ // Set order if not defined by the user
  if ( order[0] == undefined ) { for (j = 0; j < mlist.length; j++) { order[j] = j } }
 
+ 
+ // Clean mname for some reason?
  for (j =(mname.length-1); j > 0 ; j-- ) { delete mname[j] }
  mname.length = 1
 
@@ -1454,14 +1619,19 @@ function init() {
     if ( msep[i] == undefined ) { msep[i] = sep }
  }
 
+ // Make sure the configuration menu is activated
+ if ( (my_con.length > 1 ) ) { con_update(0) }
+
+
+ // Check if we have any cookies that should be loaded
  cok_menu.t.splice(0,1)
  cok_menu.v.splice(0,1)
-
  if ( ( do_remember && do_save ) || do_manip ) checkCookie()
 
 
  if ( ext != "html" ) { 
 
+    //
     if ( mpos != -99 ){
        getFig(mpos,-1)
     } else {
@@ -1484,10 +1654,12 @@ function init() {
 
  }
 
+ // Set title
  parent.document.title=title
 
  local_save = true
 
+ // Load information about manipulated menus
  if ( you_menu.active && load_manip ) { manipulate_menu(-1) }
 
  load_manip = true

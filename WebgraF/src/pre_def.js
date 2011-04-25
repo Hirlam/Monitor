@@ -21,13 +21,18 @@ var pos   	= new Array()
 var input_list  = new Array() ;
 var input_text  = new Array() ;
 var my_xml      = new Array() ;
+var my_con      = new Array() ;
 var my_xml_txt  = new Array() ;
+var my_con_txt  = new Array() ;
+var con_menu_loc = 'l'
 var my_xml_title = 'Statistics'
+var my_con_title = 'View' ;
 var my_info      = new Array() ;
 var my_info_txt  = new Array() ;
 var my_info_title= 'Model info'
 var multi  	= false
 var mpos   	= -99
+var con_ind     = 0
 var save_txt 	= ""
 var speed 	= 500
 var slide_dir 	= 1
@@ -47,6 +52,7 @@ var top 	="TOP"
 var on_start 	= true
 var wdt         = 0
 var hgt         = 0
+var dp_src      = "nada"
 
 // User provided 
 var v      	= new Array()
