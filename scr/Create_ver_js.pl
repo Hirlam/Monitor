@@ -577,8 +577,6 @@ sub finalize_plot {
 
  } ;
  # Build xml text
- @xml     = ('All');
- @xml_txt = ('Graphics');
 
  if ( exists $plots{'XML'} ) { 
    @xml  = (@xml,"$pdir/[4]_[1].xml");
@@ -601,6 +599,11 @@ if ( exists $plots{'CONT'} ) {
     @xml_cont     = (@xml,"$pdir/c_[1]_00000000_[3]_[4]_0.html");
     @xml_cont_txt = (@xml_txt,"Cont");
 };
+
+@xml     = ('All',@xml);
+@xml_txt = ('Graphics',@xml_txt);
+@xml_cont     = ('All',@xml_cont);
+@xml_cont_txt = ('Graphics',@xml_cont_txt);
 
 $xml     ='my_con=[\''.join('\',\'',@xml).'\']';
 $xml_txt ='my_con_txt=[\''.join('\',\'',@xml_txt).'\']';
