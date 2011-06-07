@@ -303,6 +303,7 @@ sub cont {
  @sst = ();
 
  @SS = split(" ",$ENV{SCORELIST}) ;
+ @ST = split(" ",$ENV{SCORETYPES}) ;
 
  foreach $S (@SS) {
  @ssd = (@ssd,$skill_score_def{$S});
@@ -310,6 +311,8 @@ sub cont {
  }
  $sst='\''.join('\',\'',@sst).'\'';
  $ssd='\''.join('\',\'',@ssd).'\'';
+
+ $stt='\''.join('\',\'',@ST).'\'';
 
  open INPUT, "> input.js" ;
  print INPUT "
@@ -332,8 +335,10 @@ t[4] = [$skill_text]
 v[5] =[$lev_lst]
 v[5] =v[5].reverse()
 t[5] =v[5]
+v[6] =[$stt]
+t[6] =v[6]
 
-mname = ['Type','Period','Station','Selection','Parameter','Level']
+mname = ['Score','Period','Station','Selection','Parameter','Level','Type']
 loc =['l','l','t','l','t','l','l','t']
 $download
 pdir ='$pdir/'

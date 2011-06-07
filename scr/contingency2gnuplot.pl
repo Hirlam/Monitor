@@ -121,8 +121,10 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
                # forecast        a       b
                # not forecast    c       d
 
+               # selector can have values "classes" or "thresholds"
                $selector='classes';
-#               $selector='thresholds';
+               if ( $ENV{SELECTOR} ) { $selector = $ENV{SELECTOR} };
+
                if ($selector eq 'thresholds'){
                   for (my $o=$class+1; $o <= $classes; $o++){ # obs yes; fc yes
                   for (my $f=$class+1; $f <= $classes; $f++){ $a = $a + $AoA[$f][$o] }}
@@ -260,61 +262,61 @@ close FILE;
 #
 # Wilson plot
 if ($ENV{'SCORELIST'}=~'WILSON'){
-$output_file = $prefix . $EXT[$output_type] ;
+$output_file = $prefix."_". $selector . $EXT[$output_type] ;
 &header("Contingency table");
 &plot_wilson; }
 
 # False alarm rate
 if ($ENV{'SCORELIST'}=~'FAR'){
-$output_file = "fr".$prefix . $EXT[$output_type] ;
+$output_file = "fr".$prefix."_". $selector . $EXT[$output_type] ;
 &header("False alarm rate") ;
 &gen_plot('FAR',5); }
 
 #Kuiper skill score
 if ($ENV{'SCORELIST'}=~'KSS'){
-$output_file = "k".$prefix . $EXT[$output_type] ;
+$output_file = "k".$prefix."_". $selector . $EXT[$output_type] ;
 &header("Kupiers skill score");
 &gen_plot('KSS',6); }
 
 #Frequency bias
 if ($ENV{'SCORELIST'}=~'Frequencybias'){
-$output_file = "fb".$prefix . $EXT[$output_type] ;
+$output_file = "fb".$prefix."_". $selector . $EXT[$output_type] ;
 &header("Frequency bias") ;
 &gen_plot('Freq bias',7); }
 
 # Area index
 if ($ENV{'SCORELIST'}=~'AI'){
-$output_file = "ai".$prefix . $EXT[$output_type] ;
+$output_file = "ai".$prefix."_". $selector . $EXT[$output_type] ;
 &header("Area index") ;
 &gen_plot('AI',8); }
 
 # SEDS
 if ($ENV{'SCORELIST'}=~'SEDS'){
-$output_file = "seds".$prefix . $EXT[$output_type] ;
+$output_file = "seds".$prefix."_". $selector . $EXT[$output_type] ;
 &header("Symmetric Extreme Dependency Score") ;
 &gen_plot('SEDS',9); }
 
 # EDI
 if ($ENV{'SCORELIST'}=~'EDI'){
-$output_file = "edi".$prefix . $EXT[$output_type] ;
+$output_file = "edi".$prefix."_". $selector . $EXT[$output_type] ;
 &header("Extremal Dependency Index") ;
 &gen_plot('EDI',10); }
 
 # SEDI
 if ($ENV{'SCORELIST'}=~'SEDI'){
-$output_file = "sedi".$prefix . $EXT[$output_type] ;
+$output_file = "sedi".$prefix."_". $selector . $EXT[$output_type] ;
 &header("Symmetric Extremal Dependency Index") ;
 &gen_plot('SEDI',11); }
 
 # ETS
 if ($ENV{'SCORELIST'}=~'ETS'){
-$output_file = "ets".$prefix . $EXT[$output_type] ;
+$output_file = "ets".$prefix."_". $selector . $EXT[$output_type] ;
 &header("Equitable threat score") ;
 &gen_plot('ETS',12); }
 
 #Frequency
 if ($ENV{'SCORELIST'}=~'Frequency'){
-$output_file = "f".$prefix . $EXT[$output_type] ;
+$output_file = "f".$prefix."_". $selector . $EXT[$output_type] ;
 &header("Frequency") ; }
 &freq ;
 

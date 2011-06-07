@@ -47,7 +47,10 @@ fi
 
 if [ $GRAPHICS == GNUPLOT ] ; then
  $SCR/verobs2gnuplot.pl -d || exit
- $SCR/contingency2gnuplot.pl c_*.html || exit
+ for SELECTOR in $SCORETYPES ; do
+   export SELECTOR
+   $SCR/contingency2gnuplot.pl c_*.html || exit
+ done
  RESIZE=100%
  ROTATE="-rotate 90"
 else

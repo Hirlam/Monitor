@@ -93,6 +93,9 @@ SURFPLOT="GEN TIME MAP FREQ SCAT CONT XML DAYVAR"
 # Select skill scores to be plotted if CONT is activated in SURFPLOT
 SCORELIST="WILSON FAR KSS Frequencybias AI SEDS EDI SEDI ETS Frequency"  
 
+# Select whether skill scores are based on classes and/or thresholds (CONT must be activated)
+SCORETYPES="classes thresholds"
+
 # Selection for surface verification as defined in selection.pm
 # Note that XML statistics will be defined for the
 # first selection only
@@ -202,7 +205,7 @@ export OBINT_TEMP FCINT_TEMP FCLEN_TEMP FCLEN_TEMP_VERT FCLEN_TEMP_TIME
 export SURFPLOT TEMPPLOT
 export STNLIST_PLOT STNLIST_PLOT_TXT
 export ALL_AT_ONCE
-export SCORELIST
+export SCORELIST SCORETYPES
 
 ###########################
 # End of definitions
