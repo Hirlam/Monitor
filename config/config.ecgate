@@ -10,7 +10,7 @@ MACHINECPP :=
 CPP        := /lib/cpp
 
 # C
-CC      := gcc 
+CC      := xlc_r 
 CCFLAGS := -O2 -xP -g  $(MACHINECPP) 
 
 # Fortran
@@ -25,7 +25,7 @@ MODNAME = $(shell echo $(*F) | tr "[:upper:]" "[:lower:]")
 MODEXT := mod
 
 # Link
-LD          := xlC
+LD          := xlf90_r
 LDFLAGS     := -g -bnoquiet -lxlf90
 
 # AR
