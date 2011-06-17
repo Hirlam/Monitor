@@ -193,7 +193,9 @@ SUBROUTINE do_stat(per_ind,p1,p2)
  ENDDO
 
  IF ( print_bias_map ) CALL print_map(0,minval(p1),maxval(p2),0,per_ind,rar_active)
- IF ( print_bias_map ) CALL print_map(0,minval(p1),maxval(p2),1,per_ind,rar_active)
+ IF ( print_rmse_map ) CALL print_map(0,minval(p1),maxval(p2),1,per_ind,rar_active)
+ IF ( print_stdv_map ) CALL print_map(0,minval(p1),maxval(p2),3,per_ind,rar_active)
+
  IF ( print_obs_map  ) CALL print_map(0,minval(p1),maxval(p2),2,per_ind,rar_active)
 
 #ifdef MAGICS

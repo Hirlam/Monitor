@@ -36,6 +36,8 @@
      'LPLOT_SEASONAL'=> 'F',
      'LPREP_XML'=> 'F',
      'PLOT_BIAS_MAP' =>'F',
+     'PLOT_RMSE_MAP' =>'F',
+     'PLOT_STDV_MAP' =>'F',
      'LFCVER'        =>'T',
      'LDIFF'         => 'T',
      'SHOW_OBS'      => 'F',
@@ -70,6 +72,7 @@
  'MAP' => {
  # Map plots
  'PLOT_BIAS_MAP' => 'T',
+ 'PLOT_RMSE_MAP' => 'T',
  'LSTAT_GEN'     => 'T',
  'LPLOT_STAT'    => 'F',
  'LFCVER'        => 'F',

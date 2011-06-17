@@ -243,6 +243,8 @@ SUBROUTINE check_namelist
 
     lprint_timeserie_stat = ltimeserie_stat 
     print_bias_map        = plot_bias_map
+    print_rmse_map        = plot_rmse_map
+    print_stdv_map        = plot_stdv_map
     print_obs_map         = plot_obs_map
     lprint_vert           = lplot_vert
     lprint_freq           = lplot_freq

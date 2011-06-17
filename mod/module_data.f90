@@ -23,7 +23,7 @@ MODULE data
  INTEGER, PARAMETER :: mparver = 200    ! Max parameters to verify
  INTEGER, PARAMETER :: maxfclen= 48     ! Maximum number of forecast lengths
  INTEGER, PARAMETER :: maxfclenval= 240 ! Maximum forecast length value in hours
-
+ INTEGER, PARAMETER :: max_map_interval = 7 ! Maximum number of map intervals
 
 ! Main arrays 
  TYPE (station), ALLOCATABLE, DIMENSION(:) :: obs,hir
@@ -325,13 +325,18 @@ MODULE data
  ! Use CENTRE or CORNER
  CHARACTER(LEN=50) :: MAP_AREA_DEFINITION = 'CENTRE'
 
- LOGICAL :: plot_bias_map          = .FALSE.  ! Plot map with biases
- LOGICAL :: print_bias_map         = .FALSE.  ! Print map with biases
+ LOGICAL :: plot_bias_map          = .FALSE.  ! Plot map with bias
+ LOGICAL :: plot_rmse_map          = .FALSE.  ! Plot map with rmse
+ LOGICAL :: plot_stdv_map          = .FALSE.  ! Plot map with stdv
+ LOGICAL :: print_bias_map         = .FALSE.  ! Print map with bias
+ LOGICAL :: print_rmse_map         = .FALSE.  ! Print map with rmse
+ LOGICAL :: print_stdv_map         = .FALSE.  ! Print map with stdv
  LOGICAL :: plot_obs_map           = .FALSE.  ! Plot map with observations
  LOGICAL :: print_obs_map          = .FALSE.  ! Print map with observations
- REAL    ::  map_obs_interval(7,mparver)= -1.      ! Set your own obs interval 
- REAL    :: map_bias_interval(7,mparver)= -1.      ! Set your own bias interval
- REAL    :: map_rmse_interval(7,mparver)= -1.      ! Set your own rmse interval
+ REAL    ::  map_obs_interval(max_map_interval,mparver)= -1.      ! Set your own obs interval 
+ REAL    :: map_bias_interval(max_map_interval,mparver)= -1.      ! Set your own bias interval
+ REAL    :: map_rmse_interval(max_map_interval,mparver)= -1.      ! Set your own rmse interval
+ REAL    :: map_stdv_interval(max_map_interval,mparver)= -1.      ! Set your own rmse interval
  INTEGER :: map_type                    =  0       ! 0 plots symbols, 1 plots numbers
 
 
@@ -447,12 +452,17 @@ MODULE data
                  ltimeserie_stat,                       &
                  lprint_timeserie_stat,                 &
                  plot_bias_map,                         &
+                 plot_rmse_map,                         &
+                 plot_stdv_map,                         &
                  print_bias_map,                        &
+                 print_rmse_map,                        &
+                 print_stdv_map,                        &
                  map_scale,                             &
                  plot_obs_map,                          &
                  print_obs_map,                         &
                  map_obs_interval,                      &
                  map_rmse_interval,                     &
+                 map_stdv_interval,                     &
                  map_bias_interval,map_type,            &
                  MAP_VERTICAL_LONGITUDE,                &
                  MAP_CENTRE_LATITUDE,                   &

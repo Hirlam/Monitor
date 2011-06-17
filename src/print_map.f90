@@ -19,6 +19,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
                       nparver,              &
                       used_hours,used_fclen,&
                       timdiff,time_shift,   &
+                      map_stdv_interval,    &
                       map_rmse_interval,    &
                       map_bias_interval,    &
                       map_obs_interval,     &
@@ -75,6 +76,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
  ! 0 : bias
  ! 1 : rmse
  ! 2 : value
+ ! 3 : stdv
  !
 
  SELECT CASE(ptype)
@@ -87,6 +89,11 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
     prefix = 'm_r'
     IF (lfcver) prefix = 'M_r'
     mtext = 'rmse'
+    nexp_plot = nexp
+ CASE(3)
+    prefix = 'm_s'
+    IF (lfcver) prefix = 'M_s'
+    mtext = 'stdv'
     nexp_plot = nexp
  CASE(2)
     prefix = 'm_o'
@@ -222,7 +229,9 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
                   dat(nexp+1,ll) = obs
                  ENDIF
                ENDIF
-
+            CASE(3)
+                dat(i,ll) = SQRT (ABS(rmse/MAX(rnum,1.)- &
+                                     (bias/MAX(rnum,1.))**2))
             CASE DEFAULT
                WRITE (6,*)'No such ptype in plot_map',ptype
                CALL abort
@@ -257,6 +266,9 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
        CASE(2)
           user_interval = ( ABS( map_obs_interval(1,j) -   &
                             map_obs_interval(maxint+1,j) ) > 1.e-6 )
+       CASE(3)
+          user_interval = ( ABS(map_stdv_interval(1,j) -   &
+                            map_stdv_interval(maxint+1,j) ) > 1.e-6 )
        CASE DEFAULT
           user_interval = .FALSE.
        END SELECT
@@ -270,7 +282,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
              DO m=-maxint/2,maxint/2
                 interval(m+maxint/2+1) = m*lint
              ENDDO
-          CASE(1,2)
+          CASE(1,2,3)
              lint = lmax / maxint
              DO m=0,maxint
                 interval(m+1) = m*lint
@@ -287,6 +299,8 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
              interval = map_rmse_interval(:,j)
           CASE(2)
              interval = map_obs_interval(:,j)
+          CASE(3)
+             interval = map_stdv_interval(:,j)
           END SELECT
 
        ENDIF
@@ -462,9 +476,10 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
               ENDIF
              ENDDO
              IF(.NOT.print_latlon) WRITE(37,*) "-999.   -999."
-          ENDDO
 
-          CLOSE(37)
+             CLOSE(37)
+
+          ENDDO
 
           WRITE(lunout,'(A)')'#END'
           CLOSE(lunout)

@@ -204,6 +204,27 @@ sub map {
     $map_hours = '\'ALL\'';
  }; 
 
+ my @mp  = ();
+ my @mpt = ();
+
+ if ( exists $selectionloop{'MAP'}{'PLOT_BIAS_MAP'} ) {
+    @mp  = (@mp ,'b'   );
+    @mpt = (@mpt,'Bias');
+ } ;
+
+ if ( exists $selectionloop{'MAP'}{'PLOT_RMSE_MAP'} ) {
+    @mp  = (@mp ,'r'   );
+    @mpt = (@mpt,'Rmse');
+ } ;
+
+ if ( exists $selectionloop{'MAP'}{'PLOT_STDV_MAP'} ) {
+    @mp  = (@mp ,'s'   );
+    @mpt = (@mpt,'Stdv');
+ } ;
+
+ $mp  ='\''.join('\',\'',@mp ).'\'';
+ $mpt ='\''.join('\',\'',@mpt).'\'';
+
  if ( $selectionloop{'MAP'}{'LFCVER'} eq 'T' ) {
     $map_prefix ='\'M\'' ;
     $map_hour_title ='\'Fclen\'' ;
@@ -216,7 +237,7 @@ sub map {
  print INPUT "
 // Input file
 
-title = '$type bias maps'
+title = '$type maps'
 
 framec='Teal'
 
@@ -237,8 +258,8 @@ v[6] =[$expname]
 t[6] =v[6]
 v[7] =[$map_hours] ;
 t[7] = v[7] ;
-v[8] = ['b','r']
-t[8] = ['Bias','Rmse']
+v[8] = [$mp];
+t[8] = [$mpt];
 
 spec_name =[0,8,1,2,3,7,6,4,5]
 
