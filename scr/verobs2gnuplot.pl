@@ -145,8 +145,10 @@ SCAN_INPUT: foreach $input_file (@FILES) {
                 $col_def_lt[$col_count] = $col_count ;
             } ;
 
+            $legend = substr( $_, 11 ) ;
+            $legend =~ s/_/\\_/g;
             @col_def = (@col_def,
-                       { LEGEND => substr( $_, 11 ) , 
+                       { LEGEND => $legend ,
                          COLUMN => substr( $_, 8, 3 ),
                          PT     => 7,
                          LT     => $col_def_lt[$col_count],
