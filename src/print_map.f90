@@ -427,7 +427,6 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
             IF ( .NOT. used_hours(j,per_ind,k) ) CYCLE
             DO l=0,maxfclenval
                 IF ( .NOT. used_fclen(j,per_ind,l) ) CYCLE
-             !  WRITE(6,*)'TEST k,l',k,l,MOD(k+l,24),map_hour
                 IF( MOD(k + l,24) == map_hour) luh(k) = .TRUE.
             ENDDO
           ENDDO
@@ -436,7 +435,6 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
             IF ( .NOT. luh(k) ) CYCLE
             DO l=0,maxfclenval
                IF ( .NOT. used_fclen(j,per_ind,l) ) CYCLE
-               WRITE(6,*)'TEST k,l',k,l,MOD(k+l,24),map_hour
                IF( MOD(k + l,24) == map_hour) luf(l) = .TRUE.
             ENDDO
           ENDDO
