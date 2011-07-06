@@ -59,7 +59,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
  LOGICAL :: user_interval,luh(0:23),luf(0:maxfclenval)
  LOGICAL :: print_latlon
 
- CHARACTER(LEN=100) :: wtext = ' ',wtext1 = ' '
+ CHARACTER(LEN=100) :: wtext    = ' '
  CHARACTER(LEN=100) :: my_tag   = ' '
  CHARACTER(LEN=10 ) :: chour    = ' ',cdum = ' '
  CHARACTER(LEN=100) :: fname    = ' ',sname=' '
@@ -357,8 +357,8 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
     IF(ALLOCATED(station_name).AND. stnr > 0 ) THEN
        wtext='Station: '//trim(station_name(csi))
     ELSE
-       WRITE(wtext1(1:8),'(I8)')stnr
-       wtext='Station: '//trim(wtext1(1:8))
+       WRITE(cdum(1:8),'(I8)')stnr
+       wtext='Station: '//trim(cdum(1:8))
     ENDIF
     IF (stnr == 0) THEN
        wname=''
@@ -372,28 +372,29 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
     ENDIF
 
     wtext = 'Exp: '//TRIM(expname(i))//'   '//TRIM(wtext)
+    WRITE(lunout,'(A,X,A)')'#HEADING_1',TRIM(wtext)
 
+    ! Line 2
+    wtext = ''
     IF (yymm == 0 ) THEN
     ELSEIF(yymm < 13) THEN
      
        SELECT CASE(period_freq) 
        CASE(1)
-        WRITE(wtext1,'(A8,A8)')'Period: ',seasonal_name2(yymm)
+        WRITE(wtext,'(A8,A8)')'Period: ',seasonal_name2(yymm)
        CASE(3)
-        WRITE(wtext1,'(A8,A8)')'Period: ',seasonal_name1(yymm)
+        WRITE(wtext,'(A8,A8)')'Period: ',seasonal_name1(yymm)
        END SELECT 
      
     ELSEIF(yymm < 999999 ) THEN
-       WRITE(wtext1,'(A8,I8)')'Period: ',yymm
+       WRITE(wtext,'(A8,I8)')'Period: ',yymm
     ELSE
-       WRITE(wtext1,'(A8,I8,A1,I8)')'Period: ',yymm,'-',yymm2
+       WRITE(wtext,'(A8,I8,A1,I8)')'Period: ',yymm,'-',yymm2
     ENDIF
 
-    wtext = TRIM(wtext)//'   '//TRIM(wtext1)
+    WRITE(lunout,'(A,X,A)')'#HEADING_2',TRIM(wtext)
 
-    WRITE(lunout,'(A,X,A)')'#HEADING_1',TRIM(wtext)
-
-    ! Line 2
+    ! Line 3
     CALL pname(obstype(j),wtext)
 
     ob_short = obstype(j)
@@ -411,9 +412,9 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
        wtext = TRIM(wtext)//' at '//TRIM(chour)
     ENDIF
 
-    WRITE(lunout,'(A,X,A)')'#HEADING_2',TRIM(wtext)
+    WRITE(lunout,'(A,X,A)')'#HEADING_3',TRIM(wtext)
 
-    ! Line 3
+    ! Line 4
     IF ( ntimver_out == 1 ) THEN
        IF ( show_fc_length ) THEN
           CALL fclen_header(.TRUE.,maxfclenval,        &
@@ -445,7 +446,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
     ENDIF
 
 
-    WRITE(lunout,'(A,X,A)')'#HEADING_3',TRIM(wtext)
+    WRITE(lunout,'(A,X,A)')'#HEADING_4',TRIM(wtext)
 
     ! Experiments and parameters and norms
     WRITE(lunout,'(A,X,A)')'#PAR',TRIM(obstype(j))
