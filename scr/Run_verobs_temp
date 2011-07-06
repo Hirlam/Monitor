@@ -46,11 +46,18 @@ else
 fi
 
 if [ $GRAPHICS == GNUPLOT ] ; then
+
+ #
+ # Call gnuplot to create the graphics
+ #
+
  $SCR/verobs2gnuplot.pl -d || exit
- for SELECTOR in $SCORETYPES ; do
-   export SELECTOR
-   $SCR/contingency2gnuplot.pl c_*.html || exit
- done
+ if [ `echo $TEMPPLOT | grep -c CONT` -gt 0 ] ; then
+    export SELECTOR
+    for SELECTOR in $SCORETYPES ; do
+      $SCR/contingency2gnuplot.pl c_*.html || exit
+    done
+ fi
  RESIZE=100%
  ROTATE="-rotate 90"
 else
@@ -76,9 +83,13 @@ if [ `echo $TEMPPLOT | grep -c VERT` -gt 0 ] ; then
    mv l*.ps l*.png l*.jpg l*.svg vert
 fi
 
-#Per level plots
+#
+# Deal with per level plots
+#
+
 TARARG="*.html"
 if [ $OUTPUT_TYPE -eq 1 ] ; then
+   echo "Convert postscript to png..."
    for F in $( ls -1 *.ps ) ; do
       FF=$( basename $F .ps )
       convert -resize $RESIZE -rotate 90 $FF.ps $FF.png
@@ -93,18 +104,22 @@ elif [ $OUTPUT_TYPE -eq 4 ] ; then
 fi
 tar cvf temp.tar $TARARG
 $WEBCALL -e Temp -f temp.tar
-rm -f *.jpg *.ps *.png temp.tar
+rm -f *.jpg *.ps *.png *.svg temp.tar
 
 
 if [ `echo $TEMPPLOT | grep -c VERT` -gt 0 ] ; then
 
-   #Vertical
+   #
+   # Vertical profiles
+   #
 
    TARARG="*.html"
    [ `echo $TEMPPLOT | grep -c XML` -gt 0 ] && TARARG="$TARARG *.xml style.xsl"
+
    if [ $OUTPUT_TYPE -eq 1 ] ; then
       rm -f *.ps
       mv vert/*.ps .
+      echo "Convert postscript to png..."
       for F in $( ls -1 *.ps ) ; do
          FF=$( basename $F .ps )
          convert -resize $RESIZE $ROTATE $FF.ps $FF.png
@@ -126,16 +141,15 @@ if [ `echo $TEMPPLOT | grep -c VERT` -gt 0 ] ; then
    tar cvf vert.tar $TARARG
    rmdir vert
    $WEBCALL -e Temp_prof -f vert.tar
+   rm -f vert.tar
+
 fi
 
 
-# Send data to WebgraF
-
-# Clean
-cd $SCR
-rm -rf $WRK/${DIR}_$$ || exit
-
 # Create WebgraF interface
+cd $SCR
 ./Create_ver_js.pl TEMP
 
+# Clean
+rm -rf $WRK/${DIR}_$$ || exit
 rm -f input.js

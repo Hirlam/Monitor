@@ -145,8 +145,14 @@ SCAN_INPUT: foreach $input_file (@FILES) {
                 $col_def_lt[$col_count] = $col_count ;
             } ;
 
+            #
+            # Get legend and extra backslash to avoid subscripts
+            # in experiment names
+            #
+
             $legend = substr( $_, 11 ) ;
-            $legend =~ s/_/\\_/g;
+            if ( $OUTPUT_TYPE eq 1 ) { $legend =~ s/_/\\_/g; } ;
+
             @col_def = (@col_def,
                        { LEGEND => $legend ,
                          COLUMN => substr( $_, 8, 3 ),

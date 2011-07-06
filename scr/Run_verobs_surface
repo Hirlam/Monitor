@@ -39,6 +39,7 @@ ln -s $SCR/*.poly .
 ln -s $SCR/coast2.dat coast.dat
 
 # Run verobs for the different variables
+
 if [ $ALL_AT_ONCE == "yes" ] ; then
    $BIN/verobs || exit
 else
@@ -49,11 +50,18 @@ else
 fi
 
 if [ $GRAPHICS == GNUPLOT ] ; then
+
+ #
+ # Call gnuplot to create the graphics
+ #
+
  $SCR/verobs2gnuplot.pl -d || exit
- for SELECTOR in $SCORETYPES ; do
-   export SELECTOR
-   $SCR/contingency2gnuplot.pl c_*.html || exit
- done
+ if [ `echo $SURFPLOT | grep -c CONT` -gt 0 ] ; then
+    export SELECTOR
+    for SELECTOR in $SCORETYPES ; do
+      $SCR/contingency2gnuplot.pl c_*.html || exit
+    done
+ fi
  RESIZE=100%
 else
  RESIZE=75%
@@ -80,12 +88,7 @@ if [ $OUTPUT_TYPE -eq 1 ] ; then
    for F in $( $SCR/Create_file_list.pl .ps ) ; do
       FF=$( basename $F .ps )
       convert -resize $RESIZE -rotate 90 $FF.ps $FF.png
-   done
-   for F in $( $SCR/Create_file_list.pl .ps ) ; do
-      tar rvf fig.tar $F
-   done
-   for F in $( $SCR/Create_file_list.pl .png ) ; do
-      tar rvf fig.tar $F
+      tar rvf fig.tar $FF.ps $FF.png
    done
 elif [ $OUTPUT_TYPE -eq 2 ] ; then
    for F in $( $SCR/Create_file_list.pl .png ) ; do
@@ -101,15 +104,11 @@ elif [ $OUTPUT_TYPE -eq 4 ] ; then
    done
 fi
 
-# Send data to WebgraF
+# Send data to WebgraF and create interface
 $WEBCALL -e Surface -f fig.tar
-
 cd $SCR 
+./Create_ver_js.pl SURF
 
 # Clean
 rm -rf $WRK/${DIR}_$$
-
-# Create WebgraF interface
-./Create_ver_js.pl SURF
-
 rm -f input.js
