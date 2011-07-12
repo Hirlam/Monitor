@@ -94,25 +94,39 @@ SCAN_INPUT: foreach $input_file (@FILES) {
 
         #  
         # Scan through the file and extract the necessary information
+        # Add an extra backslash to avoid subscripts in experiment names
         #  
 
         chomp;
 
-        if ( $_ =~ /#END/ )  { last SCAN_FILE; }
-
-        if ( $_ =~ /#HEADING/ ) {
-            @heading = (@heading,substr( $_, 11 ));
-            next SCAN_FILE;
-        }
-
-        if ( $_ =~ /#SELECTION/ )   { $selection = substr( $_, 11 ); next SCAN_FILE; }
-        if ( $_ =~ /#NEXP/ )   { $nexp = substr( $_, 5 ); next SCAN_FILE; }
-        if ( $_ =~ /#YLABEL/ ) { $ylabel = substr( $_, 8 ); next SCAN_FILE; }
-        if ( $_ =~ /#XLABEL/ ) { $xlabel = substr( $_, 8 ); next SCAN_FILE; }
+        if ( $_ =~ /#END/    ) { last SCAN_FILE; }
+        if ( $_ =~ /#NEXP/   ) { $nexp = substr( $_, 5 ); next SCAN_FILE; }
         if ( $_ =~ /#XMIN/   ) { @tmp = split (' ',$_ ) ; $xmin   = $tmp[1]; next SCAN_FILE; }
         if ( $_ =~ /#XMAX/   ) { @tmp = split (' ',$_ ) ; $xmax   = $tmp[1]; next SCAN_FILE; }
         if ( $_ =~ /#YMIN/   ) { @tmp = split (' ',$_ ) ; $ymin   = $tmp[1]; next SCAN_FILE; }
         if ( $_ =~ /#YMAX/   ) { @tmp = split (' ',$_ ) ; $ymax   = $tmp[1]; next SCAN_FILE; }
+
+        if ( $_ =~ /#HEADING/ ) {
+            $heading = substr( $_, 11 );
+            if ( $OUTPUT_TYPE eq 1 ) { $heading =~ s/_/ /g; } ;
+            @heading = (@heading,$heading);
+            next SCAN_FILE;
+        }
+        if ( $_ =~ /#SELECTION/ ) {
+            $selection = substr( $_, 11 ); 
+            if ( $OUTPUT_TYPE eq 1 ) { $selection =~ s/_/ /g; } ;
+            next SCAN_FILE;
+        }
+        if ( $_ =~ /#YLABEL/ ) {
+            $ylabel = substr( $_, 8 );
+            if ( $OUTPUT_TYPE eq 1 ) { $ylabel =~ s/_/ /g; } ;
+            next SCAN_FILE;
+        }
+        if ( $_ =~ /#XLABEL/ ) {
+            $xlabel = substr( $_, 8 );
+            if ( $OUTPUT_TYPE eq 1 ) { $xlabel =~ s/_/ /g; } ;
+            next SCAN_FILE;
+        }
         if ( $_ =~ /#MINNUM/ ) {
             $minnum = substr( $_, 10 );
             $minnum =~ s/^\s+//;
@@ -145,10 +159,6 @@ SCAN_INPUT: foreach $input_file (@FILES) {
                 $col_def_lt[$col_count] = $col_count ;
             } ;
 
-            #
-            # Get legend and extra backslash to avoid subscripts
-            # in experiment names
-            #
 
             $legend = substr( $_, 11 ) ;
             if ( $OUTPUT_TYPE eq 1 ) { $legend =~ s/_/\\_/g; } ;
