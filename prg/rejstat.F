@@ -13,7 +13,9 @@ C
      $     lsatob,lsatobu,lsatobv,
      $     ldribu,ldribuz,ldribut2m,ldributd2m,ldribuu10m,ldribuv10m,
      $     ltemp,ltempt,ltempu,ltempv,ltempq,
-     $     lpilot,lpilotu,lpilotv,latov,
+     $     lpilot,lpilotu,lpilotv,
+     $     lamsua,lamsua_noaa15,lamsua_noaa16,lamsua_noaa17,
+     $     lamsua_noaa18,lamsua_noaa19,lamsua_aqua,lamsua_metop,
      $     lgbgps,lgbgpsiwv,lgbgpstdel,lgbgpswdel,lgbgpsps,lpreplo,
      $     lstatcal
 
@@ -25,28 +27,49 @@ C
      $     lsatob,lsatobu,lsatobv,
      $     ldribu,ldribuz,ldribut2m,ldributd2m,ldribuu10m,ldribuv10m,
      $     ltemp,ltempt,ltempu,ltempv,ltempq,
-     $     lpilot,lpilotu,lpilotv,latov,
+     $     lpilot,lpilotu,lpilotv,
+     $     lamsua,lamsua_noaa15,lamsua_noaa16,lamsua_noaa17,
+     $     lamsua_noaa18,lamsua_noaa19,lamsua_aqua,lamsua_metop,
      $     lgbgps,lgbgpsiwv,lgbgpstdel,lgbgpswdel,lgbgpsps,lpreplo,
      $     lstatcal  
       integer iunit,outunit,plunit
        parameter(outunit=33,plunit=34)
-      integer nlevelspres,nlevelsheig,nlevelsatov
+      integer nlevelspres,nlevelsheig,nlevelsatov,norejlims
       parameter (nlevelspres=15)
       parameter (nlevelsheig=15)
-      parameter (nlevelsatov=11)
+      parameter (nlevelsatov=15)
+      parameter (norejlims=6)
+
       real refpres(nlevelspres),refheig(nlevelsheig),
-     +     refatov(nlevelsatov)
+     +     refatov(nlevelsatov),rejlims(norejlims)
+
       data refpres/92500,80000,60000,45000,35000,27500,22500,17500,
      $  12500,8500,6500,4000,2500,1500,0/
-      data refatov/10.5,9.5,8.5,7.5,6.5,5.5,4.5,3.5,2.5,1.5,0.5/
+
+      data refatov/14.5,13.5,12.5,11.5,10.5,9.5,8.5,7.5,6.5,5.5,
+     $             4.5,3.5,2.5,1.5,0.5/
+
+c      data rejlims/-2,-1,-0.5,0,0.5,1.,2./
+      data rejlims/-1.5,-0.5,0.,0.5,1.5,200./
+
+
       integer totlim
       parameter(totlim=41)
       real histlim(totlim)
+      integer histnumfg(totlim+1),histnuman(totlim+1)
       data histlim/-400,-380,-360,-340,-320,-300,-280,-260,-240,-220,
      $ -200,-180,-160,-140,-120,-100,-80,-60,-40,-20,0,20,40,60,80,
      $ 100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400/
       integer maxlevels
       parameter (maxlevels=400)
+      real rmsfg(maxlevels)
+      real biasfg(maxlevels)
+      real absbiasfg(maxlevels)
+      real rmsan(maxlevels)
+      real biasan(maxlevels)
+      real absbiasan(maxlevels)
+      integer count(maxlevels)
+      real qccount(4,maxlevels)
       integer i
       logical lexists,singlelvl
 c
@@ -88,14 +111,20 @@ c
       lpilot=.true.
       lpilotu=.true.
       lpilotv=.true.
-      latov=.true.
+      lamsua=.true.
+      lamsua_noaa15=.true.
+      lamsua_noaa16=.true.
+      lamsua_noaa17=.true.
+      lamsua_noaa18=.true.
+      lamsua_noaa19=.true.
+      lamsua_aqua=.true. 
+      lamsua_metop=.true.
       lgbgps=.false.
       lgbgpsiwv=.false.
       lgbgpstdel=.false.
       lgbgpswdel=.false.
       lgbgpsps=.false.
       lpreplo=.true.
-      lstatcal=.false.
       do i=1,nlevelsheig
          refheig(nlevelsheig+1-i)=(i-1)*20000
       enddo
@@ -181,6 +210,73 @@ c     pilot u-wind comp
      $      singlelvl,nlevelspres,refpres,'pilot_v.dat',11)
         endif
         endif
+
+
+        if  (lamsua) then
+c     ATOVS amsua brightness temperatures                                             
+                                                          
+        if (lamsua_noaa15) then    
+           singlelvl=.false.
+           call calrej_sat(7,206,206,
+     $     3,119,3,
+     $     singlelvl,nlevelsatov,refatov,'amsua_noaa15_bt.dat',19
+     $     ,norejlims,rejlims,'amsua_noaa15_bt_area.dat',24)
+        endif
+
+        if (lamsua_noaa16) then
+           singlelvl=.false.
+           call calrej_sat(7,207,207,
+     $     3,119,3,
+     $     singlelvl,nlevelsatov,refatov,'amsua_noaa16_bt.dat',19
+     $     ,norejlims,rejlims,'amsua_noaa16_bt_area.dat',24)
+        endif
+
+        if (lamsua_noaa17) then
+           singlelvl=.false.
+           call calrej_sat(7,208,208,
+     $     3,119,3,
+     $     singlelvl,nlevelsatov,refatov,'amsua_noaa17_bt.dat',19
+     $     ,norejlims,rejlims,'amsua_noaa17_bt_area.dat',24)
+        endif
+
+        if (lamsua_noaa18) then
+              singlelvl=.false.
+           call calrej_sat(7,209,209,
+     $     3,119,3,
+     $     singlelvl,nlevelsatov,refatov,'amsua_noaa18_bt.dat',19
+     $     ,norejlims,rejlims,'amsua_noaa18_bt_area.dat',24)
+
+        endif
+
+        if (lamsua_noaa19) then
+              singlelvl=.false.
+           call calrej_sat(7,223,223,
+     $     3,119,3,
+     $     singlelvl,nlevelsatov,refatov,'amsua_noaa19_bt.dat',19
+     $     ,norejlims,rejlims,'amsua_noaa19_bt_area.dat',24)
+        endif
+
+        if (lamsua_aqua) then
+              singlelvl=.false.
+           call calrej_sat(7,784,784,
+     $     3,119,3,
+     $     singlelvl,nlevelsatov,refatov,'amsua_aqua_bt.dat',17
+     $      ,norejlims,rejlims,'amsua_aqua_bt_area.dat',22)
+
+        endif
+
+        if (lamsua_metop) then
+              singlelvl=.false.
+           call calrej_sat(7,4,4,
+     $     3,119,3,
+     $     singlelvl,nlevelsatov,refatov,'amsua_metop_bt.dat',18
+     $     ,norejlims,rejlims,'amsua_metop_bt_area.dat',23)
+
+        endif
+
+        endif
+
+
 
 c     synop
 

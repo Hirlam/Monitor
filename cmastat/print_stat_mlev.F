@@ -1,9 +1,9 @@
-      subroutine print_stat_mlev(iun,outstr,vertcor,vlen,levels,
+      subroutine print_stat_mlev(iun,outstr,length,vertcor,vlen,levels,
      $     vert,rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
       implicit none
       integer iun
       character*(*) outstr,vertcor
-      integer vlen,levels
+      integer length,vlen,levels
       real vert(levels)
       real rmsfg(levels)
       real biasfg(levels)
@@ -15,13 +15,13 @@
       integer i
 
       write(*,'(A)')'======================================'
-      write(*,'(A)') trim(outstr)
+      write(*,'(A)') outstr(1:length)
       write(*,'(A22,i10)') 'First guess statistics',levels
       write(*,'(A17,5A12)') vertcor(1:vlen),
      $     'noofobs','rms','bias','abs(bias)','level'
 
       write(iun,'(A)')'======================================'
-      write(iun,'(A)') trim(outstr)
+      write(iun,'(A)') outstr(1:length)
       write(iun,'(A22,i10)') 'First guess statistics',levels
       write(iun,'(A17,5A12)') vertcor(1:vlen),
      $     'noofobs','rms','bias','abs(bias)','level'

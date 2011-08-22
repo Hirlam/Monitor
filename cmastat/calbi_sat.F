@@ -1,6 +1,7 @@
-      subroutine calstat(obstyp,subtypestart,subtypeend,par,vertco,
+      subroutine calbi_sat(obstyp,subtypestart,subtypeend,
+     $     sensid,par,vertco,
      $     singlelvl,nlevels,ref,lusage,outfile,lenoutfile,
-     $     rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
+     $     biasfg,biasan,biascorr,count)
       implicit none
 c
 c     Subroutine to calculation statistics from aux. ODB based ascii files.
@@ -20,7 +21,7 @@ c     Description of meaning of variables, flags etc can be found on
 c     Meteo-France Web-based ODB manual:
 c     http://www.cnrm.meteo.fr/gmapdoc/meshtml/DOC_odb     
 
-      integer par,obstyp
+      integer par,obstyp,sensid,satid
       integer nlevels,subtypestart,subtypeend,vertco
       real ref(nlevels)
       logical  lusage,singlelvl
@@ -28,6 +29,7 @@ c     http://www.cnrm.meteo.fr/gmapdoc/meshtml/DOC_odb
       integer lenoutfile
       real biasfg(nlevels),absbiasfg(nlevels),rmsfg(nlevels)
       real biasan(nlevels),absbiasan(nlevels),rmsan(nlevels)
+      real biascorr(nlevels)
       integer count(nlevels),qccount(4,nlevels)
 
       integer ilenin,ipos,i,j,no
@@ -46,7 +48,7 @@ c ODB based ascii-files variables
       integer ISTATUS_REJHDR_ODB,ISTATUS_ACTBOD_ODB,ISTATUS_BLKBOD_ODB
       integer ISTATUS_PASBOD_ODB,ISTATUS_REJBOD_ODB
       real RLAT_ODB,RLON_ODB,RPRESS_ODB,RANDEP_ODB,RFGDEP_ODB,ROBS_ODB
-      real RFINOE_ODB, BIASCRL_ODB
+      real RFINOE_ODB, BIASCRL_ODB 
       parameter (iunit=10)      
 
 
@@ -67,12 +69,14 @@ c
          absbiasan(i)=0 
          rmsan(i)=0
          count(i)=0
+         biascorr(i)=0.
       enddo
 
 c
 c     loop over odb based ascii-file
 c
       OPEN(UNIT=IUNIT,FORM='FORMATTED',STATUS='UNKNOWN',ERR=206)
+    
  200  continue
       icount=icount+1
       READ(iunit,*,END=210,ERR=205) IOBTYP_ODB,ICODETYPE_ODB,
@@ -81,14 +85,21 @@ c
      x  IDATE_ODB,ITIME_ODB,ISTATUS_ACTHDR_ODB,ISTATUS_BLKHDR_ODB,
      x  ISTATUS_PASHDR_ODB,ISTATUS_REJHDR_ODB,ISTATUS_ACTBOD_ODB,
      x  ISTATUS_BLKBOD_ODB,ISTATUS_PASBOD_ODB,ISTATUS_REJBOD_ODB,
-     x  RANDEP_ODB,RFGDEP_ODB,ROBS_ODB, RFINOE_ODB, BIASCRL_ODB
+     x  RANDEP_ODB,RFGDEP_ODB,ROBS_ODB, RFINOE_ODB, 
+     x  BIASCRL_ODB
              
       vert=RPRESS_ODB
 !
 !    Accumulate statistics
 
-      if ((IOBTYP_ODB.eq.obstyp).and.(ICODETYPE_ODB.ge.subtypestart)
-     x        .and.(ICODETYPE_ODB.le.subtypeend)) then
+
+      if (IOBTYP_ODB.eq.obstyp) then
+          read(CSTAID_ODB(1:8),'(I8)') satid
+      endif
+
+      if ((IOBTYP_ODB.eq.obstyp).and.(satid.ge.subtypestart)
+     x   .and.(satid.le.subtypeend)
+     x   .and.(ISENSOR_ODB.eq.sensid)) then 
 
         if  ((IVARNO_ODB.EQ.par).and.
      x      (IVERTCO_TYPE_ODB.eq.vertco)) then
@@ -110,16 +121,24 @@ c
 
             count(nlev)=count(nlev)+1
             biasfg(nlev)=biasfg(nlev)+RFGDEP_ODB
-            absbiasfg(nlev)=absbiasfg(nlev)+abs(RFGDEP_ODB)
-            rmsfg(nlev)=rmsfg(nlev)+RFGDEP_ODB*RFGDEP_ODB
-            biasan(nlev)=biasan(nlev)+RANDEP_ODB
-            absbiasan(nlev)=absbiasan(nlev)+abs(RANDEP_ODB)
-            rmsan(nlev)=rmsan(nlev)+RANDEP_ODB*RANDEP_ODB
+            absbiasfg(nlev)=absbiasfg(nlev)+
+     x                      abs(RFGDEP_ODB)
+            rmsfg(nlev)=rmsfg(nlev)+
+     x                  RFGDEP_ODB*RFGDEP_ODB
+            biasan(nlev)=biasan(nlev)+
+     x                   RANDEP_ODB
+            absbiasan(nlev)=absbiasan(nlev)+
+     x                      abs(RANDEP_ODB)
+            rmsan(nlev)=rmsan(nlev)+
+     x                  RANDEP_ODB*RANDEP_ODB
+            biascorr(nlev)=biascorr(nlev)+
+     x                     RFGDEP_ODB+BIASCRL_ODB
 
             if (lusage) then 
  
               write(50,*) RLAT_ODB*57.2957795131,  
-     x                    RLON_ODB*57.2957795131, 1,0,0,0
+     x                    RLON_ODB*57.2957795131,
+     x                    1,0,0,0
  
             endif 
           endif
@@ -134,22 +153,24 @@ c
       STOP 'ERROR WHEN OPENING ODB BASED STAT FILE'
  210  CONTINUE
 
+
 c
 c     Normalize rms/bias values
 c
       if (singlelvl) then
-        nlev=1
+         nlev=1
       else
-        nlev=nlevels
+         nlev=nlevels
       endif
       do i=1,nlev
         if (count(i).gt.0) then
-           rmsfg(i)=sqrt(rmsfg(i)/count(i))
-           biasfg(i)=biasfg(i)/count(i)
-           absbiasfg(i)=absbiasfg(i)/count(i)
-           rmsan(i)=sqrt(rmsan(i)/count(i))
-           biasan(i)=biasan(i)/count(i)
-           absbiasan(i)=absbiasan(i)/count(i)
+          rmsfg(i)=sqrt(rmsfg(i)/count(i))
+          biasfg(i)=biasfg(i)/count(i)
+          absbiasfg(i)=absbiasfg(i)/count(i)
+          rmsan(i)=sqrt(rmsan(i)/count(i))
+          biasan(i)=biasan(i)/count(i)
+          absbiasan(i)=absbiasan(i)/count(i)
+          biascorr(i)=biascorr(i)/count(i)
         endif
       enddo
 

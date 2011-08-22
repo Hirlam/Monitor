@@ -17,7 +17,7 @@ CMALINK := cmastat
 LIBSGL  := $(patsubst %,$(ROOTDIR)/$(ARCH)/lib/%.a,$(GLLINK))
 LIBSCMA := $(patsubst %,$(ROOTDIR)/$(ARCH)/lib/%.a,$(CMALINK))
 
-default: verobs odbstat rejstat
+default: verobs odbstat rejstat satbimon
 
 clean:
 	-$(RM) -rf $(ARCH)
@@ -46,6 +46,9 @@ odbstat: $(CMALIBS) ./$(ARCH)/prg
 	$(MAKE) -C $(ARCH)/prg -f $(ROOTDIR)/makeexe.mk LIBS="$(LIBSCMA)" LD="$(LD)" DEPS="$+" $@
 
 rejstat: $(CMALIBS) ./$(ARCH)/prg
+	$(MAKE) -C $(ARCH)/prg -f $(ROOTDIR)/makeexe.mk LIBS="$(LIBSCMA)" LD="$(LD)" DEPS="$+" $@
+
+satbimon: $(CMALIBS) ./$(ARCH)/prg
 	$(MAKE) -C $(ARCH)/prg -f $(ROOTDIR)/makeexe.mk LIBS="$(LIBSCMA)" LD="$(LD)" DEPS="$+" $@
 
 # MISC tasks

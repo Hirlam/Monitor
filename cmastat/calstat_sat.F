@@ -1,4 +1,5 @@
-      subroutine calstat(obstyp,subtypestart,subtypeend,par,vertco,
+      subroutine calstat_sat(obstyp,subtypestart,subtypeend,
+     $     sensid,par,vertco,
      $     singlelvl,nlevels,ref,lusage,outfile,lenoutfile,
      $     rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
       implicit none
@@ -20,7 +21,7 @@ c     Description of meaning of variables, flags etc can be found on
 c     Meteo-France Web-based ODB manual:
 c     http://www.cnrm.meteo.fr/gmapdoc/meshtml/DOC_odb     
 
-      integer par,obstyp
+      integer par,obstyp,sensid,satid
       integer nlevels,subtypestart,subtypeend,vertco
       real ref(nlevels)
       logical  lusage,singlelvl
@@ -73,27 +74,35 @@ c
 c     loop over odb based ascii-file
 c
       OPEN(UNIT=IUNIT,FORM='FORMATTED',STATUS='UNKNOWN',ERR=206)
+    
  200  continue
       icount=icount+1
-      READ(iunit,*,END=210,ERR=205) IOBTYP_ODB,ICODETYPE_ODB,
+
+       READ(iunit,*,END=210,ERR=205) IOBTYP_ODB,ICODETYPE_ODB,
      x  CSTAID_ODB,IVARNO_ODB,
      x  RLAT_ODB,RLON_ODB,IVERTCO_TYPE_ODB,RPRESS_ODB,ISENSOR_ODB,
      x  IDATE_ODB,ITIME_ODB,ISTATUS_ACTHDR_ODB,ISTATUS_BLKHDR_ODB,
      x  ISTATUS_PASHDR_ODB,ISTATUS_REJHDR_ODB,ISTATUS_ACTBOD_ODB,
      x  ISTATUS_BLKBOD_ODB,ISTATUS_PASBOD_ODB,ISTATUS_REJBOD_ODB,
-     x  RANDEP_ODB,RFGDEP_ODB,ROBS_ODB, RFINOE_ODB, BIASCRL_ODB
+     x  RANDEP_ODB,RFGDEP_ODB,ROBS_ODB, RFINOE_ODB,
+     x  BIASCRL_ODB
              
-      vert=RPRESS_ODB
-!
+       vert=RPRESS_ODB
+
 !    Accumulate statistics
 
-      if ((IOBTYP_ODB.eq.obstyp).and.(ICODETYPE_ODB.ge.subtypestart)
-     x        .and.(ICODETYPE_ODB.le.subtypeend)) then
+      if (IOBTYP_ODB.eq.obstyp) then
+          read(CSTAID_ODB(1:8),'(I8)') satid
+      endif
+c234567890123456789012345678901234567890123456789012345678901234567890
+      if ((IOBTYP_ODB.eq.obstyp).and.(satid.ge.subtypestart)
+     x   .and.(satid.le.subtypeend)
+     x   .and.(ISENSOR_ODB.eq.sensid)) then 
 
         if  ((IVARNO_ODB.EQ.par).and.
-     x      (IVERTCO_TYPE_ODB.eq.vertco)) then
+     x    (IVERTCO_TYPE_ODB.eq.vertco)) then
           if ((ISTATUS_ACTHDR_ODB.EQ.1).and.
-     x       (ISTATUS_ACTBOD_ODB.EQ.1)) then
+     x      (ISTATUS_ACTBOD_ODB.EQ.1)) then
 
 c
 c     find the right level
@@ -111,7 +120,7 @@ c
             count(nlev)=count(nlev)+1
             biasfg(nlev)=biasfg(nlev)+RFGDEP_ODB
             absbiasfg(nlev)=absbiasfg(nlev)+abs(RFGDEP_ODB)
-            rmsfg(nlev)=rmsfg(nlev)+RFGDEP_ODB*RFGDEP_ODB
+            rmsfg(nlev)=rmsfg(nlev)+(RFGDEP_ODB)*(RFGDEP_ODB)
             biasan(nlev)=biasan(nlev)+RANDEP_ODB
             absbiasan(nlev)=absbiasan(nlev)+abs(RANDEP_ODB)
             rmsan(nlev)=rmsan(nlev)+RANDEP_ODB*RANDEP_ODB
@@ -119,13 +128,12 @@ c
             if (lusage) then 
  
               write(50,*) RLAT_ODB*57.2957795131,  
-     x                    RLON_ODB*57.2957795131, 1,0,0,0
+     x            RLON_ODB*57.2957795131, 1,0,0,0
  
             endif 
           endif
         endif
       endif
-
 
       GOTO 200
  205  CONTINUE
@@ -134,28 +142,28 @@ c
       STOP 'ERROR WHEN OPENING ODB BASED STAT FILE'
  210  CONTINUE
 
+
 c
 c     Normalize rms/bias values
 c
       if (singlelvl) then
-        nlev=1
+         nlev=1
       else
-        nlev=nlevels
+         nlev=nlevels
       endif
       do i=1,nlev
-        if (count(i).gt.0) then
-           rmsfg(i)=sqrt(rmsfg(i)/count(i))
-           biasfg(i)=biasfg(i)/count(i)
-           absbiasfg(i)=absbiasfg(i)/count(i)
-           rmsan(i)=sqrt(rmsan(i)/count(i))
-           biasan(i)=biasan(i)/count(i)
-           absbiasan(i)=absbiasan(i)/count(i)
-        endif
+         if (count(i).gt.0) then
+            rmsfg(i)=sqrt(rmsfg(i)/count(i))
+            biasfg(i)=biasfg(i)/count(i)
+            absbiasfg(i)=absbiasfg(i)/count(i)
+            rmsan(i)=sqrt(rmsan(i)/count(i))
+            biasan(i)=biasan(i)/count(i)
+            absbiasan(i)=absbiasan(i)/count(i)
+         endif
       enddo
 
       if (lusage) then
-        close(50)
+         close(50)
       endif
-
       close(iunit)
       end      
