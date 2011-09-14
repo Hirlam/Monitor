@@ -4,6 +4,7 @@ SUBROUTINE print_sign_test(lunout,nexp,nparver,         &
 
  USE types, ONLY : statistics
  USE functions
+ USE constants, ONLY : seasonal_name1,seasonal_name2
  USE sign_data, ONLY : all_sign_stat,sign_stat_max
  USE data, ONLY : obstype,expname,station_name,                 &
                   csi,use_fclen,lfcver,                         &
@@ -12,8 +13,7 @@ SUBROUTINE print_sign_test(lunout,nexp,nparver,         &
                   timdiff,time_shift,show_fc_length,            &
                   copied_obs,copied_mod,period_freq,period_type,&
                   output_type,accu_int,lprint_seasonal,         &
-                  control_exp_nr,sign_time_diff,                &
-                  seasonal_name1,seasonal_name2,err_ind
+                  control_exp_nr,sign_time_diff,err_ind
 
  IMPLICIT NONE
 

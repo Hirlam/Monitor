@@ -1,5 +1,6 @@
 SUBROUTINE do_stat(per_ind,p1,p2)
 
+ USE constants
  USE data
  USE timing
 
