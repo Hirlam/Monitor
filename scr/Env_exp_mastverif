@@ -19,7 +19,6 @@ WRK=$BASE/wrk
 #
 # !NB GNUPLOT option is still under developement
 #
-export GRAPHICS=GNUPLOT
 
 # MAG_HOME for magics, not needed at ecgate
 # export MAG_HOME=
@@ -175,7 +174,6 @@ export OBINT_SURF FCINT_SURF FCLEN_SURF FCLEN_DAYVAR FCLEN_SCAT
 export OBINT_TEMP FCINT_TEMP FCLEN_TEMP  
 export SURFPLOT TEMPPLOT
 export STNLIST_PLOT STNLIST_PLOT_TXT
-
 
 ###########################
 # End of definitions

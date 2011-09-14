@@ -167,18 +167,6 @@ LEV_LST_RH="925 850 700 600 500 300 "
 # first selection only
 TEMPSELECTION="ALL EWGLAM"
 
-#####################
-# GRAPHICS and misc #
-#####################
-#
-# Set which graphics you are using
-# MAGICS/GNUPLOT
-# To be able to use MAGICS verobs has to be compiled with -DMAGICS.
-export GRAPHICS=GNUPLOT
-
-# MAG_HOME for magics, not needed at ecgate
-# export MAG_HOME=
-
 # Select output_type
 # 1  Postscript + PNG
 # 2  PNG

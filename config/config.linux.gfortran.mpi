@@ -1,9 +1,5 @@
 ARCH=linuxgfortran
 
-# Magics flag
-# If this is not set only tables will be produced
-MAGICSFLAG :=
-
 # CPP
 MACHINECPP :=
 CPP        := /lib/cpp -E -traditional
@@ -34,16 +30,7 @@ RMDIR   := rmdir
 
 # Flags
 FCFLAGS := $(MYFCFLAGS) -I$(ROOTDIR)/inc -I$(ROOTDIR)/$(ARCH)/mod
-CPPFLAGS := -I$(ROOTDIR)/inc $(MAGICSFLAG)
+CPPFLAGS := -I$(ROOTDIR)/inc 
 
 # depf90mod.x search extensions ( -f is default )
 MODEXTS=-E F90 -E F -E f90 -E -f 
-
-# MAGICS
-ifeq ($(MAGICSFLAG),-DMAGICS)
-EXTLIB :=
-else
-EXTLIB :=
-endif
-
-

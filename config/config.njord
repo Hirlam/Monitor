@@ -1,6 +1,5 @@
 ARCH=njord
 
-
 # CPP
 MACHINECPP :=
 CPP     := /usr/ccs/lib/cpp   
@@ -38,6 +37,3 @@ CPPFLAGS := -I$(ROOTDIR)/inc
 
 # depf90mod.x search extensions ( -f is default )
 MODEXTS=-E F90 -E F -E f90 -E -f 
-
-# EMOSLIB
-EMOSLIB := -L/home/ntnu/forecast/auxlibs/ -lgribex -lbufr

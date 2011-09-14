@@ -9,6 +9,8 @@ MODULE data
 
 ! Constants
  REAL, PARAMETER :: err_ind = -999.e6 ! Error flag
+ CHARACTER(LEN=3) :: seasonal_name1(4)=(/'DJF','MAM','JJA','SON'/),       &
+                     seasonal_name2(12)=(/'JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'/)
 
 ! I/O
  INTEGER, PARAMETER :: lunnam  = 10    ! Namelist unit

@@ -49,24 +49,19 @@ else
    done
 fi
 
-if [ $GRAPHICS == GNUPLOT ] ; then
 
- #
- # Call gnuplot to create the graphics
- #
+#
+# Call gnuplot to create the graphics
+#
 
- $SCR/verobs2gnuplot.pl -d || exit
- if [ `echo $SURFPLOT | grep -c CONT` -gt 0 ] ; then
-    export SELECTOR
-    for SELECTOR in $SCORETYPES ; do
-      $SCR/contingency2gnuplot.pl c_*.html || exit
-    done
- fi
- RESIZE=100%
-else
- RESIZE=75%
+$SCR/verobs2gnuplot.pl -d || exit
+if [ `echo $SURFPLOT | grep -c CONT` -gt 0 ] ; then
+   export SELECTOR
+   for SELECTOR in $SCORETYPES ; do
+     $SCR/contingency2gnuplot.pl c_*.html || exit
+   done
 fi
-
+RESIZE=100%
 
 [[ $WEBCALL == ""  ]] && exit
 

@@ -20,8 +20,6 @@ SUBROUTINE do_stat(per_ind,p1,p2)
 
  CHARACTER(LEN=4 ) :: ttype = 'TIME'
  CHARACTER(LEN=31) :: text  = '    BIAS    RMSE    STDV     N'
- CHARACTER(LEN= 3) :: seasonal_name1(4)=(/'DJF','MAM','JJA','SON'/),       &
-                      seasonal_name2(12)=(/'JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'/)
 !---------------------------------
 
  timing_id = 0
@@ -144,19 +142,6 @@ SUBROUTINE do_stat(per_ind,p1,p2)
     used_hours(:,per_ind,:),used_fclen(:,per_ind,:))
 
     !
-    ! Plot statistics against hour or forecast time
-    !
-
-#ifdef MAGICS
-    IF (TRIM(graphics) == 'MAGICS') THEN
-    IF (leach_station.AND. lplot_stat )                   &
-    CALL plot_stat2(nexp,nparver,ntimver,                 &
-    stat(i)%s,stat(i)%stnr,p1(i),p2(i),par_active,        &
-    used_hours(:,per_ind,:),used_fclen(:,per_ind,:))
-    ENDIF
-#endif
-
-    !
     ! Plot statistics against level for specific
     ! hour or forecast time
     !
@@ -177,15 +162,6 @@ SUBROUTINE do_stat(per_ind,p1,p2)
       stat(i)%s,stat(i)%stnr,p1(i),p2(i),par_active,         &
       used_hours(:,per_ind,:),used_fclen(:,per_ind,:))
 
-#ifdef MAGICS
-      IF (TRIM(graphics) == 'MAGICS') THEN
-      IF ( lplot_vert )                                      &
-      CALL plot_vert(nexp,nlev,nparver,ntimver,              &
-      stat(i)%s,stat(i)%stnr,p1(i),p2(i),par_active,         &
-      used_hours(:,per_ind,:),used_fclen(:,per_ind,:))
-      ENDIF
-#endif
-
     ENDIF
 
     IF (lallstat) CALL acc_stat(statall,stat(i)%s,nexp,nparver,ntimver)
@@ -197,17 +173,6 @@ SUBROUTINE do_stat(per_ind,p1,p2)
  IF ( print_stdv_map ) CALL print_map(0,minval(p1),maxval(p2),3,per_ind,rar_active)
 
  IF ( print_obs_map  ) CALL print_map(0,minval(p1),maxval(p2),2,per_ind,rar_active)
-
-#ifdef MAGICS
- IF (TRIM(graphics) == 'MAGICS') THEN
- IF ( plot_bias_map ) CALL plot_map(0,minval(p1),maxval(p2),0,map_type,     &
-                                    per_ind,rar_active)
- IF ( plot_bias_map ) CALL plot_map(0,minval(p1),maxval(p2),1,map_type,     &
-                                    per_ind,rar_active)
- IF ( plot_obs_map  ) CALL plot_map(0,minval(p1),maxval(p2),2,map_type,     &
-                                    per_ind,rar_active)
- ENDIF
-#endif
 
  csi = 1
 
@@ -278,22 +243,6 @@ SUBROUTINE do_stat(per_ind,p1,p2)
 
     ENDIF
 
-#ifdef MAGICS
-    IF (TRIM(graphics) == 'MAGICS') THEN
-
-    !
-    ! Plot statistics against hour or forecast time
-    !
-
-    IF( lplot_stat ) THEN
-      IF (lprint_do_stat) WRITE(6,*)'Call plot_stat'
-      CALL plot_stat2(nexp,nparver,ntimver,            &
-      statall,0,minval(p1),maxval(p2),par_active,      &
-      used_hours(:,per_ind,:),used_fclen(:,per_ind,:))
-    ENDIF
-    ENDIF
-#endif
-
     !
     ! Plot statistics against level for specific
     ! hour or forecast time
@@ -310,17 +259,6 @@ SUBROUTINE do_stat(per_ind,p1,p2)
                       rar_active,                       &
                       used_hours(:,per_ind,:),          &
                       used_fclen(:,per_ind,:))
-
-#ifdef MAGICS
-    IF (TRIM(graphics) == 'MAGICS') THEN
-       IF ( lplot_vert )                                &
-       CALL plot_vert(nexp,nlev,nparver,ntimver,        &
-                      statall,0,MINVAL(p1),MAXVAL(p2),  &
-                      rar_active,                       &
-                      used_hours(:,per_ind,:),          &
-                      used_fclen(:,per_ind,:))
-    ENDIF
-#endif
 
     ENDIF
 

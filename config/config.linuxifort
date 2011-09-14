@@ -1,9 +1,5 @@
 ARCH=linuxifort
 
-# Magics flag
-# If this is not set only tables will be produced
-MAGICSFLAG :=
-
 # CPP
 MACHINECPP :=
 CPP        := /lib/cpp -E -traditional
@@ -34,16 +30,7 @@ RMDIR   := rmdir
 
 # Flags
 FCFLAGS := $(MYFCFLAGS) -I$(ROOTDIR)/inc -module $(ROOTDIR)/$(ARCH)/mod
-CPPFLAGS := -I$(ROOTDIR)/inc $(MAGICSFLAG)
+CPPFLAGS := -I$(ROOTDIR)/inc
 
 # depf90mod.x search extensions ( -f is default )
 MODEXTS=-E F90 -E F -E f90 -E -f 
-
-# EMOSLIB
-ifeq ($(MAGICSFLAG),-DMAGICS)
-EXTLIB := -L/data/proj/hirfou/uandrae/magics/lib -lmagics -lMvDevices -lmagics -L/data/proj_ns1/hirfou/uandrae/magics/lib -lemos 
-else
-EXTLIB :=
-endif
-
-

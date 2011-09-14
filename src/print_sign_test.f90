@@ -3,7 +3,6 @@ SUBROUTINE print_sign_test(lunout,nexp,nparver,         &
                        uh,uf)
 
  USE types, ONLY : statistics
- USE mymagics
  USE functions
  USE sign_data, ONLY : all_sign_stat,sign_stat_max
  USE data, ONLY : obstype,expname,station_name,                 &
@@ -13,7 +12,8 @@ SUBROUTINE print_sign_test(lunout,nexp,nparver,         &
                   timdiff,time_shift,show_fc_length,            &
                   copied_obs,copied_mod,period_freq,period_type,&
                   output_type,accu_int,lprint_seasonal,         &
-                  control_exp_nr,sign_time_diff
+                  control_exp_nr,sign_time_diff,                &
+                  seasonal_name1,seasonal_name2,err_ind
 
  IMPLICIT NONE
 
@@ -36,7 +36,6 @@ SUBROUTINE print_sign_test(lunout,nexp,nparver,         &
  CHARACTER(LEN=100) :: fname=' '
  CHARACTER(LEN= 60) :: wname=' '
  CHARACTER(LEN= 10) :: prefix = ' '
- CHARACTER(LEN=  6) :: ob_short = '      '
 
 !------------------------------------------
 
@@ -178,9 +177,6 @@ SUBROUTINE print_sign_test(lunout,nexp,nparver,         &
     ! Experiments and parameters and norms
     WRITE(lunout,'(A,X,A)')'#PAR',TRIM(obstype(j))
 
-    ob_short = obstype(j)
-    ob_short(3:6) = '   '
-    CALL yunit(ob_short,ytitle)
     WRITE(lunout,'(A,X,A)')'#YLABEL',''
     IF ( lfcver ) THEN
           WRITE(lunout,'(A,X,A)')'#XLABEL','Forecast length'

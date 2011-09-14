@@ -732,15 +732,6 @@ SUBROUTINE verify
                   obs(i)%stnr,time_stat(1:time_stat_max),           &
                   par_active,periods(l),periods(l+1),               &
                   used_hours(:,l,:),used_fclen(:,l,:))
-#ifdef MAGICS
-       IF (TRIM(graphics) == 'MAGICS' ) THEN
-             IF ( ltimeserie_stat ) &
-             CALL plot_p_stat(time_stat_max,nparver,                &
-                  obs(i)%stnr,time_stat(1:time_stat_max),           &
-                  par_active,periods(l),periods(l+1),               &
-                  used_hours(:,l,:),used_fclen(:,l,:))
-       ENDIF
-#endif
           ENDDO
      ENDIF
 
@@ -786,33 +777,6 @@ SUBROUTINE verify
                  scat_data(:,l),periods(l),periods(l+1),           &
                  par_active,.FALSE.,                               &
                  used_hours(:,l,:),used_fclen(:,l,:))
-
-#ifdef MAGICS
-         IF (TRIM(graphics) == 'MAGICS' ) THEN
-
-         ! Plot normal scatterplot
-         IF ( lplot_scat .AND. leach_station)                      &
-            CALL plot_scat_comp(nparver,obs(i)%stnr,               &
-                 scat_data(:,l),periods(l),periods(l+1),           &
-                 par_active,lplot_scat,                            &
-                 used_hours(:,l,:),used_fclen(:,l,:))
-
-         ! Plot Xcrossplot
-         IF ( lplot_comp .AND. leach_station)                      &
-            CALL plot_scat_comp(nparver,obs(i)%stnr,               &
-                 scat_data(:,l),periods(l),periods(l+1),           &
-                 par_active,.FALSE.,                               &
-                 used_hours(:,l,:),used_fclen(:,l,:))
-
-         ! Plot frequency distribution
-         IF ( lplot_freq .AND. leach_station )               &
-         CALL plot_freq_new(nparver,obs(i)%stnr,             &
-              scat_data(:,l),                                &
-              periods(l),periods(l+1),par_active,            &
-              used_hours(:,l,:),used_fclen(:,l,:))
-
-         ENDIF
-#endif
 
       ENDDO
 
@@ -871,15 +835,6 @@ SUBROUTINE verify
                 all_time_stat,par_active,                         &
                 periods(l),periods(l+1),                          &
                 used_hours(:,l,:),used_fclen(:,l,:))
-#ifdef MAGICS
-         IF (TRIM(graphics) == 'MAGICS' ) THEN
-           IF (ltimeserie_stat ) &
-           CALL plot_p_stat(all_time_stat_max,nparver,0,          &
-                all_time_stat,par_active,                         &
-                periods(l),periods(l+1),                          &
-                used_hours(:,l,:),used_fclen(:,l,:))
-         ENDIF
-#endif
         ENDDO
 
 
@@ -958,36 +913,6 @@ SUBROUTINE verify
             par_active,.FALSE.,                      &
             used_hours(:,l,:),used_fclen(:,l,:))
 
-#ifdef MAGICS
-       IF (TRIM(graphics) == 'MAGICS' ) THEN
-
-       ! Plot normal scatterplot
-       
-       IF ( lplot_scat)                              &
-       CALL plot_scat_comp(nparver,0,                &
-            all_scat_data(:,l),                      &
-            periods(l),periods(l+1),                 &
-            par_active,lplot_scat,                   &
-            used_hours(:,l,:),used_fclen(:,l,:))
-
-       ! Plot Xcrossplot
-
-       IF ( lplot_comp)                              &
-       CALL plot_scat_comp(nparver,0,                &
-            all_scat_data(:,l),                      &
-            periods(l),periods(l+1),                 &
-            par_active,.FALSE.,                      &
-            used_hours(:,l,:),used_fclen(:,l,:))
-
-       ! Plot frequency distribution
-       IF ( lplot_freq )                         &
-       CALL plot_freq_new(nparver,0,             &
-            all_scat_data(:,l),                  &
-            periods(l),periods(l+1),par_active,  &
-            used_hours(:,l,:),used_fclen(:,l,:))
-
-       ENDIF
-#endif
        ! Accumulate and print contingency tables
        IF ( lcontingency ) THEN
           CALL acc_cont(nexp,nparver,all_scat_data(:,l))

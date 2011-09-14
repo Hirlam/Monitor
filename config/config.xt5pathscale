@@ -1,9 +1,5 @@
 ARCH=xt5pathscale
 
-# Magics flag
-# If this is not set only tables will be produced
-MAGICSFLAG := 
-
 # CPP
 MACHINECPP :=
 CPP        := /lib/cpp -E -traditional
@@ -43,10 +39,3 @@ CPPFLAGS := -I$(ROOTDIR)/inc
 
 # depf90mod.x search extensions ( -f is default )
 MODEXTS=-E F90 -E F -E f90 -E -f 
-
-# EMOSLIB
-ifeq ($(MAGICSFLAG),-DMAGICS)
-   EXTLIB := -L$(MAG_HOME)/lib -lmagics -lMvDevices -lmagics -lgd -lpng -ljpeg -lz -lfreetype -lstdc++ -lm -lemos 
-else
-   EXTLIB := 
-endif

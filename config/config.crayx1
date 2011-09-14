@@ -2,11 +2,6 @@ ARCH=crayx1
 
 CCNATIVE:= gcc
 
-# Magics flag
-# If this is not set only tables will be produced
-MAGICSFLAG := -DMAGICS
-MAGICSFLAG := 
-
 # CPP
 MACHINECPP :=
 CPP        := cpp -P -C
@@ -40,14 +35,7 @@ RMDIR   := rmdir
 
 # Flags
 FCFLAGS := $(MYFCFLAGS) -I$(ROOTDIR)/inc -p$(ROOTDIR)/$(ARCH)/mod
-CPPFLAGS := -I$(ROOTDIR)/inc  $(MAGICSFLAG)
+CPPFLAGS := -I$(ROOTDIR)/inc
 
 # depf90mod.x search extensions ( -f is default )
 MODEXTS=-E F90 -E F -E f90 -E -f 
-
-# EMOSLIB
-ifeq ($(MAGICSFLAG),-DMAGICS)
-   EXTLIB := $(MAGLIB) $(EMOSLIB)
-else
-   EXTLIB :=
-endif

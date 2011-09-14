@@ -1,9 +1,5 @@
 ARCH=ecgate
 
-# Magics flag
-# If this is not set only plotting through gnuplot is available
-MAGICSFLAG := 
-
 # CPP
 MACHINECPP :=
 #CPP        := /lib/cpp -E -traditional
@@ -38,14 +34,7 @@ RMDIR   := rmdir
 
 # Flags
 FCFLAGS := $(MYFCFLAGS) -I$(ROOTDIR)/inc -I$(ROOTDIR)/$(ARCH)/mod
-CPPFLAGS := -I$(ROOTDIR)/inc  $(MAGICSFLAG)
+CPPFLAGS := -I$(ROOTDIR)/inc
 
 # depf90mod.x search extensions ( -f is default )
 MODEXTS=-E F90 -E F -E f90 -E -f 
-
-# EMOSLIB
-ifeq ($(MAGICSFLAG),-DMAGICS)
-   EXTLIB := $(MAGLIB) $(EMOSLIB)
-else
-   EXTLIB := 
-endif

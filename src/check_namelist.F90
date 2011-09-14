@@ -253,13 +253,6 @@ SUBROUTINE check_namelist
     lprint_comp           = lplot_comp
     lprint_seasonal       = lplot_seasonal
 
-  CASE('MAGICS','magics')
-
-#ifndef MAGICS
-    WRITE(6,*)'  Please recompile with -DMAGICS'
-    CALL abort
-#endif
-
   CASE DEFAULT
 
      WRITE(6,*)'  Unknown graphics'
