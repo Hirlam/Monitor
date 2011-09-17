@@ -10,7 +10,7 @@ CCFLAGS := -O3 -g  $(MACHINECPP)
 
 # Fortran
 FC := gfortran
-MYFCFLAGS := -O3 -fbacktrace -g -Wall -Werror
+MYFCFLAGS := -O3 -fbacktrace -g -Wall
 
 # Modules
 MODNAME = $(shell echo $(*F) | tr "[:upper:]" "[:lower:]")
