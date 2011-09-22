@@ -258,8 +258,8 @@ v[6] =[$expname]
 t[6] =v[6]
 v[7] =[$map_hours] ;
 t[7] = v[7] ;
-v[8] = [$mp];
-t[8] = [$mpt];
+v[8] = ['b','s']
+t[8] = ['Bias','Stdv']
 
 spec_name =[0,8,1,2,3,7,6,4,5]
 

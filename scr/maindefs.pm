@@ -64,7 +64,8 @@
  'SIGN_TIME_DIFF' => '-1',
  'LPLOT_STAT' => 'T',
  'SHOW_BIAS' => 'T',
- 'SHOW_RMSE' => 'T',
+ 'SHOW_RMSE' => 'F',
+ 'SHOW_STDV' => 'T',
  'SHOW_VAR'  => 'T',
  },
 
