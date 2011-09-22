@@ -17,6 +17,7 @@
     'PERIOD_TYPE'      => $ENV{PERIOD_TYPE},
     'OUTPUT_TYPE'      => $ENV{OUTPUT_TYPE},
     'OUTPUT_MODE'      => 2,
+    'GRAPHICS'         => '\''.$ENV{GRAPHICS}.'\'',
  },
 ) ;
 
@@ -64,8 +65,7 @@
  'SIGN_TIME_DIFF' => '-1',
  'LPLOT_STAT' => 'T',
  'SHOW_BIAS' => 'T',
- 'SHOW_RMSE' => 'F',
- 'SHOW_STDV' => 'T',
+ 'SHOW_RMSE' => 'T',
  'SHOW_VAR'  => 'T',
  },
 
