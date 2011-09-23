@@ -346,7 +346,7 @@ sub header {
     print GP <<EOF;
 $terminal
 set output "$output_file"
-set missing "$missing"
+set datafile missing "$missing"
 set title "$heading" 
 
 set style line 1 lt 0 lw 1 pt 5 # use black thin lines

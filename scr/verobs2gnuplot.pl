@@ -328,7 +328,7 @@ sub header {
 $terminal
 $font
 set output '$output_file'
-set missing "$missing"
+set datafile missing "$missing"
 set title "$heading"
 
 set xlabel "$xlabel"
