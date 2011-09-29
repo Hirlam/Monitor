@@ -115,14 +115,21 @@ SUBROUTINE read_vobs
           ! Find station index
           !
 
-          IF(stations(istnr) == 0) THEN
+          SELECT CASE(stations(istnr))
+          CASE(-1)
+             CYCLE READ_STATION_OBS
+          CASE( 0)
            
              stat_i = 0
              IF ( use_stnlist ) THEN
                 DO ii=1,maxstn
                    IF (istnr == stnlist(ii) ) stat_i = ii
                 ENDDO
-                IF ( stat_i == 0 ) CYCLE READ_STATION_OBS
+                IF ( stat_i == 0 ) THEN
+                   stations(istnr) = -1
+                   CYCLE READ_STATION_OBS
+                ENDIF
+
              ENDIF
 
              IF (stat_i == 0 ) THEN 
@@ -144,7 +151,7 @@ SUBROUTINE read_vobs
                 CALL abort
              ENDIF
 
-          ENDIF
+          END SELECT
 
           stat_i = stations(istnr)
 

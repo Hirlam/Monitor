@@ -153,7 +153,11 @@ SUBROUTINE read_vfld
           !
 
           IF ( l == 1 ) THEN
-             IF ( stations(istnr) == 0 ) THEN
+             
+             SELECT CASE(stations(istnr))
+             CASE(-1)
+                CYCLE READ_STATION_MOD
+             CASE( 0)
 
                 stat_i = 0
                 IF ( use_stnlist ) THEN
@@ -163,7 +167,10 @@ SUBROUTINE read_vfld
                           EXIT
                       ENDIF
                    ENDDO
-                   IF ( stat_i == 0 ) CYCLE READ_STATION_MOD
+                   IF ( stat_i == 0 ) THEN
+                      stations(istnr) = -1 
+                      CYCLE READ_STATION_MOD
+                   ENDIF
                 ENDIF
    
                 IF (stat_i == 0 ) THEN
@@ -187,11 +194,11 @@ SUBROUTINE read_vfld
 
                 IF (print_read > 1 ) WRITE(6,*)'ADDED',istnr,stations(istnr)
 
-             ENDIF
+             END SELECT
 
           ELSE
 
-             IF(stations(istnr) == 0)  CYCLE READ_STATION_MOD
+             IF(stations(istnr) <= 0)  CYCLE READ_STATION_MOD
 
           ENDIF
 
