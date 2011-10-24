@@ -9,7 +9,8 @@ MODULE timeserie
  INTEGER :: time_stat_max,         &
         all_time_stat_max,         &
         all_time_stat_active,      &
-        time_stat_fclen_diff
+        time_stat_fclen_diff,      &
+        last_time
 
  INTEGER, ALLOCATABLE :: tim_par_active(:,:,:)
 
@@ -88,8 +89,8 @@ MODULE timeserie
      time_stat(i)%bias = 0.
      time_stat(i)%rmse = 0.
      time_stat(i)%n    = 0
-     time_stat(i)%date = 0
-     time_stat(i)%time = 0
+     time_stat(i)%date = cdate
+     time_stat(i)%time = ctime
 
      IF ( do_vs ) THEN
 
@@ -151,8 +152,10 @@ MODULE timeserie
 
   ENDDO
 
-      time_stat_max = 0
+      time_stat_max = i
   all_time_stat_max = i
+
+     last_time = 0
 
   ALLOCATE(tim_par_active(maxper,maxstn,nparver))
   tim_par_active = 0
@@ -213,7 +216,8 @@ MODULE timeserie
   REAL,    INTENT(IN) :: obs_data,exp_diff(nexp)
 
   ! Local
-  INTEGER :: oo,this_stat_time
+  INTEGER :: oo,this_stat_time,dhour, &
+             is,ie,ii,difdtg
   REAL    :: p_data(nexp)
 
   !--------------------------------------------------------
@@ -223,49 +227,61 @@ MODULE timeserie
   ! 
 
   this_stat_time = -1
-  DO oo=time_stat_max,1,-1
+  oo = MAX(1,last_time)
+  is = 1
+  ie = 1
+  ii = 1
+
+  dhour = difdtg(time_stat(oo)%date,       &
+                 time_stat(oo)%time*10000, &
+                 date, 10000*time)/3600
+
+  !
+  ! Select search direction
+  !
+  SELECT CASE(dhour)
+  CASE(0)
+     this_stat_time = last_time
+  CASE(1:)
+    is = last_time + 1
+    ie = time_stat_max
+    ii = 1
+  CASE(:-1)
+    is = last_time - 1
+    ie = 1
+    ii = -1
+
+    IF ( is < 0 ) THEN
+       WRITE(6,*)'Stupid programmer in add_timeserie'
+       CALL abort
+    ENDIF
+
+  CASE DEFAULT 
+    CALL abort
+  END SELECT
+
+  IF ( this_stat_time == -1 ) THEN
+    DO oo=is,ie,ii
      IF (time_stat(oo)%date == date .AND.   &
          time_stat(oo)%time == time ) THEN
          this_stat_time = oo
          EXIT
      ENDIF
-  ENDDO
+    ENDDO
+  ENDIF
 
   IF ( this_stat_time == -1 ) THEN
 
      !
-     ! No corresponding date was found, let us add one
+     ! No corresponding date was found, what went wrong?
      !
 
-     IF ( time_stat_max > 0 ) THEN
-     IF ( time_stat(time_stat_max)%date >  date .OR.    &
-         (time_stat(time_stat_max)%date == date .AND.   &
-          time_stat(time_stat_max)%time >  time ) ) THEN
+     WRITE(6,*)'Search',date,time,dhour
+     DO oo=1,time_stat_max    
+        WRITE(6,*)oo,time_stat(oo)%date,time_stat(oo)%time
+     ENDDO
 
-         !
-         ! If difference between forecast hours is not constant
-         ! we may have irregular times
-         !
-
-         WRITE(6,*)'MISMATCH',date,time,     &
-          time_stat(time_stat_max)%date,     &
-          time_stat(time_stat_max)%time
-
-         RETURN
-
-     ENDIF
-     ENDIF
-
-     time_stat_max = time_stat_max + 1
-     oo = time_stat_max
-
-     IF ( oo > all_time_stat_max ) THEN
-        WRITE(6,*)'oo > all_time_stat_max'
-        CALL abort
-     ENDIF 
-    
-     time_stat(oo)%date      = date
-     time_stat(oo)%time      = time
+     CALL abort
 
   ELSE
      oo = this_stat_time
@@ -286,6 +302,8 @@ MODULE timeserie
 
   tim_par_active(per_ind,station_ind,par_ind) = 1
 
+  last_time = oo
+
  END SUBROUTINE add_timeserie
 
  !
@@ -296,45 +314,30 @@ MODULE timeserie
 
   IMPLICIT NONE
 
-  INTEGER :: o,oo,this_stat_time
+  INTEGER :: o
 
        !
        ! Add the single station timeserie statistics 
        ! to the all station timeserie
        !
        
-       IF (time_stat_max > 0 ) all_time_stat_active = all_time_stat_active + 1
+       IF (last_time > 0 ) all_time_stat_active = all_time_stat_active + 1
 
-       this_stat_time = 1
-       ALL_TIME_STAT_LOOP : DO o = 1,all_time_stat_max
-           TIME_STAT_LOOP : DO oo = this_stat_time,time_stat_max
-            IF ( all_time_stat(o)%date == time_stat(oo)%date .AND.    &
-                 all_time_stat(o)%time == time_stat(oo)%time       )THEN
+       DO o = 1,all_time_stat_max
+         all_time_stat(o)%obs  = all_time_stat(o)%obs  + time_stat(o)%obs  
+         all_time_stat(o)%bias = all_time_stat(o)%bias + time_stat(o)%bias 
+         all_time_stat(o)%rmse = all_time_stat(o)%rmse + time_stat(o)%rmse 
+         all_time_stat(o)%n    = all_time_stat(o)%n    + time_stat(o)%n    
+       ENDDO
 
-              all_time_stat(o)%obs  = all_time_stat(o)%obs  + time_stat(oo)%obs  
-              all_time_stat(o)%bias = all_time_stat(o)%bias + time_stat(oo)%bias 
-              all_time_stat(o)%rmse = all_time_stat(o)%rmse + time_stat(oo)%rmse 
-              all_time_stat(o)%n    = all_time_stat(o)%n    + time_stat(oo)%n    
-
-              IF ( do_vs ) THEN
-                 all_time_stat(o)%obs2 = all_time_stat(o)%obs2 + time_stat(oo)%obs2
-                 all_time_stat(o)%obs3 = all_time_stat(o)%obs3 + time_stat(oo)%obs3 
-                 all_time_stat(o)%s2   = all_time_stat(o)%s2   + time_stat(oo)%s2
-                 all_time_stat(o)%s3   = all_time_stat(o)%s3   + time_stat(oo)%s3
-              ENDIF
-
-              this_stat_time = oo + 1
-              EXIT TIME_STAT_LOOP 
-
-            ELSEIF ( all_time_stat(o)%date <  time_stat(oo)%date ) THEN
-              EXIT TIME_STAT_LOOP
-            ELSEIF ( all_time_stat(o)%date >  time_stat(oo)%date ) THEN
-              EXIT ALL_TIME_STAT_LOOP
-            ENDIF
-
-         ENDDO TIME_STAT_LOOP
-       ENDDO ALL_TIME_STAT_LOOP
-
+       IF ( do_vs ) THEN
+         DO o = 1,all_time_stat_max
+              all_time_stat(o)%obs2 = all_time_stat(o)%obs2 + time_stat(o)%obs2
+              all_time_stat(o)%obs3 = all_time_stat(o)%obs3 + time_stat(o)%obs3 
+              all_time_stat(o)%s2   = all_time_stat(o)%s2   + time_stat(o)%s2
+              all_time_stat(o)%s3   = all_time_stat(o)%s3   + time_stat(o)%s3
+         ENDDO
+       ENDIF
 
  END SUBROUTINE add_all_time_stat
 
@@ -418,14 +421,11 @@ MODULE timeserie
 
    INTEGER :: o
 
-
    DO o=1,time_stat_max
       time_stat(o)%obs  = 0.
       time_stat(o)%bias = 0.
       time_stat(o)%rmse = 0.
       time_stat(o)%n    = 0
-      time_stat(o)%date = 0
-      time_stat(o)%time = 0
    ENDDO
    IF ( do_vs ) THEN
       DO o=1,time_stat_max
@@ -436,7 +436,7 @@ MODULE timeserie
       ENDDO
    ENDIF
 
-   time_stat_max = 0
+   last_time = 0
 
  END SUBROUTINE clear_single_time_stat
 
