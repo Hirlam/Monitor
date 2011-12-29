@@ -7,8 +7,10 @@ SUBROUTINE read_vobs_temp
 
  IMPLICIT NONE
 
+ REAL, PARAMETER :: mflag = -99.
 
  INTEGER :: i,ii,k,kk,kkk,kk_lev,       &
+            m,n,                        &
             ierr = 0,                   &
             cdate = 999999,             &
             ctime = 999999,             &
@@ -22,18 +24,26 @@ SUBROUTINE read_vobs_temp
             stations(100000),           &
             max_found_stat,             &
             wrk(mparver),               &
-            version_flag
+            version_flag,               &
+            old_version_flag,           &
+            ipr,ifi,ninvar
  
  
- REAL :: lat,lon,hgt,val(8)
+ REAL :: lat,lon,hgt
+ REAL, ALLOCATABLE :: val(:)
 
  LOGICAL :: use_stnlist
 
  CHARACTER(LEN=200) :: fname =' '
  CHARACTER(LEN= 10) :: ndate =' '
+ CHARACTER(LEN=  6), ALLOCATABLE :: invar(:)
 
 !----------------------------------------------------------
 
+ ipr = -1 
+ ifi = -1 
+ version_flag = 0
+ old_version_flag = -1
  stations       = 0
  max_found_stat = 0
  use_stnlist = ( MAXVAL(stnlist) > 0 ) 
@@ -49,8 +59,6 @@ SUBROUTINE read_vobs_temp
  WHERE ( lev_lst > 0 ) wrk = 1
  my_temp_lev = SUM(wrk)
 
- 
-
  !
  ! Loop over all times
  !
@@ -64,7 +72,6 @@ SUBROUTINE read_vobs_temp
  IF (print_read>1) WRITE(6,*)'TIME:',cdate,ctime/10000
  WRITE(ndate,'(I8.8,I2.2)')cdate,ctime/10000
  fname = TRIM(obspath)//'vobs'//ndate
-
 
  !
  ! Read obs data
@@ -96,7 +103,6 @@ SUBROUTINE read_vobs_temp
          WRITE(6,*)'Error reading first line of vobs file'
          CALL abort
        ENDIF
-       READ(lunin,*)num_temp_lev
 
        IF (num_temp == 0 ) THEN
           IF(print_read>1) WRITE(6,*)'SKIP',cdate,ctime
@@ -109,16 +115,43 @@ SUBROUTINE read_vobs_temp
           CYCLE TIME_LOOP
        ENDIF
 
-       DO k=1,num_stat
-          READ(lunin,*)
-       ENDDO
+      SELECT CASE (version_flag)
+       CASE(0:3)
+          READ(lunin,*)num_temp_lev
+          DO k=1,num_stat
+            READ(lunin,*)
+          ENDDO
+       CASE DEFAULT
+          WRITE(6,*)'Cannot handle this version flag',version_flag
+       END SELECT
+
+       IF ( version_flag /= old_version_flag ) THEN
+         IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val)
+           SELECT CASE(version_flag)
+           CASE(0)
+             ninvar=7
+             ALLOCATE(invar(ninvar),val(ninvar))
+             invar = (/'PR','FI','TT','RH','DD','FF','QQ'/)
+             ipr = 1
+             ifi = 2
+           CASE(1:2)
+             ninvar=8
+             ALLOCATE(invar(ninvar),val(ninvar))
+             invar = (/'PR','FI','TT','RH','DD','FF','QQ','TD'/)
+             ipr = 1
+             ifi = 2
+          CASE DEFAULT
+             WRITE(6,*)'Cannot handle this vfld-file version',version_flag
+             CALL abort
+          END SELECT
+       ENDIF
 
        READ_STATION_OBS : DO k=1,num_temp
 
           SELECT CASE(version_flag)
           CASE(0)
              READ(lunin,*,iostat=ierr)istnr,lat,lon
-             hgt = -99.
+             hgt = mflag
           CASE(1:2)
              READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt
           CASE DEFAULT
@@ -135,8 +168,8 @@ SUBROUTINE read_vobs_temp
           ENDIF
 
           IF (istnr == 0) CYCLE READ_STATION_OBS
-          IF (( ABS(lat+99.) < 1.e-4 ) ) CYCLE READ_STATION_OBS
-          IF (( ABS(lon+99.) < 1.e-4 ) ) CYCLE READ_STATION_OBS
+          IF (( ABS(lat - mflag) < 1.e-4 ) ) CYCLE READ_STATION_OBS
+          IF (( ABS(lon - mflag) < 1.e-4 ) ) CYCLE READ_STATION_OBS
 
           !
           ! Find station index
@@ -193,11 +226,11 @@ SUBROUTINE read_vobs_temp
 
           READ_LEV_OBS : DO kk=1,num_temp_lev
 
-          val = -99.
+          val = mflag
           SELECT CASE(version_flag)
           CASE(0)
              1001 format(1x,f5.0,f6.0,f6.1,f6.1,f5.0,f5.0,en13.3e2)
-             READ(lunin,1001,iostat=ierr)val(1:7)
+             READ(lunin,1001,iostat=ierr)val
           CASE(1:2)
              READ(lunin,*,iostat=ierr)val
           END SELECT 
@@ -210,25 +243,35 @@ SUBROUTINE read_vobs_temp
           DO kkk=1,my_temp_lev
              IF (ABS(val(1) -lev_lst(kkk)) < 1.e-6 ) kk_lev = kkk
           ENDDO
-
           IF ( kk_lev == 0 ) CYCLE READ_LEV_OBS
 
           IF (print_read>1) WRITE(6,*)'ADD:',kk_lev,val
 
-          IF ((fi_ind /= 0 ) .AND. qca(val(2),-99.)) &
-          obs(stat_i)%o(i)%val(kk_lev+ my_temp_lev*(fi_ind-1)) = val(2)
-          IF ((tt_ind /= 0 ) .AND. qca(val(3),-99.)) &
-          obs(stat_i)%o(i)%val(kk_lev+ my_temp_lev*(tt_ind-1)) = val(3) - tzero
-          IF ((rh_ind /= 0 ) .AND. qca(val(4),-99.)) &
-          obs(stat_i)%o(i)%val(kk_lev+ my_temp_lev*(rh_ind-1)) = val(4)
-          IF ((dd_ind /= 0 ) .AND. qca(val(5),-99.)) &
-          obs(stat_i)%o(i)%val(kk_lev+ my_temp_lev*(dd_ind-1)) = val(5)
-          IF ((ff_ind /= 0 ) .AND. qca(val(6),-99.)) &
-          obs(stat_i)%o(i)%val(kk_lev+ my_temp_lev*(ff_ind-1)) = val(6)
-          IF ((qq_ind /= 0 ) .AND. qca(val(7),-99.)) &
-          obs(stat_i)%o(i)%val(kk_lev+ my_temp_lev*(qq_ind-1)) = val(7) * 1.e3
-          IF ((td_ind /= 0 ) .AND. qca(val(8),-99.)) &
-          obs(stat_i)%o(i)%val(kk_lev+ my_temp_lev*(td_ind-1)) = val(8)
+          PARVER_LOOP : DO m=1,nparver
+            INVAR_LOOP : DO n=1,ninvar
+              IF ( varprop(m)%id == invar(n) .AND. &
+                   (ABS(varprop(m)%lev - val(ipr)) < 1.e-6 ) ) THEN
+
+                ! Check for missing data flag
+                IF ( .NOT. qca(val(n),mflag) ) CYCLE PARVER_LOOP
+
+                ! Special treatment of some variabels
+                SELECT CASE(invar(n))
+
+                CASE('TT')
+                   val(n) = val(n) - tzero
+                CASE('QQ')
+                   val(n) = val(n) * 1.e3
+                END SELECT
+
+                ! Check for gross error
+                 IF ( qclr(val(n),varprop(m)%llim) .AND. &
+                      qcur(val(n),varprop(m)%ulim) )     &
+                obs(stat_i)%o(i)%val(m) = val(n)
+
+              ENDIF
+            ENDDO INVAR_LOOP
+          ENDDO PARVER_LOOP
 
        ENDDO READ_LEV_OBS
 
@@ -245,21 +288,6 @@ SUBROUTINE read_vobs_temp
     IF(cdate >= edate_obs .AND. ctime/10000 > etime_obs) EXIT TIME_LOOP
 
  ENDDO TIME_LOOP
-
- if (fi_ind /= 0 ) &
- lev_typ((fi_ind-1)* my_temp_lev + 1:fi_ind* my_temp_lev) = fi_ind
- if (tt_ind /= 0 ) &
- lev_typ((tt_ind-1)* my_temp_lev + 1:tt_ind* my_temp_lev) = tt_ind
- if (rh_ind /= 0 ) &
- lev_typ((rh_ind-1)* my_temp_lev + 1:rh_ind* my_temp_lev) = rh_ind
- if (dd_ind /= 0 ) &
- lev_typ((dd_ind-1)* my_temp_lev + 1:dd_ind* my_temp_lev) = dd_ind
- if (ff_ind /= 0 ) &
- lev_typ((ff_ind-1)* my_temp_lev + 1:ff_ind* my_temp_lev) = ff_ind
- if (qq_ind /= 0 ) &
- lev_typ((qq_ind-1)* my_temp_lev + 1:qq_ind* my_temp_lev) = qq_ind
- if (td_ind /= 0 ) &
- lev_typ((td_ind-1)* my_temp_lev + 1:td_ind* my_temp_lev) = td_ind
 
  WRITE(6,*) 'FOUND TIMES OBS',MAXVAL(obs(:)%ntim)
 

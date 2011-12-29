@@ -37,10 +37,12 @@ ln -s $SCR/coast2.dat coast.dat
 
 # Run verobs for the different variables
 if [ $ALL_AT_ONCE == "yes" ] ; then
+   cat fort.10
    $BIN/verobs || exit
 else
    for F in $TEMPPAR ; do
       cp namelist_$F fort.10
+      cat fort.10
       $BIN/verobs || exit
    done
 fi

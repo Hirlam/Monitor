@@ -113,27 +113,26 @@
  # Set index for all parameters, to be used laters
  $i=0;
  %par_ind = ();
- foreach ( split(' ',$inpar) ) {
+ my @varlist=split(' ',$inpar);
+ foreach (@varlist) {
     $i++ ;
    $par_ind{$_} = $i  ;
  } ;
 
+ $varlist ='\''.join('\',\'',@varlist).'\'';
+
+ $nameread{'read_section'}{'varlist'} = $varlist ;
  # Define variable specific things
  $i=0;
  foreach ( split(' ',$inpar) ) {
 
       $i++ ;
-      $par = $_.'_IND';
-      $nameread{'read_section'}{$par} = $i;
 
       # Copy the default values
       for $role ( sort keys %{ $plotdefs{'def'} } ) {
           $tmp{$_}{$role}=$plotdefs{'def'}{$role};
       } ;
 
-      # Remove Web stuff
-      delete $tmp{$_}{'TEXT'} ;
-      delete $tmp{$_}{'TEXT_TEMP'} ;
 
       # Copy the values for this parameter
       for $role ( sort keys %{ $plotdefs{$_} } ) {
@@ -144,6 +143,8 @@
       $ilev = 1 ;
       while ( $ilev le $nlev ) {
 	 $k = ($i-1)*$nlev + $ilev ;
+
+         # Contingency settings
          if ( exists $tmp{$_}{'CONT_CLASS'} ) {
             $j++ ;
 	    $selectionloop{'scat_ver'}{'CONT_CLASS('.$j.')'}=$tmp{$_}{'CONT_CLASS'};
@@ -151,14 +152,38 @@
             $selectionloop{'scat_ver'}{'CONT_LIM(1:'.$tmp{$_}{'CONT_CLASS'}.','.$j.')'  }=$tmp{$_}{'CONT_LIM'};
          } ;
 
+         # Copy temp text to text
+         if ( exists $tmp{$_}{'TEXT_TEMP'} && $type =~ /TEMP/ ) {
+            $tmp{$_}{'TEXT'} = $tmp{$_}{'TEXT_TEMP'} ;
+            delete $tmp{$_}{'TEXT_TEMP'} ;
+         } ;
+
+         # Fill the setprop values
+         foreach $prop ('TEXT','UNIT') {         
+          if ( exists $tmp{$_}{$prop} ) {
+            $nameread{'read_section'}{'SETPROP('.$k.')%ID'}='\''.$_.'\'' ;
+            $nameread{'read_section'}{'SETPROP('.$k.')%'.$prop}='\''.$tmp{$_}{$prop}.'\'';
+          } ;
+         } ;
+
+         foreach $prop ('ACC','LIM','LLIM','ULIM') {         
+          if ( exists $tmp{$_}{$prop} ) {
+            $nameread{'read_section'}{'SETPROP('.$k.')%ID'}='\''.$_.'\'' ;
+            $nameread{'read_section'}{'SETPROP('.$k.')%'.$prop}=$tmp{$_}{$prop} ;
+          } ;
+         } ;
+
+         # Frequency plots
          if ( exists $tmp{$_}{'PRE_FCLA'} ) {
             $selectionloop{'scat_ver'}{'PRE_FCLA(:,'.$k.')'}=$tmp{$_}{'PRE_FCLA'};
          } ;
 
+         # Map
          if ( exists $plots{'MAP'} ) {
 		 $selectionloop{'MAP'}{'MAP_BIAS_INTERVAL(1:7,'.$k.')'}=$tmp{$_}{'MAP_BIAS_INTERVAL'}; 
 	 } ;
 
+         # Timeserie settings
          $selectionloop{'TIME'}{'TIMESERIE_WIND('.$k.')'}=$tmp{$_}{'TWIND_'.$type};
          $nameread{'read_section'}{'QC_LIM_SCALE('.$k.')'}=$tmp{$_}{'QC_LIM_SCALE'};
 
@@ -173,8 +198,6 @@
  if ( exists $plots{'MAP'}    ) {
     if ( $selectionloop{'MAP'}{'LFCVER'} =~/F/) { $selectionloop{'MAP'}{'NTIMVER'}=24/$obint   ; }; 
  }; 
-
- $nameread{'read_section'}{'NPARVER'} = $i*$nlev ;
 
  # Build the namelist
 

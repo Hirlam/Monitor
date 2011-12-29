@@ -44,6 +44,7 @@ PROGRAM verobs
  !
  ! Cross check options in namelist
  !
+ CALL setup_varprop
 
  nrun = 1
  CALL check_namelist
@@ -55,6 +56,7 @@ PROGRAM verobs
  ! Allocate and init main arrays
  !
 
+ maxstn_save = maxstn
  ALLOCATE(obs(maxstn))
  ALLOCATE(hir(maxstn))
 
@@ -66,7 +68,6 @@ PROGRAM verobs
  timing_id2 = 0
  IF (ltiming) CALL add_timing(timing_id2,'reading')
 
- CALL set_obstype
 
  !
  ! Call user specific subroutine
@@ -178,7 +179,7 @@ PROGRAM verobs
 
  DEALLOCATE(obs)
  DEALLOCATE(hir)
- DEALLOCATE(obstype)
+ DEALLOCATE(varprop)
 
  IF ( ALLOCATED(station_name) ) DEALLOCATE(station_name)
 

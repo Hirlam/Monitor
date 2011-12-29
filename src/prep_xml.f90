@@ -9,7 +9,7 @@ SUBROUTINE prep_xml(lunxml,nparver,nr,time,scat)
 
  USE types
  USE timing
- USE data, ONLY : obstype,expname,nexp,ltiming
+ USE data, ONLY : varprop,expname,nexp,ltiming
 
  IMPLICIT NONE
 
@@ -51,7 +51,7 @@ SUBROUTINE prep_xml(lunxml,nparver,nr,time,scat)
     IF ( scat(j)%n < 2 ) CYCLE
 
     WRITE(ctime,'(I8.8)')time
-    fname = TRIM(obstype(j))//'_'//TRIM(ctime)//'.xml'
+    fname = TRIM(varprop(j)%id)//'_'//TRIM(ctime)//'.xml'
     OPEN(lunxml,file=fname,POSITION='APPEND')
     WRITE(lunxml,*)'<STATION>'
 
@@ -62,7 +62,7 @@ SUBROUTINE prep_xml(lunxml,nparver,nr,time,scat)
         xval(1:kk) = scat(j)%dat(1   ,1:kk)
         yval(1:kk) = scat(j)%dat(1+jj,1:kk) + scat(j)%dat(1   ,1:kk)
 
-        IF ( obstype(j)(1:2) == 'DD' ) THEN
+        IF ( varprop(j)%id == 'DD' ) THEN
            DO l=1,kk
               IF (yval(l) > 360. ) THEN
               yval(l) = yval(l) - 360.         

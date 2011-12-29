@@ -32,7 +32,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
  USE types
  USE timing
  USE means
- USE data, ONLY : obstype,expname,err_ind,nexp,          &
+ USE data, ONLY : varprop,expname,err_ind,nexp,          &
                   station_name,csi,                      &
                   ltiming,tag,maxfclenval,               &
                   show_fc_length,nuse_fclen,use_fclen,   &
@@ -41,8 +41,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
                   show_rmse,show_stdv,show_bias,show_obs,&
                   show_var,show_skw,                     &
                   ltemp,lev_lst,window_pos,output_type,  &
-                  z_is_pressure,output_mode,len_lab,     &
-                  accu_int
+                  output_mode,len_lab
 
  USE functions
 
@@ -91,7 +90,6 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
  REAL    :: zobs,zfc,zslask2
  CHARACTER(LEN=30 ) :: cform='   '
  CHARACTER(LEN=20 ) :: ytitle=''
- CHARACTER(LEN=6  ) :: ob_short='      '
  CHARACTER(LEN=2  ) :: prefix=' '
  CHARACTER(LEN=100) :: fname=' '
  CHARACTER(LEN=120) :: wtext,wname,wtext1
@@ -99,6 +97,8 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
 !-----------------------------------------------------
  ! Init timing counter
  timing_id = 0
+
+ WRITE(6,*)'ACTIVE',par_active
 
  IF (ltiming) CALL acc_timing(timing_id,'plot_p_stat')
 
@@ -128,8 +128,6 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
  ! Create filename
  prefix ='ps'
  IF ( ldiff ) prefix='PS'
-
- z_is_pressure = ( ltemp .AND. ( lev_lst(1) > lev_lst(2) ))
 
  ytitle = ' '
 
@@ -166,9 +164,9 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
  NPAR_LOOP : DO j=1,npar
 
     IF ( output_mode == 2 ) THEN
-       CALL make_fname(prefix,period1,stnr,tag,     &
-                       obstype(j)(1:2),           &
-                       obstype(j)(3:len_lab),     &
+       CALL make_fname(prefix,period1,stnr,tag,   &
+                       varprop(j)%id,             &
+                       varprop(j)%lev,            &
                        output_mode,output_type,   &
                        fname)
        CALL open_output(fname)
@@ -217,8 +215,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
     ENDIF
  
     IF ( ut /= timeserie_wind(j)) THEN
-      CALL pname(obstype(j),wtext)
-      WRITE(6,*)'Changed timeserie window to:',ut,' for ',TRIM(wtext)
+      WRITE(6,*)'Changed timeserie window to:',ut,' for ',TRIM(varprop(j)%text)
     ENDIF
 
     rnum = 0.
@@ -415,7 +412,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
 
     ntim_use = MAX(dlen,1)
 
-    IF ( .NOT. ldiff .AND. obstype(j)(1:2) == 'DD' ) THEN
+    IF ( .NOT. ldiff .AND. varprop(j)%id == 'DD' ) THEN
 
         WHERE(obs(1:ntim_use) > 360. ) 
          obs(1:ntim_use) =  obs(1:ntim_use) - 360.
@@ -449,13 +446,12 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
     WRITE(lunout,'(A,X,A)')'#HEADING_1',TRIM(wtext)
 
     ! Line 2
-    CALL pname(obstype(j),wtext)
-    WRITE(lunout,'(A,X,A)')'#HEADING_2',TRIM(wtext)
+    WRITE(lunout,'(A,X,A)')'#HEADING_2',TRIM(varprop(j)%text)
 
     ! Line 3
     IF ( show_fc_length ) THEN
 
-       CALL fclen_header(.true.,maxfclenval,uh(j,:),uf(j,:),accu_int(j),wtext)
+       CALL fclen_header(.true.,maxfclenval,uh(j,:),uf(j,:),varprop(j)%acc,wtext)
 
        IF ( ut /= 0 ) THEN
           wname = ' '
@@ -468,7 +464,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
     ENDIF
 
     ! Experiments and parameters and norms
-    WRITE(lunout,'(A,X,A)')'#PAR',TRIM(obstype(j))
+    WRITE(lunout,'(A,X,A)')'#PAR',TRIM(varprop(j)%id)
 
     npp = 0
     IF ( ldiff ) THEN
@@ -493,10 +489,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
        WRITE(lunout,'(A,I2.2,X,A)')'#EXP_',i,expname(i)
     ENDDO
 
-    ob_short = obstype(j)
-    ob_short(3:6) = '   '
-    CALL yunit(ob_short,ytitle)
-    WRITE(lunout,'(A,X,A)')'#YLABEL',TRIM(ytitle)
+    WRITE(lunout,'(A,X,A)')'#YLABEL',TRIM(varprop(j)%unit)
     WRITE(lunout,'(A,X,A)')'#XLABEL','Date'
 
     ! Time to write the parameters

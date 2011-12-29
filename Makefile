@@ -37,10 +37,14 @@ $(CMALIBS): depf90mod.x ./$(ARCH)/lib
 	test -d $(ARCH)/$@ || $(MKDIR) $(ARCH)/$@
 	$(MAKE) -C $(ARCH)/$@ -f $(ROOTDIR)/makegl.mk ARCH=$(ARCH) TOROOT=.. $@
 
-.PHONY : $(GLLIBS) $(CMALIBS)
+prg : depf90mod.x ./$(ARCH)/lib mod
+	test -d $(ARCH)/$@ || $(MKDIR) $(ARCH)/$@
+	$(MAKE) -C $(ARCH)/$@ -f $(ROOTDIR)/makegl.mk ARCH=$(ARCH) TOROOT=.. $@
+
+.PHONY : $(GLLIBS) $(CMALIBS) prg
 
 verobs: $(GLLIBS) ./$(ARCH)/prg
-	$(MAKE) -C $(ARCH)/prg -f $(ROOTDIR)/makeexe.mk LIBS="$(LIBSGL) $(EXTLIB)" LD="$(LD)" DEPS="$+" $@
+	$(MAKE) -C $(ARCH)/prg -f $(ROOTDIR)/makeexe.mk LIBS="$(LIBSGL)" LD="$(LD)" DEPS="$+" $@
 
 odbstat: $(CMALIBS) ./$(ARCH)/prg
 	$(MAKE) -C $(ARCH)/prg -f $(ROOTDIR)/makeexe.mk LIBS="$(LIBSCMA)" LD="$(LD)" DEPS="$+" $@

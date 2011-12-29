@@ -17,7 +17,6 @@ SUBROUTINE print_cont(p1,p2,nr,par_active,    &
 
  CHARACTER(LEN= 25) :: cform='(A20,XXI9,X,A1,X,I9)'
  CHARACTER(LEN= 25) :: hform='(XXXX,A)'
- CHARACTER(LEN= 20) :: ctmp = '',ctmp2 = ''
  CHARACTER(LEN=100) :: cwrk = '',wname=''
  CHARACTER(LEN=  8) :: cperiod = ''
 
@@ -37,8 +36,7 @@ SUBROUTINE print_cont(p1,p2,nr,par_active,    &
        IF ( j /= cont_table(i)%ind ) CYCLE
 
       CALL make_fname('c',period,0,tag,           &
-                       obstype(j)(1:2),           &
-                       obstype(j)(3:len_lab),     &
+                       varprop(j)%id,varprop(j)%lev, &
                        output_mode,2,             &
                        contfile)
 
@@ -51,12 +49,8 @@ SUBROUTINE print_cont(p1,p2,nr,par_active,    &
        ALLOCATE(sumcol(0:cont_table(i)%nclass))
 
        cwrk = 'Contingency table for'
-       CALL pname(obstype(j),ctmp)
-       cwrk = TRIM(cwrk)//' '//TRIM(ctmp)
-       ctmp = obstype(j)
-       ctmp(3:6) = '   '
-       CALL yunit(ctmp,ctmp2)
-       cwrk = TRIM(cwrk)//' ('//TRIM(ctmp2)//')'
+       cwrk = TRIM(cwrk)//' '//TRIM(varprop(j)%text)
+       cwrk = TRIM(cwrk)//' ('//TRIM(varprop(j)%unit)//')'
        WRITE(luncont,*)TRIM(cwrk)
 
        ! Line 1
@@ -76,21 +70,21 @@ SUBROUTINE print_cont(p1,p2,nr,par_active,    &
        WRITE(luncont,'(A)')TRIM(cwrk)
 
        ! Line 3
-       IF ( show_fc_length ) THEN
-          CALL fclen_header(.TRUE.,maxfclenval,        &
-                            uh(j,:),uf(j,:),           &
-                            accu_int(j),cwrk)
-
-       ENDIF
-
-
        IF ( period == 0 ) THEN
           wname=''
           WRITE(wname,'(A,I8,A,I8)')' Period:',p1,'-',p2
        ELSE
           WRITE(wname,'(A,I8)')' Period:',period
        ENDIF
-       cwrk =TRIM(wname)//'  '//TRIM(cwrk)
+       WRITE(luncont,'(A)')TRIM(wname)
+
+       ! Line 4
+       IF ( show_fc_length ) THEN
+          CALL fclen_header(.TRUE.,maxfclenval,        &
+                            uh(j,:),uf(j,:),           &
+                            varprop(j)%acc,cwrk)
+
+       ENDIF
        WRITE(luncont,'(A)')TRIM(cwrk)
 
        WRITE(luncont,*)'Limits ',cont_table(i)%limit(1:cont_table(i)%nclass)

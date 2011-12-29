@@ -9,7 +9,7 @@ SUBROUTINE print_freq(lunout,nparver,nr,scat,p1,par_active,uh,uf)
  USE types
  USE functions
  USE timing
- USE data, ONLY : nexp,station_name,err_ind,csi,obstype, &
+ USE data, ONLY : nexp,station_name,err_ind,csi,varprop, &
                   expname,gr_ind,pe_ind,pd_ind,          &
                   lfcver,output_mode,                    &
                   show_fc_length,                        &
@@ -17,8 +17,7 @@ SUBROUTINE print_freq(lunout,nparver,nr,scat,p1,par_active,uh,uf)
                   ncla,classtype,pre_fcla,               &
                   mincla,maxcla,my_ymax,my_ymin,         &
                   mpre_cla,copied_mod,copied_obs,        &
-                  period_freq,output_type,len_lab,       &
-                  accu_int
+                  period_freq,output_type,len_lab
 
  IMPLICIT NONE
 
@@ -48,9 +47,8 @@ SUBROUTINE print_freq(lunout,nparver,nr,scat,p1,par_active,uh,uf)
 
  CHARACTER(LEN=100) :: fname = ''
  CHARACTER(LEN=90) :: wtext = '',wtext1=''
- CHARACTER(LEN=20) :: wname = '', ytitle = ''
+ CHARACTER(LEN=20) :: wname = ''
  CHARACTER(LEN=30) :: cform = ''
- CHARACTER(LEN=len_lab  ) :: ob_short=''
 
 
 !-----------------------------------------------------
@@ -75,8 +73,7 @@ SUBROUTINE print_freq(lunout,nparver,nr,scat,p1,par_active,uh,uf)
 
     IF ( output_mode == 2 ) THEN
        CALL make_fname('f',period,nr,tag,          &
-                       obstype(j)(1:2),            &
-                       obstype(j)(3:len_lab),      &
+                       varprop(j)%id,varprop(j)%lev,&
                        output_mode,output_type,    &
                        fname)
        CALL open_output(fname)
@@ -107,7 +104,7 @@ SUBROUTINE print_freq(lunout,nparver,nr,scat,p1,par_active,uh,uf)
                       scat(j)%dat(1  ,1:n) 
     ENDDO
 
-    IF ( obstype(j)(1:2) == 'DD' ) THEN
+    IF ( varprop(j)%id == 'DD' ) THEN
        DO k=1,nexp
         DO m=1,n
           IF(work(m,k) > 360. )THEN
@@ -164,17 +161,16 @@ SUBROUTINE print_freq(lunout,nparver,nr,scat,p1,par_active,uh,uf)
     WRITE(lunout,'(A,X,A)')'#HEADING_1',TRIM(wtext)
 
     ! Line 2
-    CALL pname(obstype(j),wtext)
-    WRITE(lunout,'(A,X,A)')'#HEADING_2',TRIM(wtext)
+    WRITE(lunout,'(A,X,A)')'#HEADING_2',TRIM(varprop(j)%text)
 
     ! Line 3
     IF ( show_fc_length ) THEN
-       CALL fclen_header(.true.,maxfclenval,uh(j,:),uf(j,:),accu_int(j),wtext)
+       CALL fclen_header(.true.,maxfclenval,uh(j,:),uf(j,:),varprop(j)%acc,wtext)
        WRITE(lunout,'(A,X,A)')'#HEADING_3',TRIM(wtext)
     ENDIF
 
     ! Experiments and parameters and norms
-    WRITE(lunout,'(A,X,A)')'#PAR',TRIM(obstype(j))
+    WRITE(lunout,'(A,X,A)')'#PAR',TRIM(varprop(j)%id)
 
     WRITE(lunout,'(A,X,I2)')'#NEXP',nexp+1
     DO i=1,nexp
@@ -184,10 +180,7 @@ SUBROUTINE print_freq(lunout,nparver,nr,scat,p1,par_active,uh,uf)
     WRITE(lunout,'(A,I2.2,X,A)')'#EXP_',lnexp,'OBS'
     WRITE(lunout,'(A,I2.2,X,A)')'#COLUMN_',lnexp+1,'OBS'
 
-    ob_short = obstype(j)
-    ob_short(3:6) = '   '
-    CALL yunit(ob_short,ytitle)
-    WRITE(lunout,'(A,X,A)')'#XLABEL',TRIM(ytitle)
+    WRITE(lunout,'(A,X,A)')'#XLABEL',TRIM(varprop(j)%unit)
     WRITE(lunout,'(A,X,A)')'#YLABEL','Relative frequency'
 
     ! Plotting

@@ -9,6 +9,7 @@ MODULE data
 
 ! Constants
  REAL, PARAMETER :: err_ind = -999.e6 ! Error flag
+ REAL, PARAMETER :: eps     = 1.e-6   ! Real equality comparison limit
 
 ! I/O
  INTEGER, PARAMETER :: lunnam  = 10    ! Namelist unit
@@ -44,8 +45,8 @@ MODULE data
  
 
  CHARACTER(LEN=30) :: formdb ='(I12,I4,XX(en15.5e2))'
- CHARACTER(LEN=len_lab), ALLOCATABLE :: obstype(:)
  CHARACTER(LEN=50), ALLOCATABLE :: station_name(:)
+ CHARACTER(LEN=10) :: vert_unit = 'hPa'
 
 !
 ! NAMELIST
@@ -92,6 +93,7 @@ MODULE data
 
  ! Experiment and name
  INTEGER           :: nexp = 1                  ! Number of experiments
+ INTEGER           :: smallest_exp_ind = 0      ! The location of the experiment with the smallest domain
  CHARACTER(LEN=30) :: expname(maxexp)='OBS'     ! Name of experiments
  CHARACTER(LEN=99) :: statname='statistics.html'! Name of output statistics file
  CHARACTER(LEN=50) :: name='Unknown'            ! Station name
@@ -135,7 +137,11 @@ MODULE data
  INTEGER            :: data_to_verify = 0     ! Which case to select in my_choice.f to be obsoloete
  CHARACTER(LEN=100) :: data_source  = ''      ! Character string selection
 
- !TYPE(variable) :: tt =(0,0.,0.,0.,0.,'TT','Temperature','Deg')
+ ! Selection
+ CHARACTER(LEN=len_lab)      :: varlist(mparver) = '#'
+ TYPE(variable)              :: setprop(mparver) = variable(0,0,err_ind,err_ind,err_ind,'#','#','#')
+ TYPE(variable), &
+ ALLOCATABLE,TARGET          :: varprop(:) 
 
  ! Graphics
  CHARACTER(LEN=20) :: graphics='GNUPLOT'
@@ -210,6 +216,7 @@ MODULE data
  REAL :: nr_lim = 900.
  REAL :: gr_lim = 1000.
  REAL :: nn_lim = 10.
+ REAL :: xx_lim = err_ind
 
  ! Upper limits
  REAL :: fi_ulim = 1.e9
@@ -235,6 +242,7 @@ MODULE data
  REAL :: nr_ulim = 900.
  REAL :: gr_ulim = 1000.
  REAL :: nn_ulim = 8.
+ REAL :: xx_ulim = err_ind
 
  ! Lower limits
  REAL :: fi_llim = 0.
@@ -260,6 +268,7 @@ MODULE data
  REAL :: nr_llim = -900.
  REAL :: gr_llim = 0
  REAL :: nn_llim = 0.
+ REAL :: xx_llim = err_ind
 
  ! Some limits
  REAL :: sumup_tolerance     =  0.00    ! Require X% coverage when take average over time_wind
@@ -358,12 +367,6 @@ MODULE data
  INTEGER :: output_type = 1                   ! 1 = ps, 2 = png, 3 = jpg
  INTEGER :: output_mode = 1                   ! 1 = multi page, 2 = single page
 
-
- ! Special precipitation thing
- INTEGER :: pe_interval = 12
- INTEGER :: accu_int(mparver)      =0         ! Accumulation interval in hours for variable
-                                              ! 0 means the value is instant
-
  ! Quality control
  INTEGER :: print_qc           = 1            ! Quality control output level (0,1,2)
  LOGICAL :: lquality_control   = .FALSE.      ! Pre verification quality control
@@ -426,7 +429,8 @@ MODULE data
                  timeserie_wind,window_pos,             &
                  stnlist,stnlist_bl,stnlist_plot,       &
                  nexp,expname,tag,                      &
-                 nparver,                               &
+                 smallest_exp_ind,                      &
+                 varlist,setprop,                       &
                  tt_ind,ff_ind,dd_ind,uw_ind,wt_ind,    &
                  sw_ind,lw_ind,lu_ind,ld_ind,           &
                  su_ind,sd_ind,td_ind,vi_ind,           &
@@ -501,8 +505,8 @@ MODULE data
                  maxcla,mincla,                         &
                  show_bias,show_rmse,show_stdv,show_obs,&
                  show_var,show_skw,                     &
-                 period_type,period_freq,pe_interval,   &
-                 print_qc,accu_int,                     &
+                 period_type,period_freq,               &
+                 print_qc,                              &
                  lquality_control,qc_fclen,qc_lim,      &
                  estimate_qc_limit,qc_lim_scale,        &
                  corr_pairs,flag_pairs,exp_pairs,       &
@@ -527,91 +531,9 @@ LOGICAL FUNCTION qca(a,b)
 
  REAL, INTENT(IN) :: a,b
 
- qca = (ABS(a-b) > 1.e-6)
+ qca = (ABS(a-b) > eps )
 
 END FUNCTION qca
-!-----------------------------------------------
-!-----------------------------------------------
-!-----------------------------------------------
-LOGICAL FUNCTION qc(diff,k)
-
- IMPLICIT NONE
-
- INTEGER :: k
- REAL    :: diff,diff_lim
-
-!----------------------------
-
- !  Multi level fields
- IF (ltemp) THEN
-
-    IF     (lev_typ(k).EQ.dd_ind) THEN
-       diff_lim = dd_lim
-    ELSEIF (lev_typ(k).EQ.fi_ind) THEN
-       diff_lim = fi_lim
-    ELSEIF (lev_typ(k).EQ.ff_ind) THEN
-       diff_lim = ff_lim
-    ELSEIF (lev_typ(k).EQ.td_ind) THEN
-       diff_lim = td_lim
-    ELSEIF (lev_typ(k).EQ.tt_ind) THEN
-       diff_lim = tt_lim
-    ELSEIF (lev_typ(k).EQ.rh_ind) THEN
-       diff_lim = rh_lim
-    ELSEIF (lev_typ(k).EQ.qq_ind) THEN
-       diff_lim = qq_lim
-    ELSE
-       diff_lim = ABS(diff) +1.
-    ENDIF
-
- ELSE
-
-    IF     (k.EQ.ps_ind) THEN
-       diff_lim = ps_lim
-    ELSEIF (k.EQ.pe_ind) THEN
-       diff_lim = pe_lim
-    ELSEIF (k.EQ.pd_ind) THEN
-       diff_lim = pd_lim
-    ELSEIF (k.EQ.rh_ind) THEN
-       diff_lim = rh_lim
-    ELSEIF (k.EQ.tt_ind) THEN
-       diff_lim = tt_lim
-    ELSEIF (k.EQ.td_ind) THEN
-       diff_lim = td_lim
-    ELSEIF (k.EQ.vi_ind) THEN
-       diff_lim = vi_lim
-    ELSEIF (k.EQ.ff_ind) THEN
-       diff_lim = ff_lim
-    ELSEIF (k.EQ.dd_ind) THEN
-       diff_lim = dd_lim
-    ELSEIF (k.EQ.sw_ind) THEN
-       diff_lim = sw_lim
-    ELSEIF (k.EQ.nr_ind) THEN
-       diff_lim = nr_lim
-    ELSEIF (k.EQ.gr_ind) THEN
-       diff_lim = gr_lim
-    ELSEIF (k.EQ.wq_ind) THEN
-       diff_lim = wq_lim
-    ELSEIF (k.EQ.wt_ind) THEN
-       diff_lim = wt_lim
-    ELSEIF (k.EQ.uw_ind) THEN
-       diff_lim = uw_lim
-    ELSEIF (k.EQ.su_ind) THEN
-       diff_lim = su_lim
-    ELSEIF (k.EQ.lw_ind) THEN
-       diff_lim = lw_lim
-    ELSEIF (k.EQ.nn_ind) THEN
-       diff_lim = nn_lim
-    ELSEIF (k.EQ.qq_ind) THEN
-       diff_lim = qq_lim
-    ELSE
-       diff_lim = ABS(diff) +1.
-    ENDIF
-
- ENDIF
-
- qc = (ABS(diff) <= diff_lim)
-
-END FUNCTION qc
 !-----------------------------------------------
 !-----------------------------------------------
 !-----------------------------------------------
@@ -779,6 +701,42 @@ END FUNCTION qcu
 !-----------------------------------------------
 !-----------------------------------------------
 !-----------------------------------------------
+LOGICAL FUNCTION qcur(diff,lim)
+
+ IMPLICIT NONE
+
+ REAL    :: diff,lim
+
+!----------------------------
+
+ IF ( ABS(lim-err_ind) < eps ) THEN
+   qcur = .TRUE.
+ ELSE
+   qcur = (diff <= lim)
+ ENDIF
+
+END FUNCTION qcur
+!-----------------------------------------------
+!-----------------------------------------------
+!-----------------------------------------------
+LOGICAL FUNCTION qclr(diff,lim)
+
+ IMPLICIT NONE
+
+ REAL    :: diff,lim
+
+!----------------------------
+
+ IF ( ABS(lim-err_ind) < eps ) THEN
+   qclr = .TRUE.
+ ELSE
+   qclr = (diff >= lim)
+ ENDIF
+
+END FUNCTION qclr
+!-----------------------------------------------
+!-----------------------------------------------
+!-----------------------------------------------
  SUBROUTINE allocate_mod
 
  !
@@ -795,7 +753,7 @@ END FUNCTION qcu
     CALL abort
  ENDIF
 
- maxtim=get_maxtim(sdate,edate,fcint)
+ IF ( maxtim == 0 )  maxtim=get_maxtim(sdate,edate,fcint)
 
  WRITE(6,*)'Maxtim for model data is ',maxtim
 

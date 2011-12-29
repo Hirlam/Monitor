@@ -5,8 +5,6 @@
    'TWIND_SURF' => 06,
    'TWIND_TEMP' => 12,
    'QC_LIM_SCALE' => 5.,
-   'TEXT' => 'Unknown',
-   'TEXT_TEMP' => 'Unknown',
    'MAP_BIAS_INTERVAL'=> '7*-1',
  },
 
@@ -33,7 +31,7 @@
 
  'TT'=>{
    'TEXT'        => 'T2m',
-   'TEXT_TEMP'        => 'Temperature' ,
+   'TEXT_TEMP'   => 'Temperature' ,
    'MAP_BIAS_INTERVAL'=> '-6.,-4.,-2.,0.,2.,4.,6.',
  },
  
@@ -51,7 +49,7 @@
  
  'TD'=>{
    'TEXT'        => 'Td2m',
-   'TEXT_TEMP'        => 'Dew point T' ,
+   'TEXT_TEMP'   => 'Dew point T' ,
    'MAP_BIAS_INTERVAL'=> '-6.,-4.,-2.,0.,2.,4.,6.',
  },
 
@@ -97,6 +95,32 @@
    'PRE_FCLA'    =>'0.1,0.3,1.0,3.0,10.0,30.0,100.0',
    'MAP_BIAS_INTERVAL'=> '-20.,-10.,-5.,0.,5.,10.,15.',
    'TWIND_SURF'       => 00,
+   'ACC'         => 12,
+   'UNIT'         => 'mm/12h',
+ },
+
+ 'CH'=>{
+   'TEXT'        => 'Cloud base',
+   'UNIT'        => 'm',
+   'LLIM'        => 0.,
+ }, 
+
+ 'LC'=>{
+   'TEXT'        => 'Low clouds',
+   'UNIT'        => 'octas',
+   'LLIM'        => 0.,
+ }, 
+
+ 'PE3'=>{
+   'TEXT'        => 'Precipitation 3h',
+   'CONT_CLASS'  => 7,
+   'CONT_LIM'    =>'0.1,0.3,1.0,3.0,10.0,30.0,100.0',
+   'PRE_FCLA'    =>'0.1,0.3,1.0,3.0,10.0,30.0,100.0',
+   'MAP_BIAS_INTERVAL'=> '-20.,-10.,-5.,0.,5.,10.,15.',
+   'TWIND_SURF'       => 00,
+   'ACC'          => 3,
+   'LLIM'         => '0.',
+   'UNIT'         => 'mm/3h',
  },
 
  'QQ'=>{

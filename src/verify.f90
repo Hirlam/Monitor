@@ -114,17 +114,17 @@ SUBROUTINE verify
 
  ind_pe = 0
  DO j=1,nparver
-    IF ( accu_int(j) == 0 ) CYCLE
-    IF (lprint_verif) WRITE(6,*)obstype(j),accu_int(j)
+    IF ( varprop(j)%acc == 0 ) CYCLE
+    IF (lprint_verif) WRITE(6,*)varprop(j)%text,varprop(j)%acc
    DO i=1,nfclengths
 
-    IF ( fclen(i) < accu_int(j) ) CYCLE 
+    IF ( fclen(i) < varprop(j)%acc ) CYCLE 
 
-    ind_pe(j,i)=TRANSFER(MINLOC(ABS(fclen(1:nfclengths)-(fclen(i)-accu_int(j)))),ii)
+    ind_pe(j,i)=TRANSFER(MINLOC(ABS(fclen(1:nfclengths)-(fclen(i)-varprop(j)%acc))),ii)
 
-    IF (fclen(i)-fclen(ind_pe(j,i)) < accu_int(j) ) ind_pe(j,i) = 0
+    IF (fclen(i)-fclen(ind_pe(j,i)) < varprop(j)%acc ) ind_pe(j,i) = 0
 
-    IF (lprint_verif) WRITE(6,*)i,obstype(j),fclen(i),ind_pe(j,i)
+    IF (lprint_verif) WRITE(6,*)i,varprop(j)%text,fclen(i),ind_pe(j,i)
 
    ENDDO
  ENDDO
@@ -515,14 +515,14 @@ SUBROUTINE verify
 
              IF(ABS(obs(i)%o(jj)%val(k)-err_ind) <= 1.e-6) CYCLE NPARVER_LOOP
 
-             IF (lprint_verif) WRITE(6,*)'DO VER ',OBSTYPE(k),obs(i)%o(jj)%val(k)
+             IF (lprint_verif) WRITE(6,*)'DO VER ',varprop(k)%id,obs(i)%o(jj)%val(k)
 
              !
              ! Tmax and Tmin can only be verified at 06 and 18 UTC
              ! and for forecast lengths >= 12h
              !
 
-             IF( ( obstype(k)(1:2)== 'TN' .OR. obstype(k)(1:2)== 'TX'   ) .AND. &
+             IF( ( varprop(k)%id == 'TN' .OR. varprop(k)%id == 'TX'   ) .AND. &
                  ( fclen(n) < 12 .OR. ( wtime /= 6 .AND. wtime /= 18  ) ) )CYCLE NPARVER_LOOP
 
              !
@@ -543,15 +543,15 @@ SUBROUTINE verify
 
              EXP_LOOP : DO o=1,nexp
 
-                IF(accu_int(k) /= 0) THEN
+                IF(varprop(k)%acc /= 0) THEN
 
                    !
                    ! Special for accumulated values
                    !
 
-                   IF(fclen(n) == accu_int(k)) THEN
+                   IF(fclen(n) == varprop(k)%acc) THEN
                       diff_prep = hir(i)%o( j)%nal(o,n,k)
-                   ELSEIF(fclen(n) > accu_int(k) .AND. ind_pe(k,n) > 0 ) THEN
+                   ELSEIF(fclen(n) > varprop(k)%acc .AND. ind_pe(k,n) > 0 ) THEN
 
                       IF (ABS(hir(i)%o(j)%nal(o,ind_pe(k,n),k)-err_ind)<1.e-6) THEN
                          IF (demand_equal ) hir(i)%o(j)%nal(:,ind_pe(k,n),k) = err_ind
@@ -564,7 +564,7 @@ SUBROUTINE verify
 
                       IF (diff_prep < 0.) THEN
                          WRITE(6,*)'Accumulated model value is negative'
-                         WRITE(6,*)TRIM(obstype(k)),diff_prep
+                         WRITE(6,*)TRIM(varprop(k)%id),diff_prep
                          WRITE(6,'(2A,I10)')expname(o),' station:',hir(i)%stnr
                          WRITE(6,*)hir(i)%stnr,wdate,wtime,fclen(n),   &
                          hir(i)%o(j)%nal(o,n,k)
@@ -593,7 +593,7 @@ SUBROUTINE verify
                 ! Wind direction
                 !
 
-                IF(obstype(k)(1:2)== 'DD'.AND.ABS(diff) > 180.) diff = diff + SIGN(360.,180.-diff)
+                IF(varprop(k)%id == 'DD'.AND.ABS(diff) > 180.) diff = diff + SIGN(360.,180.-diff)
 
                 !
                 ! Store this difference
@@ -939,7 +939,7 @@ SUBROUTINE verify
     DO j=1,nparver
     DO i=1,maxper
         WRITE(cmon(1:8),'(I8.8)')periods(i)
-        fname = TRIM(obstype(j))//'_'//TRIM(cmon)//'.xml'
+        fname = TRIM(varprop(j)%id)//'_'//TRIM(cmon)//'.xml'
         OPEN(lunxml,file=fname,POSITION='APPEND')
         WRITE(lunxml,'(A)')'</STAT>'
         CLOSE(lunxml)

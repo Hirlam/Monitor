@@ -6,7 +6,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
  USE functions
  USE timing
  USE constants, ONLY : seasonal_name1,seasonal_name2
- USE data, ONLY : obstype,expname,station_name,                 &
+ USE data, ONLY : varprop,expname,station_name,                 &
                   csi,use_fclen,lfcver,                         &
                   maxfclenval,len_lab,output_mode,              &
                   nfclengths,nuse_fclen,tag,                    &
@@ -14,7 +14,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
                   show_bias,show_rmse,show_stdv,show_obs,       &
                   show_var,show_skw,                            &
                   copied_obs,copied_mod,period_freq,period_type,&
-                  output_type,accu_int,lprint_seasonal,err_ind
+                  output_type,lprint_seasonal,err_ind
 
  IMPLICIT NONE
 
@@ -61,9 +61,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
  CHARACTER(LEN=100) :: wtext1=' '
  CHARACTER(LEN=100) :: fname=' '
  CHARACTER(LEN= 30) :: wname=' '
- CHARACTER(LEN= 20) :: ytitle=' '
  CHARACTER(LEN= 10) :: prefix = ' '
- CHARACTER(LEN=  6) :: ob_short = '      '
  CHARACTER(LEN=  6) :: ctype(4) = ' '
  CHARACTER(LEN=30 ) :: cform='   '
 
@@ -283,8 +281,8 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
 
     IF ( output_mode == 2 ) THEN
        CALL make_fname(prefix,period,stnr,tag,     &
-                       obstype(j)(1:2),            &
-                       obstype(j)(3:len_lab),      &
+                       varprop(j)%id,              &
+                       varprop(j)%lev,             &
                        output_mode,output_type,    &
                        fname)
        CALL open_output(fname)
@@ -333,16 +331,16 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
     ! Line 3
     IF ( show_fc_length ) THEN
 
-       CALL pname(obstype(j),wtext)
        CALL fclen_header(( .NOT. lfcver .OR. ( nuse_fclen /= nfclengths )), &
-                         maxfclenval,uh(j,:),uf(j,:),accu_int(j),wtext1)
-       wtext = TRIM(wtext)//'   '//TRIM(wtext1)
+                         maxfclenval,uh(j,:),uf(j,:),varprop(j)%acc,wtext1)
+       wtext = TRIM(varprop(j)%text)//'   '//TRIM(wtext1)
        WRITE(lunout,'(A,X,A)')'#HEADING_3',TRIM(wtext)
 
     ENDIF
 
+
     ! Experiments and parameters and norms
-    WRITE(lunout,'(A,X,A)')'#PAR',TRIM(obstype(j))
+    WRITE(lunout,'(A,X,A)')'#PAR',TRIM(varprop(j)%id)
 
     npp = 0
     SELECT CASE(TRIM(ctype(n)))
@@ -377,10 +375,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
        WRITE(lunout,'(A,I2.2,X,A)')'#EXP_',i,expname(i)
     ENDDO
 
-    ob_short = obstype(j)
-    ob_short(3:6) = '   '
-    CALL yunit(ob_short,ytitle)
-    WRITE(lunout,'(A,X,A)')'#YLABEL',TRIM(ytitle)
+    WRITE(lunout,'(A,X,A)')'#YLABEL',TRIM(varprop(j)%unit)
     IF ( lfcver ) THEN
        IF ( lprint_seasonal ) THEN
           WRITE(lunout,'(A,X,A)')'#XLABEL','Day of year'
@@ -481,11 +476,12 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
     cform = '(I3.2,NN(x,en15.5e2))'
     WRITE(cform(7:8),'(I2.2)')npp
 
+    
     DO i=1,ntimver_l
         IF ( pdat(case_i)%v(i) < 1. ) THEN
-        DO k=1,npp
+          DO k=1,npp
              pdat(k)%v(i) = err_ind
-        ENDDO
+          ENDDO
         ENDIF
         WRITE(lunout,cform)hour(i),(pdat(k)%v(i),k=1,npp)
     ENDDO

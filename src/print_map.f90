@@ -13,7 +13,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
                       nexp,tag,output_type, &
                       output_mode,len_lab,  &
                       stat,                 &
-                      obstype,expname,      &
+                      varprop,expname,      &
                       show_fc_length,ldiff, &
                       ntimver,map_scale,    &
                       nparver,              &
@@ -27,7 +27,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
                       lunout,               &
                       station_name,csi,     &
                       maxfclenval,          &
-                      period_freq,accu_int
+                      period_freq
 
  IMPLICIT NONE
 
@@ -65,8 +65,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
  CHARACTER(LEN=100) :: fname    = ' ',sname=' '
  CHARACTER(LEN=30)  :: wname    = ' '
  CHARACTER(LEN=30)  :: mtext    = ' '
- CHARACTER(LEN=50)  :: cunit    = ' ',carea = ' '
- CHARACTER(LEN=len_lab  ) :: ob_short=''
+ CHARACTER(LEN=50)  :: carea = ' '
  CHARACTER(LEN=3) :: prefix = ' '
 
 !-----------------------------------------------------------
@@ -154,8 +153,8 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
        ! Plot only the requested hours
        ! Map min/max temp at 00|12 to 06|18
        !
-       IF ( ( obstype(j)(1:2) == 'TN'   .OR.  &
-              obstype(j)(1:2) == 'TX' ) .AND. &
+       IF ( ( varprop(j)%id == 'TN'   .OR.  &
+              varprop(j)%id == 'TX' ) .AND. &
                       ntimver == 4      .AND. &
                 ( ntimver_out /= 1 )    .AND. &
                 ( show_times(1) == 0  ) .AND. &
@@ -344,8 +343,8 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
           my_tag = TRIM(my_tag)//'_'//TRIM(expname(i))
 
           CALL make_fname(prefix,period,stnr,     &
-               my_tag,obstype(j)(1:2),            &
-               obstype(j)(3:len_lab),             &
+               my_tag,                            &
+               varprop(j)%id,varprop(j)%lev,      &
                output_mode,output_type,           &
                fname)
 
@@ -395,13 +394,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
     WRITE(lunout,'(A,X,A)')'#HEADING_2',TRIM(wtext)
 
     ! Line 3
-    CALL pname(obstype(j),wtext)
-
-    ob_short = obstype(j)
-    ob_short(3:6) = '   '
-    CALL yunit(ob_short,cunit)
-
-    wtext = TRIM(wtext)//' '//TRIM(mtext)//' ['//TRIM(cunit)//']'
+    wtext = TRIM(varprop(j)%text)//' '//TRIM(mtext)//' ['//TRIM(varprop(j)%unit)//']'
 
     IF ( ntimver_out /= 1 ) THEN
        IF (lfcver) THEN
@@ -420,7 +413,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
           CALL fclen_header(.TRUE.,maxfclenval,        &
                             used_hours(j,per_ind,:),   &
                             used_fclen(j,per_ind,:),   &
-                            accu_int(j),wtext)
+                            varprop(j)%acc,wtext)
        ENDIF
     ELSE
           luh = .FALSE.
@@ -442,14 +435,14 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
          
           CALL fclen_header(.NOT.lfcver,maxfclenval,   &
                             luh,luf,                   &
-                            accu_int(j),wtext)
+                            varprop(j)%acc,wtext)
     ENDIF
 
 
     WRITE(lunout,'(A,X,A)')'#HEADING_4',TRIM(wtext)
 
     ! Experiments and parameters and norms
-    WRITE(lunout,'(A,X,A)')'#PAR',TRIM(obstype(j))
+    WRITE(lunout,'(A,X,A)')'#PAR',TRIM(varprop(j)%id)
 
     WRITE(lunout,'(A,X,A)')'#XLABEL','Lon'
     WRITE(lunout,'(A,X,A)')'#YLABEL','Lat'

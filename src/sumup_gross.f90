@@ -1,7 +1,8 @@
 SUBROUTINE sumup_gross(gross_error,total_amount)
 
  USE types
- USE data, ONLY : obs,hir,maxstn,nparver,obstype,lunqc
+ USE data, ONLY : obs,hir,maxstn,nparver,lunqc, &
+                  varprop
 
  IMPLICIT NONE
 
@@ -37,7 +38,7 @@ SUBROUTINE sumup_gross(gross_error,total_amount)
                               hir(gross_pos(2))%lon
     DO i=1,nparver
        IF ( ANY(gross_error(:,gross_pos(2),i) > 0 ) ) &
-       WRITE(lunqc,*)'Variable ',obstype(i),gross_error(:,gross_pos(2),i)
+       WRITE(lunqc,*)'Variable ',varprop(i)%text,gross_error(:,gross_pos(2),i)
     ENDDO
 
     gross_sum = gross_sum + gross_error(:,gross_pos(2),:)
@@ -55,7 +56,7 @@ SUBROUTINE sumup_gross(gross_error,total_amount)
  WRITE(lunqc,*) 'Rejection statistics (rejected,skipped,total)'
  DO j=1,nparver
     total_sum = SUM(total_amount(:,j))
-    WRITE(lunqc,'(A8,3I8)')obstype(j),gross_sum(:,j),total_sum
+    WRITE(lunqc,*)varprop(j)%text,gross_sum(:,j),total_sum
  ENDDO
 
  RETURN

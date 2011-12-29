@@ -14,24 +14,31 @@ SUBROUTINE make_fname(prefix,time,id,tag,        &
  IMPLICIT NONE
 
  ! Input
- CHARACTER(LEN=*), INTENT(IN ) :: prefix,tag,param,level
- INTEGER,          INTENT(IN ) :: time,id,output_type,output_mode
+ CHARACTER(LEN=*), INTENT(IN ) :: prefix,tag,param
+ INTEGER,          INTENT(IN ) :: time,id,output_type, &
+                                  output_mode,level
  CHARACTER(LEN=*), INTENT(OUT) :: fname
 
  ! Local
 
+ INTEGER :: magn
+
  CHARACTER(LEN=8) :: ctime,clevel,cid
  CHARACTER(LEN=4) :: ext
+ CHARACTER(LEN=4) :: cform = '(IX)'
+
  
  !----------------------------------------------------
 
  WRITE(ctime ,'(I8.8)')time
  WRITE(cid   ,'(I8.8)')id
 
- IF ( LEN(TRIM(level)) == 0 ) THEN
+ IF ( level == 0 ) THEN
     clevel = '0'
  ELSE
-    clevel = TRIM(level)
+    magn=FLOOR(LOG10(FLOAT(level)))+1
+    WRITE(cform(3:3),'(I1)')magn
+    WRITE(clevel,cform)level
  ENDIF
 
  SELECT CASE(output_type) 
@@ -59,7 +66,7 @@ SUBROUTINE make_fname(prefix,time,id,tag,        &
                 ctime//'_'//         &
                   cid//'_'//         &
             TRIM(tag)//'_'//         &
-                param//'_'//         &
+          TRIM(param)//'_'//         &
          TRIM(clevel)//TRIM(ext)
  CASE DEFAULT
     WRITE(6,*)'No option coded for this output_mode',output_mode

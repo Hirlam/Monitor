@@ -16,7 +16,7 @@ SUBROUTINE read_vfld_temp
  REAL, PARAMETER :: mflag = -99.
 
  INTEGER :: i,ii,j,k,kk,kkk,l,ll,       &
-            kk_lev,                     &
+            kk_lev,m,n,                 &
             ierr = 0,aerr=0,            &
             cdate = 999999,             &
             ctime = 999999,             &
@@ -29,9 +29,13 @@ SUBROUTINE read_vfld_temp
             stations(100000),           &
             max_found_stat,             &
             wrk(mparver),               &
-            version_flag
+            version_flag,               &
+            old_version_flag,           &
+            ipr,ifi,ninvar
  
- REAL :: lat,lon,hgt,val(8)
+ REAL :: lat,lon,hgt
+ REAL, ALLOCATABLE :: val(:)
+
 
  LOGICAL :: allocated_this_time(maxstn),&
             found_any_time,use_stnlist,lfound
@@ -39,13 +43,19 @@ SUBROUTINE read_vfld_temp
  CHARACTER(LEN=200) :: fname = ' '
  CHARACTER(LEN= 10) :: cwrk  ='yyyymmddhh'
  CHARACTER(LEN= 02) :: cfclen  ='  '
+ CHARACTER(LEN=  6), ALLOCATABLE :: invar(:)
+
 
 !----------------------------------------------------------
 
+ ipr = -1
+ ifi = -1
  stations       = 0
  max_found_stat = 0
  use_stnlist    = ( MAXVAL(stnlist) > 0 ) 
  hgt            = err_ind
+ old_version_flag = -1
+     version_flag = 0
 
  CALL allocate_mod
 
@@ -110,11 +120,45 @@ SUBROUTINE read_vfld_temp
          WRITE(6,*)'Error reading first line of vfld file'
          CALL abort
        ENDIF
-       READ(lunin,*)num_temp_lev
 
-       DO k=1,num_stat
-          READ(lunin,*)
-       ENDDO
+       IF ( num_temp == 0 ) THEN
+          CLOSE(lunin)
+          CYCLE EXP_LOOP
+       ENDIF
+
+       SELECT CASE (version_flag)
+       CASE(0:3)
+          READ(lunin,*)num_temp_lev
+
+          DO k=1,num_stat
+            READ(lunin,*)
+          ENDDO
+       CASE DEFAULT
+          WRITE(6,*)'Cannot handle this version flag',version_flag
+       END SELECT 
+
+       IF ( version_flag /= old_version_flag ) THEN
+         IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val)
+           SELECT CASE(version_flag)
+           CASE(0)
+             ninvar=7
+             ALLOCATE(invar(ninvar),val(ninvar))
+             invar = (/'PR','FI','TT','RH','DD','FF','QQ'/)
+             ipr = 1
+             ifi = 2
+           CASE(1:3)
+             ninvar=8
+             ALLOCATE(invar(ninvar),val(ninvar))
+             invar = (/'PR','FI','TT','RH','DD','FF','QQ','TD'/)
+             ipr = 1
+             ifi = 2
+          CASE DEFAULT
+             WRITE(6,*)'Cannot handle this vfld-file version',version_flag
+             CALL abort
+          END SELECT
+       ENDIF
+
+       old_version_flag = version_flag
 
        READ_STATION_MOD : DO k=1,num_temp
 
@@ -127,7 +171,7 @@ SUBROUTINE read_vfld_temp
           CASE DEFAULT
           END SELECT 
 
-          IF (ierr.ne.0) CYCLE READ_STATION_MOD
+          IF (ierr /= 0) CYCLE READ_STATION_MOD
 
           !
           ! Find station index
@@ -169,7 +213,6 @@ SUBROUTINE read_vfld_temp
              hir(max_found_stat)%lat    = lat
              hir(max_found_stat)%lon    = lon
              hir(max_found_stat)%hgt    = hgt
-
 
            ENDIF
 
@@ -222,10 +265,8 @@ SUBROUTINE read_vfld_temp
           val = mflag
 
           SELECT CASE(version_flag)
-          CASE(0)
-             READ(lunin,*,iostat=ierr)val(1:7)
-          CASE(1:3)
-             READ(lunin,*,iostat=ierr)val(1:8)
+          CASE(0:3)
+             READ(lunin,*,iostat=ierr)val
           END SELECT 
 
           IF (ierr /= 0 ) CYCLE READ_LEV_MOD
@@ -233,33 +274,42 @@ SUBROUTINE read_vfld_temp
           kk_lev = 0
 
           DO kkk=1,my_temp_lev
-             IF (ABS(val(1) - lev_lst(kkk)) < 1.e-6) kk_lev = kkk
+             IF (ABS(val(ipr) - lev_lst(kkk)) < 1.e-6) kk_lev = kkk
           ENDDO
-
           IF (kk_lev == 0 ) CYCLE READ_LEV_MOD
 
           IF (lprint_read) WRITE(6,*)'KK_LEV',kk_lev,val(1),lev_lst(kk_lev)
 
           ! Do not use levels below model topography
           IF ( (ABS(hgt    - err_ind ) > 1.e-6) .AND. &
-               (ABS(val(2) - mflag   ) > 1.e-6) .AND. &
-                    val(2) < hgt                     ) CYCLE READ_LEV_MOD
+               (ABS(val(ifi) - mflag   ) > 1.e-6) .AND. &
+                    val(ifi) < hgt                     ) CYCLE READ_LEV_MOD
 
-          IF((fi_ind /= 0 ) .AND. qca(val(2),mflag)) &
-          hir(stat_i)%o(i)%nal(l,j,kk_lev+ my_temp_lev*(fi_ind-1)) = val(2)
-          IF((tt_ind /= 0 ) .AND. qca(val(3),mflag)) &
-          hir(stat_i)%o(i)%nal(l,j,kk_lev+ my_temp_lev*(tt_ind-1)) = val(3) - tzero
-          IF((rh_ind /= 0 ) .AND. qca(val(4),mflag)) &
-          hir(stat_i)%o(i)%nal(l,j,kk_lev+ my_temp_lev*(rh_ind-1)) = val(4)
-          IF((dd_ind /= 0 ) .AND. qca(val(5),mflag)) &
-          hir(stat_i)%o(i)%nal(l,j,kk_lev+ my_temp_lev*(dd_ind-1)) = val(5)
-          IF((ff_ind /= 0 ) .AND. qca(val(6),mflag)) &
-          hir(stat_i)%o(i)%nal(l,j,kk_lev+ my_temp_lev*(ff_ind-1)) = val(6)
-          IF((qq_ind /= 0 ) .AND. qca(val(7),mflag)) &
-          hir(stat_i)%o(i)%nal(l,j,kk_lev+ my_temp_lev*(qq_ind-1)) = val(7) * 1.e3
-          IF((td_ind /= 0 ) .AND. qca(val(8),mflag)) &
-          hir(stat_i)%o(i)%nal(l,j,kk_lev+ my_temp_lev*(td_ind-1)) = val(8)
+          PARVER_LOOP : DO m=1,nparver
+            INVAR_LOOP : DO n=1,ninvar
+              IF ( varprop(m)%id == invar(n) .AND. &
+                   (ABS(varprop(m)%lev - val(ipr)) < 1.e-6 ) ) THEN
 
+                ! Check for missing data flag
+                IF ( .NOT. qca(val(n),mflag) ) CYCLE PARVER_LOOP
+
+                ! Special treatment of some variabels
+                SELECT CASE(invar(n))
+
+                CASE('TT')
+                   val(n) = val(n) - tzero
+                CASE('QQ')
+                   val(n) = val(n) * 1.e3
+                END SELECT
+
+                ! Check for gross error
+                 IF ( qclr(val(n),varprop(m)%llim) .AND. &
+                      qcur(val(n),varprop(m)%ulim) )     &
+                hir(stat_i)%o(i)%nal(l,j,m) = val(n)
+
+              ENDIF
+            ENDDO INVAR_LOOP
+          ENDDO PARVER_LOOP
 
        ENDDO READ_LEV_MOD
 

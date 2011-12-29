@@ -1,14 +1,21 @@
 SUBROUTINE read_vobs
+ !
+ ! Read synop part of vobsyyyymmddhhll
+ ! and organize in data array
+ ! for verification and plotting
+ !
+ ! Ulf Andrae, SMHI, 2004-2011
+ !
 
  USE data
  USE functions
- USE timing
  USE constants
 
  IMPLICIT NONE
 
+ REAL, PARAMETER :: mflag = -99.
 
- INTEGER :: i,ii,k,                     &
+ INTEGER :: i,ii,k,m,n,                 &
             ierr = 0,                   &
             cdate = 999999,             &
             ctime = 999999,             &
@@ -16,23 +23,34 @@ SUBROUTINE read_vobs
             wtime = 999999,             &
             istnr = 0,                  &
             stat_i,                     &
+            ninvar,old_ninvar,          &
             num_temp,num_stat,          &
             num_temp_lev,               &
             stations(100000),           &
             max_found_stat,             &
-            version_flag
+            version_flag,               &
+            old_version_flag
  
- REAL :: lat,lon,hgt,val(15)
+ INTEGER, ALLOCATABLE :: inacc(:)
+
+ REAL :: lat,lon,hgt
+ REAL, ALLOCATABLE :: val(:)
 
  CHARACTER(LEN=200) :: fname =' '
  CHARACTER(LEN= 10) :: ndate =' '
+ CHARACTER(LEN= 10), ALLOCATABLE :: invar(:)
 
- LOGICAL :: qco,use_stnlist
+ LOGICAL :: use_stnlist
 
 !----------------------------------------------------------
 
+ ! Init 
  stations       = 0
  max_found_stat = 0
+ old_version_flag = -1
+ version_flag   = 0
+ old_ninvar     = -1
+ ninvar         = 0
 
  use_stnlist =(  MAXVAL(stnlist) > 0 )
 
@@ -41,7 +59,7 @@ SUBROUTINE read_vobs
  ! Copy time
 
  cdate = sdate
- ctime = stime
+ ctime = stime*10000
  wdate = cdate
  wtime = ctime
  
@@ -85,27 +103,73 @@ SUBROUTINE read_vobs
 
        READ(lunin,'(1x,3I6)',IOSTAT=ierr)num_stat,num_temp,version_flag
        IF ( ierr /= 0 ) THEN
-          WRITE(6,*)'Error reading firrst line of vobs file',ierr
+          WRITE(6,*)'Error reading first line of vobs file',ierr
           CALL abort
        ENDIF
-      
-       READ(lunin,*)num_temp_lev
 
-       READ_STATION_OBS : DO k=1,num_stat
-
-          val = -99.
-          SELECT CASE(version_flag)
- 
+       IF ( version_flag /= old_version_flag ) THEN
+         SELECT CASE(version_flag)
           CASE(0)
-             READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val(1:8)
+            IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val)
+            ninvar=8
+            ALLOCATE(invar(ninvar),val(ninvar))
+            invar = (/'NN','DD','FF','TT','RH','PS','PE','QQ'/)
           CASE(1)
-             READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val(1:10)
-          CASE(2)
-             READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val(1:15)
+            IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val)
+            ninvar=10
+            ALLOCATE(invar(ninvar),val(ninvar))
+            invar = (/'NN','DD','FF','TT','RH','PS','PE','QQ','VI','TD'/)
+          CASE(2,3)
+            IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val)
+            ninvar=15
+            ALLOCATE(invar(ninvar),val(ninvar))
+            invar = (/'NN','DD','FF','TT','RH', &
+                      'PS','PE','QQ','VI','TD', &
+                      'TX','TN','GG','GX','FX'/)
+          CASE(4)
+
           CASE DEFAULT
              WRITE(6,*)'Cannot handle this vobs-file version',version_flag
              CALL abort
+         END SELECT
+       ENDIF
 
+       old_version_flag = version_flag
+
+       SELECT CASE(version_flag)
+       CASE(0:3)
+       READ(lunin,*)num_temp_lev
+       CASE(4)
+          READ(lunin,*)ninvar
+          IF ( ninvar /= old_ninvar ) THEN
+            IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
+            ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
+            old_ninvar = ninvar
+          ENDIF
+          DO i=1,ninvar
+            READ(lunin,*)invar(i),inacc(i)
+          ENDDO
+       END SELECT
+
+       !
+       ! Read, identify and store station data
+       !
+
+       READ_STATION_OBS : DO k=1,num_stat
+
+          val = mflag
+          SELECT CASE(version_flag)
+           CASE(0)
+             READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val(1:8)
+           CASE(1)
+             READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val(1:10)
+           CASE(2,4)
+             READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val
+          CALL FLUSH(6)
+           
+           CASE DEFAULT
+             WRITE(6,*)'Cannot handle this vobs-file version',version_flag
+             CALL abort
           END SELECT
 
           IF (ierr  /= 0) CYCLE READ_STATION_OBS
@@ -123,13 +187,15 @@ SUBROUTINE read_vobs
              stat_i = 0
              IF ( use_stnlist ) THEN
                 DO ii=1,maxstn
-                   IF (istnr == stnlist(ii) ) stat_i = ii
+                      IF (istnr == stnlist(ii) ) THEN
+                          stat_i = ii
+                          EXIT
+                      ENDIF
                 ENDDO
                 IF ( stat_i == 0 ) THEN
                    stations(istnr) = -1
                    CYCLE READ_STATION_OBS
                 ENDIF
-
              ENDIF
 
              IF (stat_i == 0 ) THEN 
@@ -153,13 +219,16 @@ SUBROUTINE read_vobs
 
           END SELECT
 
+
           stat_i = stations(istnr)
 
           !
-          ! Make Celcius
+          ! Add data
           !
 
           i = obs(stat_i)%ntim + 1
+
+          IF ( i > maxtim ) CALL abort
 
           IF ( print_read > 1 ) WRITE(6,*)'STATION ',stat_i,obs(stat_i)%stnr
 
@@ -170,65 +239,43 @@ SUBROUTINE read_vobs
           obs(stat_i)%ntim      = i
           obs(stat_i)%o(i)%date = cdate
           obs(stat_i)%o(i)%time = ctime/10000
-          IF ( use_pos ) obs(stat_i)%pos(cdate * 100 + ctime/10000 ) = i
           obs(stat_i)%o(i)%val  = err_ind
 
-          ! Cloud cover
-          if (nn_ind /= 0 .AND. qco(val(1)).AND.qcl(val(1),nn_ind).AND. &
-                                qcu(val(1),nn_ind)) obs(stat_i)%o(i)%val(nn_ind) = val(1)
+          IF ( use_pos ) obs(stat_i)%pos(cdate * 100 + ctime/10000 ) = i
 
-          ! Wind direction
-          if (dd_ind /= 0 .AND. qco(val(2)).AND.qcl(val(2),dd_ind).AND. &
-                                qcu(val(2),dd_ind)) obs(stat_i)%o(i)%val(dd_ind) = val(2)
+          PARVER_LOOP : DO m=1,nparver
+            INVAR_LOOP : DO n=1,ninvar
+              IF ( varprop(m)%id == invar(n) ) THEN
 
-          ! Wind speed
-          if (ff_ind /= 0 .AND. qco(val(3)).AND.qcl(val(3),ff_ind).AND. &
-                                qcu(val(3),ff_ind)) obs(stat_i)%o(i)%val(ff_ind) = val(3)
-          ! Temperature
-          if (tt_ind /= 0 .AND. qco(val(4)).AND.qcl(val(4)-tzero,tt_ind).AND. &
-                                qcu(val(4)-tzero,tt_ind)) obs(stat_i)%o(i)%val(tt_ind) = val(4) - tzero
-          ! Relative humidity
-          if (rh_ind /= 0 .AND. qco(val(5)).AND.qcl(val(5),rh_ind).AND. &
-                                qcu(val(5),rh_ind)) obs(stat_i)%o(i)%val(rh_ind) = val(5)
-          ! Pressure
-          if (ps_ind /= 0 .AND. qco(val(6)).AND.qcl(val(6),ps_ind).AND. &
-                                qcu(val(6),ps_ind)) obs(stat_i)%o(i)%val(ps_ind) = val(6)
-          ! Precipitaion
-          if (pe_ind /= 0 .AND. qco(val(7)).AND.qcl(val(7),pe_ind).AND. &
-                                qcu(val(7),pe_ind)) obs(stat_i)%o(i)%val(pe_ind) = val(7)
-          ! Specific humidity
-          if (qq_ind /= 0 .AND. qco(val(8)).AND.qcl(val(8),qq_ind).AND. &
-                                qcu(val(8),qq_ind)) obs(stat_i)%o(i)%val(qq_ind) = val(8) * 1.e3
-          ! Visibility
-          if (vi_ind /= 0 .AND. qco(val(9)).AND.qcl(val(9),vi_ind).AND. &
-                                qcu(val(9),vi_ind)) obs(stat_i)%o(i)%val(vi_ind) = val(9) 
-          ! Dew point temperature
-          if (td_ind /= 0 .AND. qco(val(10)).AND.qcl(val(10),td_ind).AND. &
-                                qcu(val(10),td_ind)) obs(stat_i)%o(i)%val(td_ind) = val(10) 
+                ! Check for missing data flag
+                IF ( .NOT. qca(val(n),mflag) ) CYCLE PARVER_LOOP
 
-          ! Maximum temperature
-          IF (tx_ind /= 0 .AND. qco(val(11)).AND.qcl(val(11)-tzero,tx_ind) .AND. &
-                                qcu(val(11)-tzero,tx_ind)) obs(stat_i)%o(i)%val(tx_ind) = val(11) - tzero
+                ! Special treatment of some variabels
+                SELECT CASE(invar(n))
 
-          ! Minimum temperature
-          IF (tn_ind /= 0 .AND. qco(val(12)).AND.qcl(val(12)-tzero,tn_ind) .AND. &
-                                qcu(val(12)-tzero,tn_ind)) obs(stat_i)%o(i)%val(tn_ind) = val(12) - tzero
+                CASE('TT','TN','TX')
+                   val(n) = val(n) - tzero
+                CASE('QQ')
+                   val(n) = val(n) * 1.e3
+                END SELECT
 
-          ! Wind gust
-          IF (gg_ind /= 0 .AND. qco(val(13)).AND.qcl(val(13),gg_ind) .AND. &
-                                qcu(val(13),gg_ind)) obs(stat_i)%o(i)%val(gg_ind) = val(13)
+                ! Check for missing data / gross error
+                 IF ( qclr(val(n),varprop(m)%llim) .AND. &
+                      qcur(val(n),varprop(m)%ulim) )     &
+                obs(stat_i)%o(i)%val(m) = val(n)
 
-          ! Wind gust max
-          IF (gx_ind /= 0 .AND. qco(val(14)).AND.qcl(val(14),gx_ind) .AND. &
-                                qcu(val(14),gx_ind)) obs(stat_i)%o(i)%val(gx_ind) = val(14)
+              ENDIF
+            ENDDO INVAR_LOOP
 
-          ! Max wind speed
-          IF (fx_ind /= 0 .AND. qco(val(15)).AND.qcl(val(15),fx_ind) .AND. &
-                                qcu(val(15),fx_ind)) obs(stat_i)%o(i)%val(fx_ind) = val(15)
+            ! Static pseudo variables
+            SELECT CASE(varprop(m)%id)
+              CASE('LA')
+               obs(stat_i)%o(i)%val(m) = obs(stat_i)%lat
+              CASE('HG')
+               obs(stat_i)%o(i)%val(m) = hgt
+            END SELECT
 
-
-          if (la_ind /= 0 ) obs(stat_i)%o(i)%val(la_ind) = obs(stat_i)%lat
-          if (hg_ind /= 0 ) obs(stat_i)%o(i)%val(hg_ind) = obs(stat_i)%hgt
+          ENDDO PARVER_LOOP
 
           IF (print_read > 1 ) WRITE(6,*)obs(stat_i)%o(i)%val
 
@@ -239,27 +286,21 @@ SUBROUTINE read_vobs
     wdate = cdate
     wtime = ctime
     CALL adddtg(wdate,wtime,3600*obint,cdate,ctime)
-    IF(cdate.gt.edate_obs) EXIT TIME_LOOP
+    IF(cdate > edate_obs) EXIT TIME_LOOP
 
  ENDDO TIME_LOOP
-
- WRITE(6,*) 'FOUND TIMES OBS',obs(1)%ntim
 
  DO i=1,maxstn
     obs(i)%active = ( obs(i)%ntim > 0 )
  ENDDO
 
+ WRITE(6,*) 'FOUND TIMES OBS',MAXVAL(obs(:)%ntim)
+
+ ! Clear memory
+
+ IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val)
+ IF ( ALLOCATED(inacc) ) DEALLOCATE(inacc)
+
  RETURN
 
 END SUBROUTINE read_vobs
-LOGICAL FUNCTION qco(a)
-
-USE DATA, only : err_ind
-
-IMPLICIT NONE
-
-REAL    :: a
-
- qco = (ABS(a+99.) > 1.e-6 )
-
-END FUNCTION qco

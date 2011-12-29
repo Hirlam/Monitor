@@ -76,16 +76,6 @@ SUBROUTINE check_namelist
     CALL abort
  ENDIF
 
- !
- ! Check precipitation interval
- !
-
- IF ( pe_ind /= 0 ) THEN
-    IF ( accu_int(pe_ind) == 0 ) accu_int(pe_ind) = pe_interval
-    WRITE(6,*)'  Changed precipitation accumulation period to ',pe_interval
-    pe_interval = accu_int(pe_ind)
- ENDIF 
-
  ! Check ncla
     DO i=1,nparver
        IF ( ANY(ABS(pre_fcla(:,i)) > 1.e-6 ) ) THEN
@@ -224,7 +214,7 @@ SUBROUTINE check_namelist
 
           WRITE(6,*)'timserie_wind < obint not allowed'
           WRITE(6,*)'Parameter,obint,timeserie_wind:', &
-          obstype(i),obint,timeserie_wind(i)
+          varprop(i)%id,obint,timeserie_wind(i)
     
           CALL abort
 
@@ -232,14 +222,10 @@ SUBROUTINE check_namelist
     ENDDO
  ENDIF
  
- ! Graphics settings
-
- WRITE(6,*)'  GRAPHICS is ',TRIM(graphics)
-
  SELECT CASE(TRIM(graphics))
   CASE('gnuplot','GNUPLOT')
  
-              output_type = 0
+    output_type = 0
 
     lprint_timeserie_stat = ltimeserie_stat 
     print_bias_map        = plot_bias_map

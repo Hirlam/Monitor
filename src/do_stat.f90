@@ -119,14 +119,14 @@ SUBROUTINE do_stat(per_ind,p1,p2)
        DO k=1,ntimver
 
           IF (leach_station) &
-          CALL write_stat(obstype(j),vertime(k),stat(i)%s(:,j,k),nexp)
+          CALL write_stat(varprop(j)%id,vertime(k),stat(i)%s(:,j,k),nexp)
           DO o=1,nexp
              CALL   acc_stat(onestat(o),stat(i)%s(o,j,k),1,1,1)
           ENDDO
 
        ENDDO
 
-       IF(leach_station) CALL write_stat(obstype(j),999,onestat,nexp)
+       IF(leach_station) CALL write_stat(varprop(j)%id,999,onestat,nexp)
 
     ENDDO
 
@@ -209,7 +209,7 @@ SUBROUTINE do_stat(per_ind,p1,p2)
 
        DO k=1,ntimver
 
-          CALL write_stat(obstype(j),vertime(k),statall(:,j,k),nexp)
+          CALL write_stat(varprop(j)%id,vertime(k),statall(:,j,k),nexp)
 
           DO o=1,nexp
              CALL acc_stat(onestat(o),statall(o,j,k),1,1,1)
@@ -217,7 +217,7 @@ SUBROUTINE do_stat(per_ind,p1,p2)
 
        ENDDO
 
-       CALL write_stat(obstype(j),999,onestat,nexp)
+       CALL write_stat(varprop(j)%id,999,onestat,nexp)
 
     ENDDO LOOP_NPARVER
 

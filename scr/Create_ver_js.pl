@@ -70,6 +70,7 @@
     $npar = scalar(@par) -1 ;
 
     @text = ();
+    foreach $par ( @par ) { unless ( exists $plotdefs{$par}{'TEXT'} ) { $plotdefs{$par}{'TEXT'} = $par ; } ; } ;
     foreach $par ( @par ) { @text = (@text,$plotdefs{$par}{'TEXT'}) ; } ;
     $text='\''.join('\',\'',@text).'\'';
 

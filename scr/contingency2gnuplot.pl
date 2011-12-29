@@ -78,6 +78,11 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
         if ( $line =~ /Period/ )   {
            push(@heading,$line);
            next SCAN_FILE; }
+
+        if ( $line =~ /Used / )   {
+           push(@heading,$line);
+           next SCAN_FILE; }
+
         if ( $line =~ /Limits/ )   { @thresholds = split(' ',substr( $line, 9 ));
                                      $thresholdscan = 1; next SCAN_FILE; }
         if ( $len and ($line !~ /Each/) and $thresholdscan ){

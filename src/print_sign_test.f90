@@ -6,13 +6,13 @@ SUBROUTINE print_sign_test(lunout,nexp,nparver,         &
  USE functions
  USE constants, ONLY : seasonal_name1,seasonal_name2
  USE sign_data, ONLY : all_sign_stat,sign_stat_max
- USE data, ONLY : obstype,expname,station_name,                 &
+ USE data, ONLY : varprop,expname,station_name,                 &
                   csi,use_fclen,lfcver,                         &
                   maxfclenval,len_lab,output_mode,              &
                   nfclengths,nuse_fclen,tag,                    &
                   timdiff,time_shift,show_fc_length,            &
                   copied_obs,copied_mod,period_freq,period_type,&
-                  output_type,accu_int,lprint_seasonal,         &
+                  output_type,lprint_seasonal,         &
                   control_exp_nr,sign_time_diff,err_ind
 
  IMPLICIT NONE
@@ -86,35 +86,35 @@ SUBROUTINE print_sign_test(lunout,nexp,nparver,         &
                        istart,iend,                       &
                        .TRUE.,.FALSE.,90.,sdiff,ncases)
 
-    ! Set output filename
+      ! Set output filename
 
-    prefix = 'sign'
-    wname  = TRIM(expname(control_exp_nr))//'_'//TRIM(expname(i))
-    IF ( TRIM(tag) /= '#' ) wname  = TRIM(tag)//'_'//TRIM(wname)
+      prefix = 'sign'
+      wname  = TRIM(expname(control_exp_nr))//'_'//TRIM(expname(i))
+      IF ( TRIM(tag) /= '#' ) wname  = TRIM(tag)//'_'//TRIM(wname)
 
-    IF ( output_mode == 2 ) THEN
-       CALL make_fname(prefix,period,stnr,wname,   &
-                       obstype(j)(1:2),            &
-                       obstype(j)(3:len_lab),      &
-                       output_mode,output_type,    &
-                       fname)
-       CALL open_output(fname)
-       fname = TRIM(fname)//'n'
-    ENDIF
+      IF ( output_mode == 2 ) THEN
+         CALL make_fname(prefix,period,stnr,wname,   &
+                         varprop(j)%id,              &
+                         varprop(j)%lev,             &
+                         output_mode,output_type,    &
+                         fname)
+         CALL open_output(fname)
+         fname = TRIM(fname)//'n'
+      ENDIF
 
-    minnum = MINVAL(ncases)
-    maxnum_t = MAXVAL(ncases)
-    minnum = FLOOR(LOG10(MAX(minnum,1.)))
-    maxnum = FLOOR(LOG10(MAX(maxnum_t,1.)))
-    minnum = 10.**(minnum)
-    IF ( minnum < 10. ) minnum = 0.
-    maxnum = 10.**(maxnum)
-    maxnum = CEILING(maxnum_t/maxnum)*maxnum
-    ticnum = tics(minnum,maxnum)
+      minnum = MINVAL(ncases)
+      maxnum_t = MAXVAL(ncases)
+      minnum = FLOOR(LOG10(MAX(minnum,1.)))
+      maxnum = FLOOR(LOG10(MAX(maxnum_t,1.)))
+      minnum = 10.**(minnum)
+      IF ( minnum < 10. ) minnum = 0.
+      maxnum = 10.**(maxnum)
+      maxnum = CEILING(maxnum_t/maxnum)*maxnum
+      ticnum = tics(minnum,maxnum)
 
-    WRITE(lunout,'(A,X,en15.5e2)')'#MINNUM',minnum
-    WRITE(lunout,'(A,X,en15.5e2)')'#TICNUM',ticnum
-    WRITE(lunout,'(A,X,en15.5e2)')'#MAXNUM',maxnum
+      WRITE(lunout,'(A,X,en15.5e2)')'#MINNUM',minnum
+      WRITE(lunout,'(A,X,en15.5e2)')'#TICNUM',ticnum
+      WRITE(lunout,'(A,X,en15.5e2)')'#MAXNUM',maxnum
 
 
     ! Create headers
@@ -166,16 +166,15 @@ SUBROUTINE print_sign_test(lunout,nexp,nparver,         &
     ! Line 3
     IF ( show_fc_length ) THEN
 
-       CALL pname(obstype(j),wtext)
        CALL fclen_header(( .NOT. lfcver .OR. ( nuse_fclen /= nfclengths )), &
-                         maxfclenval,uh(j,:),uf(j,:),accu_int(j),wtext1)
-       wtext = TRIM(wtext)//'   '//TRIM(wtext1)
+                         maxfclenval,uh(j,:),uf(j,:),varprop(j)%acc,wtext1)
+       wtext = TRIM(varprop(j)%text)//'   '//TRIM(wtext1)
        WRITE(lunout,'(A,X,A)')'#HEADING_4',TRIM(wtext)
 
     ENDIF
 
     ! Experiments and parameters and norms
-    WRITE(lunout,'(A,X,A)')'#PAR',TRIM(obstype(j))
+    WRITE(lunout,'(A,X,A)')'#PAR',TRIM(varprop(j)%id)
 
     WRITE(lunout,'(A,X,A)')'#YLABEL',''
     IF ( lfcver ) THEN

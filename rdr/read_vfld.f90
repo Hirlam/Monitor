@@ -16,7 +16,7 @@ SUBROUTINE read_vfld
 
  REAL, PARAMETER :: mflag = -99.
 
- INTEGER :: i,ii,j,k,l,ll,              &
+ INTEGER :: i,ii,j,k,l,ll,m,n,          &
             ierr = 0,                   &
             cdate = 999999,             &
             ctime = 999999,             &
@@ -24,29 +24,38 @@ SUBROUTINE read_vfld
             wtime = 999999,             &
             istnr = 0,                  &
             stat_i,                     &
+            ninvar,old_ninvar,          &
             num_temp,num_stat,          &
             num_temp_lev,               &
             stations(100000),           &
             max_found_stat,             &
-            aerr,version_flag
+            aerr,version_flag,          &
+            old_version_flag
  
+ INTEGER, ALLOCATABLE :: inacc(:)
  
- REAL :: lat,lon,hgt,val(15),rtmp
+ REAL :: lat,lon,hgt,rtmp
+ REAL, ALLOCATABLE :: val(:)
 
  LOGICAL :: allocated_this_time(maxstn),&
             found_any_time,use_stnlist,lfound
 
  CHARACTER(LEN=200) :: fname = ' '
- CHARACTER(LEN=10 ) :: cwrk  ='yyyymmddhh'
- CHARACTER(LEN=02 ) :: cfclen  ='  '
+ CHARACTER(LEN= 10) :: cwrk  ='yyyymmddhh'
+ CHARACTER(LEN= 02) :: cfclen  ='  '
+ CHARACTER(LEN= 10), ALLOCATABLE :: invar(:) 
 
 !----------------------------------------------------------
 
+ ! Init 
  stations       = 0
  max_found_stat = 0
- use_stnlist = ( MAXVAL(stnlist) > 0 ) 
+ old_version_flag = -1
+     version_flag = 0
+ old_ninvar       = -1
+     ninvar       = 0
 
- hir%hgt = obs%hgt
+ use_stnlist =( MAXVAL(stnlist) > 0 )
 
  CALL allocate_mod
 
@@ -54,6 +63,8 @@ SUBROUTINE read_vfld
 
  cdate = sdate
  ctime = stime*10000
+ wdate = cdate
+ wtime = ctime
 
  !
  ! Loop over all times
@@ -94,7 +105,7 @@ SUBROUTINE read_vfld
 
        fname = TRIM(modpath(l))//'vfld'//TRIM(expname(l))//cwrk//cfclen
        OPEN(lunin,file=fname,status='old',iostat=ierr)
-       IF (ierr.NE.0) THEN
+       IF (ierr /= 0) THEN
           IF (print_read > 0 ) WRITE(6,'(2A)')'Could not open ',TRIM(fname)
           CYCLE EXP_LOOP
        ENDIF
@@ -104,10 +115,57 @@ SUBROUTINE read_vfld
 
        READ(lunin,'(1x,3I6)',IOSTAT=ierr)num_stat,num_temp,version_flag
        IF ( ierr /= 0 ) THEN
-         WRITE(6,*)'Error reading first line of vfld file'
+         WRITE(6,*)'Error reading first line of vfld file',ierr
          CALL abort
        ENDIF
-       READ(lunin,*)num_temp_lev
+
+       IF ( version_flag /= old_version_flag ) THEN
+           SELECT CASE(version_flag)
+           CASE(0)
+            IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val)
+             ninvar=8
+             ALLOCATE(invar(ninvar),val(ninvar))
+             invar = (/'NN','DD','FF','TT','RH','PS','PE','QQ'/)
+           CASE(1)
+            IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val)
+             ninvar=10
+             ALLOCATE(invar(ninvar),val(ninvar))
+             invar = (/'NN','DD','FF','TT','RH','PS','PE','QQ','VI','TD'/)
+          CASE(2,3)
+            IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val)
+             ninvar=15
+             ALLOCATE(invar(ninvar),val(ninvar))
+             invar = (/'NN','DD','FF','TT','RH', &
+                       'PS','PE','QQ','VI','TD', &
+                       'TX','TN','GG','GX','FX'/)
+          CASE(4)
+
+          CASE DEFAULT
+             WRITE(6,*)'Cannot handle this vfld-file version',version_flag
+             CALL abort
+          END SELECT
+       ENDIF 
+
+       old_version_flag = version_flag
+
+       SELECT CASE(version_flag)
+       CASE(0:3)
+         READ(lunin,*)num_temp_lev
+       CASE(4)
+          READ(lunin,*,IOSTAT=ierr)ninvar
+          IF ( ninvar /= old_ninvar ) THEN
+            IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
+            ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
+            old_ninvar = ninvar
+          ENDIF
+          DO i=1,ninvar
+            READ(lunin,*,IOSTAT=ierr)invar(i),inacc(i)
+          ENDDO
+       END SELECT
+
+       !
+       ! Read, identify and store station data
+       !
 
        READ_STATION_MOD : DO k=1,num_stat
 
@@ -120,7 +178,6 @@ SUBROUTINE read_vfld
           CASE(1)
              READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val(1:10)
           CASE(2)
-
              READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val(1:15)
 
              IF ( ALL( ABS(val(11:12) - mflag )> 1.e-6 ) ) THEN
@@ -137,16 +194,14 @@ SUBROUTINE read_vfld
                 ENDIF
              ENDIF
 
-          CASE(3)
-
-             READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val(1:15)
-
+          CASE(3:4)
+             READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val
           CASE DEFAULT
              WRITE(6,*)'Cannot handle this vfld-file version',version_flag
              CALL abort
           END SELECT
 
-          IF (ierr.ne.0) CYCLE READ_STATION_MOD
+          IF (ierr /= 0) CYCLE READ_STATION_MOD
 
           !
           ! Find station index for the first experiment
@@ -212,7 +267,7 @@ SUBROUTINE read_vfld
           IF (print_read > 1 .AND. hir(stat_i)%ntim > 0 ) &
           WRITE(6,*)'BOUND 1',istnr,UBOUND( hir(stat_i)%o(hir(stat_i)%ntim)%nal )
           IF (print_read > 1 .AND. hir(stat_i)%ntim > 0 ) &
-          WRITE(6,*)'TEST',istnr,allocated_this_time(stat_i)
+          WRITE(6,*)'TEST',istnr,allocated_this_time(stat_i),stat_i
 
           IF ( .NOT. allocated_this_time(stat_i) ) THEN 
 
@@ -244,85 +299,46 @@ SUBROUTINE read_vfld
           !
           ! Add data
           !
-          IF (print_read > 1 ) WRITE(6,*)'ADD',istnr,stat_i,cdate,ctime/10000,fclen(j)
+          !IF (print_read > 1 ) WRITE(6,*)'ADD',istnr,stat_i,cdate,ctime/10000,fclen(j)
           IF (print_read > 1 ) WRITE(6,*)'ADD',istnr,val
-          IF (print_read > 1 ) WRITE(6,*)'BOUND',istnr,UBOUND( hir(stat_i)%o(i)%nal )
+          !IF (print_read > 1 ) WRITE(6,*)'BOUND',istnr,UBOUND( hir(stat_i)%o(i)%nal )
+          IF (print_read > 1 ) WRITE(6,*)'INVAR',invar
 
-          ! Cloud cover
-          IF (nn_ind /= 0 .AND. qca(val(1),mflag)  .AND. &
-                                qcl(val(1),nn_ind) .AND. &
-                                qcu(val(1),nn_ind)) hir(stat_i)%o(i)%nal(l,j,nn_ind) = val(1)
-          ! Wind direction
-          IF (dd_ind /= 0 .AND. qca(val(2),mflag)  .AND. &
-                                qcl(val(2),dd_ind) .AND. &
-                                qcu(val(2),dd_ind)) hir(stat_i)%o(i)%nal(l,j,dd_ind) = val(2)
-          ! Wind speed
-          IF (ff_ind /= 0 .AND. qca(val(3),mflag)  .AND. &
-                                qcl(val(3),ff_ind) .AND. &
-                                qcu(val(3),ff_ind)) hir(stat_i)%o(i)%nal(l,j,ff_ind) = val(3)
+          PARVER_LOOP : DO m=1,nparver
+            INVAR_LOOP : DO n=1,ninvar
+              IF ( varprop(m)%id == invar(n) ) THEN
 
-          ! Temperature
-          IF (tt_ind /= 0 .AND. qca(val(4),mflag)        .AND. &
-                                qcl(val(4)-tzero,tt_ind) .AND. &
-                                qcu(val(4)-tzero,tt_ind)) hir(stat_i)%o(i)%nal(l,j,tt_ind) = val(4) - tzero
+                ! Check for missing data flag
+                IF ( .NOT. qca(val(n),mflag) ) CYCLE PARVER_LOOP
 
-          ! Relative humidity
-          IF (rh_ind /= 0 .AND. qca(val(5),mflag)  .AND. &
-                                qcl(val(5),rh_ind) .AND. &
-                                qcu(val(5),rh_ind)) hir(stat_i)%o(i)%nal(l,j,rh_ind) = val(5)
-          ! Pressure
-          IF (ps_ind /= 0 .AND. qca(val(6),mflag)  .AND. &
-                                qcl(val(6),ps_ind) .AND. &
-                                qcu(val(6),ps_ind)) hir(stat_i)%o(i)%nal(l,j,ps_ind) = val(6)
-          ! Precipitaion
-          IF (pe_ind /= 0 .AND. qca(val(7),mflag)  .AND. &
-                                qcl(val(7),pe_ind) .AND. &
-                                qcu(val(7),pe_ind)) hir(stat_i)%o(i)%nal(l,j,pe_ind) = val(7)
-          ! Specific humidity
-          IF (qq_ind /= 0 .AND. qca(val(8),mflag)  .AND. &
-                                qcl(val(8),qq_ind) .AND. &
-                                qcu(val(8),qq_ind)) hir(stat_i)%o(i)%nal(l,j,qq_ind) = val(8) * 1.e3
+                ! Special treatment of some variabels
+                SELECT CASE(invar(n))
+ 
+                CASE('TT','TN','TX')
+                   val(n) = val(n) - tzero
+                CASE('QQ')
+                   val(n) = val(n) * 1.e3
+                END SELECT
 
-          ! Visibility
-          IF (vi_ind /= 0 .AND. qca(val(9),mflag)  .AND. &
-                                qcl(val(9),vi_ind) .AND. &
-                                qcu(val(9),vi_ind)) hir(stat_i)%o(i)%nal(l,j,vi_ind) = val(9)
+                ! Check for missing data / gross error
+                 IF ( qclr(val(n),varprop(m)%llim) .AND. &
+                      qcur(val(n),varprop(m)%ulim) )     &
+                hir(stat_i)%o(i)%nal(l,j,m) = val(n)
 
-          ! Dew point temperature
-          IF (td_ind /= 0 .AND. qca(val(10),mflag)  .AND. &
-                                qcl(val(10),td_ind) .AND. &
-                                qcu(val(10),td_ind)) hir(stat_i)%o(i)%nal(l,j,td_ind) = val(10)
+              ENDIF
+            ENDDO INVAR_LOOP
 
-          ! Maximum temperature
-          IF (tx_ind /= 0 .AND. qca(val(11),mflag)        .AND. &
-                                qcl(val(11)-tzero,tx_ind) .AND. &
-                                qcu(val(11)-tzero,tx_ind)) hir(stat_i)%o(i)%nal(l,j,tx_ind) = val(11) - tzero
+            ! Static pseudo variables
+            SELECT CASE(varprop(m)%id)
+              CASE('LA')
+               hir(stat_i)%o(i)%nal(l,j,m) = hir(stat_i)%lat
+              CASE('HG')
+               hir(stat_i)%o(i)%nal(l,j,m) = hgt
+            END SELECT
 
-          ! Minimum temperature
-          IF (tn_ind /= 0 .AND. qca(val(12),mflag)        .AND. &
-                                qcl(val(12)-tzero,tn_ind) .AND. &
-                                qcu(val(12)-tzero,tn_ind)) hir(stat_i)%o(i)%nal(l,j,tn_ind) = val(12) - tzero
+          ENDDO PARVER_LOOP
 
-          ! Wind gust
-          IF (gg_ind /= 0 .AND. qca(val(13),mflag)  .AND. &
-                                qcl(val(13),gg_ind) .AND. &
-                                qcu(val(13),gg_ind)) hir(stat_i)%o(i)%nal(l,j,gg_ind) = val(13)
-
-          ! Wind gust max
-          IF (gx_ind /= 0 .AND. qca(val(14),mflag)  .AND. &
-                                qcl(val(14),gx_ind) .AND. &
-                                qcu(val(14),gx_ind)) hir(stat_i)%o(i)%nal(l,j,gx_ind) = val(14)
-
-          ! Max wind speed
-          IF (fx_ind /= 0 .AND. qca(val(15),mflag)  .AND. &
-                                qcl(val(15),fx_ind) .AND. &
-                                qcu(val(15),fx_ind)) hir(stat_i)%o(i)%nal(l,j,fx_ind) = val(15)
-
-          ! Latitude
-          IF (la_ind /= 0 ) hir(stat_i)%o(i)%nal(l,j,la_ind) = hir(stat_i)%lat
-
-          ! Station height
-          IF (hg_ind /= 0 ) hir(stat_i)%o(i)%nal(l,j,hg_ind) = hgt
+          IF (print_read > 1 ) WRITE(6,*)'VALUE',hir(stat_i)%o(i)%nal(l,j,:)
 
        ENDDO READ_STATION_MOD
 
@@ -348,6 +364,11 @@ SUBROUTINE read_vfld
  ENDDO
 
  WRITE(6,*) 'FOUND TIMES MODEL',MAXVAL(hir(:)%ntim)
+
+ ! Clear memory
+
+ IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val)
+ IF ( ALLOCATED(inacc) ) DEALLOCATE(inacc)
 
  RETURN
 

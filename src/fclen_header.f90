@@ -87,7 +87,7 @@ SUBROUTINE fclen_header(lfclen,nuf,uh,uf,ai,txt)
 
        ENDIF
     ENDIF
-    txt = 'At '//TRIM(whour)//' +'//TRIM(txt)
+    txt = 'Used '//TRIM(whour)//' +'//TRIM(txt)
  ELSE
     txt = 'Hours: '//TRIM(whour)
  ENDIF

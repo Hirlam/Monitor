@@ -1,6 +1,6 @@
 SUBROUTINE open_xml(lunxml,maxper,periods)
 
- USE data,     ONLY : period_type,nparver,obstype,sdate,edate,tag
+ USE data,     ONLY : period_type,nparver,varprop,sdate,edate,tag
 
  IMPLICIT NONE
 
@@ -14,7 +14,7 @@ SUBROUTINE open_xml(lunxml,maxper,periods)
  INTEGER :: i,j 
 
  CHARACTER(LEN= 8) :: cmon
- CHARACTER(LEN=50) :: fname,cname,cunit
+ CHARACTER(LEN=50) :: fname
 
  !---------------------------------------------------------
 
@@ -25,20 +25,18 @@ SUBROUTINE open_xml(lunxml,maxper,periods)
  IF ( period_type == 1 ) periods = 0
 
  DO j=1,nparver
-    CALL pname(obstype(j),cname)
-    CALL yunit(obstype(j)(1:2),cunit)
     DO i=1,maxper
 
         WRITE(cmon(1:8),'(I8.8)')periods(i)
-        fname = TRIM(obstype(j))//'_'//TRIM(cmon)//'.xml'
+        fname = TRIM(varprop(j)%id)//'_'//TRIM(cmon)//'.xml'
         OPEN(lunxml,file=fname)
 
         WRITE(lunxml,'(A)')'<?xml version="1.0"?>'
         WRITE(lunxml,'(A)')'<?xml-stylesheet type="text/xsl" href="style.xsl"?>'
         WRITE(lunxml,'(A)')'<STAT>'
         WRITE(lunxml,'(3A)')'<TAG>',TRIM(tag),'</TAG>'
-        WRITE(lunxml,'(3A)')'<VAR>',TRIM(cname),'</VAR>'
-        WRITE(lunxml,'(3A)')'<UNIT>',TRIM(cunit),'</UNIT>'
+        WRITE(lunxml,'(3A)')'<VAR>',TRIM(varprop(j)%text),'</VAR>'
+        WRITE(lunxml,'(3A)')'<UNIT>',TRIM(varprop(j)%unit),'</UNIT>'
         IF ( periods(i) == 0 ) THEN
            WRITE(lunxml,'(A,I8,A,I8,A)')'<PERIOD>',sdate,'-',edate,'</PERIOD>'
         ELSE

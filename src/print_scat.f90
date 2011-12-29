@@ -11,11 +11,11 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
  USE types
  USE timing
  USE constants, ONLY : seasonal_name1,seasonal_name2
- USE data, ONLY : obstype,expname,err_ind,nexp,station_name,csi, &
+ USE data, ONLY : varprop,expname,err_ind,nexp,station_name,csi, &
                   tag,show_fc_length,output_type,output_mode,    &
                   mparver,corr_pairs,flag_pairs,exp_pairs,       &
                   period_freq,maxfclenval,                       &
-                  scat_min,scat_max,scat_magn,len_lab,accu_int
+                  scat_min,scat_max,scat_magn,len_lab
  USE functions
 
  IMPLICIT NONE
@@ -220,7 +220,7 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
 
      DO i=1,2
         ! Special wind direction case
-        IF ( (obstype(lcorr_pairs(j,i))(1:2) == 'DD' ) .AND.   &
+        IF ( (varprop(lcorr_pairs(j,i))%id == 'DD' ) .AND.   &
             (lflag_pairs(j,i) /= 0     )  ) THEN
             minax(i) =   0.
             maxax(i) = 360.
@@ -235,7 +235,7 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
     CALL fclen_header(.TRUE.,maxfclenval,            &
                       uh(lcorr_pairs(j,1),:),        &
                       uf(lcorr_pairs(j,1),:),        &
-                      accu_int(lcorr_pairs(j,1)),    &
+                      varprop(lcorr_pairs(j,1))%acc, &
                       wtext3)
 
     nexp_plot = 1
@@ -249,8 +249,7 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
        my_tag = TRIM(tag)//'_'//TRIM(expname(jj))
        IF( full_scatter ) THEN
           CALL make_fname(prefix,period,nr,my_tag,       &
-                       obstype(i)(1:2),                  &
-                       obstype(i)(3:len_lab),            &
+                       varprop(i)%id,varprop(i)%lev,     &
                        output_mode,output_type,fname)
        ELSE
           WRITE(cnum(1:2),'(I2.2)')j
@@ -266,12 +265,12 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
        DO k=1,2
 
            i = lcorr_pairs(j,k)
-           CALL pname(obstype(i),wtext) 
+           wtext = varprop(i)%text
 
            SELECT CASE(lflag_pairs(j,k))
            CASE(-1)
               val(k,1:kk) = scat(i)%dat(1,1:kk)
-              axist(k)= 'OBS '//TRIM(wtext)
+              axist(k)= 'OBS '//TRIM(varprop(i)%text)
            CASE( 0)
               IF( ALL(lexp_pairs(j,:) == 0 ) ) THEN
                 val(k,1:kk) = scat(i)%dat(1+jj,1:kk)
@@ -308,7 +307,7 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
            ! Special case for wind direction
            !
 
-           IF ( obstype(i)(1:2) == 'DD' .AND. lflag_pairs(j,k) /= 0 ) THEN
+           IF ( varprop(i)%id == 'DD' .AND. lflag_pairs(j,k) /= 0 ) THEN
               DO l=1,kk
                  IF (val(k,l) > 360. ) THEN
                     val(k,l) = val(k,l) - 360.         
@@ -320,8 +319,9 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
         ENDDO
 
         wtext ='                               '
+        l = lcorr_pairs(j,1)
         IF( full_scatter ) &
-        CALL pname(obstype(lcorr_pairs(j,1)),wtext)
+        wtext = TRIM(varprop(l)%text)//' ['//TRIM(varprop(l)%unit)//']'
 
         CALL bin_cont(lunout,                         &
                       val(1,1:kk),val(2,1:kk),kk,     &
@@ -329,7 +329,7 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
                       minax(2),maxax(2),              &
                       scat_magn(lcorr_pairs(j,1)),    &
                       fname,                          &
-                      title,wtext,wtext3,wtext4,      &
+                      title,wtext,wtext4,wtext3,      &
                       axist(2),axist(1)) 
 
 

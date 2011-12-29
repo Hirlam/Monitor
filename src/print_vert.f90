@@ -12,7 +12,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
  USE functions
  USE timing
  USE constants, ONLY : seasonal_name1,seasonal_name2
- USE data, ONLY : obstype,expname,station_name,                 &
+ USE data, ONLY : varprop,expname,station_name,                 &
                   csi,lfcver,maxfclenval,                       &
                   lev_lst,ltemp,nfclengths,                     &
                   show_fc_length,tag,                           &
@@ -20,7 +20,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
                   len_lab,period_freq,period_type,              &
                   output_type,output_mode,                      &
                   show_times,use_fclen,timdiff,time_shift,      &
-                  z_is_pressure,len_lab,accu_int,err_ind
+                  len_lab,err_ind
 
 
  IMPLICIT NONE
@@ -56,10 +56,8 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
 
  CHARACTER(LEN=100      ) :: wtext =' ',wtext1=' ',my_tag
  CHARACTER(LEN=100      ) :: fname =' '
- CHARACTER(LEN=len_lab  ) :: ob_short=''
  CHARACTER(LEN=1  ) :: prefix    = ' '
  CHARACTER(LEN=10 ) :: chour    = ' '
- CHARACTER(LEN=30 ) :: ytitle=''
  CHARACTER(LEN=30 ) :: cform='   '
 
  LOGICAL, ALLOCATABLE :: ldum(:)
@@ -163,7 +161,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
     ENDIF
 
     CALL make_fname(prefix,period,stnr,my_tag,    &
-                    obstype(j)(1:2),'0',          &
+                    varprop(j)%id,0,              &
                     output_mode,output_type,      &
                     fname)
 
@@ -196,11 +194,6 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
     WRITE(lunout,'(A,X,A)')'#HEADING_1',TRIM(wtext)
     
     ! Line 2
-    ob_short = obstype(j)
-    ob_short(3:6) = '    '
-    CALL pname(ob_short,wtext)
-     
-    ! Line 2
     IF ( yymm == 0 ) THEN
     ELSEIF(yymm < 13) THEN
 
@@ -220,7 +213,9 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
        WRITE(wtext1,'(A8,I8,A1,I8)')'Period: ',        &
        yymm,'-',yymm2
     ENDIF
-    wtext = TRIM(wtext)//'  '//TRIM(wtext1)
+
+    jj=INDEX(TRIM(varprop(j)%text),' ',.TRUE.)
+    wtext = TRIM(varprop(j)%text(1:jj))//'  '//TRIM(wtext1)
     WRITE(lunout,'(A,X,A)')'#HEADING_2',TRIM(wtext)
 
     ! Line 3
@@ -237,13 +232,13 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
     ENDIF
 
     IF ( ntimver_out == 1 ) THEN
-       CALL fclen_header(.TRUE.,maxfclenval,luh,uf(jl,:),accu_int(jl),wtext)
+       CALL fclen_header(.TRUE.,maxfclenval,luh,uf(jl,:),varprop(jl)%acc,wtext)
     ELSE
        IF (lfcver) THEN
           ALLOCATE(ldum(0:hour(kk)))
           ldum           = .FALSE.
           ldum(hour(kk)) = .TRUE.
-          CALL fclen_header(.TRUE.,hour(kk),luh,ldum,accu_int(j),wtext)
+          CALL fclen_header(.TRUE.,hour(kk),luh,ldum,varprop(j)%acc,wtext)
           DEALLOCATE(ldum)
        ELSE
           WRITE(chour,'(I2.2,1X,A3)')hour(kk),'UTC'
@@ -255,14 +250,14 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
                 IF( MOD(k + l,24) == hour(kk)) luh(k) = .TRUE.
             ENDDO
           ENDDO
-          CALL fclen_header(.TRUE.,maxfclenval,luh,uf(jl,:),accu_int(j),wtext)
+          CALL fclen_header(.TRUE.,maxfclenval,luh,uf(jl,:),varprop(j)%acc,wtext)
           wtext = 'Statistics at '//TRIM(chour)//'  '//TRIM(wtext)
        ENDIF
     ENDIF
     WRITE(lunout,'(A,X,A)')'#HEADING_3',TRIM(wtext)
 
     ! Experiments and parameters and norms
-    WRITE(lunout,'(A,X,A)')'#PAR',TRIM(obstype(j))
+    WRITE(lunout,'(A,X,A)')'#PAR',TRIM(varprop(j)%id)
 
     npp = 0
 
@@ -284,11 +279,8 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
        WRITE(lunout,'(A,I2.2,X,A)')'#EXP_',i,expname(i)
     ENDDO
 
-    ob_short = obstype(j)
-    ob_short(3:6) = '   '
-    CALL yunit(ob_short,ytitle)
     WRITE(lunout,'(A,X,A)')'#YLABEL','hPa'
-    WRITE(lunout,'(A,X,A)')'#XLABEL',TRIM(ytitle)
+    WRITE(lunout,'(A,X,A)')'#XLABEL',TRIM(varprop(j)%unit)
 
     ! Time to write the parameters
  

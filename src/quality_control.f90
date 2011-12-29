@@ -98,32 +98,35 @@ SUBROUTINE quality_control
  IF (print_qc>1) WRITE(lunqc,*)'Accumulation index'
  ind_pe = 0
  DO j=1,nparver
-    IF ( accu_int(j) == 0 ) CYCLE
-    IF (print_qc>1) WRITE(lunqc,*)obstype(j),accu_int(j)
+    IF ( varprop(j)%acc == 0 ) CYCLE
+    IF (print_qc>1) WRITE(lunqc,*)varprop(j)%id,varprop(j)%acc
    DO i=1,nfclengths
 
-    IF ( fclen(i) < accu_int(j) ) CYCLE 
+    IF ( fclen(i) < varprop(j)%acc ) CYCLE 
 
-    ind_pe(j,i)=TRANSFER(MINLOC(ABS(fclen(1:nfclengths)-(fclen(i)-accu_int(j)))),ii)
+    ind_pe(j,i)=TRANSFER(MINLOC(ABS(fclen(1:nfclengths)-(fclen(i)-varprop(j)%acc))),ii)
 
-    IF (fclen(i)-fclen(ind_pe(j,i)) < accu_int(j) ) ind_pe(j,i) = 0
+    IF (fclen(i)-fclen(ind_pe(j,i)) < varprop(j)%acc ) ind_pe(j,i) = 0
 
-    IF (print_qc>1) WRITE(lunqc,*)i,obstype(j),fclen(i),ind_pe(j,i)
+    IF (print_qc>1) WRITE(lunqc,*)i,varprop(j)%id,fclen(i),ind_pe(j,i)
 
    ENDDO
  ENDDO
 
  IF ( .NOT. estimate_qc_limit ) THEN
 
-    !
-    ! Set up quality control levels
-    !
+   !
+   ! Set up quality control levels
+   !
 
-    CALL set_qc_lim
+   DO j=1,nparver
+     IF ( ABS(qc_lim(j) - err_ind ) > 1.e-6 ) CYCLE
+     qc_lim(j) = varprop(j)%lim
+   ENDDO
 
-    !
-    ! Gross error tracking
-    !
+   !
+   ! Gross error tracking
+   !
 
     ALLOCATE(gross_error(2,maxstn,nparver))
     gross_error  = 0
@@ -172,7 +175,7 @@ SUBROUTINE quality_control
        IF ( print_qc > 2 ) WRITE(lunqc,*)'DATE IS',&
        obs(i)%o(j)%date,obs(i)%o(j)%time,obs(i)%o(j)%val
 
-       IF(ALL(ABS(obs(i)%o(j)%val-err_ind) < 1.e-6)) CYCLE J_CYCLE
+       IF(ALL(ABS(obs(i)%o(j)%val-err_ind) < eps)) CYCLE J_CYCLE
 
      FC_CYCLE : DO n=1,nfclengths
 
@@ -214,7 +217,7 @@ SUBROUTINE quality_control
           NPARVER_LOOP : DO k=1,nparver
 
              IF ( print_qc > 2 ) WRITE(lunqc,*)'PAR IS CHECKED', &
-             par_is_checked(k),obstype(k)
+             par_is_checked(k),varprop(k)%id
 
              IF ( par_is_checked(k) ) CYCLE NPARVER_LOOP
 
@@ -222,7 +225,7 @@ SUBROUTINE quality_control
              ! Cycle if fclen should not be used but ONLY if this is NOT an accumulated value
              !
 
-             IF ( (.NOT.ANY(qc_fclen == fclen(n))) .AND. (accu_int(k) == 0 ) ) CYCLE NPARVER_LOOP
+             IF ( (.NOT.ANY(qc_fclen == fclen(n))) .AND. (varprop(k)%acc == 0 ) ) CYCLE NPARVER_LOOP
 
              IF ( print_qc > 2 ) WRITE(lunqc,*)'PASSED qc_fclen test', &
              obs(i)%o(j)%val(k)
@@ -244,17 +247,17 @@ SUBROUTINE quality_control
 
                 IF (ABS(hir(i)%o(jj)%nal(o,n,k)-err_ind)<1.e-6) CYCLE EXP_LOOP
 
-                IF(accu_int(k) /= 0) THEN
+                IF(varprop(k)%acc /= 0) THEN
 
                    !
                    ! Special for precipitation
                    !
 
-                   IF(fclen(n) == accu_int(k)) THEN
+                   IF(fclen(n) == varprop(k)%acc) THEN
 
                       diff_prep = hir(i)%o(jj)%nal(o,n,k)
 
-                   ELSEIF(fclen(n) > accu_int(k) .AND. ind_pe(k,n) > 0 ) THEN
+                   ELSEIF(fclen(n) > varprop(k)%acc .AND. ind_pe(k,n) > 0 ) THEN
 
                       IF ( print_qc > 2 ) WRITE(lunqc,*)'EXP fclen -acc_int',o,ind_pe(k,n), &
                       hir(i)%o(jj)%nal(o,ind_pe(k,n),k)
@@ -269,7 +272,7 @@ SUBROUTINE quality_control
 
                       IF (diff_prep < 0.) THEN
                          WRITE(lunqc,*)'Accumulated model value difference is negative',diff_prep
-                         WRITE(lunqc,*)TRIM(obstype(k)),diff_prep
+                         WRITE(lunqc,*)TRIM(varprop(k)%id),diff_prep
                          WRITE(lunqc,'(2A,I10)')TRIM(expname(o)),' station:',hir(i)%stnr
                          WRITE(lunqc,*)hir(i)%stnr,hir(i)%o(jj)%date,      &
                                    hir(i)%o(jj)%time,fclen(n),         &
@@ -295,7 +298,7 @@ SUBROUTINE quality_control
                 ! Wind direction
                 !
 
-                 IF(obstype(k)(1:2) == 'DD'.AND.ABS(diff(o)) > 180.) &
+                 IF(varprop(k)%id == 'DD'.AND.ABS(diff(o)) > 180.) &
                  diff(o) = diff(o) + SIGN(360.,180.-diff(o))
 
                 !
@@ -327,19 +330,19 @@ SUBROUTINE quality_control
                 ! Reject erroneous observations
                 !
 
-                IF (accu_int(k) == 0 ) THEN
+                IF (varprop(k)%acc == 0 ) THEN
                    IF (print_qc > 1 ) THEN
                       WRITE(lunqc,'(A,2I10,2I3)')'GROSS ERROR station:', &
                       hir(i)%stnr,hir(i)%o(jj)%date,hir(i)%o(jj)%time,fclen(n)
-                      WRITE(lunqc,*)obstype(k),qc_lim(k),     &
+                      WRITE(lunqc,*)varprop(k)%id,qc_lim(k),     &
                       obs(i)%o(j)%val(k),hir(i)%o(jj)%nal(:,n,k)
                    ENDIF
 
                    gross_error(1,i,k)   = gross_error(1,i,k) + 1
                    obs(i)%o(j)%val(k) = err_ind
 
-                ELSEIF ( (fclen(n) == accu_int(k)).OR. &
-                         (fclen(n) >  accu_int(k) .AND.  ind_pe(k,n) > 0 )) THEN
+                ELSEIF ( (fclen(n) == varprop(k)%acc).OR. &
+                         (fclen(n) >  varprop(k)%acc .AND.  ind_pe(k,n) > 0 )) THEN
                    IF (print_qc > 1 ) THEN
                       IF (lprint_gross_first ) THEN
                          WRITE(lunqc,'(A)')'GROSS ERROR station: stnr, date, time, fclen'
@@ -348,7 +351,7 @@ SUBROUTINE quality_control
                       ENDIF
                       WRITE(lunqc,'(A,2I10,2I3)')'GROSS ERROR station:', &
                       hir(i)%stnr,hir(i)%o(jj)%date,hir(i)%o(jj)%time,fclen(n)
-                      WRITE(lunqc,*)obstype(k),qc_lim(k),     &
+                      WRITE(lunqc,*)varprop(k)%id,qc_lim(k),     &
                       obs(i)%o(j)%val(k),obs(i)%o(j)%val(k)+diff(1)
                    ENDIF
 
@@ -401,7 +404,7 @@ SUBROUTINE quality_control
 
            IF ( ABS(obs(i)%o(j)%val(k)-err_ind) > 1.e-6 ) THEN
 
-              IF (print_qc > 1 ) WRITE(lunqc,*)obstype(k),obs(i)%o(j)%val(k)
+              IF (print_qc > 1 ) WRITE(lunqc,*)varprop(k)%id,obs(i)%o(j)%val(k)
               obs(i)%o(j)%val(k) = err_ind
    
               gross_error(2,i,k) = gross_error(2,i,k) + 1
@@ -432,7 +435,7 @@ SUBROUTINE quality_control
           qc_lim(k) = qc_lim_scale(k) * stdv
        ENDIF
 
-       WRITE(lunqc,*)obstype(k),qc_lim_scale(k),stdv,qc_lim(k)
+       WRITE(lunqc,*)varlist(k),qc_lim_scale(k),stdv,qc_lim(k)
     ENDDO
     WRITE(lunqc,*)
 

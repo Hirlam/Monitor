@@ -11,7 +11,7 @@ SUBROUTINE conditional(nexp,nfclen,npar,fi, &
  ! Ulf Andrae, SMHI, 2011
  !
 
- USE data, ONLY : cond,cond_param,err_ind,obstype
+ USE data, ONLY : cond,cond_param,err_ind
  IMPLICIT NONE
 
 

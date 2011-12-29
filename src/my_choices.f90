@@ -1,6 +1,8 @@
 SUBROUTINE my_choices
 
-USE data, ONLY : data_to_verify,data_source
+USE data, ONLY : data_to_verify,data_source,    &
+                 sdate,edate_obs,obint,maxtim
+USE functions, ONLY : get_maxtim
 
 IMPLICIT NONE
 
@@ -12,7 +14,7 @@ IMPLICIT NONE
     ! Select by string
     !
 
-    WRITE(6,*)'Start reading data from ',TRIM(data_source)
+    WRITE(6,*)'Start reading data with selection ',TRIM(data_source)
 
     SELECT CASE (TRIM(data_source))
    
@@ -28,24 +30,16 @@ IMPLICIT NONE
 
     CASE('vfld','VFLD')
    
-       CALL read_vobs
+       IF (maxtim == 0) maxtim=get_maxtim(sdate,edate_obs,obint)
        CALL read_vfld
+       CALL read_vobs
    
     CASE('vfld_temp','VFLD_TEMP')
    
-       CALL read_vobs_temp
+       IF (maxtim == 0) maxtim=get_maxtim(sdate,edate_obs,obint)
        CALL read_vfld_temp
+       CALL read_vobs_temp
    
-    CASE('vfld_hirvda_y4','VFLD_HIRVDA_Y4')
-   
-       CALL read_vobs_y4
-       CALL read_vfld_hirvda_y4
-
-    CASE('vfld_temp_hirvda_y4','VFLD_TEMP_HIRVDA_Y4')
-   
-       CALL read_vobs_temp_y4
-       CALL read_vfld_temp_hirvda_y4
-
     CASE('htb','HTB')
    
        ! Helsinki testbed data
@@ -67,19 +61,9 @@ IMPLICIT NONE
  ! some point
  !
 
- WRITE(6,*)'Start reading data from ',data_to_verify
+ WRITE(6,*)'Start reading data with selection ',data_to_verify
 
  SELECT CASE (data_to_verify)
-
- CASE(1)
-
-    CALL read_vobs
-    CALL read_vfld
-
- CASE(2)
-
-    CALL read_vobs_temp
-    CALL read_vfld_temp
 
  CASE(3)
 
@@ -95,16 +79,6 @@ IMPLICIT NONE
 
     CALL read_vobs
     CALL read_vfld_precip
-
- CASE(16)
-
-    CALL read_vobs_dmi
-    CALL read_vfld
-
- CASE(18)
-
-    CALL read_vobs_temp_dmi
-    CALL read_vfld_temp_dmi
 
  CASE(29)
 
