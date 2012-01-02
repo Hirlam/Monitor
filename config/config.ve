@@ -1,0 +1,49 @@
+ARCH=ve
+
+# Magics flag
+# If this is not set only tables will be produced
+MAGICSFLAG :=
+
+# CPP
+MACHINECPP := -DODB_MONITOR
+CPP        := /lib/cpp -E -traditional
+
+# C
+CC      := gcc 
+CCFLAGS := -O2 -g  $(MACHINECPP) 
+
+# Fortran
+FC := ifort
+MYFCFLAGS := -O3 -traceback -g 
+
+# Modules
+MODNAME = $(shell echo $(*F) | tr "[:upper:]" "[:lower:]")
+MODEXT := mod
+
+# Link
+LD          := $(FC)
+LDFLAGS     := -traceback -g 
+
+# AR
+AR      := ar
+ARFLAGS := rv
+MV      := mv
+RM      := rm -f
+MKDIR   := mkdir
+RMDIR   := rmdir
+
+# Flags
+FCFLAGS := $(MYFCFLAGS) -I$(ROOTDIR)/inc -module $(ROOTDIR)/$(ARCH)/mod
+CPPFLAGS := -I$(ROOTDIR)/inc $(MAGICSFLAG)
+
+# depf90mod.x search extensions ( -f is default )
+MODEXTS=-E F90 -E F -E f90 -E -f 
+
+# EMOSLIB
+ifeq ($(MAGICSFLAG),-DMAGICS)
+EXTLIB := -L/data/proj/hirfou/uandrae/magics/lib -lmagics -lMvDevices -lmagics -L/data/proj_ns1/hirfou/uandrae/magics/lib -lemos 
+else
+EXTLIB :=
+endif
+
+
