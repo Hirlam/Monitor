@@ -9,7 +9,7 @@
     'OBSPATH' => '\''.$ENV{OBSPATH}.'\'',
     'LQUALITY_CONTROL' => 'T',
     'ESTIMATE_QC_LIMIT'=> 'T',
-    'MAXSTN'           => 5000,
+    'MAXSTN'           => 20000,
     'STNLIST'          => 0,
     'STNLIST_PLOT'     => $ENV{STNLIST_PLOT},
     'LVERIFY'          => 'F',

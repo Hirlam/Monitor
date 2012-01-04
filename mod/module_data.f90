@@ -75,7 +75,7 @@ MODULE data
                                  ! set to 0 to let the program decide
 
  ! Station selection by list or area
- INTEGER, PARAMETER ::  max_maxstn  = 5000
+ INTEGER, PARAMETER ::  max_maxstn  = 20000
  INTEGER :: maxstn                   = 1  ! Max stations
  INTEGER :: stnlist(max_maxstn)      = 0  ! Station numbers
  INTEGER :: stnlist_bl(max_maxstn)   = 0  ! Black listed stations
