@@ -165,8 +165,6 @@ SUBROUTINE read_vobs
              READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val(1:10)
            CASE(2,4)
              READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val
-          CALL FLUSH(6)
-           
            CASE DEFAULT
              WRITE(6,*)'Cannot handle this vobs-file version',version_flag
              CALL abort
