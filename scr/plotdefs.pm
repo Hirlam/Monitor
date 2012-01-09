@@ -135,7 +135,7 @@
    'MAP_BIAS_INTERVAL'=> '-15.,-10.,-5.,0.,5.,10.,15.',
  },
 
- 'GR'=>{ 'TEXT'        => 'Global rad',
+ 'GR'=>{ 'TEXT'        => 'Global radation',
          'TWIND_SURF'  => 01,
  },
  'WT'=>{ 'TEXT'        => 'Sens heat flux', 
@@ -152,6 +152,18 @@
  },
  'LU'=>{ 'TEXT'        => 'Long wave up', 
          'TWIND_SURF'  => 01,
+ },
+ 'TMAST'=>{
+   'TEXT'   => 'Temperature' ,
+   'UNIT'         => 'deg C',
+ },
+ 'RHMAST'=>{
+   'TEXT'   => 'Relative hum' ,
+   'UNIT'         => '%',
+ },
+ 'FFMAST'=>{
+   'TEXT'   => 'Wind speed' ,
+   'UNIT'         => 'm/s',
  },
    
 );

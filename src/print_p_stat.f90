@@ -98,8 +98,6 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
  ! Init timing counter
  timing_id = 0
 
- WRITE(6,*)'ACTIVE',par_active
-
  IF (ltiming) CALL acc_timing(timing_id,'plot_p_stat')
 
  ! Find start and endpoint

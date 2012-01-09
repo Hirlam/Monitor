@@ -13,14 +13,13 @@ SUBROUTINE read_obs_mast_date
 
  IMPLICIT NONE
 
- 
  INTEGER :: i,ii,ierr,stat_i,j,      &
             cdate,ctime,             &
             wdate,wtime,             &
             newdate,newtime,         &
             stations(100),           &
             max_found_stat,istnr,    &
-            nread
+            nread,m,n
          
  REAL,    ALLOCATABLE :: val(:,:),val1(:)
  INTEGER, ALLOCATABLE :: date(:),hhmm(:),num(:)
@@ -30,8 +29,20 @@ SUBROUTINE read_obs_mast_date
  CHARACTER(LEN=  8) :: ccdate
  CHARACTER(LEN= 12) :: ctstamp
  CHARACTER(LEN=100) :: fname=''
+ CHARACTER(LEN= 10) :: invar(10) = '#'
 
  !---------------------------------------------------------------------
+
+ invar( 1) = 'WT'
+ invar( 2) = 'WQ'
+ invar( 3) = 'UW'
+ invar( 4) = 'TMAST'
+ invar( 5) = 'XX'
+ invar( 6) = 'TZ'
+ invar( 7) = 'RHMAST'
+ invar( 8) = 'FFMAST'
+ invar( 9) = 'GR'
+ invar(10) = 'LU'
 
  stations       = 0
  use_stnlist    = ( MAXVAL(stnlist) > 0 )
@@ -227,10 +238,23 @@ SUBROUTINE read_obs_mast_date
                val1 = val1 / FLOAT(num)
              ENDWHERE
             
-             IF (wt_ind /= 0 .AND. (ABS(val1(1)-err_ind)>1.e-6)) obs(stat_i)%o(ii)%val(wt_ind) = val1(1)
-             IF (wq_ind /= 0 .AND. (ABS(val1(2)-err_ind)>1.e-6)) obs(stat_i)%o(ii)%val(wq_ind) = val1(2)
-             IF (uw_ind /= 0 .AND. (ABS(val1(3)-err_ind)>1.e-6)) obs(stat_i)%o(ii)%val(uw_ind) = val1(3)
-      
+             PARVER_LOOP : DO m=1,nparver
+               INVAR_LOOP : DO n=1,3
+                 IF ( varprop(m)%id == invar(n) ) THEN
+
+                   ! Check for missing data flag
+                   IF ( .NOT. qca(val1(n),err_ind) ) CYCLE PARVER_LOOP
+
+                   ! Check for missing data / gross error
+                   IF ( qclr(val1(n),varprop(m)%llim) .AND. &
+                        qcur(val1(n),varprop(m)%ulim) )     &
+                   obs(stat_i)%o(i)%val(m) = val1(n)
+
+                 ENDIF
+
+               ENDDO INVAR_LOOP
+             ENDDO PARVER_LOOP
+ 
           ENDIF 
 
           val1 = 0.
@@ -247,7 +271,7 @@ SUBROUTINE read_obs_mast_date
     !
 
     DEALLOCATE(val,val1,num)
-    ALLOCATE(val(7,obs(stat_i)%ntim*obint*12),val1(7),num(7))
+    ALLOCATE(val(7,obs(stat_i)%ntim*obint*12),val1(4:10),num(7))
 
 
     IF ( print_read > 0 ) WRITE(6,*)'Read mast data'
@@ -350,13 +374,29 @@ SUBROUTINE read_obs_mast_date
                val1 = val1 / FLOAT(num)
              ENDWHERE
 
-             IF (tt_ind /= 0 .AND. (ABS(val1(1)-err_ind)>1.e-6)) obs(stat_i)%o(ii)%val(tt_ind) = val1(1)
-             IF (tz_ind /= 0 .AND. (ABS(val1(3)-err_ind)>1.e-6)) obs(stat_i)%o(ii)%val(tz_ind) = val1(3)/dz(istnr)
-             IF (rh_ind /= 0 .AND. (ABS(val1(4)-err_ind)>1.e-6)) obs(stat_i)%o(ii)%val(rh_ind) = val1(4)
-             IF (ff_ind /= 0 .AND. (ABS(val1(5)-err_ind)>1.e-6)) obs(stat_i)%o(ii)%val(ff_ind) = val1(5)
-             IF (gr_ind /= 0 .AND. (ABS(val1(6)-err_ind)>1.e-6)  .AND.  &
-             qcl(val1(6),gr_ind) .AND. qcu(val1(6),gr_ind)     ) obs(stat_i)%o(ii)%val(gr_ind) = val1(6)
-             IF (lu_ind /= 0 .AND. (ABS(val1(7)-err_ind)>1.e-6)) obs(stat_i)%o(ii)%val(lu_ind) = val1(7)
+             PARVER_LOOP2 : DO m=1,nparver
+               INVAR_LOOP2 : DO n=4,10
+                 IF ( varprop(m)%id == invar(n) ) THEN
+
+                   ! Check for missing data flag
+                   IF ( .NOT. qca(val1(n),err_ind) ) CYCLE PARVER_LOOP2
+
+                   ! Special treatment of some variabels
+                   SELECT CASE(invar(n))
+
+                   CASE('TZ')
+                    val1(n) = val1(n) / dz(istnr)
+                   END SELECT
+
+                   ! Check for missing data / gross error
+                   IF ( qclr(val1(n),varprop(m)%llim) .AND. &
+                        qcur(val1(n),varprop(m)%ulim) )     &
+                   obs(stat_i)%o(i)%val(m) = val1(n)
+
+                 ENDIF
+
+               ENDDO INVAR_LOOP2
+             ENDDO PARVER_LOOP2
 
           ENDIF 
 
@@ -366,7 +406,6 @@ SUBROUTINE read_obs_mast_date
        ENDIF 
 
     ENDDO MAST_STORAGE
-
 
     DEALLOCATE(date,hhmm,val,val1,num)
 

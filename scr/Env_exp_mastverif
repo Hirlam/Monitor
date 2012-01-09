@@ -2,51 +2,53 @@
 # Main definition file for HARMONIE verification package
 #
 
-# Project name, will be the name on the web page
-PROJECT=mastverif
-
-# Path to this project
-BASE=/local_disk/scratch/developement/monitor_mast
+# Path to binaries, scripts and WebgraF page
+BASE=$( dirname $PWD )
 
 # Definition of BIN,SCR and WRK directory
 BIN=$BASE/bin
 SCR=$BASE/scr
 WRK=$BASE/wrk
 
-# Set which graphics you are using
-# MAGICS/GNUPLOT
-# To be able to use MAGICS verobs has to be compiled with -DMAGICS.
-#
-# !NB GNUPLOT option is still under developement
-#
-
-# MAG_HOME for magics, not needed at ecgate
-# export MAG_HOME=
-
-#
 # Experiment names and paths,should be space separated
-#
+DBASE=$BASE/mast_test_data
+EXP="EC01 FI15 FRAR SP16"
+OBSPATH=$DBASE/obs/
+P1=$DBASE/fc/
+P2=$DBASE/fc/
+P3=$DBASE/fc/
+P4=$DBASE/fc/
+MODPATH="$P1 $P2 $P3 $P4"
 
-DBASE=/local_disk/scratch/developement/monitor_mast/ArchiveData
-EXP="FIPR FRAR FI15 FI75 SP16"
-EXP="FIPR"
-OBSPATH=$BASE/obs/
-P1=$DBASE/
-P2=$DBASE/
-P3=$DBASE/
-P4=$DBASE/
-P5=$DBASE/
-MODPATH="$P1 $P2 $P3 $P4 $P5"
+# Project name, will be the name on the web page
+PROJECT=mastver
+
+# Explanation on webpage
+HELP="Mast verification comparison"
+
+# Date handling
+# PERIOD_TYPE 1 : SDATE - EDATE, 
+#             2 : SDATE - EDATE in monthly pieces
+# 
+# IDATE is the very first date for PERIOD_TYPE=2 it determines the 
+# lentght of the date menu in WebgraF
+#
+PERIOD_TYPE=1
+
+SDATE=20111201
+EDATE=20111231
+IDATE=$SDATE
 
 #
-# Single stations can be defined with station number
-# and a text for the web page
+# Single stations can be defined with comma separated
+# station number and a text for the web page
 #
 # STNLIST_PLOT="00002574,00006348"
 # STNLIST_PLOT_TXT="NORRKOPING,CABAUW"
 #
 STNLIST_PLOT='00000001,00000002,00000003,00000004,00000005,00000006'
 STNLIST_PLOT_TXT='SODA,CABA,KIVI,KUOP,ROVA,XXXX'
+
 
 export DATA_SOURCE='mastdata'
 
@@ -58,8 +60,13 @@ export DATA_SOURCE='mastdata'
 #
 # PS : Mslp
 # TT : T2m
+# TN : Min T2m
+# TX : Max T2m
 # TD : Td2m
 # FF : Wind speed
+# FX : Max wind speed
+# GG : Wind gust
+# GX : Max wind gust
 # DD : Wind direction
 # QQ : Specific humidity
 # RH : Relative humidity
@@ -69,7 +76,7 @@ export DATA_SOURCE='mastdata'
 #
 
 # Active parameters
-SURFPAR="TT RH FF LU GR UW WT WQ TZ"
+SURFPAR="TMAST RHMAST FFMAST LU GR UW WT WQ TZ"
 
 # Things to plot:
 # GEN    : General forcast length statistics
@@ -81,19 +88,27 @@ SURFPAR="TT RH FF LU GR UW WT WQ TZ"
 # XML    : Station statistics in xml format
 # CONT   : Contingency tables
 # VERT   : Vertical profiles only available for TEMP data
+# SEAS   : Seasonal cycle
 # 
-SURFPLOT="GEN TIME DAYVAR"
+SURFPLOT="GEN TIME DAYVAR SCAT"
+
+# Select skill scores to be plotted if CONT is activated in SURFPLOT
+SCORELIST="WILSON FAR KSS Frequencybias AI SEDS EDI SEDI ETS Frequency"  
+
+# Select whether skill scores are based on classes and/or thresholds (CONT must be activated)
+SCORETYPES="classes thresholds"
 
 # Selection for surface verification as defined in selection.pm
 # Note that XML statistics will be defined for the
 # first selection only
+#
 SURFSELECTION="ALL"
 
 # Interval in hours between observations
 OBINT_SURF=01
 
 # Assimilation cycle interval
-FCINT_SURF=12
+FCINT_SURF=24
 
 # Forecast lengths used for verification
 FCLEN_SURF="00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24"
@@ -105,6 +120,9 @@ FCLEN_DAYVAR=$FCLEN_SURF
 # and contingency tables. Keep the number of used forecast
 # lengths reasonable
 FCLEN_SCAT=$FCLEN_SURF
+
+# Forecast lengths used in timeserie plots
+FCLEN_SURF_TIME=$FCLEN_SURF
 
 ########################
 # Upper air parameters #
@@ -129,10 +147,22 @@ TEMPPLOT="GEN TIME VERT"
 OBINT_TEMP=12
 # Assimilation cycle interval
 FCINT_TEMP=12
+
 # Forecast lengths used for verification
 FCLEN_TEMP="00 06 12 18 24 36 48"
+
+# Forecast lengths used for vertical profiles
+FCLEN_TEMP_VERT="06 12 18 24 36 48"
+
+# Forecast lengths used in timeserie plots
+FCLEN_TEMP_TIME="24"
+
 # TEMP levels to be verified
-LEV_LST="925 850 700 500 300 250 200 100 50"
+LEV_LST="925 850 700 600 500 300 200 150 100 50"
+# TEMP levels for TD and RH are limited to lower ones
+LEV_LST_TD="925 850 700 600 500 300 "
+LEV_LST_RH="925 850 700 600 500 300 "
+
 
 # Selection for TEMP verification
 # Note that XML statistics will be defined for the
@@ -143,37 +173,29 @@ TEMPSELECTION="ALL EWGLAM"
 # 1  Postscript + PNG
 # 2  PNG
 # 3  JPEG
-
+# 4  SVG
 OUTPUT_TYPE=2
 
-# Date
-# PERIOD_TYPE 1 : SDATE - EDATE, 2 : SDATE - EDATE in monthly pieces
-# 
-# IDATE is the very first date for PERIOD_TYPE=2 it determines the 
-# lentght of the date menu in WebgraF
-#
-
-PERIOD_TYPE=1
-
-SDATE=20080901
-EDATE=20080905
-IDATE=$SDATE
+# Run all parameters in one go
+# Impossible if you have a long period/large number of stations
+# or several parameters
+ALL_AT_ONCE=yes
 
 # WebgraF call, set WEBCALL empty if not used
 WEBGRAF_BASE=$BASE/WebgraF
 WEBCALL="$BASE/WebgraF/bin/WebgraF -p $PROJECT"
 
-# Explanation on webpage
-HELP=""
-
 # Export all variables
 export PROJECT WEBCALL WEBGRAF_BASE BASE BIN MYEXP IDATE SDATE EDATE HELP SCR WRK
 export OUTPUT_TYPE PERIOD_TYPE
-export LEV_LST SURFPAR TEMPPAR
-export OBINT_SURF FCINT_SURF FCLEN_SURF FCLEN_DAYVAR FCLEN_SCAT
-export OBINT_TEMP FCINT_TEMP FCLEN_TEMP  
+export LEV_LST LEV_LST_RH LEV_LST_TD SURFPAR TEMPPAR 
+export OBINT_SURF FCINT_SURF 
+export FCLEN_SURF FCLEN_DAYVAR FCLEN_SCAT FCLEN_SURF_TIME
+export OBINT_TEMP FCINT_TEMP FCLEN_TEMP FCLEN_TEMP_VERT FCLEN_TEMP_TIME
 export SURFPLOT TEMPPLOT
 export STNLIST_PLOT STNLIST_PLOT_TXT
+export ALL_AT_ONCE
+export SCORELIST SCORETYPES
 
 ###########################
 # End of definitions

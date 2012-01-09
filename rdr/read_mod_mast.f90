@@ -11,9 +11,10 @@ SUBROUTINE read_mod_mast
             cdate,ctime,              &
             wdate,wtime,ll,stat_i,    &
             fc_ind,                   &
-            stations(100),max_found_stat,istnr
+            stations(100),            &
+            m,n,                      &
+            max_found_stat,istnr
          
-
  
  REAL :: val(11),dz_model
 
@@ -23,8 +24,20 @@ SUBROUTINE read_mod_mast
  CHARACTER(LEN=200):: wname =' '
  CHARACTER(LEN=8)  :: ccdate =''
  CHARACTER(LEN=2)  :: cchour =''
+ CHARACTER(LEN= 10) :: invar(11) = '#'
 
  !------------------------------------------
+ invar( 1) = 'TMAST'
+ invar( 2) = 'UNDEFINED'
+ invar( 3) = 'TZ'
+ invar( 4) = 'RHMAST'
+ invar( 5) = 'FFMAST'
+ invar( 6) = 'GR'
+ invar( 7) = 'LU'
+ invar( 8) = 'WT'
+ invar( 9) = 'WQ'
+ invar(10) = 'UNDEFINED'
+ invar(11) = 'UW'
 
  stations = 0
  use_stnlist = ( MAXVAL(stnlist) > 0 )
@@ -154,15 +167,28 @@ SUBROUTINE read_mod_mast
 
           ENDIF
 
-          IF ( tt_ind /= 0 ) hir(stat_i)%o(k)%nal(o,fc_ind,tt_ind) = val(01)
-          IF ( tz_ind /= 0 ) hir(stat_i)%o(k)%nal(o,fc_ind,tz_ind) = val(03)/dz_model
-          IF ( rh_ind /= 0 ) hir(stat_i)%o(k)%nal(o,fc_ind,rh_ind) = val(04)
-          IF ( ff_ind /= 0 ) hir(stat_i)%o(k)%nal(o,fc_ind,ff_ind) = val(05)
-          IF ( gr_ind /= 0 ) hir(stat_i)%o(k)%nal(o,fc_ind,gr_ind) = val(06)
-          IF ( lu_ind /= 0 ) hir(stat_i)%o(k)%nal(o,fc_ind,lu_ind) = val(07)
-          IF ( wt_ind /= 0 ) hir(stat_i)%o(k)%nal(o,fc_ind,wt_ind) = val(08)
-          IF ( wq_ind /= 0 ) hir(stat_i)%o(k)%nal(o,fc_ind,wq_ind) = val(09)
-          IF ( uw_ind /= 0 ) hir(stat_i)%o(k)%nal(o,fc_ind,uw_ind) = val(11)
+          PARVER_LOOP : DO m=1,nparver
+            INVAR_LOOP : DO n=1,SIZE(invar)
+              IF ( varprop(m)%id == invar(n) ) THEN
+
+                ! Check for missing data flag
+                IF ( .NOT. qca(val(n),err_ind) ) CYCLE PARVER_LOOP
+
+                ! Special treatment of some variabels
+                SELECT CASE(invar(n))
+                  CASE('TZ')
+                    val(n) = val(n) / dz(istnr)
+                END SELECT
+
+                ! Check for missing data / gross error
+                 IF ( qclr(val(n),varprop(m)%llim) .AND. &
+                      qcur(val(n),varprop(m)%ulim) )     &
+                hir(stat_i)%o(k)%nal(o,fc_ind,m) = val(n)
+
+              ENDIF
+            ENDDO INVAR_LOOP
+
+          ENDDO PARVER_LOOP
 
        ENDDO READ_LOOP
    

@@ -164,10 +164,8 @@ SUBROUTINE setup_varprop
 
       v => varprop(j)
 
-      WRITE(6,*)' CHECK ', setprop(i)%id , v%id
       IF ( v%id  == setprop(i)%id  .AND. &
            (v%lev == setprop(i)%lev .OR. setprop(i)%lev == -1 ) ) THEN
-      WRITE(6,*)' MATCH ', setprop(i)%id , v%id
 
          IF ( setprop(i)%text /= '#' ) v%text = setprop(i)%text
          IF ( setprop(i)%unit /= '#' ) v%unit = setprop(i)%unit
