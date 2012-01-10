@@ -328,21 +328,6 @@ SUBROUTINE read_vfld_temp
 
  ENDDO TIME_LOOP
  
- if (fi_ind /= 0 ) &
- lev_typ((fi_ind-1)* my_temp_lev + 1:fi_ind* my_temp_lev) = fi_ind
- if (tt_ind /= 0 ) &
- lev_typ((tt_ind-1)* my_temp_lev + 1:tt_ind* my_temp_lev) = tt_ind
- if (rh_ind /= 0 ) &
- lev_typ((rh_ind-1)* my_temp_lev + 1:rh_ind* my_temp_lev) = rh_ind
- if (dd_ind /= 0 ) &
- lev_typ((dd_ind-1)* my_temp_lev + 1:dd_ind* my_temp_lev) = dd_ind
- if (ff_ind /= 0 ) &
- lev_typ((ff_ind-1)* my_temp_lev + 1:ff_ind* my_temp_lev) = ff_ind
- if (qq_ind /= 0 ) &
- lev_typ((qq_ind-1)* my_temp_lev + 1:qq_ind* my_temp_lev) = qq_ind
- if (td_ind /= 0 ) &
- lev_typ((td_ind-1)* my_temp_lev + 1:td_ind* my_temp_lev) = td_ind
-
  WRITE(6,*) 'FOUND TIMES MODEL',MAXVAL(hir(:)%ntim)
 
  DO i=1,maxstn

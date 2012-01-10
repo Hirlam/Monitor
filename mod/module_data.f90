@@ -148,128 +148,9 @@ MODULE data
 
  ! Parameters to verify
  INTEGER :: nparver = mparver
- INTEGER :: tt_ind = 0 ! Temperature
- INTEGER :: tn_ind = 0 ! Min temperature
- INTEGER :: tx_ind = 0 ! Max temperature
- INTEGER :: td_ind = 0 ! Dew point temperature
- INTEGER :: vi_ind = 0 ! Visibility
- INTEGER :: ff_ind = 0 ! Wind speed
- INTEGER :: fx_ind = 0 ! Max wind speed
- INTEGER :: gg_ind = 0 ! Wind gust,instantaneous
- INTEGER :: gx_ind = 0 ! Max wind gust
- INTEGER :: dd_ind = 0 ! Wind direction
- INTEGER :: uw_ind = 0 ! momentum flux
- INTEGER :: wt_ind = 0 ! heat flux
- INTEGER :: wq_ind = 0 ! latent heat flux
- INTEGER :: rh_ind = 0 ! Relative humidity
- INTEGER :: sw_ind = 0 ! Short wave radiation
- INTEGER :: lw_ind = 0 ! Long wave radiation
- INTEGER :: su_ind = 0 ! Shortwave radiation up
- INTEGER :: sd_ind = 0 ! Shortwave radiation down
- INTEGER :: lu_ind = 0 ! Long wave radiation up
- INTEGER :: ld_ind = 0 ! Long wave radiation down
- INTEGER :: nr_ind = 0 ! Net Radiation
- INTEGER :: gr_ind = 0 ! Global Radiation
- INTEGER :: gs_ind = 0 ! Ground heat flux
- INTEGER :: gc_ind = 0 ! Ground heat flux calculated ( Rn + H + L )
- INTEGER :: ps_ind = 0 ! Surface pressure
- INTEGER :: pe_ind = 0 ! Precipitaton
- INTEGER :: pd_ind = 0 ! Precipitaton, daily
- INTEGER :: nn_ind = 0 ! Cloud cover
- INTEGER :: fi_ind = 0 ! Geopotential
- INTEGER :: rf_ind = 0 ! Runoff
- INTEGER :: qq_ind = 0 ! Specific humidity
- INTEGER :: hb_ind = 0 ! Surface heat budget residual
- INTEGER :: wp_ind = 0 ! Wind power
- INTEGER :: wh_ind = 0 ! Energy (kWh)
- INTEGER :: tz_ind = 0 ! dT/dz
- INTEGER :: uz_ind = 0 ! dU/dz
- INTEGER :: tu_ind = 0 ! dT/dU
- INTEGER :: la_ind = 0 ! Latitude
- INTEGER :: hg_ind = 0 ! Station height
- INTEGER :: lev_typ(mparver) = 0  ! No need to set, done in set_obstype.f
  REAL    :: lev_lst(mparver) = 0. ! List of vertical levels
                                   ! if lev_lst(n) < lev_lst(n+1) height is assumed
                                   ! if lev_lst(n) > lev_lst(n+1) pressure is assumed
-
- ! Gross Error limits
- REAL :: fi_lim = 500. 
- REAL :: tt_lim = 50. 
- REAL :: td_lim = 50. 
- REAL :: vi_lim = 500000. 
- REAL :: ff_lim = 50. 
- REAL :: dd_lim = 720. 
- REAL :: rh_lim = 100. 
- REAL :: ps_lim = 50. 
- REAL :: pe_lim = 50. 
- REAL :: pd_lim = 50. 
- REAL :: lw_lim = 500. 
- REAL :: su_lim = 500. 
- REAL :: sd_lim = 500. 
- REAL :: lu_lim = 500. 
- REAL :: ld_lim = 500. 
- REAL :: wt_lim = 300. 
- REAL :: wq_lim = 300. 
- REAL :: sw_lim = 500. 
- REAL :: qq_lim = 50.
- REAL :: uw_lim = 2.
- REAL :: nr_lim = 900.
- REAL :: gr_lim = 1000.
- REAL :: nn_lim = 10.
- REAL :: xx_lim = err_ind
-
- ! Upper limits
- REAL :: fi_ulim = 1.e9
- REAL :: tt_ulim = 400.
- REAL :: td_ulim = 400.
- REAL :: vi_ulim = 1.e12
- REAL :: ff_ulim = 200.
- REAL :: dd_ulim = 360.
- REAL :: rh_ulim = 100.
- REAL :: ps_ulim = 1100.
- REAL :: pe_ulim = 500.
- REAL :: pd_ulim = 500.
- REAL :: lw_ulim = 500. 
- REAL :: su_ulim = 500. 
- REAL :: sd_ulim = 500. 
- REAL :: lu_ulim = 500. 
- REAL :: ld_ulim = 500. 
- REAL :: wt_ulim = 300. 
- REAL :: wq_ulim = 300. 
- REAL :: sw_ulim = 500. 
- REAL :: qq_ulim = 100.
- REAL :: uw_ulim = 2.
- REAL :: nr_ulim = 900.
- REAL :: gr_ulim = 1000.
- REAL :: nn_ulim = 8.
- REAL :: xx_ulim = err_ind
-
- ! Lower limits
- REAL :: fi_llim = 0.
- REAL :: tt_llim = -200.
- REAL :: td_llim = -200.
- REAL :: vi_llim = 0.
- REAL :: ff_llim = 0.
- REAL :: dd_llim = 0.
- REAL :: rh_llim = 0.
- REAL :: ps_llim = 0.
- REAL :: pe_llim = 0.
- REAL :: pd_llim = 0.
- REAL :: lw_llim = 0. 
- REAL :: su_llim = 0. 
- REAL :: sd_llim = 0. 
- REAL :: lu_llim = 0. 
- REAL :: ld_llim = 0. 
- REAL :: wt_llim = 0. 
- REAL :: wq_llim = 0. 
- REAL :: sw_llim = 0. 
- REAL :: qq_llim = 0.
- REAL :: uw_llim = -2.
- REAL :: nr_llim = -900.
- REAL :: gr_llim = 0
- REAL :: nn_llim = 0.
- REAL :: xx_llim = err_ind
-
  ! Some limits
  REAL :: sumup_tolerance     =  0.00    ! Require X% coverage when take average over time_wind
  REAL :: my_xmax             =  err_ind ! Give your own axis limits
@@ -416,6 +297,7 @@ MODULE data
  LOGICAL :: lsign_test       = .FALSE.        ! Perform student-t test
  INTEGER :: control_exp_nr   = 1              ! Which experiment is the control
  INTEGER :: sign_time_diff   = -1             ! Min time difference in days for sign test. -1 implies fcint
+
  !
  ! Namelist 
  !
@@ -431,16 +313,7 @@ MODULE data
                  nexp,expname,tag,                      &
                  smallest_exp_ind,                      &
                  varlist,setprop,                       &
-                 tt_ind,ff_ind,dd_ind,uw_ind,wt_ind,    &
-                 sw_ind,lw_ind,lu_ind,ld_ind,           &
-                 su_ind,sd_ind,td_ind,vi_ind,           &
-                 ps_ind,pe_ind,pd_ind,rh_ind,           &
-                 nn_ind,fi_ind,rf_ind,nr_ind,wq_ind,    &
-                 qq_ind,gs_ind,gc_ind,gr_ind,hb_ind,    &
-                 tz_ind,uz_ind,tu_ind,la_ind,hg_ind,    &
-                 wp_ind,wh_ind,tn_ind,tx_ind,           &
-                 gg_ind,gx_ind,fx_ind,                  &
-                 lev_typ,lev_lst,                       &
+                 lev_lst,                               &
                  name,statname,                         &
                  obspath,modpath,                       &
                  lfcver,leach_station,ltiming,          &
@@ -489,12 +362,6 @@ MODULE data
                  data_to_verify,data_source,            &
                  ltemp,                                 &
                  use_database,                          &
-                 fi_lim,tt_lim,ff_lim,dd_lim,rh_lim,    &
-                 ps_lim,pe_lim,sw_lim,lw_lim,lu_lim,    &
-                 ld_lim,qq_lim,su_lim,sd_lim,           &
-                 uw_lim,wt_lim,nr_lim,gr_lim,wq_lim,    &
-                 nn_lim,td_lim,vi_lim,                  &
-                 ff_llim,                               &
                  sumup_tolerance,                       &
                  my_xmin,my_xmax,my_ymin,my_ymax,       &
                  lspecial_cond,special_flag,            &
@@ -534,170 +401,6 @@ LOGICAL FUNCTION qca(a,b)
  qca = (ABS(a-b) > eps )
 
 END FUNCTION qca
-!-----------------------------------------------
-!-----------------------------------------------
-!-----------------------------------------------
-LOGICAL FUNCTION qcl(diff,k)
-
- IMPLICIT NONE
-
- INTEGER :: k
- REAL    :: diff,diff_lim
-
-!----------------------------
-
- !  Multi level fields
- IF (ltemp) THEN
-
-    IF     (lev_typ(k).EQ.dd_ind) THEN
-       diff_lim = dd_llim
-    ELSEIF (lev_typ(k).EQ.fi_ind) THEN
-       diff_lim = fi_llim
-    ELSEIF (lev_typ(k).EQ.ff_ind) THEN
-       diff_lim = ff_llim
-    ELSEIF (lev_typ(k).EQ.td_ind) THEN
-       diff_lim = td_llim
-    ELSEIF (lev_typ(k).EQ.tt_ind) THEN
-       diff_lim = tt_llim
-    ELSEIF (lev_typ(k).EQ.rh_ind) THEN
-       diff_lim = rh_llim
-    ELSEIF (lev_typ(k).EQ.qq_ind) THEN
-       diff_lim = qq_llim
-    ELSE
-       diff_lim = ABS(diff) +1.
-    ENDIF
-
- ELSE
-
-    IF     (k.EQ.ps_ind) THEN
-       diff_lim = ps_llim
-    ELSEIF (k.EQ.pe_ind) THEN
-       diff_lim = pe_llim
-    ELSEIF (k.EQ.pd_ind) THEN
-       diff_lim = pd_llim
-    ELSEIF (k.EQ.rh_ind) THEN
-       diff_lim = rh_llim
-    ELSEIF (k.EQ.tt_ind) THEN
-       diff_lim = tt_llim
-    ELSEIF (k.EQ.td_ind) THEN
-       diff_lim = td_llim
-    ELSEIF (k.EQ.vi_ind) THEN
-       diff_lim = vi_llim
-    ELSEIF (k.EQ.ff_ind) THEN
-       diff_lim = ff_llim
-    ELSEIF (k.EQ.dd_ind) THEN
-       diff_lim = dd_llim
-    ELSEIF (k.EQ.sw_ind) THEN
-       diff_lim = sw_llim
-    ELSEIF (k.EQ.nr_ind) THEN
-       diff_lim = nr_llim
-    ELSEIF (k.EQ.gr_ind) THEN
-       diff_lim = gr_llim
-    ELSEIF (k.EQ.wq_ind) THEN
-       diff_lim = wq_llim
-    ELSEIF (k.EQ.wt_ind) THEN
-       diff_lim = wt_llim
-    ELSEIF (k.EQ.uw_ind) THEN
-       diff_lim = uw_llim
-    ELSEIF (k.EQ.su_ind) THEN
-       diff_lim = su_llim
-    ELSEIF (k.EQ.lw_ind) THEN
-       diff_lim = lw_llim
-    ELSEIF (k.EQ.nn_ind) THEN
-       diff_lim = nn_llim
-    ELSEIF (k.EQ.qq_ind) THEN
-       diff_lim = qq_llim
-    ELSE
-       diff_lim = diff - 1.
-    ENDIF
-
- ENDIF
-
- qcl = ( diff >= diff_lim)
-
-END FUNCTION qcl
-!-----------------------------------------------
-!-----------------------------------------------
-!-----------------------------------------------
-LOGICAL FUNCTION qcu(diff,k)
-
- IMPLICIT NONE
-
- INTEGER :: k
- REAL    :: diff,diff_lim
-
-!----------------------------
-
- !  Multi level fields
- IF (ltemp) THEN
-
-    IF     (lev_typ(k).EQ.dd_ind) THEN
-       diff_lim = dd_ulim
-    ELSEIF (lev_typ(k).EQ.fi_ind) THEN
-       diff_lim = fi_ulim
-    ELSEIF (lev_typ(k).EQ.ff_ind) THEN
-       diff_lim = ff_ulim
-    ELSEIF (lev_typ(k).EQ.tt_ind) THEN
-       diff_lim = tt_ulim
-    ELSEIF (lev_typ(k).EQ.td_ind) THEN
-       diff_lim = td_ulim
-    ELSEIF (lev_typ(k).EQ.rh_ind) THEN
-       diff_lim = rh_ulim
-    ELSEIF (lev_typ(k).EQ.qq_ind) THEN
-       diff_lim = qq_ulim
-    ELSE
-       diff_lim = ABS(diff) +1.
-    ENDIF
-
- ELSE
-
-    IF     (k.EQ.ps_ind) THEN
-       diff_lim = ps_ulim
-    ELSEIF (k.EQ.pe_ind) THEN
-       diff_lim = pe_ulim
-    ELSEIF (k.EQ.pd_ind) THEN
-       diff_lim = pd_ulim
-    ELSEIF (k.EQ.rh_ind) THEN
-       diff_lim = rh_ulim
-    ELSEIF (k.EQ.tt_ind) THEN
-       diff_lim = tt_ulim
-    ELSEIF (k.EQ.td_ind) THEN
-       diff_lim = td_ulim
-    ELSEIF (k.EQ.vi_ind) THEN
-       diff_lim = vi_ulim
-    ELSEIF (k.EQ.ff_ind) THEN
-       diff_lim = ff_ulim
-    ELSEIF (k.EQ.dd_ind) THEN
-       diff_lim = dd_ulim
-    ELSEIF (k.EQ.sw_ind) THEN
-       diff_lim = sw_ulim
-    ELSEIF (k.EQ.nr_ind) THEN
-       diff_lim = nr_ulim
-    ELSEIF (k.EQ.gr_ind) THEN
-       diff_lim = gr_ulim
-    ELSEIF (k.EQ.wq_ind) THEN
-       diff_lim = wq_ulim
-    ELSEIF (k.EQ.wt_ind) THEN
-       diff_lim = wt_ulim
-    ELSEIF (k.EQ.uw_ind) THEN
-       diff_lim = uw_ulim
-    ELSEIF (k.EQ.su_ind) THEN
-       diff_lim = su_ulim
-    ELSEIF (k.EQ.lw_ind) THEN
-       diff_lim = lw_ulim
-    ELSEIF (k.EQ.nn_ind) THEN
-       diff_lim = nn_ulim
-    ELSEIF (k.EQ.qq_ind) THEN
-       diff_lim = qq_ulim
-    ELSE
-       diff_lim = diff + 1.
-    ENDIF
-
- ENDIF
-
- qcu = (ABS(diff) <= diff_lim)
-
-END FUNCTION qcu
 !-----------------------------------------------
 !-----------------------------------------------
 !-----------------------------------------------

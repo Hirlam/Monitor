@@ -1,4 +1,5 @@
 SUBROUTINE read_auto
+#ifdef FIXME
 
  USE data
  USE functions
@@ -230,4 +231,5 @@ SUBROUTINE read_auto
 
  RETURN
 
+#endif
 END SUBROUTINE read_auto

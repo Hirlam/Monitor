@@ -131,11 +131,11 @@ SUBROUTINE read_any
           ! Put data into array
           !
 
-          IF ( ff_ind /= 0 ) hir(i)%o(k)%nal(1,fc_ind,ff_ind) = SQRT(val(1)**2+val(2)**2)
-          IF ( ff_ind /= 0 ) hir(i)%o(k)%nal(2,fc_ind,ff_ind) = SQRT(val(3)**2+val(4)**2)
-          IF ( ff_ind /= 0 ) hir(i)%o(k)%nal(3,fc_ind,ff_ind) = SQRT(val(5)**2+val(6)**2)
-          !IF ( ff_ind /= 0 ) hir(i)%o(k)%nal(4,fc_ind,ff_ind) = SQRT(val(7)**2+val(8)**2)
-          IF ( ff_ind /= 0 ) hir(i)%o(k)%nal(4,fc_ind,ff_ind) = SQRT(val(9)**2+val(10)**2)
+!         IF ( ff_ind /= 0 ) hir(i)%o(k)%nal(1,fc_ind,ff_ind) = SQRT(val(1)**2+val(2)**2)
+!         IF ( ff_ind /= 0 ) hir(i)%o(k)%nal(2,fc_ind,ff_ind) = SQRT(val(3)**2+val(4)**2)
+!         IF ( ff_ind /= 0 ) hir(i)%o(k)%nal(3,fc_ind,ff_ind) = SQRT(val(5)**2+val(6)**2)
+!         !IF ( ff_ind /= 0 ) hir(i)%o(k)%nal(4,fc_ind,ff_ind) = SQRT(val(7)**2+val(8)**2)
+!         IF ( ff_ind /= 0 ) hir(i)%o(k)%nal(4,fc_ind,ff_ind) = SQRT(val(9)**2+val(10)**2)
    
        ENDDO READ_FILE
    

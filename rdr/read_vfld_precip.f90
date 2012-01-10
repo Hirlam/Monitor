@@ -1,4 +1,5 @@
 SUBROUTINE read_vfld_precip
+#ifdef FIXME
 
  !
  ! Read synop part of vfldEXPyyyymmddhhll 
@@ -294,4 +295,5 @@ SUBROUTINE read_vfld_precip
 
  RETURN
 
+#endif
 END

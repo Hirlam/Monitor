@@ -1,4 +1,5 @@
 SUBROUTINE read_radiation
+#ifdef FIXME
  
  USE DATA
  USE CONSTANTS
@@ -175,4 +176,5 @@ INTEGER FUNCTION test_mark(mark)
  test_mark = flag
 
 RETURN
+#endif
 END

@@ -10,7 +10,7 @@ SUBROUTINE print_freq(lunout,nparver,nr,scat,p1,par_active,uh,uf)
  USE functions
  USE timing
  USE data, ONLY : nexp,station_name,err_ind,csi,varprop, &
-                  expname,gr_ind,pe_ind,pd_ind,          &
+                  expname,                               &
                   lfcver,output_mode,                    &
                   show_fc_length,                        &
                   ltiming,tag,maxfclenval,               &
@@ -123,7 +123,8 @@ SUBROUTINE print_freq(lunout,nparver,nr,scat,p1,par_active,uh,uf)
           maxcla(j) = 0.
           mincla(j) = 1.
 
-          IF (j == gr_ind) THEN
+          IF( varprop(j)%id == 'GR' ) THEN
+
              mincla(j) = 1.
              maxcla(j) = 1000.
           ENDIF

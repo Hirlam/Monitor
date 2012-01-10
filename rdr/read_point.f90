@@ -1,4 +1,5 @@
 SUBROUTINE read_point
+#ifdef FIXME
  
  USE DATA
  USE CONSTANTS
@@ -201,4 +202,5 @@ SUBROUTINE read_point
 
  RETURN
 
+#endif
 END SUBROUTINE read_point

@@ -151,33 +151,33 @@ SUBROUTINE read_vhtb
           IF ( use_pos ) obs(stat_i)%pos(cdate * 100 + ctime/10000 ) = i
           obs(stat_i)%o(i)%val  = err_ind
 
-          if (nn_ind /= 0 .AND. qca(val(1),-999.) .AND.                 &
-                                qcl(val(1),nn_ind).AND. &
-                                qcu(val(1),nn_ind)) obs(stat_i)%o(i)%val(nn_ind) = val(1)
-          if (dd_ind /= 0 .AND. qca(val(1),-999.) .AND.                 &
-                                qcl(val(2),dd_ind).AND. &
-                                qcu(val(2),dd_ind)) obs(stat_i)%o(i)%val(dd_ind) = val(2)
-          if (ff_ind /= 0 .AND. qca(val(1),-999.) .AND.                 &
-                                qcl(val(3),ff_ind).AND. &
-                                qcu(val(3),ff_ind)) obs(stat_i)%o(i)%val(ff_ind) = val(3)
-          if (tt_ind /= 0 .AND. qca(val(1),-999.) .AND.                       &
-                                qcl(val(4)-tzero,tt_ind).AND. &
-                                qcu(val(4)-tzero,tt_ind)) obs(stat_i)%o(i)%val(tt_ind) = val(4) - tzero
-          if (rh_ind /= 0 .AND. qca(val(1),-999.) .AND.                 &
-                                qcl(val(5),rh_ind).AND. &
-                                qcu(val(5),rh_ind)) obs(stat_i)%o(i)%val(rh_ind) = val(5)
-          if (ps_ind /= 0 .AND. qca(val(1),-999.) .AND.                 &
-                                qcl(val(6),ps_ind).AND. &
-                                qcu(val(6),ps_ind)) obs(stat_i)%o(i)%val(ps_ind) = val(6)
-          if (pe_ind /= 0 .AND. qca(val(1),-999.) .AND.                 &
-                                qcl(val(7),pe_ind).AND. &
-                                qcu(val(7),pe_ind)) obs(stat_i)%o(i)%val(pe_ind) = val(7)
-          if (qq_ind /= 0 .AND. qca(val(1),-999.) .AND.                 &
-                                qcl(val(8),qq_ind).AND. &
-                                qcu(val(8),qq_ind)) obs(stat_i)%o(i)%val(qq_ind) = val(8) * 1.e3
+!         if (nn_ind /= 0 .AND. qca(val(1),-999.) .AND.                 &
+!                               qcl(val(1),nn_ind).AND. &
+!                               qcu(val(1),nn_ind)) obs(stat_i)%o(i)%val(nn_ind) = val(1)
+!         if (dd_ind /= 0 .AND. qca(val(1),-999.) .AND.                 &
+!                               qcl(val(2),dd_ind).AND. &
+!                               qcu(val(2),dd_ind)) obs(stat_i)%o(i)%val(dd_ind) = val(2)
+!         if (ff_ind /= 0 .AND. qca(val(1),-999.) .AND.                 &
+!                               qcl(val(3),ff_ind).AND. &
+!                               qcu(val(3),ff_ind)) obs(stat_i)%o(i)%val(ff_ind) = val(3)
+!         if (tt_ind /= 0 .AND. qca(val(1),-999.) .AND.                       &
+!                               qcl(val(4)-tzero,tt_ind).AND. &
+!                               qcu(val(4)-tzero,tt_ind)) obs(stat_i)%o(i)%val(tt_ind) = val(4) - tzero
+!         if (rh_ind /= 0 .AND. qca(val(1),-999.) .AND.                 &
+!                               qcl(val(5),rh_ind).AND. &
+!                               qcu(val(5),rh_ind)) obs(stat_i)%o(i)%val(rh_ind) = val(5)
+!         if (ps_ind /= 0 .AND. qca(val(1),-999.) .AND.                 &
+!                               qcl(val(6),ps_ind).AND. &
+!                               qcu(val(6),ps_ind)) obs(stat_i)%o(i)%val(ps_ind) = val(6)
+!         if (pe_ind /= 0 .AND. qca(val(1),-999.) .AND.                 &
+!                               qcl(val(7),pe_ind).AND. &
+!                               qcu(val(7),pe_ind)) obs(stat_i)%o(i)%val(pe_ind) = val(7)
+!         if (qq_ind /= 0 .AND. qca(val(1),-999.) .AND.                 &
+!                               qcl(val(8),qq_ind).AND. &
+!                               qcu(val(8),qq_ind)) obs(stat_i)%o(i)%val(qq_ind) = val(8) * 1.e3
 
-          if (la_ind /= 0 ) obs(stat_i)%o(i)%val(la_ind) = obs(stat_i)%lat
-          if (hg_ind /= 0 ) obs(stat_i)%o(i)%val(hg_ind) = obs(stat_i)%hgt
+!         if (la_ind /= 0 ) obs(stat_i)%o(i)%val(la_ind) = obs(stat_i)%lat
+!         if (hg_ind /= 0 ) obs(stat_i)%o(i)%val(hg_ind) = obs(stat_i)%hgt
 
           IF (print_read > 1 ) WRITE(6,*)obs(stat_i)%o(i)%val
 

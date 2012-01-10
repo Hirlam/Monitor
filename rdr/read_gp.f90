@@ -1,4 +1,5 @@
 SUBROUTINE read_gp
+#ifdef FIXME
 
  !
  ! Read data extracted with gl
@@ -152,4 +153,5 @@ SUBROUTINE read_gp
 
  RETURN
 
+#endif
 END SUBROUTINE read_gp
