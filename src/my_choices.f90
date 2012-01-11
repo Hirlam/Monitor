@@ -40,12 +40,6 @@ IMPLICIT NONE
        CALL read_vfld_temp
        CALL read_vobs_temp
    
-    CASE('htb','HTB')
-   
-       ! Helsinki testbed data
-       CALL read_vhtb
-       CALL read_vfld
-
     CASE DEFAULT
 
        WRITE(6,*)'No such option ',TRIM(data_source)
