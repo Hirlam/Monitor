@@ -76,6 +76,7 @@
  'LPLOT_STAT'    => 'F',
  'LFCVER'        => 'F',
  'SHOW_TIMES'    => '00,12',
+ 'USE_FCLEN' => join(',',split(' ',$ENV{FCLEN_MAP})),
  },
 
  'TIME' => {

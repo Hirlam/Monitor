@@ -122,6 +122,9 @@ FCLEN_SCAT="06 18 30 42"
 # Forecast lengths used in timeserie plots
 FCLEN_SURF_TIME="24"
 
+# Forecast lengths used in maps
+FCLEN_MAP=$FCLEN_SURF
+
 ########################
 # Upper air parameters #
 ########################
