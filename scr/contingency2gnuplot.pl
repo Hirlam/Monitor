@@ -234,19 +234,20 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
                if($class == 0){ 
                   if($xscale ne "set logscale x"){
                       $centralx=$thresholds[$class]-0.5*abs($thresholds[$class]-$thresholds[$class+1]);
-                   }
+                      $lowerlimit=$thresholds[$class]; }
                   else{
 		    if ($thresholds[$class] <= 0){
                         die "\n \n ERROR: \n Your limit of $thresholds[$class] for variable $partag \n does not allow a logarithmic scaling \n \n \n ";}
-                      $centralx=$thresholds[$class]*0.3;}
+                      $centralx=$thresholds[$class]*0.3;
+                      $lowerlimit=$thresholds[$class]; }
                } 
                elsif($class == $classes){
                    $centralx=$thresholds[$class-1]+0.5*abs($thresholds[$class-1]-$thresholds[$class-2]);
-                   $lowerlimit=$thresholds[$class-1];
+                   $lowerlimit=$missing;
                }
                else {
                    $centralx=0.5*($thresholds[$class-1]+$thresholds[$class]);
-                   $lowerlimit=$thresholds[$class-1];
+                   $lowerlimit=$thresholds[$class];
 	       }
 	     
                print SCOREFILE  "$lowerlimit $FAR $POD ";
