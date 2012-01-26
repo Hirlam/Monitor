@@ -34,6 +34,7 @@ SUBROUTINE scorediffs(exp1,exp2,nfclen,par,     &
 !--- header comment for output
       confid = confide/100.0
 
+  ncases(:) = 0
   DO j=1,nfclen
 
       l = 0
@@ -46,9 +47,10 @@ SUBROUTINE scorediffs(exp1,exp2,nfclen,par,     &
         y(l) = SQRT( all_sign_stat(i)%r(exp2,j,par) /  &
                        all_sign_stat(i)%n(1,j,par) )
 
-        ncases(j) = ncases(j) + l
 
       ENDDO 
+
+      ncases(j) = l
 
 !--- transform correlations to something more Gaussian
 
