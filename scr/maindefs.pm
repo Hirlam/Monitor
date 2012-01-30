@@ -61,6 +61,7 @@
  # Fclen plots
  'LSTAT_GEN'  => 'T',
  'LSIGN_TEST' => 'T',
+ 'CONFINT'    => '90.',
  'SIGN_TIME_DIFF' => '-1',
  'LPLOT_STAT' => 'T',
  'SHOW_BIAS' => 'T',

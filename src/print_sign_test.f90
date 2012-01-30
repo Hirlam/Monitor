@@ -12,8 +12,8 @@ SUBROUTINE print_sign_test(lunout,nexp,nparver,         &
                   nfclengths,nuse_fclen,tag,                    &
                   timdiff,time_shift,show_fc_length,            &
                   copied_obs,copied_mod,period_freq,period_type,&
-                  output_type,lprint_seasonal,         &
-                  control_exp_nr,sign_time_diff,err_ind
+                  output_type,lprint_seasonal,                  &
+                  control_exp_nr,sign_time_diff,err_ind,confint
 
  IMPLICIT NONE
 
@@ -84,7 +84,7 @@ SUBROUTINE print_sign_test(lunout,nexp,nparver,         &
 
       CALL  scorediffs(control_exp_nr,i,nuse_fclen,j,     &
                        istart,iend,                       &
-                       .TRUE.,.FALSE.,90.,sdiff,ncases)
+                       .TRUE.,.FALSE.,confint,sdiff,ncases)
 
       ! Set output filename
 
@@ -120,7 +120,8 @@ SUBROUTINE print_sign_test(lunout,nexp,nparver,         &
     ! Create headers
  
     ! Line 1
-    wtext = 'Normalized mean RMSE diff '
+    WRITE(wname(1:2),'(I2)')NINT(confint)
+    wtext = 'Normalized mean RMSE diff ('//wname(1:2)//'% conf) '
     wtext = TRIM(wtext)//' '//TRIM(expname(control_exp_nr))//' - '//TRIM(expname(i))
     IF ( sign_time_diff /= -1 ) THEN
      WRITE(wtext1(1:1),'(I1)')sign_time_diff

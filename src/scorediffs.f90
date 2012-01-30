@@ -38,7 +38,6 @@ SUBROUTINE scorediffs(exp1,exp2,nfclen,par,     &
   DO j=1,nfclen
 
       l = 0
-      ncases(j) = 0
       DO i=istart,iend
         IF ( all_sign_stat(i)%n(1,j,par) == 0 ) CYCLE 
         l = l + 1
@@ -46,8 +45,6 @@ SUBROUTINE scorediffs(exp1,exp2,nfclen,par,     &
                        all_sign_stat(i)%n(1,j,par) )
         y(l) = SQRT( all_sign_stat(i)%r(exp2,j,par) /  &
                        all_sign_stat(i)%n(1,j,par) )
-
-
       ENDDO 
 
       ncases(j) = l
@@ -162,79 +159,78 @@ SUBROUTINE stats (d,avd,nsc,sigmean)
 
  RETURN
 END SUBROUTINE stats
-
-! ---- Get t value from the t-test table
-      real function t4_confid(x,df)
-      real x
-      integer df
-      if( ABS(x-0.90) < 1.e-6 ) then
-         select case(df)
-             case(1)
-                t4_confid=6.314
-             case(2)
-                t4_confid=2.920
-             case(3)
-                t4_confid=2.353
-             case(4)
-                t4_confid=2.132
-             case(5)
-                t4_confid=2.015
-             case(6)
-                t4_confid=1.943
-             case(7)
-                t4_confid=1.895
-             case(8)
-                t4_confid=1.860
-             case(9)
-                t4_confid=1.833
-             case(10)
-                t4_confid=1.812
-             case(11)
-                t4_confid=1.797
-             case(12)
-                t4_confid=1.782
-             case(13)
-                t4_confid=1.772
-             case(14)
-                t4_confid=1.761
-             case(15)
-                t4_confid=1.754
-             case(16)
-                t4_confid=1.746
-             case(17)
-                t4_confid=1.740
-             case(18)
-                t4_confid=1.734
-             case(19)
-                t4_confid=1.730
-             case(20)
-                t4_confid=1.725
-             case(21)
-                t4_confid=1.721
-             case(22)
-                t4_confid=1.717
-             case(23)
-                t4_confid=1.714
-             case(24)
-                t4_confid=1.711
-             case(25)
-                t4_confid=1.708
-             case(26)
-                t4_confid=1.706
-             case(27)
-                t4_confid=1.704
-             case(28)
-                t4_confid=1.701
-             case(29)
-                t4_confid=1.699
-             case(30)
-                t4_confid=1.694
-             case default
-                t4_confid=1.645
-         end select
-       else
-         write(6,*)'Cannot handle confidence interval',x
-         call abort
-       endif
-      return
+      real function t4_confid(conf_level,ndf)
+      implicit none
+      real conf_level
+      integer ndf
+      real probst
+      external probst
+      real cf_wish,xmin,xmax,x,cf_out
+      integer error,niter
+      if( ndf.le.0 ) then
+         write(6,*)ndf,' degrees of freedom!!'
+         write(6,*)' student t not defined'
+         return
+      end if
+      cf_wish = 1.0 - 0.5*(1.0-conf_level)
+      xmin = 0.1
+      xmax = 100.0
+      niter=0
+      do while (abs(cf_wish-cf_out).gt.0.000001.and.niter.lt.1000)
+      niter=niter+1
+      x = 0.5*(xmin+xmax)
+      cf_out =  probst(x,ndf,error)
+      if( cf_out.lt.cf_wish ) then
+      xmin = x
+      else
+      xmax = x
+      end if
+      end do
+      t4_confid=x
+      write(6,*)'conf_level ndf t4_confid=',conf_level,ndf,t4_confid
+      return 
       end
+      REAL FUNCTION PROBST(T, IDF, IFAULT)
+! ---------------------------------------------------------------------
+!        ALGORITHM AS 3  APPL. STATIST. (1968) VOL.17, P.189
+!
+!        STUDENT T PROBABILITY (LOWER TAIL)
+! ---------------------------------------------------------------------
+      REAL A, B, C, F, G1, S, FK, T, ZERO, ONE, TWO, HALF, ZSQRT, ZATAN
+
+!        G1 IS RECIPROCAL OF PI
+
+      DATA ZERO, ONE, TWO, HALF, G1  /0.0, 1.0, 2.0,  0.5, 0.3183098862/
+
+      ZSQRT(A) = SQRT(A)
+      ZATAN(A) = ATAN(A)
+
+      IFAULT = 1
+      PROBST = ZERO
+      IF (IDF .LT. 1) RETURN
+      IFAULT = 0
+      F = IDF
+      A = T / ZSQRT(F)
+      B = F / (F + T ** 2)
+      IM2 = IDF - 2
+      IOE = MOD(IDF, 2)
+      S = ONE
+      C = ONE
+      F = ONE
+      KS = 2 + IOE
+      FK = KS
+      IF (IM2 .LT. 2) GOTO 20
+      DO 10 K = KS, IM2, 2
+      C = C * B * (FK - ONE) / FK
+      S = S + C
+      IF (S .EQ. F) GOTO 20
+      F = S
+      FK = FK + TWO
+   10 CONTINUE
+   20 IF (IOE .EQ. 1) GOTO 30
+      PROBST = HALF + HALF * A * ZSQRT(B) * S
+      RETURN
+   30 IF (IDF .EQ. 1) S = ZERO
+      PROBST = HALF + (A * B * S + ZATAN(A)) * G1
+      RETURN
+      END
