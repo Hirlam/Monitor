@@ -297,6 +297,7 @@ MODULE data
  LOGICAL :: lsign_test       = .FALSE.        ! Perform student-t test
  INTEGER :: control_exp_nr   = 1              ! Which experiment is the control
  INTEGER :: sign_time_diff   = -1             ! Min time difference in days for sign test. -1 implies fcint
+ REAL    :: confint          = 90.            ! Confidence interval for significance test
 
  !
  ! Namelist 
@@ -383,7 +384,7 @@ MODULE data
                  cond_param,cond,                       &
                  graphics,                              &
                  lsign_test,control_exp_nr,             &
-                 sign_time_diff,                        &
+                 sign_time_diff,confint,                &
                  lstn_hgt_check,hgt_llim,hgt_ulim
 
 
