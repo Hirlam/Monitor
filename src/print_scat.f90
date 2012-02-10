@@ -20,6 +20,8 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
 
  IMPLICIT NONE
 
+ INTEGER, PARAMETER :: nbin = 100
+
  ! INPUT
 
  INTEGER,            INTENT(IN) :: lunout,nparver,nr,p1,p2
@@ -30,15 +32,17 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
 
  ! LOCAL
 
- INTEGER :: i,j,jj,k,kk,x,y,l,       &
+ INTEGER :: i,j,jj,k,kk,x,y,l,m,       &
             nexp_plot,pp1,ierr,      &
             period,len_loop,         &
             lcorr_pairs(mparver,2),  &
             lflag_pairs(mparver,2),  &
-             lexp_pairs(mparver,2)
+             lexp_pairs(mparver,2),  &
+            nlevmin,nlevmax,         &
+            nlevels
 
  CHARACTER(LEN= 10) :: cnum     =' '
- CHARACTER(LEN=100) :: fname    =' '
+ CHARACTER(LEN=100) :: fname    =' ',sname =' '
  CHARACTER(LEN= 50) :: my_tag   =' '
  CHARACTER(LEN=100) :: wtext    =' ', &
                        axist(2) =' ', &
@@ -50,7 +54,13 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
 
  REAL :: minax(2),maxax(2),rtmp
 
- REAL, ALLOCATABLE :: val(:,:)
+ REAL, ALLOCATABLE :: val(:,:),level(:)
+
+ TYPE(scatter_bin) :: sbin(nexp)
+
+ LOGICAL, ALLOCATABLE :: levcheck(:,:)
+
+ LOGICAL :: print_data
 
  !
  !-----------------------------------------------------
@@ -89,6 +99,12 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
     WRITE(6,*)'could not allocated val',MAXVAL(scat%n)
     CALL abort
  ENDIF
+
+ DO j=1,nexp
+   ALLOCATE(sbin(j)%binx(0:nbin), &
+            sbin(j)%biny(0:nbin), &
+            sbin(j)%array(nbin,nbin))
+ ENDDO
 
  DO j=1,len_loop
 
@@ -144,25 +160,26 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
 
     IF ( scat_min(lcorr_pairs(j,1)) < scat_max(lcorr_pairs(j,1)) ) THEN
 
-       minax = scat_min(lcorr_pairs(j,1))
-       maxax = scat_max(lcorr_pairs(j,1))
-       kk = scat(lcorr_pairs(j,1))%n
+      minax = scat_min(lcorr_pairs(j,1))
+      maxax = scat_max(lcorr_pairs(j,1))
+      kk = scat(lcorr_pairs(j,1))%n
 
     ELSE
 
-       minax = 0.
-       maxax = 1.
+      minax = 0.
+      maxax = 1.
 
-       !
-       ! Since we have demanded all_var_present
-       ! all n should be equal and we only have 
-       ! to test 1 case
-       !
+      !
+      ! Since we have demanded all_var_present
+      ! all n should be equal and we only have 
+      ! to test 1 case
+      !
 
-       kk = scat(lcorr_pairs(j,1))%n
+      kk = scat(lcorr_pairs(j,1))%n
 
-       IF (kk > 0 )THEN
+      IF (kk > 0 )THEN
 
+        ! Loop over the x- and y-axis
         DO k=1,2
    
          i = lcorr_pairs(j,k)
@@ -241,101 +258,160 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
     nexp_plot = 1
     IF( ALL(lexp_pairs(j,:) == 0 ) ) nexp_plot = nexp
 
+    nlevels = scat_magn(lcorr_pairs(j,1))
+
+    ALLOCATE(levcheck(nlevels,nexp_plot), &
+             level(nlevels))
+
+    levcheck(:,:) = .FALSE.
+
     DO jj=1,nexp_plot
 
-       ! Set filename
-       i = lcorr_pairs(j,2)
+      ! Copy the data
+      DO k=1,2
 
-       my_tag = TRIM(tag)//'_'//TRIM(expname(jj))
-       IF( full_scatter ) THEN
-          CALL make_fname(prefix,period,nr,my_tag,       &
-                       varprop(i)%id,varprop(i)%lev,     &
-                       output_mode,output_type,fname)
-       ELSE
-          WRITE(cnum(1:2),'(I2.2)')j
-          CALL make_fname(prefix,period,nr,my_tag,       &
+        i = lcorr_pairs(j,k)
+        wtext = varprop(i)%text
+
+        SELECT CASE(lflag_pairs(j,k))
+        CASE(-1)
+          val(k,1:kk) = scat(i)%dat(1,1:kk)
+          axist(k)= 'OBS '//TRIM(varprop(i)%text)
+        CASE( 0)
+          IF( ALL(lexp_pairs(j,:) == 0 ) ) THEN
+            val(k,1:kk) = scat(i)%dat(1+jj,1:kk)
+            axist(k) = TRIM(expname(jj))//' - OBS '//TRIM(wtext)
+          ELSE
+            x = lexp_pairs(j,k) + 1
+            val(k,1:kk) = scat(i)%dat(x,1:kk)
+            axist(k) = TRIM(expname(x-1))//' - OBS '//TRIM(wtext)
+          ENDIF
+        CASE( 1)
+          IF( ALL(lexp_pairs(j,:) == 0 ) ) THEN
+            val(k,1:kk) = scat(i)%dat(1+jj,1:kk) + &
+                          scat(i)%dat(1   ,1:kk)
+            axist(k) = TRIM(expname(jj))//' '//TRIM(wtext)
+          ELSE
+            x = lexp_pairs(j,k) + 1
+            val(k,1:kk) = scat(i)%dat(x,1:kk) + &
+                          scat(i)%dat(1   ,1:kk)
+            axist(k) = TRIM(expname(x-1))//' '//TRIM(wtext)
+          ENDIF
+        CASE( 2)
+          IF( ALL(lexp_pairs(j,:) == 0 ) ) THEN
+            val(k,1:kk) = scat(i)%dat(1+jj,1:kk)
+            axist(k) = TRIM(expname(jj))//' - OBS '//TRIM(wtext)
+          ELSE
+            x = lexp_pairs(j,1) + 1
+            y = lexp_pairs(j,2) + 1
+            val(k,1:kk) = scat(i)%dat(x,1:kk) - scat(i)%dat(y,1:kk)
+            axist(k) = TRIM(expname(x-1))//' - '//TRIM(expname(y-1))//' '//TRIM(wtext)
+          ENDIF
+        END SELECT
+
+        !
+        ! Special case for wind direction
+        !
+
+        IF ( varprop(i)%id == 'DD' .AND. lflag_pairs(j,k) /= 0 ) THEN
+          DO l=1,kk
+            IF (val(k,l) > 360. ) THEN
+              val(k,l) = val(k,l) - 360.         
+            ELSEIF(val(k,l) <   0. ) THEN
+              val(k,l) = val(k,l) + 360.         
+            ENDIF
+          ENDDO
+        ENDIF
+      ENDDO
+
+      CALL bin_cont(val(1,1:kk),val(2,1:kk),kk,     &
+                    minax,maxax,                    &
+                    nlevels,level,                  &
+                    levcheck(:,jj),                 &
+                    nbin,sbin(jj)) 
+
+    ENDDO
+
+    nlevmax = 2
+    DO jj=2,nlevels
+      IF ( ANY(levcheck(jj,:))) nlevmax = jj
+    ENDDO 
+    nlevmin = nlevmax
+    DO jj=nlevmax,2,-1
+      IF ( ANY(levcheck(jj,:))) nlevmin = jj
+    ENDDO 
+
+    DO jj=1,nexp_plot
+
+      ! Set filename
+      i = lcorr_pairs(j,2)
+
+      my_tag = TRIM(tag)//'_'//TRIM(expname(jj))
+      IF( full_scatter ) THEN
+        CALL make_fname(prefix,period,nr,my_tag,       &
+                        varprop(i)%id,varprop(i)%lev,     &
+                        output_mode,output_type,fname)
+      ELSE
+        WRITE(cnum(1:2),'(I2.2)')j
+        CALL make_fname(prefix,period,nr,my_tag,       &
                        cnum(1:2),cnum(1:2),              &
                        output_mode,output_type,fname)
-       ENDIF
+      ENDIF
 
-       ! Open output file
-       CALL open_output(fname)
+      ! Open output file
+      CALL open_output(fname)
 
-       ! Copy the data
-       DO k=1,2
+      wtext ='                               '
+      l = lcorr_pairs(j,1)
+      IF( full_scatter ) &
+      wtext = TRIM(varprop(l)%text)//' ['//TRIM(varprop(l)%unit)//']'
 
-           i = lcorr_pairs(j,k)
-           wtext = varprop(i)%text
+      ! Print out the different points
+      WRITE(lunout,'(2A)')'#HEADING_1 ',TRIM(title)
+      WRITE(lunout,'(2A)')'#HEADING_2 ',TRIM(wtext)
+      WRITE(lunout,'(2A)')'#HEADING_3 ',TRIM(wtext4)
+      WRITE(lunout,'(2A)')'#HEADING_4 ',TRIM(wtext3)
+       
+      WRITE(lunout,'(2A)')'#YLABEL ',TRIM(axist(2))
+      WRITE(lunout,'(2A)')'#XLABEL ',TRIM(axist(1))
+      WRITE(lunout,*)'#XMIN ',minax(1)
+      WRITE(lunout,*)'#XMAX ',maxax(1)
+      WRITE(lunout,*)'#YMIN ',minax(2)
+      WRITE(lunout,*)'#YMAX ',maxax(2)
+      WRITE(lunout,*)'#MISSING  -999.'
 
-           SELECT CASE(lflag_pairs(j,k))
-           CASE(-1)
-              val(k,1:kk) = scat(i)%dat(1,1:kk)
-              axist(k)= 'OBS '//TRIM(varprop(i)%text)
-           CASE( 0)
-              IF( ALL(lexp_pairs(j,:) == 0 ) ) THEN
-                val(k,1:kk) = scat(i)%dat(1+jj,1:kk)
-                axist(k) = TRIM(expname(jj))//' - OBS '//TRIM(wtext)
-              ELSE
-                x = lexp_pairs(j,k) + 1
-                val(k,1:kk) = scat(i)%dat(x,1:kk)
-                axist(k) = TRIM(expname(x-1))//' - OBS '//TRIM(wtext)
-              ENDIF
-           CASE( 1)
-              IF( ALL(lexp_pairs(j,:) == 0 ) ) THEN
-                val(k,1:kk) = scat(i)%dat(1+jj,1:kk) + &
-                              scat(i)%dat(1   ,1:kk)
-                axist(k) = TRIM(expname(jj))//' '//TRIM(wtext)
-              ELSE
-                x = lexp_pairs(j,k) + 1
-                val(k,1:kk) = scat(i)%dat(x,1:kk) + &
-                              scat(i)%dat(1   ,1:kk)
-                axist(k) = TRIM(expname(x-1))//' '//TRIM(wtext)
-              ENDIF
-           CASE( 2)
-              IF( ALL(lexp_pairs(j,:) == 0 ) ) THEN
-                val(k,1:kk) = scat(i)%dat(1+jj,1:kk)
-                axist(k) = TRIM(expname(jj))//' - OBS '//TRIM(wtext)
-              ELSE
-                x = lexp_pairs(j,1) + 1
-                y = lexp_pairs(j,2) + 1
-                val(k,1:kk) = scat(i)%dat(x,1:kk) - scat(i)%dat(y,1:kk)
-                axist(k) = TRIM(expname(x-1))//' - '//TRIM(expname(y-1))//' '//TRIM(wtext)
-              ENDIF
-           END SELECT
+      DO l=nlevmin,nlevmax
 
-           !
-           ! Special case for wind direction
-           !
+        IF ( level(l) <= level(l-1)) EXIT
+        WRITE(cnum,'(I2.2)')l
+        sname = TRIM(fname)//'_'//cnum
+       
+        WRITE(lunout,'(A,X,A,I10)')'#SLEVEL ',cnum,NINT(level(l))
 
-           IF ( varprop(i)%id == 'DD' .AND. lflag_pairs(j,k) /= 0 ) THEN
-              DO l=1,kk
-                 IF (val(k,l) > 360. ) THEN
-                    val(k,l) = val(k,l) - 360.         
-                 ELSEIF(val(k,l) <   0. ) THEN
-                    val(k,l) = val(k,l) + 360.         
-                 ENDIF
-              ENDDO
-           ENDIF
+        OPEN(UNIT=37,FILE=sname)
+        print_data=.FALSE.
+        DO m=1,nbin
+          DO i=1,nbin
+            IF (sbin(jj)%array(i,m) >= level(l-1) .AND.  &
+                sbin(jj)%array(i,m) <  level(l  )      ) THEN
+                WRITE(37,*)sbin(jj)%binx(i-1), &
+                           sbin(jj)%biny(m-1)
+                print_data=.TRUE.
+            ENDIF
+          ENDDO
         ENDDO
+        IF(.NOT.print_data) WRITE(37,*) "-999.   -999."
+        CLOSE(37)
 
-        wtext ='                               '
-        l = lcorr_pairs(j,1)
-        IF( full_scatter ) &
-        wtext = TRIM(varprop(l)%text)//' ['//TRIM(varprop(l)%unit)//']'
+      ENDDO
 
-        CALL bin_cont(lunout,                         &
-                      val(1,1:kk),val(2,1:kk),kk,     &
-                      minax(1),maxax(1),              &
-                      minax(2),maxax(2),              &
-                      scat_magn(lcorr_pairs(j,1)),    &
-                      fname,                          &
-                      title,wtext,wtext4,wtext3,      &
-                      axist(2),axist(1)) 
+      WRITE(lunout,'(A)')'#END'
+ 
+      CLOSE(lunout)
 
+    ENDDO
 
-        CLOSE(lunout)
-
-     ENDDO
+    DEALLOCATE(levcheck,level)
 
   ENDDO
 

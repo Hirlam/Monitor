@@ -1,9 +1,11 @@
-SUBROUTINE bin_cont(lunout,xval,yval,nobs,          &
-                    minx,maxx,miny,maxy,            &
-                    nlevels,fname,                  &
-                    heading1,heading2,              &
-                    heading3,heading4,              &
-                    axist1,axist2)
+SUBROUTINE bin_cont(xval,yval,nobs,  &
+                    bin_min_yx,      &
+                    bin_max_yx,      &
+                    nlevels,level,   &
+                    levcheck,        &
+                    nbin,sbin)
+
+ USE types, ONLY : scatter_bin
 
  IMPLICIT NONE
 
@@ -13,48 +15,38 @@ SUBROUTINE bin_cont(lunout,xval,yval,nobs,          &
  !
 
  ! Input
- INTEGER,INTENT(IN) :: lunout,nlevels,nobs
+ INTEGER,INTENT(IN) :: nlevels,nobs,nbin
 
  REAL,    INTENT(IN) :: xval(nobs),yval(nobs),  &
-                        minx,miny,maxx,maxy
- CHARACTER(LEN=*), INTENT(IN) ::                &
-                        fname,                  &
-                        heading1,heading2,      &
-                        heading3,heading4,      &
-                        axist1,axist2
+                        bin_min_yx(2),          &
+                        bin_max_yx(2)
+
+ REAL, INTENT(INOUT) :: level(nlevels)
+
+ LOGICAL, INTENT(OUT) :: levcheck(nlevels)
+
+ TYPE(scatter_bin) :: sbin
 
  ! Local
   
   INTEGER :: nbinx,nbiny,               &
              ibin_x,ibin_y,             &
-             i,j,l,ii,numrej
+             i,l,ii,numrej
   REAL                   ::             &
-    bin_min_yx(2)=(/0.,0./)     ,       & ! min for x and y axis
-    bin_max_yx(2)=(/100.,100./) ,       & ! max for x and y axis
     bin_inc_yx(2)=(/1,1/),              & ! inc for x and y axis
-    level(nlevels),                     &
     fac,maxobs,                         &
     sumy,sumx,sumyy,sumxx,sumxy,sumxy2, &
     xhelp,yhelp,xpt,xptd,rv,sid,        &
     XMEAN, YMEAN, STDEVX, STDEVY, BIAS, RMSE, STDEVD, CORR
 
-  REAL, ALLOCATABLE :: biny(:),binx(:),array(:,:)
-
-  CHARACTER(LEN=100) :: sname = ''
-  CHARACTER(LEN=  2) :: cnum  = ''
-
-  LOGICAL :: print_data
+  REAL, POINTER :: biny(:),binx(:),array(:,:)
 
 !---------------------------------------------------------------------
 
   level = 1.
-  ! Set bin tic and limits
-  bin_max_yx(1) = maxy
-  bin_min_yx(1) = miny
-  bin_max_yx(2) = maxx
-  bin_min_yx(2) = minx
-  bin_inc_yx(1) = (bin_max_yx(1) -bin_min_yx(1)) / 100.
-  bin_inc_yx(2) = (bin_max_yx(2) -bin_min_yx(2)) / 100.
+  ! Set bin increments
+  bin_inc_yx(1) = (bin_max_yx(1) -bin_min_yx(1)) / FLOAT(nbin)
+  bin_inc_yx(2) = (bin_max_yx(2) -bin_min_yx(2)) / FLOAT(nbin)
 
   nbiny=INT( (bin_max_yx(1)-bin_min_yx(1))/REAL(bin_inc_yx(1)) )
   nbinx=INT( (bin_max_yx(2)-bin_min_yx(2))/REAL(bin_inc_yx(2)) )
@@ -62,12 +54,12 @@ SUBROUTINE bin_cont(lunout,xval,yval,nobs,          &
   nbiny=MAX(2,nbiny)
   nbinx=MAX(2,nbinx)
 
-  ALLOCATE(biny(0:nbiny))
-  ALLOCATE(binx(0:nbinx))
-  ALLOCATE(array(nbinx,nbiny))
+  ! Set pointer ( convinience )
+  biny  => sbin%biny
+  binx  => sbin%binx
+  array => sbin%array
 
   array = 0.
-
   biny(0) = bin_min_yx(1)
   binx(0) = bin_min_yx(2)
   DO i=1,nbiny
@@ -80,38 +72,40 @@ SUBROUTINE bin_cont(lunout,xval,yval,nobs,          &
 !-------------------------------------------------------------------------------
 ! Bin the data
 !-------------------------------------------------------------------------------
-    sumy   = 0.
-    sumx   = 0.
-    sumxx  = 0.
-    sumyy  = 0.
-    sumxy  = 0.
-    sumxy2 = 0.
+  sumy   = 0.
+  sumx   = 0.
+  sumxx  = 0.
+  sumyy  = 0.
+  sumxy  = 0.
+  sumxy2 = 0.
 
-    numrej = 0
+  numrej = 0
 
-    DO i=1,nobs
+  DO i=1,nobs
 
-       IF ( xval(i) < minx .OR. xval(i) > maxx .OR.     &
-            yval(i) < miny .OR. yval(i) > maxy      ) THEN
-            numrej = numrej + 1 
-            CYCLE
-       ENDIF
+    IF ( xval(i) < bin_min_yx(2) .OR. &
+      xval(i) > bin_max_yx(2) .OR. &
+      yval(i) < bin_min_yx(1) .OR. &
+      yval(i) > bin_max_yx(1)      ) THEN
+      numrej = numrej + 1 
+      CYCLE
+    ENDIF
 
-       ibin_x = int((xval(i) - binx(0))/bin_inc_yx(2)) + 1
-       ibin_x = MAX(1,min(nbinx,ibin_x))
-       ibin_y = int((yval(i) - biny(0))/bin_inc_yx(1)) + 1
-       ibin_y = MAX(1,min(nbiny,ibin_y))
+    ibin_x = int((xval(i) - binx(0))/bin_inc_yx(2)) + 1
+    ibin_x = MAX(1,min(nbinx,ibin_x))
+    ibin_y = int((yval(i) - biny(0))/bin_inc_yx(1)) + 1
+    ibin_y = MAX(1,min(nbiny,ibin_y))
    
-       array(ibin_x,ibin_y) = array(ibin_x,ibin_y) + 1.
+    array(ibin_x,ibin_y) = array(ibin_x,ibin_y) + 1.
 
-       sumy   = sumy   + yval(i)
-       sumyy  = sumyy  + yval(i)*yval(i)
-       sumx   = sumx   + xval(i)
-       sumxx  = sumxx  + xval(i)*xval(i)
-       sumxy  = sumxy  + xval(i)*yval(i)
-       sumxy2 = sumxy2 + (xval(i)-yval(i))*(xval(i)-yval(i))
+    sumy   = sumy   + yval(i)
+    sumyy  = sumyy  + yval(i)*yval(i)
+    sumx   = sumx   + xval(i)
+    sumxx  = sumxx  + xval(i)*xval(i)
+    sumxy  = sumxy  + xval(i)*yval(i)
+    sumxy2 = sumxy2 + (xval(i)-yval(i))*(xval(i)-yval(i))
 
-    ENDDO
+  ENDDO
 
   ! Set obs count scale
   level(1)=1.
@@ -121,20 +115,23 @@ SUBROUTINE bin_cont(lunout,xval,yval,nobs,          &
 
   maxobs=MAXVAL(array)
 
+  WRITE(6,*)'LEVELS',nlevels
+
+
   DO i=4,nlevels,4
-     fac = 10.**((i)/4)
-     level(i)=1*fac
-     ii = i 
-     IF(level(ii).GT.maxobs) EXIT
-     ii = i+1
-     level(i+1)=2.5*fac
-     IF(level(ii).GT.maxobs) EXIT
-     ii = i+2
-     level(ii)=5*fac
-     IF(level(ii).GT.maxobs) EXIT
-     ii = i+3
-     level(ii)=7.5*fac
-     IF(level(ii).GT.maxobs) EXIT
+    fac = 10.**((i)/4)
+    level(i)=1*fac
+    ii = i 
+    IF(level(ii).GT.maxobs) EXIT
+    ii = i+1
+    level(i+1)=2.5*fac
+    IF(level(ii).GT.maxobs) EXIT
+    ii = i+2
+    level(ii)=5*fac
+    IF(level(ii).GT.maxobs) EXIT
+    ii = i+3
+    level(ii)=7.5*fac
+    IF(level(ii).GT.maxobs) EXIT
   ENDDO
 
   XMEAN  = 0.
@@ -178,47 +175,19 @@ SUBROUTINE bin_cont(lunout,xval,yval,nobs,          &
 
   ENDIF
 
-  ! Print out the different points
-  WRITE(lunout,'(2A)')'#HEADING_1 ',TRIM(heading1)
-  WRITE(lunout,'(2A)')'#HEADING_2 ',TRIM(heading2)
-  WRITE(lunout,'(2A)')'#HEADING_3 ',TRIM(heading3)
-  WRITE(lunout,'(2A)')'#HEADING_4 ',TRIM(heading4)
-
-  WRITE(lunout,'(2A)')'#YLABEL ',TRIM(axist1)
-  WRITE(lunout,'(2A)')'#XLABEL ',TRIM(axist2)
-  WRITE(lunout,*)'#XMIN ',minx
-  WRITE(lunout,*)'#XMAX ',maxx
-  WRITE(lunout,*)'#YMIN ',miny
-  WRITE(lunout,*)'#YMAX ',maxy
-  WRITE(lunout,*)'#MISSING  -999.'
-
+  levcheck(:) = .FALSE.
   DO l=2,nlevels
 
    IF ( level(l) <= level(l-1)) EXIT
-   WRITE(cnum,'(I2.2)')l
-   sname = TRIM(fname)//'_'//cnum
 
-   WRITE(lunout,'(A,X,A,I10)')'#SLEVEL ',cnum,NINT(level(l))
+   levcheck(l) = &
+   ANY(array(:,:) >= level(l-1) .AND.  &
+       array(:,:) <  level(l  )       )
 
-   OPEN(UNIT=37,FILE=sname)
-   print_data=.FALSE.
-   DO j=1,nbiny
-     DO i=1,nbinx
-      IF (array(i,j) >= level(l-1) .AND.  &
-          array(i,j) <  level(l  )      ) THEN
-          WRITE(37,*)binx(i-1),biny(j-1)
-          print_data=.TRUE.
-      ENDIF
-     ENDDO
-   ENDDO
-   IF(.NOT.print_data) WRITE(37,*) "-999.   -999."
-   CLOSE(37)
   ENDDO
-
-  WRITE(lunout,'(A)')'#END'
  
   ! Clear memory
-  DEALLOCATE(biny,binx,array)
+  NULLIFY(biny,binx,array)
 
   RETURN
 

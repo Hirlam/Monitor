@@ -68,6 +68,11 @@ MODULE types
     REAL, POINTER :: dat(:,:)
  END TYPE scatter_type
 
+ TYPE scatter_bin
+    REAL, POINTER :: binx(:),biny(:)
+    REAL, POINTER :: array(:,:)
+ END TYPE scatter_bin
+
  !
  ! Significance stat
  !

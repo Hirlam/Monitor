@@ -19,25 +19,26 @@ $lw=2;
 $OUTPUT_TYPE = $ENV{OUTPUT_TYPE} or $OUTPUT_TYPE = 2 ;
 
 # PS/PNG/JPG/SVG as output and their color definitions for map and scatter
+$maxcol = 11 ;
 if ( $OUTPUT_TYPE eq 1 ) {
     $terminal    = "set terminal postscript landscape enhanced colour";
     @map_colors  = ("7","3","5","6","8","4");
-    @scat_colors = ("3","5","2","6","8","1","4","9","7");
+    @scat_colors = ("3","5","2","6","8","1","4","9","7","10","11","12");
     $map_pt=7;
 } elsif ( $OUTPUT_TYPE eq 2 ) {
     $terminal    = "set terminal png";
     @map_colors  = ("-1","8","5","7","1","13");
-    @scat_colors = ("8","5","2","7","9","1","13","0","-1");
+    @scat_colors = ("8","5","15","14","2","7","9","1","13","0","18","8","-1");
     $map_pt=13;
 } elsif ( $OUTPUT_TYPE eq 3 ) {
     $terminal    = "set terminal jpeg";
     @map_colors  = ("-1","8","5","7","1","13");
-    @scat_colors = ("8","5","2","7","9","1","13","0","-1");
+    @scat_colors = ("8","5","15","14","2","7","9","1","13","0","18","8","-1");
     $map_pt=13;
 } elsif ( $OUTPUT_TYPE eq 4 ) {
     $terminal    = "set terminal svg enhanced fsize 8 ";
     @map_colors  = ("7","3","5","6","8","4");
-    @scat_colors = ("3","5","2","6","8","1","4","9","7");
+    @scat_colors = ("3","5","2","6","8","1","4","9","7","10","11","12");
     $map_pt=7;
 } else {
     die "Unknown OUTPUT_TYPE $OUTPUT_TYPE\n";
@@ -86,9 +87,13 @@ SCAN_INPUT: foreach $input_file (@FILES) {
     $output_file = shift(@tmp) . $EXT[$OUTPUT_TYPE] ;
     open FILE, "< $input_file";
 
-    # Set log/normal scale depending on parameter
-    $xscale = "";
+    # Parameter dependent settings
+    # Set log scale for precipitation
+    # Set lager scatter point size for cloud cover
+    $xscale  = "";
+    $ps_scat = 1 ;
     if ( $partag eq "PE" ) { $xscale="set logscale x" ; } ;
+    if ( $partag eq "NN" ) { $ps_scat=2 ; } ;
 
     SCAN_FILE: while (<FILE>) {
 
@@ -444,8 +449,8 @@ EOF
     foreach (@sfile) {
         $i++;
         if ( $i gt 0 ) { $plot = "$plot,"; }
-        if ( $i <= 8 ) { $color_id = $i; } else { $color_id = 8; } ;
-        $plot = $plot . " '$input_file"."_".$_."' title '$sint[$i]' lt $scat_colors[$color_id] ps 1 pt $map_pt";
+        if ( $i <= $maxcol ) { $color_id = $i; } else { $color_id = $maxcol; } ;
+        $plot = $plot . " '$input_file"."_".$_."' title '$sint[$i]' lt $scat_colors[$color_id] ps $ps_scat pt $map_pt";
     }
 
     if ( $prefix =~ /s/ || $prefix =~ /S/ ) { $plot = $plot . ", x notitle with lines lt -1"; } ;
