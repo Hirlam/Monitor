@@ -349,12 +349,12 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
       my_tag = TRIM(tag)//'_'//TRIM(expname(jj))
       IF( full_scatter ) THEN
         CALL make_fname(prefix,period,nr,my_tag,       &
-                        varprop(i)%id,varprop(i)%lev,     &
+                        varprop(i)%id,varprop(i)%lev,  &
                         output_mode,output_type,fname)
       ELSE
         WRITE(cnum(1:2),'(I2.2)')j
-        CALL make_fname(prefix,period,nr,my_tag,       &
-                       cnum(1:2),cnum(1:2),              &
+        CALL make_fname(prefix,period,nr,tag,     &
+                       cnum(1:2),0,               &
                        output_mode,output_type,fname)
       ENDIF
 
