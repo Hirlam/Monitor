@@ -7,6 +7,10 @@
 #
 # Author: Calle Fortelius, June 2009, based on verobs2gnuplot.pl
 #
+
+push @INC, "../../scr/";
+require skilldefs ;
+
 @col_def_lt  = (1,2,3,4,5,6,8,7);
 @col_def_lt  = (0,@col_def_lt);
 
@@ -173,6 +177,8 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
                my $KUI = $missing; if ($a+$c > 0 and $b+$d > 0) {$KUI = ($a*$d-$b*$c)/(($b + $d)*($a + $c));}
                # Frequency bias
                my $FBI = $missing; if ($a+$c > 0) {$FBI = ($a + $b)/($a + $c);}
+               # Threat score
+               my $TS  = $missing; if ($a+$b+$c > 0) {$TS = $a/($a+$b+$c);}
                #Area index:
                my $AI = $missing;
                unless ($b == 0 or $c == 0) {
@@ -251,7 +257,7 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
 	       }
 	     
                print SCOREFILE  "$lowerlimit $FAR $POD ";
-               print SCOREFILE2 "$centralx $lowerlimit $FAR $POD $FA $KUI $FBI $AI $SEDS $EDI $SEDI $ETS $OFREQ $MFREQ $nn \n";
+               print SCOREFILE2 "$centralx $lowerlimit $FAR $POD $FA $KUI $FBI $AI $SEDS $EDI $SEDI $ETS $OFREQ $MFREQ $nn $TS \n";
 	   } #loop over classes
 
            print SCOREFILE "\n";
@@ -268,63 +274,88 @@ close FILE;
 #
 # Wilson plot
 if ($ENV{'SCORELIST'}=~'WILSON'){
-$output_file = $prefix."_". $selector . $EXT[$output_type] ;
-&header("Contingency table");
+$ctype = 'WILSON';
+$output_file = $skill_score_def{$ctype}.$prefix."_". $selector . $EXT[$output_type] ;
+&header($skill_score_txt{$ctype}) ;
 &plot_wilson; }
 
 # False alarm rate
 if ($ENV{'SCORELIST'}=~'FAR'){
-$output_file = "fr".$prefix."_". $selector . $EXT[$output_type] ;
-&header("False alarm rate") ;
-&gen_plot('FAR',5); }
+$ctype = 'FAR';
+$output_file = $skill_score_def{$ctype}.$prefix."_". $selector . $EXT[$output_type] ;
+&header($skill_score_txt{$ctype}) ;
+&gen_plot($skill_score_txt{$ctype},5); }
 
 #Kuiper skill score
 if ($ENV{'SCORELIST'}=~'KSS'){
-$output_file = "k".$prefix."_". $selector . $EXT[$output_type] ;
-&header("Kupiers skill score");
-&gen_plot('KSS',6); }
+$ctype = 'KSS';
+$output_file = $skill_score_def{$ctype}.$prefix."_". $selector . $EXT[$output_type] ;
+&header($skill_score_txt{$ctype}) ;
+&gen_plot($skill_score_txt{$ctype},6); }
 
 #Frequency bias
 if ($ENV{'SCORELIST'}=~'Frequencybias'){
-$output_file = "fb".$prefix."_". $selector . $EXT[$output_type] ;
-&header("Frequency bias") ;
-&gen_plot('Freq bias',7); }
+$ctype = 'Frequencybias';
+$output_file = $skill_score_def{$ctype}.$prefix."_". $selector . $EXT[$output_type] ;
+&header($skill_score_txt{$ctype}) ;
+&gen_plot($skill_score_txt{$ctype},7); }
 
 # Area index
 if ($ENV{'SCORELIST'}=~'AI'){
-$output_file = "ai".$prefix."_". $selector . $EXT[$output_type] ;
-&header("Area index") ;
-&gen_plot('AI',8); }
+$ctype = 'AI';
+$output_file = $skill_score_def{$ctype}.$prefix."_". $selector . $EXT[$output_type] ;
+&header($skill_score_txt{$ctype}) ;
+&gen_plot($skill_score_txt{$ctype},8); }
 
 # SEDS
 if ($ENV{'SCORELIST'}=~'SEDS'){
-$output_file = "seds".$prefix."_". $selector . $EXT[$output_type] ;
-&header("Symmetric Extreme Dependency Score") ;
-&gen_plot('SEDS',9); }
+$ctype = 'SEDS';
+$output_file = $skill_score_def{$ctype}.$prefix."_". $selector . $EXT[$output_type] ;
+&header($skill_score_txt{$ctype}) ;
+&gen_plot($skill_score_txt{$ctype},9); }
 
 # EDI
 if ($ENV{'SCORELIST'}=~'EDI'){
-$output_file = "edi".$prefix."_". $selector . $EXT[$output_type] ;
-&header("Extremal Dependency Index") ;
-&gen_plot('EDI',10); }
+$ctype = 'EDI';
+$output_file = $skill_score_def{$ctype}.$prefix."_". $selector . $EXT[$output_type] ;
+&header($skill_score_txt{$ctype}) ;
+&gen_plot($skill_score_txt{$ctype},10); }
 
 # SEDI
 if ($ENV{'SCORELIST'}=~'SEDI'){
-$output_file = "sedi".$prefix."_". $selector . $EXT[$output_type] ;
-&header("Symmetric Extremal Dependency Index") ;
-&gen_plot('SEDI',11); }
+$ctype = 'SEDI';
+$output_file = $skill_score_def{$ctype}.$prefix."_". $selector . $EXT[$output_type] ;
+&header($skill_score_txt{$ctype}) ;
+&gen_plot($skill_score_txt{$ctype},11); }
 
 # ETS
 if ($ENV{'SCORELIST'}=~'ETS'){
-$output_file = "ets".$prefix."_". $selector . $EXT[$output_type] ;
-&header("Equitable threat score") ;
-&gen_plot('ETS',12); }
+$ctype = 'ETS';
+$output_file = $skill_score_def{$ctype}.$prefix."_". $selector . $EXT[$output_type] ;
+&header($skill_score_txt{$ctype}) ;
+&gen_plot($skill_score_txt{$ctype},12); }
+
+# TS
+if ($ENV{'SCORELIST'}=~'TS'){
+$ctype = 'TS';
+$output_file = $skill_score_def{$ctype}.$prefix."_". $selector . $EXT[$output_type] ;
+&header($skill_score_txt{$ctype}) ;
+&gen_plot($skill_score_txt{$ctype},16); }
+
+# POD
+if ($ENV{'SCORELIST'}=~'POD'){
+$ctype = 'POD';
+$output_file = $skill_score_def{$ctype}.$prefix."_". $selector . $EXT[$output_type] ;
+&header($skill_score_txt{$ctype}) ;
+&gen_plot($skill_score_txt{$ctype},4); }
 
 #Frequency
 if ($ENV{'SCORELIST'}=~'Frequency'){
+$ctype = 'Frequency';
 $output_file = "f".$prefix."_". $selector . $EXT[$output_type] ;
-&header("Frequency") ; }
-&freq ;
+$output_file = $skill_score_def{$ctype}.$prefix."_". $selector . $EXT[$output_type] ;
+&header($skill_score_txt{$ctype}) ;
+&freq ; }
 
 next SCAN_INPUT;}
 

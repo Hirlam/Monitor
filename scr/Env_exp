@@ -91,7 +91,20 @@ SURFPAR="PS FF FX GG GX DD TT TN TX TD RH QQ NN PE"
 SURFPLOT="GEN TIME MAP FREQ SCAT CONT XML DAYVAR"
 
 # Select skill scores to be plotted if CONT is activated in SURFPLOT
-SCORELIST="WILSON FAR KSS Frequencybias AI SEDS EDI SEDI ETS Frequency"  
+# Frequency     : Frequency
+# Frequencybias : Frequency bias
+# POD           : Probability of detection ( hit rate )
+# FAR           : False alarm rate
+# TS            : Threath score
+# WILSON        : Wilson diagram, a combination of POD,TS,FAR and frequency bias
+# KSS           : Hansen-Kupiers skill score
+# AI            : Area index
+# SEDS          : Symmetric Extreme Dependency Score
+# EDI           : Extremal Dependency Index
+# SEDI          : Symmetric Extremal Dependency Index
+# ETS           : Equitable threat score
+
+SCORELIST="WILSON KSS Frequency"  
 
 # Select whether skill scores are based on classes and/or thresholds (CONT must be activated)
 SCORETYPES="classes thresholds"

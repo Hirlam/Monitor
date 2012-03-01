@@ -72,7 +72,7 @@ SUBROUTINE print_cont(p1,p2,nr,par_active,    &
        ! Line 3
        IF ( period == 0 ) THEN
           wname=''
-          WRITE(wname,'(A,I8,A,I8)')' Period:',p1,'-',p2
+          WRITE(wname,'(A,I8,A,I8)')' Period: ',p1,'-',p2
        ELSE
           WRITE(wname,'(A,I8)')' Period:',period
        ENDIF

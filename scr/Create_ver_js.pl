@@ -8,6 +8,7 @@
 
  use plotdefs ;
  use maindefs ;
+ use skilldefs ;
 
  $WEBCALL=$ENV{WEBCALL} ;
 
@@ -291,36 +292,6 @@ sub cont {
 
  unless ( $ENV{SCORELIST} ) { return ; } ;
 
- #
- # Skill scores
- #
- 
- %skill_score_def =(
-    'WILSON'        => 'c',
-    'KSS'           => 'kc',
-    'ETS'           => 'etsc',
-    'SEDS'          => 'sedsc',
-    'EDI'           => 'edic',
-    'SEDI'          => 'sedic',
-    'AI'            => 'aic',
-    'FAR'           => 'frc',
-    'Frequencybias' => 'fbc',
-    'Frequency'     => 'fc'  
- ) ;
-
- %skill_score_txt =(
-    'WILSON'        => 'Wilson diagram',
-    'KSS'           => 'Kuiper skill score',
-    'ETS'           => 'Equitable threat score',
-    'SEDS'          => 'Symmetric Extreme Dependency Score',
-    'EDI'           => 'Extremal Dependency Index',
-    'SEDI'          => 'Symmetric Extremal Dependency Index',
-    'AI'            => 'Area index',
-    'FAR'           => 'False alarme rate',
-    'Frequencybias' => 'Freq bias',
-    'Frequency'     => 'Frequency'
- ) ;
-
  @ssd = ();
  @sst = ();
 
@@ -328,7 +299,7 @@ sub cont {
  @ST = split(" ",$ENV{SCORETYPES}) ;
 
  foreach $S (@SS) {
- @ssd = (@ssd,$skill_score_def{$S});
+ @ssd = (@ssd,$skill_score_def{$S}.'c');
  @sst = (@sst,$skill_score_txt{$S});
  }
  $sst='\''.join('\',\'',@sst).'\'';
