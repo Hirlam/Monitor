@@ -1437,7 +1437,7 @@ function write_list(){
 
  this.txt += con_menu.make_menu('l')
 
- this.txt += hel_menu.make_menu('l') 
+ if ( is_graphics ) { this.txt += hel_menu.make_menu('l') }
  this.txt += inf_menu.make_menu('l') 
 
  if ( ! (multi || sli_menu.active ) ) {  this.txt += dow_menu.make_menu('l') }
@@ -1445,8 +1445,8 @@ function write_list(){
 
  this.txt += you_menu.make_menu('l') 
  if ( do_debug  ) { this.txt += deb_menu.make_menu('l') }
- if ( do_resize ) { this.txt += res_menu.make_menu('l') }
- if ( rem_menu.active ) { this.txt += sen_menu.make_menu('l') }
+ if ( do_resize && is_graphics) { this.txt += res_menu.make_menu('l') }
+ if ( rem_menu.active && is_graphics ) { this.txt += sen_menu.make_menu('l') }
  this.txt += xml_menu.make_menu('l')
  this.txt += info_menu.make_menu('l')
  if ( user != 'nada' ) { this.txt +="<b> Created by "+user+"</b> <br>" }
@@ -1485,7 +1485,7 @@ function write_top(){
      this.txt += "</td>"
  }
 
- if ( do_remember && do_show_remember ) { this.txt += "<td>" + rem_menu.make_menu('t') + "</td>" }
+ if ( do_remember && do_show_remember && is_graphics) { this.txt += "<td>" + rem_menu.make_menu('t') + "</td>" }
 //if ( ! rem_menu.active ) { this.txt += "<td><h2> &nbsp;&nbsp;&nbsp; "+title+"</h2></td>" }
 
  this.txt += "</tr></tbody></table>"
