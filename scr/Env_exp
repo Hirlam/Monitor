@@ -94,9 +94,10 @@ SURFPLOT="GEN TIME MAP FREQ SCAT CONT XML DAYVAR"
 # Frequency     : Frequency
 # Frequencybias : Frequency bias
 # POD           : Probability of detection ( hit rate )
-# FAR           : False alarm rate
+# FAR           : False alarm ratio
+# FA            : False alarm rate
 # TS            : Threath score
-# WILSON        : Wilson diagram, a combination of POD,TS,FAR and frequency bias
+# WILSON        : Wilson diagram, a combination of POD, TS, FAR and frequency bias
 # KSS           : Hansen-Kupiers skill score
 # AI            : Area index
 # SEDS          : Symmetric Extreme Dependency Score

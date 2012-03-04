@@ -12,7 +12,8 @@
     'EDI'           => 'edi',
     'SEDI'          => 'sedi',
     'AI'            => 'ai',
-    'FAR'           => 'fr',
+    'FAR'           => 'far',
+    'FA'            => 'fa',
     'Frequencybias' => 'fb',
     'Frequency'     => 'f'  
  ) ;
@@ -27,7 +28,8 @@
     'EDI'           => 'Extremal Dependency Index',
     'SEDI'          => 'Symmetric Extremal Dependency Index',
     'AI'            => 'Area index',
-    'FAR'           => 'False alarme rate',
+    'FAR'           => 'False alarme ratio',
+    'FA'            => 'False alarme rate',
     'Frequencybias' => 'Freq bias',
     'Frequency'     => 'Frequency'
  ) ;

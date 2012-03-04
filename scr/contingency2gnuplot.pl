@@ -280,11 +280,18 @@ $output_file = $skill_score_def{$ctype}.$prefix."_". $selector . $EXT[$output_ty
 &plot_wilson; }
 
 # False alarm rate
+if ($ENV{'SCORELIST'}=~'FA'){
+$ctype = 'FA';
+$output_file = $skill_score_def{$ctype}.$prefix."_". $selector . $EXT[$output_type] ;
+&header($skill_score_txt{$ctype}) ;
+&gen_plot($skill_score_txt{$ctype},5); }
+
+# False alarm ratio
 if ($ENV{'SCORELIST'}=~'FAR'){
 $ctype = 'FAR';
 $output_file = $skill_score_def{$ctype}.$prefix."_". $selector . $EXT[$output_type] ;
 &header($skill_score_txt{$ctype}) ;
-&gen_plot($skill_score_txt{$ctype},5); }
+&gen_plot($skill_score_txt{$ctype},3); }
 
 #Kuiper skill score
 if ($ENV{'SCORELIST'}=~'KSS'){

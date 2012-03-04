@@ -18,6 +18,7 @@
  use selection ;
  use plotdefs ;
  use maindefs ;
+ use skilldefs ;
 
  unless ( @ARGV ) { die "Please give SURF or TEMP as argument \n" ; } ;
 
@@ -150,6 +151,14 @@
 	    $selectionloop{'scat_ver'}{'CONT_CLASS('.$j.')'}=$tmp{$_}{'CONT_CLASS'};
             $selectionloop{'scat_ver'}{'CONT_IND('.$j.')'}=$k ;
             $selectionloop{'scat_ver'}{'CONT_LIM(1:'.$tmp{$_}{'CONT_CLASS'}.','.$j.')'  }=$tmp{$_}{'CONT_LIM'};
+
+            @SKILL = split(' ',$ENV{SCORELIST});
+            foreach $skill (@SKILL) {
+              unless ( exists($skill_score_def{$skill}) ) { 
+               die "This skill score is not defined: $skill \n";
+              } ;
+            } ;
+
          } ;
 
          # Copy temp text to text
