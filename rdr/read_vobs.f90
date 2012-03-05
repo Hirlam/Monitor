@@ -15,7 +15,7 @@ SUBROUTINE read_vobs
 
  REAL, PARAMETER :: mflag = -99.
 
- INTEGER :: i,ii,k,m,n,                 &
+ INTEGER :: i,ii,k,m,mm,n,              &
             ierr = 0,                   &
             cdate = 999999,             &
             ctime = 999999,             &
@@ -33,7 +33,7 @@ SUBROUTINE read_vobs
  
  INTEGER, ALLOCATABLE :: inacc(:)
 
- REAL :: lat,lon,hgt
+ REAL :: lat,lon,hgt,sub,sca
  REAL, ALLOCATABLE :: val(:)
 
  CHARACTER(LEN=200) :: fname =' '
@@ -41,6 +41,9 @@ SUBROUTINE read_vobs
  CHARACTER(LEN= 10), ALLOCATABLE :: invar(:)
 
  LOGICAL :: use_stnlist
+
+ ! Functions
+ INTEGER :: find_var
 
 !----------------------------------------------------------
 
@@ -249,18 +252,20 @@ SUBROUTINE read_vobs
                 IF ( .NOT. qca(val(n),mflag) ) CYCLE PARVER_LOOP
 
                 ! Special treatment of some variabels
+                sca = 1.0
+                sub = 0.0
                 SELECT CASE(invar(n))
 
                 CASE('TT','TN','TX')
-                   val(n) = val(n) - tzero
+                   sub = tzero
                 CASE('QQ')
-                   val(n) = val(n) * 1.e3
+                   sca = 1.e3
                 END SELECT
 
                 ! Check for missing data / gross error
                  IF ( qclr(val(n),varprop(m)%llim) .AND. &
                       qcur(val(n),varprop(m)%ulim) )     &
-                obs(stat_i)%o(i)%val(m) = val(n)
+                obs(stat_i)%o(i)%val(m) = ( val(n) - sub ) * sca
 
               ENDIF
             ENDDO INVAR_LOOP
@@ -270,7 +275,9 @@ SUBROUTINE read_vobs
               CASE('LA')
                obs(stat_i)%o(i)%val(m) = obs(stat_i)%lat
               CASE('HG')
-               obs(stat_i)%o(i)%val(m) = hgt
+              CASE('TTHA','TNHA','TXHA')
+               mm = find_var(ninvar,invar,varprop(m)%id(1:2))
+               obs(stat_i)%o(i)%val(m) = val(mm) - tzero
             END SELECT
 
           ENDDO PARVER_LOOP

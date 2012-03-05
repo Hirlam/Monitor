@@ -29,6 +29,13 @@
    'MAP_BIAS_INTERVAL'=> '-1.5,-1.0,-0.5,0.,0.5,1.0,1.5',
  },
 
+ 'TTHA'=>{
+   'TEXT'        => 'T2m, height ajusted',
+   'TEXT_TEMP'   => 'Temperature' ,
+   'MAP_BIAS_INTERVAL'=> '-6.,-4.,-2.,0.,2.,4.,6.',
+   'UNIT',       => 'deg C',
+ },
+
  'TT'=>{
    'TEXT'        => 'T2m',
    'TEXT_TEMP'   => 'Temperature' ,

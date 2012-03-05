@@ -16,7 +16,7 @@ SUBROUTINE read_vfld
 
  REAL, PARAMETER :: mflag = -99.
 
- INTEGER :: i,ii,j,k,l,ll,m,n,          &
+ INTEGER :: i,ii,j,k,l,ll,m,mm,n,       &
             ierr = 0,                   &
             cdate = 999999,             &
             ctime = 999999,             &
@@ -34,7 +34,7 @@ SUBROUTINE read_vfld
  
  INTEGER, ALLOCATABLE :: inacc(:)
  
- REAL :: lat,lon,hgt,rtmp
+ REAL :: lat,lon,hgt,rtmp,sca,sub
  REAL, ALLOCATABLE :: val(:)
 
  LOGICAL :: allocated_this_time(maxstn),&
@@ -44,6 +44,9 @@ SUBROUTINE read_vfld
  CHARACTER(LEN= 10) :: cwrk  ='yyyymmddhh'
  CHARACTER(LEN= 02) :: cfclen  ='  '
  CHARACTER(LEN= 10), ALLOCATABLE :: invar(:) 
+
+ ! Functions
+ INTEGER :: find_var
 
 !----------------------------------------------------------
 
@@ -312,28 +315,38 @@ SUBROUTINE read_vfld
                 IF ( .NOT. qca(val(n),mflag) ) CYCLE PARVER_LOOP
 
                 ! Special treatment of some variabels
+                sub = 0.0
+                sca = 1.0
                 SELECT CASE(invar(n))
  
                 CASE('TT','TN','TX')
-                   val(n) = val(n) - tzero
+                   sub = tzero
                 CASE('QQ')
-                   val(n) = val(n) * 1.e3
+                   sca = 1.e3
                 END SELECT
 
                 ! Check for missing data / gross error
                  IF ( qclr(val(n),varprop(m)%llim) .AND. &
                       qcur(val(n),varprop(m)%ulim) )     &
-                hir(stat_i)%o(i)%nal(l,j,m) = val(n)
+                hir(stat_i)%o(i)%nal(l,j,m) = ( val(n) - sub ) * sca
 
               ENDIF
             ENDDO INVAR_LOOP
 
             ! Static pseudo variables
-            SELECT CASE(varprop(m)%id)
+            SELECT CASE(TRIM(varprop(m)%id))
               CASE('LA')
                hir(stat_i)%o(i)%nal(l,j,m) = hir(stat_i)%lat
               CASE('HG')
                hir(stat_i)%o(i)%nal(l,j,m) = hgt
+              CASE('TTHA','TNHA','TXHA')
+               mm=find_var(ninvar,invar,varprop(m)%id(1:2))
+               ! CALC hgt adjustment
+               IF ( qclr(val(n),varprop(m)%llim) .AND. &
+                    qcur(val(n),varprop(m)%ulim) )     &
+               hir(stat_i)%o(i)%nal(l,j,m) =           &
+               val(mm) - tzero + ((hir(stat_i)%hgt-obs(stat_i)%hgt)*tlapse)
+
             END SELECT
 
           ENDDO PARVER_LOOP
@@ -373,3 +386,22 @@ SUBROUTINE read_vfld
  RETURN
 
 END
+
+INTEGER function find_var(ninvar,invar,cvar)
+
+ IMPLICIT NONE
+
+ INTEGER, INTENT(IN) :: ninvar
+ CHARACTER(LEN=*), INTENT(IN) :: invar(ninvar),cvar
+ 
+ INTEGER :: i
+ 
+ find_var = 0
+ DO i=1,ninvar
+    IF ( TRIM(cvar) == invar(i) ) THEN
+       find_var = i
+       EXIT
+    ENDIF
+ ENDDO
+ 
+END function find_var

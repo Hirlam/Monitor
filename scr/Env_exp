@@ -58,6 +58,7 @@ STNLIST_PLOT_TXT=-1
 #
 # PS : Mslp
 # TT : T2m
+# TTHA : T2m, adjusted for model and observation station height differences
 # TN : Min T2m
 # TX : Max T2m
 # TD : Td2m

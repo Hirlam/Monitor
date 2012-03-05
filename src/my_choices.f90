@@ -1,7 +1,8 @@
 SUBROUTINE my_choices
 
 USE data, ONLY : data_to_verify,data_source,    &
-                 sdate,edate_obs,obint,maxtim
+                 sdate,edate_obs,obint,maxtim,  &
+                 varlist,nparver
 USE functions, ONLY : get_maxtim
 
 IMPLICIT NONE
@@ -31,8 +32,21 @@ IMPLICIT NONE
     CASE('vfld','VFLD')
    
        IF (maxtim == 0) maxtim=get_maxtim(sdate,edate_obs,obint)
-       CALL read_vfld
-       CALL read_vobs
+
+       !
+       ! If we apply height adjustment we need to read the observations first
+       ! if not we read model data first to get a smaller number of observations
+       !
+
+       IF ( ANY( varlist(1:nparver) == 'TTHA' ) .OR.  &
+            ANY( varlist(1:nparver) == 'TNHA' ) .OR.  &
+            ANY( varlist(1:nparver) == 'TXHA' ) ) THEN
+         CALL read_vobs
+         CALL read_vfld
+       ELSE
+         CALL read_vfld
+         CALL read_vobs
+       ENDIF
    
     CASE('vfld_temp','VFLD_TEMP')
    
