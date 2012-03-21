@@ -275,6 +275,7 @@ SUBROUTINE read_vobs
               CASE('LA')
                obs(stat_i)%o(i)%val(m) = obs(stat_i)%lat
               CASE('HG')
+               obs(stat_i)%o(i)%val(m) = obs(stat_i)%hgt
               CASE('TTHA','TNHA','TXHA')
                mm = find_var(ninvar,invar,varprop(m)%id(1:2))
                obs(stat_i)%o(i)%val(m) = val(mm) - tzero
