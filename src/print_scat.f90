@@ -45,12 +45,13 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
  CHARACTER(LEN=100) :: fname    =' ',sname =' '
  CHARACTER(LEN= 50) :: my_tag   =' '
  CHARACTER(LEN=100) :: wtext    =' ', &
-                       axist(2) =' ', &
                        wtext3   =' ', &
                        wtext4   =' ', &
                        titln    =' '
  CHARACTER(LEN=  1) :: prefix   =' '
  CHARACTER(LEN= 80) :: title    =' '
+
+ CHARACTER(LEN=100), ALLOCATABLE :: axist(:,:)
 
  REAL :: minax(2),maxax(2),rtmp
 
@@ -261,7 +262,8 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
     nlevels = scat_magn(lcorr_pairs(j,1))
 
     ALLOCATE(levcheck(nlevels,nexp_plot), &
-             level(nlevels))
+             level(nlevels),              &
+             axist(2,nexp_plot))
 
     levcheck(:,:) = .FALSE.
 
@@ -276,36 +278,36 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
         SELECT CASE(lflag_pairs(j,k))
         CASE(-1)
           val(k,1:kk) = scat(i)%dat(1,1:kk)
-          axist(k)= 'OBS '//TRIM(varprop(i)%text)
+          axist(k,jj)= 'OBS '//TRIM(varprop(i)%text)
         CASE( 0)
           IF( ALL(lexp_pairs(j,:) == 0 ) ) THEN
             val(k,1:kk) = scat(i)%dat(1+jj,1:kk)
-            axist(k) = TRIM(expname(jj))//' - OBS '//TRIM(wtext)
+            axist(k,jj) = TRIM(expname(jj))//' - OBS '//TRIM(wtext)
           ELSE
             x = lexp_pairs(j,k) + 1
             val(k,1:kk) = scat(i)%dat(x,1:kk)
-            axist(k) = TRIM(expname(x-1))//' - OBS '//TRIM(wtext)
+            axist(k,jj) = TRIM(expname(x-1))//' - OBS '//TRIM(wtext)
           ENDIF
         CASE( 1)
           IF( ALL(lexp_pairs(j,:) == 0 ) ) THEN
             val(k,1:kk) = scat(i)%dat(1+jj,1:kk) + &
                           scat(i)%dat(1   ,1:kk)
-            axist(k) = TRIM(expname(jj))//' '//TRIM(wtext)
+            axist(k,jj) = TRIM(expname(jj))//' '//TRIM(wtext)
           ELSE
             x = lexp_pairs(j,k) + 1
             val(k,1:kk) = scat(i)%dat(x,1:kk) + &
                           scat(i)%dat(1   ,1:kk)
-            axist(k) = TRIM(expname(x-1))//' '//TRIM(wtext)
+            axist(k,jj) = TRIM(expname(x-1))//' '//TRIM(wtext)
           ENDIF
         CASE( 2)
           IF( ALL(lexp_pairs(j,:) == 0 ) ) THEN
             val(k,1:kk) = scat(i)%dat(1+jj,1:kk)
-            axist(k) = TRIM(expname(jj))//' - OBS '//TRIM(wtext)
+            axist(k,jj) = TRIM(expname(jj))//' - OBS '//TRIM(wtext)
           ELSE
             x = lexp_pairs(j,1) + 1
             y = lexp_pairs(j,2) + 1
             val(k,1:kk) = scat(i)%dat(x,1:kk) - scat(i)%dat(y,1:kk)
-            axist(k) = TRIM(expname(x-1))//' - '//TRIM(expname(y-1))//' '//TRIM(wtext)
+            axist(k,jj) = TRIM(expname(x-1))//' - '//TRIM(expname(y-1))//' '//TRIM(wtext)
           ENDIF
         END SELECT
 
@@ -372,8 +374,8 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
       WRITE(lunout,'(2A)')'#HEADING_3 ',TRIM(wtext4)
       WRITE(lunout,'(2A)')'#HEADING_4 ',TRIM(wtext3)
        
-      WRITE(lunout,'(2A)')'#YLABEL ',TRIM(axist(2))
-      WRITE(lunout,'(2A)')'#XLABEL ',TRIM(axist(1))
+      WRITE(lunout,'(2A)')'#YLABEL ',TRIM(axist(2,jj))
+      WRITE(lunout,'(2A)')'#XLABEL ',TRIM(axist(1,j))
       WRITE(lunout,*)'#XMIN ',minax(1)
       WRITE(lunout,*)'#XMAX ',maxax(1)
       WRITE(lunout,*)'#YMIN ',minax(2)
@@ -411,7 +413,7 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
 
     ENDDO
 
-    DEALLOCATE(levcheck,level)
+    DEALLOCATE(levcheck,level,axist)
 
   ENDDO
 
