@@ -12,16 +12,17 @@
       real biasan(levels)
       real absbiasan(levels)
       integer count(levels)
-      integer i
+      integer i,j
 
+      j=MIN(LEN(outstr),length)
       write(*,'(A)')'======================================'
-      write(*,'(A)') outstr(1:length)
+      write(*,'(A)') outstr(1:j)
       write(*,'(A22,i10)') 'First guess statistics',levels
       write(*,'(A17,5A12)') vertcor(1:vlen),
      $     'noofobs','rms','bias','abs(bias)','level'
 
       write(iun,'(A)')'======================================'
-      write(iun,'(A)') outstr(1:length)
+      write(iun,'(A)') outstr(1:j)
       write(iun,'(A22,i10)') 'First guess statistics',levels
       write(iun,'(A17,5A12)') vertcor(1:vlen),
      $     'noofobs','rms','bias','abs(bias)','level'
