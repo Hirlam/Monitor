@@ -173,6 +173,7 @@ MODULE data
  LOGICAL :: lplot_freq       = .FALSE.  ! Make frequency distribution plots
  LOGICAL :: lprint_freq      = .FALSE.  ! Make frequency distribution printfiles
  LOGICAL :: lprint_scat      = .FALSE.  ! Make scatterplots
+ LOGICAL :: lscat_yave       = .FALSE.  ! Make Y-axis average line
  LOGICAL :: lplot_scat       = .FALSE.  ! Make scatterplots
  LOGICAL :: lprep_xml        = .FALSE.  ! Create statistics in xml format based
                                         ! on scatter data
@@ -325,7 +326,7 @@ MODULE data
                  lprint_stat,lplot_stat,                &
                  lprint_vert,lplot_vert,                &
                  ltimeserie,lplot_scat,lprep_xml,       &
-                 lprint_scat,                           &
+                 lprint_scat,lscat_yave,                &
                  lcontingency,                          &
                  ltimeserie_stat,                       &
                  lprint_timeserie_stat,                 &

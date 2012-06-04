@@ -91,6 +91,7 @@
   'LPREP_XML' => 'T',
   'LPLOT_FREQ'=> 'T',
   'LPLOT_SCAT'=> 'T',
+  'LSCAT_YAVE'=> 'F',
   'USE_FCLEN' => join(',',split(' ',$ENV{FCLEN_SCAT})),
  },
 

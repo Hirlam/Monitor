@@ -450,7 +450,11 @@ EOF
         $i++;
         if ( $i gt 0 ) { $plot = "$plot,"; }
         if ( $i <= $maxcol ) { $color_id = $i; } else { $color_id = $maxcol; } ;
-        $plot = $plot . " '$input_file"."_".$_."' title '$sint[$i]' lt $scat_colors[$color_id] ps $ps_scat pt $map_pt";
+        if ( $sint[$i] eq "ALL" ) { 
+          $plot = $plot . " '$input_file"."_".$_."' title '' lt -1 ps $ps_scat pt $map_pt";
+        } else {
+          $plot = $plot . " '$input_file"."_".$_."' title '$sint[$i]' lt $scat_colors[$color_id] ps $ps_scat pt $map_pt";
+        };
     }
 
     if ( $prefix =~ /s/ || $prefix =~ /S/ ) { $plot = $plot . ", x notitle with lines lt -1"; } ;

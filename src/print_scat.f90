@@ -15,7 +15,8 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
                   tag,show_fc_length,output_type,output_mode,    &
                   mparver,corr_pairs,flag_pairs,exp_pairs,       &
                   period_freq,maxfclenval,                       &
-                  scat_min,scat_max,scat_magn,len_lab
+                  scat_min,scat_max,scat_magn,len_lab,           &
+                  lscat_yave
  USE functions
 
  IMPLICIT NONE
@@ -32,14 +33,14 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
 
  ! LOCAL
 
- INTEGER :: i,j,jj,k,kk,x,y,l,m,       &
+ INTEGER :: i,j,jj,k,kk,x,y,l,m,     &
             nexp_plot,pp1,ierr,      &
             period,len_loop,         &
             lcorr_pairs(mparver,2),  &
             lflag_pairs(mparver,2),  &
              lexp_pairs(mparver,2),  &
             nlevmin,nlevmax,         &
-            nlevels
+            nlevels,itmp
 
  CHARACTER(LEN= 10) :: cnum     =' '
  CHARACTER(LEN=100) :: fname    =' ',sname =' '
@@ -387,7 +388,6 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
         IF ( level(l) <= level(l-1)) EXIT
         WRITE(cnum,'(I2.2)')l
         sname = TRIM(fname)//'_'//cnum
-       
         WRITE(lunout,'(A,X,A,I10)')'#SLEVEL ',cnum,NINT(level(l))
 
         OPEN(UNIT=37,FILE=sname)
@@ -406,6 +406,26 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
         CLOSE(37)
 
       ENDDO
+
+      IF ( lscat_yave ) THEN
+        ! Write Y-axis average line
+        WRITE(lunout,'(A)')'#SLEVEL ALL ALL'
+        sname = TRIM(fname)//'_ALL'
+        OPEN(UNIT=37,FILE=sname)
+        DO i=1,nbin
+          rtmp = 0.0
+          itmp = 0
+          DO m=1,nbin
+            rtmp = rtmp + &
+                   sbin(jj)%array(i,m) * &
+                   sbin(jj)%biny(m-1) 
+            itmp = itmp + sbin(jj)%array(i,m)
+          ENDDO
+          IF ( itmp > 0 ) &
+          WRITE(37,*)sbin(jj)%binx(i-1),rtmp/FLOAT(itmp)
+        ENDDO
+        CLOSE(37)
+      ENDIF
 
       WRITE(lunout,'(A)')'#END'
  
