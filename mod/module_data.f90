@@ -44,7 +44,7 @@ MODULE data
  LOGICAL :: z_is_pressure   = .TRUE.
  
 
- CHARACTER(LEN=30) :: formdb ='(I12,I4,XX(en15.5e2))'
+ CHARACTER(LEN=50) :: formdb ='(I12,I4,XX(en15.5e2))'
  CHARACTER(LEN=50), ALLOCATABLE :: station_name(:)
  CHARACTER(LEN=10) :: vert_unit = 'hPa'
 
@@ -93,13 +93,13 @@ MODULE data
 
  ! Experiment and name
  INTEGER           :: nexp = 1                  ! Number of experiments
+ CHARACTER(LEN=50) :: expname(maxexp)='OBS'     ! Name of experiments
  INTEGER           :: smallest_exp_ind = 0      ! The location of the experiment with the smallest domain
- CHARACTER(LEN=30) :: expname(maxexp)='OBS'     ! Name of experiments
  CHARACTER(LEN=99) :: statname='statistics.html'! Name of output statistics file
  CHARACTER(LEN=50) :: name='Unknown'            ! Station name
  CHARACTER(LEN=50) :: tag='#'                   ! Tag on plot
  CHARACTER(LEN=99) :: obspath        ='../'     ! Path to observation data
- CHARACTER(LEN=99) :: modpath(maxexp)='../'     ! Path to model data
+ CHARACTER(LEN=299) :: modpath(maxexp)='../'     ! Path to model data
 
  ! Fc len and times to verify
  INTEGER :: nfclengths          =  0            ! Number of fclengths to verify
@@ -135,7 +135,7 @@ MODULE data
 
  ! Data to verify 
  INTEGER            :: data_to_verify = 0     ! Which case to select in my_choice.f to be obsoloete
- CHARACTER(LEN=100) :: data_source  = ''      ! Character string selection
+ CHARACTER(LEN=300) :: data_source  = ''      ! Character string selection
 
  ! Selection
  CHARACTER(LEN=len_lab)      :: varlist(mparver) = '#'
@@ -144,7 +144,7 @@ MODULE data
  ALLOCATABLE,TARGET          :: varprop(:) 
 
  ! Graphics
- CHARACTER(LEN=20) :: graphics='GNUPLOT'
+ CHARACTER(LEN=50) :: graphics='GNUPLOT'
 
  ! Parameters to verify
  INTEGER :: nparver = mparver
