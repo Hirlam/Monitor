@@ -342,11 +342,12 @@ SUBROUTINE read_vfld
               CASE('TTHA','TNHA','TXHA')
                mm=find_var(ninvar,invar,varprop(m)%id(1:2))
                ! CALC hgt adjustment
-               IF ( qclr(val(n),varprop(m)%llim) .AND. &
-                    qcur(val(n),varprop(m)%ulim) )     &
+               IF ( qclr(val(mm),varprop(m)%llim) .AND. &
+                    qcur(val(mm),varprop(m)%ulim) .AND. &
+                    qca(hir(stat_i)%hgt,err_ind) .AND. &
+                    qca(obs(stat_i)%hgt,err_ind) )     &
                hir(stat_i)%o(i)%nal(l,j,m) =           &
                val(mm) - tzero + ((hir(stat_i)%hgt-obs(stat_i)%hgt)*tlapse)
-
             END SELECT
 
           ENDDO PARVER_LOOP

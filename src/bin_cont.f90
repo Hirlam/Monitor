@@ -115,9 +115,6 @@ SUBROUTINE bin_cont(xval,yval,nobs,  &
 
   maxobs=MAXVAL(array)
 
-  WRITE(6,*)'LEVELS',nlevels
-
-
   DO i=4,nlevels,4
     fac = 10.**((i)/4)
     level(i)=1*fac

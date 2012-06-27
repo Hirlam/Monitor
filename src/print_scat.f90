@@ -376,7 +376,7 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
       WRITE(lunout,'(2A)')'#HEADING_4 ',TRIM(wtext3)
        
       WRITE(lunout,'(2A)')'#YLABEL ',TRIM(axist(2,jj))
-      WRITE(lunout,'(2A)')'#XLABEL ',TRIM(axist(1,j))
+      WRITE(lunout,'(2A)')'#XLABEL ',TRIM(axist(1,jj))
       WRITE(lunout,*)'#XMIN ',minax(1)
       WRITE(lunout,*)'#XMAX ',maxax(1)
       WRITE(lunout,*)'#YMIN ',minax(2)
