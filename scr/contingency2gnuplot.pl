@@ -8,7 +8,7 @@
 # Author: Calle Fortelius, June 2009, based on verobs2gnuplot.pl
 #
 
-push @INC, "../../scr/";
+push @INC, "$ENV{SCR}";
 require skilldefs ;
 
 @col_def_lt  = (1,2,3,4,5,6,8,7);
