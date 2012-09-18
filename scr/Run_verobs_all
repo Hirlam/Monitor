@@ -12,4 +12,5 @@ fi
 ./Clean_ver_js       $ENV_EXP || exit
 ./Run_verobs_surface $ENV_EXP || exit
 ./Run_verobs_temp    $ENV_EXP || exit
+./Link2file          $ENV_EXP || exit
 ./Transport_ver      $ENV_EXP || exit

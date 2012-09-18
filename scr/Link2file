@@ -1,0 +1,24 @@
+#!/bin/sh
+# Script to make all softlinks real files
+# This is due to a bug in the firefox file protocol
+#
+
+if [ $# -eq 1 ] ; then
+   ENV_EXP=$1
+else
+   echo "Please give an Env_exp file"
+   exit 1
+fi
+[[ -s $ENV_EXP ]] || { echo "Please give an existing Env_exp file" ; exit 1 ; }
+
+. $ENV_EXP  || { echo "Could not source $ENV_EXP" ; exit 1 ; }
+[[ $WEBCALL == "" ]] && exit 1
+
+for F in $( find $WEBGRAF_BASE -type l | grep -v svn ) ; do 
+  base=$( dirname $F )
+  FF=$( readlink $F ) 
+  echo $F is $base/$FF
+  rm -f $F
+  cp $base/$FF $F
+done
+
