@@ -681,6 +681,7 @@ system("chmod 777 *") ;
 	$WRK =~ s/ //g ;
 $OLDFILE="$WRK"."/input.js" ;
 $NEWFILE="$WRK".".js" ;
+unlink($NEWFILE) ;
 symlink $OLDFILE, $NEWFILE ;
 &update_input_list(@ENTRYS) ;
 
