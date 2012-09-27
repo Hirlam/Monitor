@@ -22,8 +22,7 @@ fi
 
 for F in $( find $WEBGRAF_BASE -type l | grep -v svn ) ; do 
   base=$( dirname $F )
-  FF=$( readlink $F ) 
-  echo $F is $base/$FF
+  FF=$( ls -l $F | cut -d">" -f2  | sed "s/ //g" )
   rm -f $F
   cp $base/$FF $F
 done
