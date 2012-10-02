@@ -23,7 +23,7 @@ function getEntry(ind,selectedIndex){
    str = str.substr(0,str.lastIndexOf("/"))
    tmp = mlist[ind].name
    if ( selectedIndex >= 0 ) {
-      str += "/" + tmp + "/index.html?choice_ind="+ t[ind][selectedIndex]
+      str += "/" + tmp + "/index.html?choice_ind="+ v[ind][selectedIndex]
    } else {
       str += "/" + tmp + "/index.html?choice_ind=0"
    }
