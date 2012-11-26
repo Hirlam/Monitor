@@ -16,6 +16,8 @@ C
      $     lpilot,lpilotu,lpilotv,
      $     lamsua,lamsua_noaa15,lamsua_noaa16,lamsua_noaa17,
      $     lamsua_noaa18,lamsua_noaa19,lamsua_aqua,lamsua_metop,
+     $     lamsub,lamsub_noaa15,lamsub_noaa16,lamsub_noaa17,
+     $     lamsub_noaa18,lamsub_noaa19,lamsub_aqua,lamsub_metop,
      $     lgbgps,lgbgpsiwv,lgbgpstdel,lgbgpswdel,lgbgpsps,lpreplo,
      $     lstatcal
 
@@ -30,24 +32,31 @@ C
      $     lpilot,lpilotu,lpilotv,
      $     lamsua,lamsua_noaa15,lamsua_noaa16,lamsua_noaa17,
      $     lamsua_noaa18,lamsua_noaa19,lamsua_aqua,lamsua_metop,
+     $     lamsub,lamsub_noaa15,lamsub_noaa16,lamsub_noaa17,
+     $     lamsub_noaa18,lamsub_noaa19,lamsub_aqua,lamsub_metop,
      $     lgbgps,lgbgpsiwv,lgbgpstdel,lgbgpswdel,lgbgpsps,lpreplo,
      $     lstatcal  
       integer iunit,outunit,plunit
        parameter(outunit=33,plunit=34)
-      integer nlevelspres,nlevelsheig,nlevelsatov,norejlims
+      integer nlevelspres,nlevelsheig,nlevelsamsua
+      integer nlevelsamsub, norejlims
       parameter (nlevelspres=15)
       parameter (nlevelsheig=15)
-      parameter (nlevelsatov=15)
+      parameter (nlevelsamsua=15)
+      parameter (nlevelsamsub=5)
       parameter (norejlims=6)
 
-      real refpres(nlevelspres),refheig(nlevelsheig),
-     +     refatov(nlevelsatov),rejlims(norejlims)
+      real refpres(nlevelspres),refheig(nlevelsheig)
+      real refamsua(nlevelsamsua),refamsub(nlevelsamsub)
+      real rejlims(norejlims)
 
       data refpres/92500,80000,60000,45000,35000,27500,22500,17500,
      $  12500,8500,6500,4000,2500,1500,0/
 
-      data refatov/14.5,13.5,12.5,11.5,10.5,9.5,8.5,7.5,6.5,5.5,
+      data refamsua/14.5,13.5,12.5,11.5,10.5,9.5,8.5,7.5,6.5,5.5,
      $             4.5,3.5,2.5,1.5,0.5/
+
+      data refamsub/4.5,3.5,2.5,1.5,0.5/
 
 c      data rejlims/-2,-1,-0.5,0,0.5,1.,2./
       data rejlims/-1.5,-0.5,0.,0.5,1.5,200./
@@ -119,6 +128,14 @@ c
       lamsua_noaa19=.true.
       lamsua_aqua=.true. 
       lamsua_metop=.true.
+      lamsub=.true.
+      lamsub_noaa15=.true.
+      lamsub_noaa16=.true.
+      lamsub_noaa17=.true.
+      lamsub_noaa18=.true.
+      lamsub_noaa19=.true.
+      lamsub_aqua=.true. 
+      lamsub_metop=.true.
       lgbgps=.false.
       lgbgpsiwv=.false.
       lgbgpstdel=.false.
@@ -219,7 +236,7 @@ c     ATOVS amsua brightness temperatures
            singlelvl=.false.
            call calrej_sat(7,206,206,
      $     3,119,3,
-     $     singlelvl,nlevelsatov,refatov,'amsua_noaa15_bt.dat',19
+     $     singlelvl,nlevelsamsua,refamsua,'amsua_noaa15_bt.dat',19
      $     ,norejlims,rejlims,'amsua_noaa15_bt_area.dat',24)
         endif
 
@@ -227,7 +244,7 @@ c     ATOVS amsua brightness temperatures
            singlelvl=.false.
            call calrej_sat(7,207,207,
      $     3,119,3,
-     $     singlelvl,nlevelsatov,refatov,'amsua_noaa16_bt.dat',19
+     $     singlelvl,nlevelsamsua,refamsua,'amsua_noaa16_bt.dat',19
      $     ,norejlims,rejlims,'amsua_noaa16_bt_area.dat',24)
         endif
 
@@ -235,7 +252,7 @@ c     ATOVS amsua brightness temperatures
            singlelvl=.false.
            call calrej_sat(7,208,208,
      $     3,119,3,
-     $     singlelvl,nlevelsatov,refatov,'amsua_noaa17_bt.dat',19
+     $     singlelvl,nlevelsamsua,refamsua,'amsua_noaa17_bt.dat',19
      $     ,norejlims,rejlims,'amsua_noaa17_bt_area.dat',24)
         endif
 
@@ -243,7 +260,7 @@ c     ATOVS amsua brightness temperatures
               singlelvl=.false.
            call calrej_sat(7,209,209,
      $     3,119,3,
-     $     singlelvl,nlevelsatov,refatov,'amsua_noaa18_bt.dat',19
+     $     singlelvl,nlevelsamsua,refamsua,'amsua_noaa18_bt.dat',19
      $     ,norejlims,rejlims,'amsua_noaa18_bt_area.dat',24)
 
         endif
@@ -252,7 +269,7 @@ c     ATOVS amsua brightness temperatures
               singlelvl=.false.
            call calrej_sat(7,223,223,
      $     3,119,3,
-     $     singlelvl,nlevelsatov,refatov,'amsua_noaa19_bt.dat',19
+     $     singlelvl,nlevelsamsua,refamsua,'amsua_noaa19_bt.dat',19
      $     ,norejlims,rejlims,'amsua_noaa19_bt_area.dat',24)
         endif
 
@@ -260,7 +277,7 @@ c     ATOVS amsua brightness temperatures
               singlelvl=.false.
            call calrej_sat(7,784,784,
      $     3,119,3,
-     $     singlelvl,nlevelsatov,refatov,'amsua_aqua_bt.dat',17
+     $     singlelvl,nlevelsamsua,refamsua,'amsua_aqua_bt.dat',17
      $      ,norejlims,rejlims,'amsua_aqua_bt_area.dat',22)
 
         endif
@@ -269,13 +286,76 @@ c     ATOVS amsua brightness temperatures
               singlelvl=.false.
            call calrej_sat(7,4,4,
      $     3,119,3,
-     $     singlelvl,nlevelsatov,refatov,'amsua_metop_bt.dat',18
+     $     singlelvl,nlevelsamsua,refamsua,'amsua_metop_bt.dat',18
      $     ,norejlims,rejlims,'amsua_metop_bt_area.dat',23)
 
         endif
 
         endif
 
+        if  (lamsub) then
+c     ATOVS amsub brightness temperatures                                             
+                                                          
+        if (lamsub_noaa15) then    
+           singlelvl=.false.
+           call calrej_sat(7,206,206,
+     $     4,119,3,
+     $     singlelvl,nlevelsamsub,refamsub,'amsub_noaa15_bt.dat',19
+     $     ,norejlims,rejlims,'amsub_noaa15_bt_area.dat',24)
+        endif
+
+        if (lamsub_noaa16) then
+           singlelvl=.false.
+           call calrej_sat(7,207,207,
+     $     4,119,3,
+     $     singlelvl,nlevelsamsub,refamsub,'amsub_noaa16_bt.dat',19
+     $     ,norejlims,rejlims,'amsub_noaa16_bt_area.dat',24)
+        endif
+
+        if (lamsub_noaa17) then
+           singlelvl=.false.
+           call calrej_sat(7,208,208,
+     $     4,119,3,
+     $     singlelvl,nlevelsamsub,refamsub,'amsub_noaa17_bt.dat',19
+     $     ,norejlims,rejlims,'amsub_noaa17_bt_area.dat',24)
+        endif
+
+        if (lamsub_noaa18) then
+              singlelvl=.false.
+           call calrej_sat(7,209,209,
+     $     4,119,3,
+     $     singlelvl,nlevelsamsub,refamsub,'amsub_noaa18_bt.dat',19
+     $     ,norejlims,rejlims,'amsub_noaa18_bt_area.dat',24)
+
+        endif
+
+        if (lamsub_noaa19) then
+              singlelvl=.false.
+           call calrej_sat(7,223,223,
+     $     15,119,3,
+     $     singlelvl,nlevelsamsub,refamsub,'amsub_noaa19_bt.dat',19
+     $     ,norejlims,rejlims,'amsub_noaa19_bt_area.dat',24)
+        endif
+
+        if (lamsub_aqua) then
+              singlelvl=.false.
+           call calrej_sat(7,784,784,
+     $     15,119,3,
+     $     singlelvl,nlevelsamsub,refamsub,'amsub_aqua_bt.dat',17
+     $      ,norejlims,rejlims,'amsua_aqua_bt_area.dat',22)
+
+        endif
+
+        if (lamsub_metop) then
+              singlelvl=.false.
+           call calrej_sat(7,4,4,
+     $     15,119,3,
+     $     singlelvl,nlevelsamsub,refamsub,'amsub_metop_bt.dat',18
+     $     ,norejlims,rejlims,'amsub_metop_bt_area.dat',23)
+
+        endif
+
+        endif
 
 
 c     synop

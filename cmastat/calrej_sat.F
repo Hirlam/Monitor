@@ -59,7 +59,7 @@ c
       open(50,file=outfile(1:lenoutfile))
       open(51,file=outfile2(1:lenoutfile2))
 
-c
+
 c     loop over odb based ascii-file
 c
       OPEN(UNIT=IUNIT,FORM='FORMATTED',STATUS='UNKNOWN',ERR=206)
@@ -79,6 +79,7 @@ c
           read(CSTAID_ODB(1:8),'(I8)') satid
       endif
 
+  
       if ((IOBTYP_ODB.eq.obstyp).and.(satid.ge.subtypestart)
      $        .and.(satid.le.subtypeend).and.
      $    (ISENSOR_ODB.eq.sensid)) then
@@ -95,7 +96,7 @@ c
             do j=1,nlevels
               if (ref(j).lt.vert) exit
             enddo
-            nlev=j
+            nlev=(nlevels-j)+1
           endif
 
           iflgact=0
@@ -124,7 +125,7 @@ c
          do j=1,nlevels
            if (ref(j).lt.vert) exit
          enddo
-         nlev=j
+         nlev=(nlevels-j)+1
 
 c
 c     find the departures

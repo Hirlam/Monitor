@@ -16,6 +16,8 @@ C
      $     lpilot,lpilotu,lpilotv,
      $     lamsua,lamsua_noaa15,lamsua_noaa16,lamsua_noaa17,
      $     lamsua_noaa18,lamsua_noaa19,lamsua_aqua,lamsua_metop,
+     $     lamsub,lamsub_noaa15,lamsub_noaa16,lamsub_noaa17,
+     $     lamsub_noaa18,lamsub_noaa19,lamsub_aqua,lamsub_metop,
      $     lgbgps,lgbgpsiwv,lgbgpstdel,lgbgpswdel,lgbgpsps,lpreplo,
      $     lusage, lstatcal
 
@@ -30,20 +32,24 @@ C
      $     lpilot,lpilotu,lpilotv,
      $     lamsua,lamsua_noaa15,lamsua_noaa16,lamsua_noaa17,
      $     lamsua_noaa18,lamsua_noaa19,lamsua_aqua,lamsua_metop,
+     $     lamsub,lamsub_noaa15,lamsub_noaa16,lamsub_noaa17,
+     $     lamsub_noaa18,lamsub_noaa19,lamsub_aqua,lamsub_metop,
      $     lgbgps,lgbgpsiwv,lgbgpstdel,lgbgpswdel,lgbgpsps,lpreplo,
      $     lusage,lstatcal  
       integer iunit,outunit,plunit
        parameter(outunit=33,plunit=34)
-      integer nlevelspres,nlevelsheig,nlevelsatov
+      integer nlevelspres,nlevelsheig,nlevelsamsua,nlevelsamsub
       parameter (nlevelspres=15)
       parameter (nlevelsheig=15)
-      parameter (nlevelsatov=15)
+      parameter (nlevelsamsua=15)
+      parameter (nlevelsamsub=5)
       real refpres(nlevelspres),refheig(nlevelsheig),
-     +     refatov(nlevelsatov)
+     +     refamsua(nlevelsamsua),refamsub(nlevelsamsub)
       data refpres/92500,80000,60000,45000,35000,27500,22500,17500,
      $  12500,8500,6500,4000,2500,1500,0/
-      data refatov/14.5, 13.5, 12.5, 11.5, 10.5, 9.5, 8.5, 7.5, 
+      data refamsua/14.5, 13.5, 12.5, 11.5, 10.5, 9.5, 8.5, 7.5, 
      $ 6.5, 5.5, 4.5, 3.5, 2.5, 1.5, 0.5/
+      data refamsub/4.5, 3.5, 2.5, 1.5, 0.5/
       integer totlim
       parameter(totlim=41)
       real histlim(totlim)
@@ -110,6 +116,14 @@ c
       lamsua_noaa19=.true.
       lamsua_aqua=.true. 
       lamsua_metop=.true.
+      lamsub=.true.
+      lamsub_noaa15=.true.
+      lamsub_noaa16=.true.
+      lamsub_noaa17=.true.
+      lamsub_noaa18=.true.
+      lamsub_noaa19=.true.
+      lamsub_aqua=.true.
+      lamsub_metop=.true.
       lgbgps=.false.
       lgbgpsiwv=.false.
       lgbgpstdel=.false.
@@ -338,12 +352,12 @@ c     atovs amsua
            singlelvl=.false.
            call calstat_sat(7,206,206,
      $    3,119,3,
-     $    singlelvl,nlevelsatov,refatov,lusage,'amsua_noaa15_bt.dat',19,
+     $ singlelvl,nlevelsamsua,refamsua,lusage,'amsua_noaa15_bt.dat',19,
      $    rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
 
            call print_stat_mlev(outunit,
      $          'NOAA15 amsua BT (K)',19,'Channel no',10,
-     $          nlevelsatov,refatov,rmsfg,biasfg,absbiasfg,rmsan,
+     $          nlevelsamsua,refamsua,rmsfg,biasfg,absbiasfg,rmsan,
      $          biasan,absbiasan,count)
          if (lpreplo) then
             call prep_plot('*****BIAS-RMS BT*****',21,15,
@@ -363,12 +377,12 @@ c     atovs amsua
            singlelvl=.false.
            call calstat_sat(7,207,207,
      $    3,119,3,
-     $    singlelvl,nlevelsatov,refatov,lusage,'amsua_noaa16_bt.dat',19,
+     $ singlelvl,nlevelsamsua,refamsua,lusage,'amsua_noaa16_bt.dat',19,
      $    rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
 
            call print_stat_mlev(outunit,
      $          'NOAA16 amsua BT (K)',19,'Channel no',10,
-     $          nlevelsatov,refatov,rmsfg,biasfg,absbiasfg,rmsan,
+     $          nlevelsamsua,refamsua,rmsfg,biasfg,absbiasfg,rmsan,
      $          biasan,absbiasan,count)
          if (lpreplo) then
             call prep_plot('*****BIAS-RMS BT*****',21,15,
@@ -388,12 +402,12 @@ c     atovs amsua
            singlelvl=.false.
            call calstat_sat(7,208,208,
      $    3,119,3,
-     $    singlelvl,nlevelsatov,refatov,lusage,'amsua_noaa17_bt.dat',19,
+     $ singlelvl,nlevelsamsua,refamsua,lusage,'amsua_noaa17_bt.dat',19,
      $    rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
 
            call print_stat_mlev(outunit,
      $          'NOAA17 amsua BT (K)',19,'Channel no',10,
-     $          nlevelsatov,refatov,rmsfg,biasfg,absbiasfg,rmsan,
+     $          nlevelsamsua,refamsua,rmsfg,biasfg,absbiasfg,rmsan,
      $          biasan,absbiasan,count)
          if (lpreplo) then
             call prep_plot('*****BIAS-RMS BT*****',21,15,
@@ -413,12 +427,12 @@ c     atovs amsua
            singlelvl=.false.
            call calstat_sat(7,209,209,
      $    3,119,3,
-     $    singlelvl,nlevelsatov,refatov,lusage,'amsua_noaa18_bt.dat',19,
+     $ singlelvl,nlevelsamsua,refamsua,lusage,'amsua_noaa18_bt.dat',19,
      $    rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
 
            call print_stat_mlev(outunit,
      $          'NOAA18 amsua BT (K)',19,'Channel no',10,
-     $          nlevelsatov,refatov,rmsfg,biasfg,absbiasfg,rmsan,
+     $          nlevelsamsua,refamsua,rmsfg,biasfg,absbiasfg,rmsan,
      $          biasan,absbiasan,count)
          if (lpreplo) then
             call prep_plot('*****BIAS-RMS BT*****',21,15,
@@ -438,12 +452,12 @@ c     atovs amsua
            singlelvl=.false.
            call calstat_sat(7,223,223,
      $    3,119,3,
-     $    singlelvl,nlevelsatov,refatov,lusage,'amsua_noaa19_bt.dat',19,
+     $ singlelvl,nlevelsamsua,refamsua,lusage,'amsua_noaa19_bt.dat',19,
      $    rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
 
            call print_stat_mlev(outunit,
      $          'NOAA19 amsua BT (K)',19,'Channel no',10,
-     $          nlevelsatov,refatov,rmsfg,biasfg,absbiasfg,rmsan,
+     $          nlevelsamsua,refamsua,rmsfg,biasfg,absbiasfg,rmsan,
      $          biasan,absbiasan,count)
          if (lpreplo) then
             call prep_plot('*****BIAS-RMS BT*****',21,15,
@@ -464,12 +478,12 @@ c     atovs amsua
              singlelvl=.false.
            call calstat_sat(7,784,784,
      $      3,119,3,
-     $      singlelvl,nlevelsatov,refatov,lusage,'amsua_aqua_bt.dat',17,
+     $ singlelvl,nlevelsamsua,refamsua,lusage,'amsua_aqua_bt.dat',17,
      $      rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
 
            call print_stat_mlev(outunit,
      $          'AQUA amsua BT (K)',17,'Channel no',10,
-     $          nlevelsatov,refatov,rmsfg,biasfg,absbiasfg,rmsan,
+     $          nlevelsamsua,refamsua,rmsfg,biasfg,absbiasfg,rmsan,
      $          biasan,absbiasan,count)
          if (lpreplo) then
             call prep_plot('*****BIAS-RMS BT*****',21,15,
@@ -489,12 +503,195 @@ c     atovs amsua
              singlelvl=.false.
            call calstat_sat(7,4,4,
      $      3,119,3,
-     $     singlelvl,nlevelsatov,refatov,lusage,'amsua_metop_bt.dat',18,
+     $ singlelvl,nlevelsamsua,refamsua,lusage,'amsua_metop_bt.dat',18,
      $     rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
 
            call print_stat_mlev(outunit,
      $          'METOP amsua BT (K)',18,'Channel no',10,
-     $          nlevelsatov,refatov,rmsfg,biasfg,absbiasfg,rmsan,
+     $          nlevelsamsua,refamsua,rmsfg,biasfg,absbiasfg,rmsan,
+     $          biasan,absbiasan,count)
+         if (lpreplo) then
+            call prep_plot('*****BIAS-RMS BT*****',21,15,
+     $                      rmsfg,biasfg,rmsan,biasan,count,plunit)
+         endif
+
+         if (lpreplo) then
+            close(plunit)
+         endif
+        endif
+
+
+       endif
+
+c     atovs amsub
+
+        if  (lamsub) then
+     
+        if (lamsub_noaa15) then
+         if (lpreplo) then
+            open(plunit,file='amsub_noaa15_hist.dat')
+         endif
+
+           singlelvl=.false.
+           call calstat_sat(7,206,206,
+     $    4,119,3,
+     $ singlelvl,nlevelsamsub,refamsub,lusage,'amsub_noaa15_bt.dat',19,
+     $    rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
+
+           call print_stat_mlev(outunit,
+     $          'NOAA15 amsub BT (K)',19,'Channel no',10,
+     $          nlevelsamsub,refamsub,rmsfg,biasfg,absbiasfg,rmsan,
+     $          biasan,absbiasan,count)
+         if (lpreplo) then
+            call prep_plot('*****BIAS-RMS BT*****',21,15,
+     $                      rmsfg,biasfg,rmsan,biasan,count,plunit)
+         endif
+
+         if (lpreplo) then
+            close(plunit)
+         endif
+       endif
+
+        if (lamsub_noaa16) then
+         if (lpreplo) then
+            open(plunit,file='amsub_noaa16_hist.dat')
+         endif
+
+           singlelvl=.false.
+           call calstat_sat(7,207,207,
+     $    4,119,3,
+     $ singlelvl,nlevelsamsub,refamsub,lusage,'amsub_noaa16_bt.dat',19,
+     $    rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
+
+           call print_stat_mlev(outunit,
+     $          'NOAA16 amsub BT (K)',19,'Channel no',10,
+     $          nlevelsamsub,refamsub,rmsfg,biasfg,absbiasfg,rmsan,
+     $          biasan,absbiasan,count)
+         if (lpreplo) then
+            call prep_plot('*****BIAS-RMS BT*****',21,15,
+     $                      rmsfg,biasfg,rmsan,biasan,count,plunit)
+         endif
+
+         if (lpreplo) then
+            close(plunit)
+         endif
+        endif
+
+        if (lamsub_noaa17) then
+         if (lpreplo) then
+            open(plunit,file='amsub_noaa17_hist.dat')
+         endif
+
+           singlelvl=.false.
+           call calstat_sat(7,208,208,
+     $    4,119,3,
+     $ singlelvl,nlevelsamsub,refamsub,lusage,'amsub_noaa17_bt.dat',19,
+     $    rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
+
+           call print_stat_mlev(outunit,
+     $          'NOAA17 amsua BT (K)',19,'Channel no',10,
+     $          nlevelsamsub,refamsub,rmsfg,biasfg,absbiasfg,rmsan,
+     $          biasan,absbiasan,count)
+         if (lpreplo) then
+            call prep_plot('*****BIAS-RMS BT*****',21,15,
+     $                      rmsfg,biasfg,rmsan,biasan,count,plunit)
+         endif
+
+         if (lpreplo) then
+            close(plunit)
+         endif
+       endif
+
+        if (lamsub_noaa18) then
+         if (lpreplo) then
+            open(plunit,file='amsub_noaa18_hist.dat')
+         endif
+
+           singlelvl=.false.
+           call calstat_sat(7,209,209,
+     $    4,119,3,
+     $ singlelvl,nlevelsamsub,refamsub,lusage,'amsub_noaa18_bt.dat',19,
+     $    rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
+
+           call print_stat_mlev(outunit,
+     $          'NOAA18 amsub BT (K)',19,'Channel no',10,
+     $          nlevelsamsub,refamsub,rmsfg,biasfg,absbiasfg,rmsan,
+     $          biasan,absbiasan,count)
+         if (lpreplo) then
+            call prep_plot('*****BIAS-RMS BT*****',21,15,
+     $                      rmsfg,biasfg,rmsan,biasan,count,plunit)
+         endif
+
+         if (lpreplo) then
+            close(plunit)
+         endif
+        endif
+
+        if (lamsub_noaa19) then
+         if (lpreplo) then
+            open(plunit,file='amsub_noaa19_hist.dat')
+         endif
+
+           singlelvl=.false.
+           call calstat_sat(7,223,223,
+     $    15,119,3,
+     $ singlelvl,nlevelsamsua,refamsua,lusage,'amsub_noaa19_bt.dat',19,
+     $    rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
+
+           call print_stat_mlev(outunit,
+     $          'NOAA19 amsua BT (K)',19,'Channel no',10,
+     $          nlevelsamsub,refamsub,rmsfg,biasfg,absbiasfg,rmsan,
+     $          biasan,absbiasan,count)
+         if (lpreplo) then
+            call prep_plot('*****BIAS-RMS BT*****',21,15,
+     $                      rmsfg,biasfg,rmsan,biasan,count,plunit)
+         endif
+
+         if (lpreplo) then
+            close(plunit)
+         endif
+        endif
+
+
+        if (lamsub_aqua) then
+         if (lpreplo) then
+            open(plunit,file='amsua_aqua_hist.dat')
+         endif
+
+             singlelvl=.false.
+           call calstat_sat(7,784,784,
+     $      15,119,3,
+     $ singlelvl,nlevelsamsua,refamsua,lusage,'amsua_aqua_bt.dat',17,
+     $      rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
+
+           call print_stat_mlev(outunit,
+     $          'AQUA amsua BT (K)',17,'Channel no',10,
+     $          nlevelsamsub,refamsub,rmsfg,biasfg,absbiasfg,rmsan,
+     $          biasan,absbiasan,count)
+         if (lpreplo) then
+            call prep_plot('*****BIAS-RMS BT*****',21,15,
+     $                      rmsfg,biasfg,rmsan,biasan,count,plunit)
+         endif
+
+         if (lpreplo) then
+            close(plunit)
+         endif
+        endif
+
+        if (lamsub_metop) then
+         if (lpreplo) then
+            open(plunit,file='amsub_metop_hist.dat')
+         endif
+
+             singlelvl=.false.
+           call calstat_sat(7,4,4,
+     $      15,119,3,
+     $ singlelvl,nlevelsamsub,refamsub,lusage,'amsub_metop_bt.dat',18,
+     $     rmsfg,biasfg,absbiasfg,rmsan,biasan,absbiasan,count)
+
+           call print_stat_mlev(outunit,
+     $          'METOP amsub BT (K)',18,'Channel no',10,
+     $          nlevelsamsub,refamsub,rmsfg,biasfg,absbiasfg,rmsan,
      $          biasan,absbiasan,count)
          if (lpreplo) then
             call prep_plot('*****BIAS-RMS BT*****',21,15,
