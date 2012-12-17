@@ -49,7 +49,7 @@ SUBROUTINE read_auto
             wtime = 999999,        &
             istnr = 0,             &
             stat_i,                &
-            stations(100000),      &
+            stations(10000000),    &
             max_found_stat
             
  

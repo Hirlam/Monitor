@@ -28,7 +28,7 @@ SUBROUTINE read_vfld_precip
             stat_i,                     &
             num_temp,num_stat,          &
             num_temp_lev,               &
-            stations(100000),           &
+            stations(10000000),         &
             max_found_stat,             &
             timing_id,                  &
             ind_pe(nfclengths)

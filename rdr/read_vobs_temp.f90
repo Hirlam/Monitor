@@ -21,7 +21,7 @@ SUBROUTINE read_vobs_temp
             num_temp,num_stat,          &
             num_temp_lev,               &
             my_temp_lev,                &
-            stations(100000),           &
+            stations(10000000),         &
             max_found_stat,             &
             wrk(mparver),               &
             version_flag,               &
