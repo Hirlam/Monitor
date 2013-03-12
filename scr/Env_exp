@@ -123,6 +123,9 @@ OBINT_SURF=06
 # Assimilation cycle interval
 FCINT_SURF=06
 
+# List of initial times, use ALL or specific times
+SURFINI_HOURS="ALL"
+
 # Forecast lengths used for verification
 FCLEN_SURF="00 06 12 18 24 30 36 42 48"
 
@@ -163,6 +166,9 @@ TEMPPLOT="GEN TIME VERT"
 OBINT_TEMP=12
 # Assimilation cycle interval
 FCINT_TEMP=12
+
+# List of initial times, use ALL or specific times
+TEMPINI_HOURS="ALL 00 12"
 
 # Forecast lengths used for verification
 FCLEN_TEMP="00 06 12 18 24 36 48"
@@ -212,6 +218,7 @@ export SURFPLOT TEMPPLOT
 export STNLIST_PLOT STNLIST_PLOT_TXT
 export ALL_AT_ONCE
 export SCORELIST SCORETYPES
+export SURFINI_HOURS TEMPINI_HOURS
 
 ###########################
 # End of definitions

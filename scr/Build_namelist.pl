@@ -227,8 +227,22 @@
    die "Please give ${type}SELECTION \n";
  } ;
 
+ # Define the initial_hours
+ @ini_hours = ('ALL');
+ if ( $ENV{$type."INI_HOURS"} ) {
+   @ini_hours = split(' ',$ENV{$type."INI_HOURS"}) ;
+ } ;
+
  # Build the namelist for each selection
  $selection_num = 0;
+
+ foreach $ini_hour ( @ini_hours ) {
+
+  if ( $ini_hour =~ /ALL/ ) {
+     $def{'def'}{'INI_HOURS'} = '24*-1',
+  } else { 
+     $def{'def'}{'INI_HOURS'} = "$ini_hour,23*-1",
+  } ;
 
  foreach $selection ( @selections ) {
 
@@ -240,7 +254,7 @@
    if ( $selection_num gt 1 ) { $def{'def'}{'STNLIST_PLOT'} = '-1' } ;
 
    # Set default tag according to selection
-   $def{'def'}{'TAG'} = '\''.$selection.'\'' ;
+   $def{'def'}{'TAG'} = '\''.$selection.'_'.$ini_hour.'\'' ;
 
    #
    # Make sure STNLIST is defined only once and 
@@ -354,7 +368,9 @@
 
    &print_list($default) ;
 
-};
+  };
+ };
+
 #################################################################
 sub set_def{
 

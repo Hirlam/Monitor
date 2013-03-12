@@ -32,6 +32,10 @@
  @selections = split(' ',$ENV{$TYPE.'SELECTION'});
  $selections ='\''.join('\',\'',@selections).'\'';
 
+ # Initial hours
+ @ini_hours = split(' ',$ENV{$TYPE.'INI_HOURS'});
+ $ini_hours ='\''.join('\',\'',@ini_hours).'\'';
+
  # Time handling
  $period_type = $ENV{PERIOD_TYPE}; 
  @period_v = ('','\'00000000\'','\'gen_date\',\'00YYYYMM\',\'00'.$ENV{EDATE}.'\',\'00'.$ENV{IDATE}.'\'');
@@ -169,9 +173,12 @@ v[5] = [$partext]
 t[5] = [$text]
 v[6] =[0] ;
 t[6] =[0] ;
-mname = ['Type','Period','Station','Selection','Time (UTC)','Parameter','Dum']
+v[7] =[$ini_hours] ;
+t[7] = v[7] ;
+mname = ['Type','Period','Station','Selection','Time (UTC)','Parameter','Dum','Initial time']
+spec_name =[0,1,2,3,7,4,5,6]
 
-loc = ['l','t','t','t','l','l','l']
+loc = ['l','t','t','t','l','l','l','t']
 $download
 
 pdir ='Temp_prof/'
@@ -262,10 +269,12 @@ v[7] =[$map_hours] ;
 t[7] = v[7] ;
 v[8] = [$mp];
 t[8] = [$mpt];
+v[9] =[$ini_hours] ;
+t[9] = v[9] ;
 
-spec_name =[0,8,1,2,3,7,6,4,5]
+spec_name =[0,8,1,2,3,9,7,6,4,5]
 
-mname = ['Type','Period','Station','Selection','Parameter','Level','Exp',$map_hour_title,'Error']
+mname = ['Type','Period','Station','Selection','Parameter','Level','Exp',$map_hour_title,'Error','Initial time']
 loc =['l','l','t','l','t','l','l','t']
 $download
 pdir ='$pdir/'
@@ -330,9 +339,13 @@ v[5] =v[5].reverse()
 t[5] =v[5]
 v[6] =[$stt]
 t[6] =v[6]
+v[7] =[$ini_hours] ;
+t[7] = v[7] ;
 
-mname = ['Score','Period','Station','Selection','Parameter','Level','Type']
-loc =['l','l','t','l','t','l','l','t']
+spec_name =[0,1,2,3,7,4,5,6]
+
+mname = ['Score','Period','Station','Selection','Parameter','Level','Type','Initial time']
+loc =['l','l','t','l','t','l','l','t','l']
 $download
 pdir ='$pdir/'
 ext='$EXT'
@@ -372,18 +385,21 @@ v[1] = [$period_v[$period_type]]
 t[1] = [$period_t[$period_type]]
 v[2] = [$stations]
 t[2] = [$stations_txt]
-v[3] =[$selections] ;
+v[3] = [$selections] ;
 t[3] = v[3] ;
 v[4] = [$partext];
 t[4] = [$text]
-v[5] =[$lev_lst] ;
+v[5] = [$lev_lst] ;
 v[5] = v[5].reverse()
 t[5] = v[5]
-loc = ['l','t','t','t','l','t']
+v[6] = [$ini_hours] ;
+t[6] = v[6] ;
+loc = ['l','t','t','t','l','t','t']
+spec_name =[0,1,2,3,6,4,5]
 
 $download ;
 
-mname = ['Type','Period','Station','Selection','Parameter','Level']
+mname = ['Type','Period','Station','Selection','Parameter','Level','Initial time']
 help = '$ENV{HELP}'; hide_help = false ;
 pdir ='$type/'
 ext='$EXT'
@@ -433,10 +449,12 @@ v[5] = v[5].reverse()
 t[5] = v[5]
 v[6] = [$expname]
 t[6] = [$expname]
+v[7] = [$ini_hours] ;
+t[7] = v[7] ;
 
-mname = ['Type','Period','Station','Selection','Parameter','Level','Exp']
+mname = ['Type','Period','Station','Selection','Parameter','Level','Exp','Initial time']
 loc = ['l','t','t','t','l','l','t']
-spec_name =[0,1,2,3,6,4,5]
+spec_name =[0,1,2,3,7,6,4,5]
 $download
 pdir ='$type/'
 ext='$EXT'
@@ -494,10 +512,12 @@ v[5] = v[5].reverse()
 t[5] = v[5]
 v[6] = [$sexpname]
 t[6] = [$sexpname]
+v[7] = [$ini_hours] ;
+t[7] = v[7] ;
 
-mname = ['Type','Period','Station','Selection','Parameter','Level','Exp']
-loc = ['l','t','t','t','l','t','t']
-spec_name =[0,1,2,3,6,4,5]
+mname = ['Type','Period','Station','Selection','Parameter','Level','Exp','Initial time']
+loc = ['l','t','t','t','l','t','t','l']
+spec_name =[0,1,2,3,7,6,4,5]
 $download
 pdir ='$type/'
 ext='$EXT'
