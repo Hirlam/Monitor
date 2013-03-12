@@ -20,6 +20,8 @@ SUBROUTINE read_vfld_temp
             ierr = 0,aerr=0,            &
             cdate = 999999,             &
             ctime = 999999,             &
+            cdateo = 999999,            &
+            ctimeo = 999999,            &
             wdate = 999999,             &
             wtime = 999999,             &
             istnr = 0,                  &
@@ -41,8 +43,8 @@ SUBROUTINE read_vfld_temp
             found_any_time,use_stnlist,lfound
 
  CHARACTER(LEN=200) :: fname = ' '
- CHARACTER(LEN= 10) :: cwrk  ='yyyymmddhh'
- CHARACTER(LEN= 02) :: cfclen  ='  '
+ CHARACTER(LEN= 10) :: cwrk  ='yyyymmddhh',cwrko
+ CHARACTER(LEN= 02) :: cfclen  ='  ',cfcleno
  CHARACTER(LEN=  6), ALLOCATABLE :: invar(:)
 
 
@@ -94,8 +96,18 @@ SUBROUTINE read_vfld_temp
 
     WRITE(cwrk(1:10),'(I8,I2.2)')cdate,ctime/10000
     WRITE(cfclen(1:2),'(I2.2)')fclen(j)
+
     SUB_EXP_LOOP : DO ll=1,nexp
-       fname = TRIM(modpath(ll))//'vfld'//TRIM(expname(ll))//cwrk//cfclen
+
+       IF ( exp_offset(ll) /= 0 ) THEN
+         CALL adddtg(cdate,ctime,exp_offset(ll)*3600,cdateo,ctimeo)
+         WRITE(cwrko(1:10),'(I8,I2.2)')cdateo,ctimeo/10000
+         WRITE(cfcleno(1:2),'(I2.2)')fclen(j)+exp_offset(ll)
+         fname = TRIM(modpath(ll))//'vfld'//TRIM(expname(ll))//cwrko//cfcleno
+       ELSE
+         fname = TRIM(modpath(ll))//'vfld'//TRIM(expname(ll))//cwrk//cfclen
+       ENDIF
+
        INQUIRE(FILE=fname,EXIST=lfound)
        IF ( .NOT. lfound ) THEN
           IF (print_read > 0 ) &
@@ -106,7 +118,14 @@ SUBROUTINE read_vfld_temp
 
     EXP_LOOP : DO l=1,nexp
 
-       fname = TRIM(modpath(l))//'vfld'//TRIM(expname(l))//cwrk//cfclen
+       IF ( exp_offset(l) /= 0 ) THEN
+         CALL adddtg(cdate,ctime,exp_offset(l)*3600,cdateo,ctimeo)
+         WRITE(cwrko(1:10),'(I8,I2.2)')cdateo,ctimeo/10000
+         WRITE(cfcleno(1:2),'(I2.2)')fclen(j)+exp_offset(l)
+         fname = TRIM(modpath(l))//'vfld'//TRIM(expname(l))//cwrko//cfcleno
+       ELSE
+         fname = TRIM(modpath(l))//'vfld'//TRIM(expname(l))//cwrk//cfclen
+       ENDIF
 
        OPEN(lunin,file=fname,status='old',iostat=ierr)
        IF (ierr.NE.0 .AND. print_read > 0 ) WRITE(6,*)'COULD NOT READ ',fname

@@ -95,6 +95,7 @@ MODULE data
  INTEGER           :: nexp = 1                  ! Number of experiments
  CHARACTER(LEN=50) :: expname(maxexp)='OBS'     ! Name of experiments
  INTEGER           :: smallest_exp_ind = 0      ! The location of the experiment with the smallest domain
+ INTEGER           :: exp_offset(maxexp) = 0    ! Define the offset of initial hours
  CHARACTER(LEN=99) :: statname='statistics.html'! Name of output statistics file
  CHARACTER(LEN=50) :: name='Unknown'            ! Station name
  CHARACTER(LEN=50) :: tag='#'                   ! Tag on plot
@@ -313,6 +314,7 @@ MODULE data
                  timeserie_wind,window_pos,             &
                  stnlist,stnlist_bl,stnlist_plot,       &
                  nexp,expname,tag,                      &
+                 exp_offset,                            &
                  smallest_exp_ind,                      &
                  varlist,setprop,                       &
                  lev_lst,                               &
