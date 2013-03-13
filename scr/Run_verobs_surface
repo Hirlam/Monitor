@@ -28,10 +28,24 @@ mkdir $WRK/${DIR}_$$ || exit
 if [ $ALL_AT_ONCE == "yes" ] ; then
    ./Build_namelist.pl -t ${DIR} -p "$SURFPAR" > $WRK/${DIR}_$$/fort.10 || exit
 else
+
+   NPAR=$( echo $SURFPAR | wc | awk '{print $2}' )
+   [[ $PAR_PER_BLOCK -gt $NPAR ]] && PAR_PER_BLOCK=$NPAR
+
+   I=1
+   FF=""
    for F in $SURFPAR ; do
-      ./Build_namelist.pl -t ${DIR} -p $F > $WRK/${DIR}_$$/namelist_$F || exit
+      II=$(( $I % $PAR_PER_BLOCK ))
+      FF="$FF $F"
+      if [ $II -eq 0 -o $I -eq $NPAR ] ; then 
+        ./Build_namelist.pl -t ${DIR} -p "$FF" > $WRK/${DIR}_$$/namelist_$I || exit
+        grep varlist  $WRK/${DIR}_$$/namelist_$I
+        FF=""
+      fi
+      I=$(( $I + 1 ))
    done
 fi
+
 
 cd $WRK/${DIR}_$$ || exit
 
@@ -44,8 +58,8 @@ if [ $ALL_AT_ONCE == "yes" ] ; then
    cat fort.10
    $BIN/verobs || exit
 else
-   for F in $SURFPAR ; do
-      cp namelist_$F fort.10
+   for F in $( ls -1 namelist_* ) ; do
+      ln -sf $F fort.10
       cat fort.10
       $BIN/verobs || exit
    done
@@ -74,7 +88,9 @@ cat fort.48   >> quality.html
 echo '</pre>' >> quality.html
 fi
 
+#
 # Generate browser friendly graphics and gather files
+#
 rm -f fig.tar
 
 cp $SCR/style.xsl .

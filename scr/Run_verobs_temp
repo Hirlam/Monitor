@@ -18,15 +18,30 @@ fi
 
 cd $SCR || exit
 
-DIR=TEMP
-mkdir $WRK/${DIR}_$$ || exit
 
 # Generate namelists
+
+DIR=TEMP
+
+mkdir $WRK/${DIR}_$$ || exit
+
 if [ $ALL_AT_ONCE == "yes" ] ; then
    ./Build_namelist.pl -t ${DIR} -p "$TEMPPAR" > $WRK/${DIR}_$$/fort.10 || exit
 else
+
+   NPAR=$( echo $TEMPPAR | wc | awk '{print $2}' )
+   [[ $PAR_PER_BLOCK -gt $NPAR ]] && PAR_PER_BLOCK=$NPAR
+
+   I=1
+   FF=""
    for F in $TEMPPAR ; do
-      ./Build_namelist.pl -t ${DIR} -p $F > $WRK/${DIR}_$$/namelist_$F || exit
+      II=$(( $I % $PAR_PER_BLOCK ))
+      FF="$FF $F"
+      if [ $II -eq 0 -o $I -eq $NPAR ] ; then 
+        ./Build_namelist.pl -t ${DIR} -p "$FF" > $WRK/${DIR}_$$/namelist_$I || exit
+        FF=""
+      fi
+      I=$(( $I + 1 ))
    done
 fi
 
@@ -36,16 +51,18 @@ ln -s $SCR/*.poly    .
 ln -s $SCR/coast2.dat coast.dat
 
 # Run verobs for the different variables
+
 if [ $ALL_AT_ONCE == "yes" ] ; then
    cat fort.10
    $BIN/verobs || exit
 else
-   for F in $TEMPPAR ; do
-      cp namelist_$F fort.10
+   for F in $( ls -1 namelist_* ) ; do
+      ln -sf $F fort.10
       cat fort.10
       $BIN/verobs || exit
    done
 fi
+
 
 #
 # Call gnuplot to create the graphics
@@ -69,7 +86,7 @@ cat fort.48   >> quality.html
 echo '</pre>' >> quality.html
 
 #
-# Generate browser friendly graphics
+# Generate browser friendly graphics and gather files
 #
 
 cp $SCR/style.xsl .
