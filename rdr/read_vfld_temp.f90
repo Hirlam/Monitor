@@ -3,6 +3,7 @@ SUBROUTINE read_vfld_temp
  !
  ! Read TEMP part of vfldEXPyyyymmddhhll
  ! and organize in data array
+ ! for verification and plotting
  !
  ! Ulf Andrae, SMHI, 2004
  !
@@ -44,7 +45,7 @@ SUBROUTINE read_vfld_temp
 
  CHARACTER(LEN=200) :: fname = ' '
  CHARACTER(LEN= 10) :: cwrk  ='yyyymmddhh',cwrko
- CHARACTER(LEN= 02) :: cfclen  ='  ',cfcleno
+ CHARACTER(LEN= 03) :: cfclen  ='  ',cfcleno
  CHARACTER(LEN=  6), ALLOCATABLE :: invar(:)
 
 
@@ -95,17 +96,25 @@ SUBROUTINE read_vfld_temp
     !
 
     WRITE(cwrk(1:10),'(I8,I2.2)')cdate,ctime/10000
-    WRITE(cfclen(1:2),'(I2.2)')fclen(j)
+    IF ( fclen(j) > 99 ) THEN
+      WRITE(cfclen,'(I3.3)')fclen(j)
+    ELSE
+      WRITE(cfclen,'(I2.2,1X)')fclen(j)
+    ENDIF
 
     SUB_EXP_LOOP : DO ll=1,nexp
 
        IF ( exp_offset(ll) /= 0 ) THEN
          CALL adddtg(cdate,ctime,exp_offset(ll)*3600,cdateo,ctimeo)
          WRITE(cwrko(1:10),'(I8,I2.2)')cdateo,ctimeo/10000
-         WRITE(cfcleno(1:2),'(I2.2)')fclen(j)+exp_offset(ll)
-         fname = TRIM(modpath(ll))//'vfld'//TRIM(expname(ll))//cwrko//cfcleno
+         IF ( ( fclen(j) + exp_offset(ll) ) > 99 ) THEN
+           WRITE(cfcleno,'(I3.3)')fclen(j)+exp_offset(ll)
+         ELSE
+           WRITE(cfcleno,'(I2.2,1X)')fclen(j)+exp_offset(ll)
+         ENDIF
+         fname = TRIM(modpath(ll))//'vfld'//TRIM(expname(ll))//cwrko//TRIM(cfcleno)
        ELSE
-         fname = TRIM(modpath(ll))//'vfld'//TRIM(expname(ll))//cwrk//cfclen
+         fname = TRIM(modpath(ll))//'vfld'//TRIM(expname(ll))//cwrk//TRIM(cfclen)
        ENDIF
 
        INQUIRE(FILE=fname,EXIST=lfound)
@@ -121,22 +130,26 @@ SUBROUTINE read_vfld_temp
        IF ( exp_offset(l) /= 0 ) THEN
          CALL adddtg(cdate,ctime,exp_offset(l)*3600,cdateo,ctimeo)
          WRITE(cwrko(1:10),'(I8,I2.2)')cdateo,ctimeo/10000
-         WRITE(cfcleno(1:2),'(I2.2)')fclen(j)+exp_offset(l)
-         fname = TRIM(modpath(l))//'vfld'//TRIM(expname(l))//cwrko//cfcleno
+         IF ( ( fclen(j) + exp_offset(l) ) > 99 ) THEN
+           WRITE(cfcleno,'(I3.3)')fclen(j)+exp_offset(l)
+         ELSE
+           WRITE(cfcleno,'(I2.2,1X)')fclen(j)+exp_offset(l)
+         ENDIF
+         fname = TRIM(modpath(l))//'vfld'//TRIM(expname(l))//cwrko//TRIM(cfcleno)
        ELSE
-         fname = TRIM(modpath(l))//'vfld'//TRIM(expname(l))//cwrk//cfclen
+         fname = TRIM(modpath(l))//'vfld'//TRIM(expname(l))//cwrk//TRIM(cfclen)
        ENDIF
 
        OPEN(lunin,file=fname,status='old',iostat=ierr)
-       IF (ierr.NE.0 .AND. print_read > 0 ) WRITE(6,*)'COULD NOT READ ',fname
-       IF (ierr.NE.0) CYCLE EXP_LOOP
+       IF (ierr /= 0 .AND. print_read > 0 ) WRITE(6,*)'COULD NOT READ ',fname
+       IF (ierr /= 0) CYCLE EXP_LOOP
        IF (print_read > 0 ) WRITE(6,*)'READ ',TRIM(fname)
 
        version_flag = 0
 
-       READ(lunin,'(1x,3I6)',IOSTAT=ierr)num_stat,num_temp,version_flag
+       READ(lunin,'(1X,3I6)',IOSTAT=ierr)num_stat,num_temp,version_flag
        IF ( ierr /= 0 ) THEN
-         WRITE(6,*)'Error reading first line of vfld file'
+         WRITE(6,*)'Error reading first line of vfld file',ierr
          CALL abort
        ENDIF
 
