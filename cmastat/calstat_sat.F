@@ -70,6 +70,8 @@ c
          count(i)=0
       enddo
 
+      icount = 0
+
 c
 c     loop over odb based ascii-file
 c
