@@ -438,6 +438,9 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
   ENDDO
 
   DEALLOCATE(val)
+  DO j=1,nexp
+    DEALLOCATE(sbin(j)%binx,sbin(j)%biny,sbin(j)%array)
+  ENDDO
 
 RETURN
 END SUBROUTINE print_scat

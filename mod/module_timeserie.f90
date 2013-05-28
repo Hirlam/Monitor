@@ -268,6 +268,9 @@ MODULE timeserie
          EXIT
      ENDIF
     ENDDO
+  ELSEIF ( this_stat_time == 0 ) THEN
+    this_stat_time = 1
+    oo = 1
   ENDIF
 
   IF ( this_stat_time == -1 ) THEN

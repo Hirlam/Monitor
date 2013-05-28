@@ -119,11 +119,12 @@ SUBROUTINE print_cont(p1,p2,nr,par_active,    &
 
        DEALLOCATE(sumcol)
 
+       WRITE(luncont,*)
+       CLOSE(luncont)
+
     ENDDO
-    WRITE(luncont,*)
  ENDDO
 
- CLOSE(luncont)
 
  RETURN
 

@@ -493,7 +493,7 @@ open INPUT, "> input.js" ;
 
 print INPUT "
 
-title = '$type significane test'
+title = '$type significance test'
 
 framec='OliveDrab'
 
@@ -614,7 +614,7 @@ sub finalize_plot {
 @xml_txt = ("Quality control",@xml_txt);
 
 if ( exists $plots{'CONT'} ) {
-    @xml_cont     = (@xml,"$pdir/c_[1]_00000000_[3]_[4]_0.html");
+    @xml_cont     = (@xml,"$pdir/c_[1]_00000000_[3]_[7]_[4]_0.html");
     @xml_cont_txt = (@xml_txt,"Cont");
 };
 

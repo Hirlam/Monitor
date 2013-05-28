@@ -196,6 +196,11 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
                  $SEDS=( ( log( ($a+$b)/$nn ) + log( ($a+$c)/$nn ) ) / 
                          log($a/$nn) ) - 1;
                }
+	       # Extreme Dependency Score (Stephenson et al. 2008, Meteorol. Appl., 15, 41-50.):
+               my $EDS = $missing;
+               unless ( $a == 0 or $a == $nn ) {
+                 $EDS=( ( 2*log( ($a+$b)/$nn ) ) / log($a/$nn) ) - 1;
+               }
 	       # Extremal Dependency Index
                # (Ferro and Stephenson, submitted to Wea. and Forecasting, 2010):
                my $EDI = $missing;
@@ -257,7 +262,7 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
 	       }
 	     
                print SCOREFILE  "$lowerlimit $FAR $POD ";
-               print SCOREFILE2 "$centralx $lowerlimit $FAR $POD $FA $KUI $FBI $AI $SEDS $EDI $SEDI $ETS $OFREQ $MFREQ $nn $TS \n";
+               print SCOREFILE2 "$centralx $lowerlimit $FAR $POD $FA $KUI $FBI $AI $SEDS $EDI $SEDI $ETS $OFREQ $MFREQ $nn $TS $EDS \n";
 	   } #loop over classes
 
            print SCOREFILE "\n";
@@ -313,6 +318,14 @@ $ctype = 'AI';
 $output_file = $skill_score_def{$ctype}.$prefix."_". $selector . $EXT[$output_type] ;
 &header($skill_score_txt{$ctype}) ;
 &gen_plot($skill_score_txt{$ctype},8); }
+
+# EDS
+if ($ENV{'SCORELIST'}=~'EDS'){
+$ctype = 'EDS';
+$output_file = $skill_score_def{$ctype}.$prefix."_". $selector . $EXT[$output_type] ;
+&header($skill_score_txt{$ctype}) ;
+&gen_plot($skill_score_txt{$ctype},17); }
+
 
 # SEDS
 if ($ENV{'SCORELIST'}=~'SEDS'){

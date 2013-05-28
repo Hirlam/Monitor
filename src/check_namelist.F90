@@ -178,6 +178,7 @@ SUBROUTINE check_namelist
        IF( ini_hours(i) /= -1 ) nini_hours = nini_hours + 1
     ENDDO
     WRITE(6,*)'  Changed NINI_HOURS to',nini_hours
+    WRITE(6,*)'  Changed INI_HOURS to' , ini_hours(1:nini_hours)
  ENDIF
 
  
