@@ -1,4 +1,21 @@
 //----------------------------------------------------
+function expand (){
+
+ var pat = /\d+-\d+/;
+ for (j = 0; j < (this.v.length); j++) {
+   while (this.v[j].match(pat) != null) {
+     i3 = this.v[j].match (pat);
+     ii = i3[0].split ("-") 
+     str = ii[0];
+     is = parseInt(ii[0]) + 1 
+     for (k = is; k <= ii[1]; k++) {
+       str += "," + k;
+     }
+     this.v[j] = this.v[j].replace(pat,str);
+   };
+ };
+}
+//----------------------------------------------------
 function resize(size_ind) {
    if ( size_ind == 0 ) { size_fig = 1.0 }else{
       if ( size_fig < Math.abs(size_ind) && size_ind < 0 ) {
@@ -1368,6 +1385,7 @@ function info_body( ) {
 function make_menu(loc) { 
 
  this.txt = ""
+ re  = /l.+/ ;
 
  if ( this.ind >= 0 ) { this.p   = pos[this.ind] }
  if ( this.active && this.loc == loc )  {  
@@ -1379,7 +1397,7 @@ function make_menu(loc) {
 
      this.txt += this.body() + table_bot() 
 
-    if ( this.loc == 'l' ) { this.txt += "<br>" }
+    if ( this.loc.match(re) || this.loc == 'l' ) { this.txt += "<br>" }
 
  }
 
@@ -1401,9 +1419,11 @@ function menu(ind,name,v,t,loc,typ,head,body,p,active) {
  this.active = active	        // Active flag
  this.flip   = false            // Allow flipping
 
+ // Functions
  this.make_menu = make_menu
  this.my_alert  = my_alert
  this.sli_head  = sli_head
+ this.expand = expand
 
  if ( this.loc == undefined ) {
     if ( this.v.length > 10 ) { this.loc = 't' } else { this.loc = 'l' }
@@ -1431,11 +1451,13 @@ function write_list(){
  this.txt = ""
  //this.txt += top_menu.make_menu('l')
 
+ this.txt += con_menu.make_menu('lt')
+
  for ( i=0 ; i < mlist.length ; i++ ) {
      this.txt += mlist[order[i]].make_menu('l') 
  }
 
- this.txt += con_menu.make_menu('l')
+ this.txt += con_menu.make_menu('lb')
 
  if ( is_graphics ) { this.txt += hel_menu.make_menu('l') }
  this.txt += inf_menu.make_menu('l') 
@@ -1581,8 +1603,8 @@ function init() {
  if ( my_con.length == 0 ) { my_con = ['All'] }
  if ( my_con_txt.length == 0 ) { my_con_txt = my_con }
  con_menu = new menu(-17,my_con_title,my_con,my_con_txt,con_menu_loc,1,all_head,con_body,0, (my_con.length > 1 ))
+ con_menu.expand()
 
- 
  // This is another info menu, more generalized...
  if ( my_info_txt.length == 0 ) { my_info_txt = my_info }
  info_menu = new menu(-16,my_info_title,my_info,my_info_txt,'l',0,sim_head,info_body,0, (my_info.length > 0 ))
