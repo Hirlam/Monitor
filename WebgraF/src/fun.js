@@ -948,7 +948,12 @@ function all_head( ) {
  this.txt  = ""
  this.cri  = cri
 
- if (this.typ == 1 ) { 
+ typ = this.typ
+ if ( this.loc == 'l' && this.typ == 0 && this.v.length > menu_type_0_maxlen ) {
+  typ = 1 
+ } 
+
+ if ( typ == 1 ) { 
     if ( this.ind == -17 ) {
        this.txt += dirFig('down1.gif',("con_update("+this.cri(-1)+")"),lang[pre_lan].up)
     } else {
@@ -996,7 +1001,7 @@ function all_head( ) {
         else { this.txt += dirFig('right.gif',("slideShow("+this.ind+")"),lang[pre_lan].slid,'width=10') }
  } 
 
- if (this.typ == 1 ) { 
+ if ( typ == 1 ) { 
     this.txt += "</tr><tr>"
     if ( this.ind == -17 ) {
        this.txt += dirFig('up1.gif',("con_update("+this.cri(1)+")"),lang[pre_lan].down)
@@ -1004,7 +1009,7 @@ function all_head( ) {
     this.txt += dirFig('up1.gif',("getFig("+this.ind+","+this.cri(1)+")"),lang[pre_lan].down)
     }
  }
- if (this.typ == 0 ) { this.txt += "</tr>" }
+ if ( typ == 0 ) { this.txt += "</tr>" }
 
  return this.txt
 
@@ -1157,7 +1162,6 @@ function gen_body( ) {
  if ( this.loc == 'l' && this.typ == 0 && this.v.length > menu_type_0_maxlen ) {
   typ = 1 
  } 
-
 
  if ( typ == 0 ) {
 
