@@ -105,7 +105,7 @@ SUBROUTINE read_vfld_temp
     SUB_EXP_LOOP : DO ll=1,nexp
 
        IF ( exp_offset(ll) /= 0 ) THEN
-         CALL adddtg(cdate,ctime,exp_offset(ll)*3600,cdateo,ctimeo)
+         CALL adddtg(cdate,ctime,-exp_offset(ll)*3600,cdateo,ctimeo)
          WRITE(cwrko(1:10),'(I8,I2.2)')cdateo,ctimeo/10000
          IF ( ( fclen(j) + exp_offset(ll) ) > 99 ) THEN
            WRITE(cfcleno,'(I3.3)')fclen(j)+exp_offset(ll)
@@ -128,7 +128,7 @@ SUBROUTINE read_vfld_temp
     EXP_LOOP : DO l=1,nexp
 
        IF ( exp_offset(l) /= 0 ) THEN
-         CALL adddtg(cdate,ctime,exp_offset(l)*3600,cdateo,ctimeo)
+         CALL adddtg(cdate,ctime,-exp_offset(l)*3600,cdateo,ctimeo)
          WRITE(cwrko(1:10),'(I8,I2.2)')cdateo,ctimeo/10000
          IF ( ( fclen(j) + exp_offset(l) ) > 99 ) THEN
            WRITE(cfcleno,'(I3.3)')fclen(j)+exp_offset(l)
