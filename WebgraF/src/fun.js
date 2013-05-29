@@ -1153,7 +1153,13 @@ function gen_body( ) {
 
  if ( this.ind >= 0 && this.v.length < 2 ) { return this.txt }
 
- if ( this.typ == 0 ) {
+ typ = this.typ
+ if ( this.loc == 'l' && this.typ == 0 && this.v.length > menu_type_0_maxlen ) {
+  typ = 1 
+ } 
+
+
+ if ( typ == 0 ) {
 
     for (j = 0; j < this.v.length; j++) {
        switch (this.ind) {
@@ -1179,7 +1185,7 @@ function gen_body( ) {
 
  } 
 
- if ( this.typ == 1 ) {
+ if ( typ == 1 ) {
 
     switch (this.ind) {
     case -9:
@@ -1290,6 +1296,11 @@ function con_update(loc) {
        }
        pos[i3] = 0
      } else {
+       // Restore the old full array value
+       for (jk = 0; jk <= t[i3].length-1; jk++) { 
+         mlist[i3].t[jk] = t[i3][jk]
+         mlist[i3].v[jk] = v[i3][jk]
+       }
      }
      mlist[i3].active = ( mlist[i3].t.length > 1 )
      tmp = tmp.replace(tmp.substr(i1,i2-i1+1),'#')

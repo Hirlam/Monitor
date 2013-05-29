@@ -88,6 +88,7 @@ var user        = "nada"
 var size_fig    = 1.0
 var do_resize   = true
 var host_page   = undefined
+var menu_type_0_maxlen = 10
 
 // Language
 
