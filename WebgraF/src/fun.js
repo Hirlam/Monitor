@@ -1297,7 +1297,7 @@ function con_update(loc) {
        pos[i3] = 0
      } else {
        // Restore the old full array value
-       switch(my_con_sort) {
+       switch(my_con_sort[i3]) {
        
        case 'v':
         for (jk = 0; jk <= v[i3].length-1; jk++) { 
@@ -1321,7 +1321,7 @@ function con_update(loc) {
         }
         break ;
 
-       case 'n':
+       default :
         for (jk = 0; jk <= v[i3].length-1; jk++) { 
          mlist[i3].v[jk] = v[i3][jk]
          mlist[i3].t[jk] = t[i3][jk]
