@@ -1297,10 +1297,38 @@ function con_update(loc) {
        pos[i3] = 0
      } else {
        // Restore the old full array value
-       for (jk = 0; jk <= t[i3].length-1; jk++) { 
-         mlist[i3].t[jk] = t[i3][jk]
+       switch(my_con_sort) {
+       
+       case 'v':
+        for (jk = 0; jk <= v[i3].length-1; jk++) { 
          mlist[i3].v[jk] = v[i3][jk]
-       }
+        }
+        mlist[i3].v.sort()
+        for (jk = 0; jk <= t[i3].length-1; jk++) { 
+         jl=v[i3].indexOf(mlist[i3].v[jk]); 
+         mlist[i3].t[jk] = t[i3][jl]
+        }
+        break ;
+
+       case 't':
+        for (jk = 0; jk <= t[i3].length-1; jk++) { 
+         mlist[i3].t[jk] = t[i3][jk]
+        }
+        mlist[i3].t.sort()
+        for (jk = 0; jk <= v[i3].length-1; jk++) { 
+         jl=t[i3].indexOf(mlist[i3].t[jk]); 
+         mlist[i3].v[jk] = v[i3][jl]
+        }
+        break ;
+
+       case 'n':
+        for (jk = 0; jk <= v[i3].length-1; jk++) { 
+         mlist[i3].v[jk] = v[i3][jk]
+         mlist[i3].t[jk] = t[i3][jk]
+        }
+        break ;
+
+       } 
      }
      mlist[i3].active = ( mlist[i3].t.length > 1 )
      tmp = tmp.replace(tmp.substr(i1,i2-i1+1),'#')
@@ -1615,7 +1643,7 @@ function init() {
  if ( my_con_txt.length == 0 ) { my_con_txt = my_con }
  con_menu = new menu(-17,my_con_title,my_con,my_con_txt,con_menu_loc,1,all_head,con_body,0, (my_con.length > 1 ))
  con_menu.expand()
-
+ 
  // This is another info menu, more generalized...
  if ( my_info_txt.length == 0 ) { my_info_txt = my_info }
  info_menu = new menu(-16,my_info_title,my_info,my_info_txt,'l',0,sim_head,info_body,0, (my_info.length > 0 ))

@@ -30,6 +30,7 @@ var my_con_title = 'View' ;
 var my_info      = new Array() ;
 var my_info_txt  = new Array() ;
 var my_info_title= 'Model info'
+var my_con_sort = 'n'
 var multi  	= false
 var mpos   	= -99
 var con_ind     = 0
