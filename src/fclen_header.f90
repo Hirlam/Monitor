@@ -18,7 +18,7 @@ SUBROUTINE fclen_header(lfclen,nuf,uh,uf,ai,txt)
  CHARACTER(LEN=20) :: wname = ''
  CHARACTER(LEN=50) :: whour = ''
  CHARACTER(LEN= 2) :: wh    = ''
- CHARACTER(LEN= 5) :: txt5  = ''
+ CHARACTER(LEN= 7) :: txt5  = ''
 
  !-----------------------------------------------
  
@@ -61,17 +61,12 @@ SUBROUTINE fclen_header(lfclen,nuf,uh,uf,ai,txt)
        ENDDO
     ENDIF
     txt =''
-    IF (ii > 10 ) THEN
-       wname='(2I3.2,A5,I2.2)'
-       IF ( ai == 0 ) THEN
-          WRITE(txt,wname)fclen(1:2),' ... ',fclen(ii)
-       ELSE
-          WRITE(txt,wname)fclen(1:2),' ... ',fclen(ii)
-       ENDIF
-
+    IF (ii > 8 ) THEN
+       wname='(2I4.3,A5,I3.3)'
+       WRITE(txt,wname)fclen(1:2),' ... ',fclen(ii)
     ELSE
        IF ( ai == 0 ) THEN
-          wname='(XX(1X,I2.2))'
+          wname='(XX(1X,I3.2))'
           WRITE(wname(2:3),'(I2.2)')MAX(ii,1)
           WRITE(txt,wname)fclen(1:ii)
        ELSE
@@ -81,7 +76,7 @@ SUBROUTINE fclen_header(lfclen,nuf,uh,uf,ai,txt)
          
           txt =''
           DO i=1,ii
-             WRITE(txt5,'(I2.2,A1,I2.2)')fclen(i),'-',fclen(i)-ai
+             WRITE(txt5,'(I3.2,A1,I3.2)')fclen(i),'-',fclen(i)-ai
              txt = TRIM(txt)//' '//txt5
           ENDDO
 
