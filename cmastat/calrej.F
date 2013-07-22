@@ -102,7 +102,7 @@ c
           if ((ISTATUS_BLKHDR_ODB.EQ.1).or.
      x     (ISTATUS_BLKBOD_ODB.EQ.1)) iflgblk=1
 
-          write(50,*) RLAT_ODB*57.2957795131, 
+          write(50,'(2F10.3,4I5)') RLAT_ODB*57.2957795131, 
      x                RLON_ODB*57.2957795131,
      x        iflgact,iflgrej, iflgpas,iflgblk
  

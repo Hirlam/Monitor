@@ -41,28 +41,31 @@ MAXLAT=${MAXLAT-"not_set"}
 MINLON=${MINLON-"not_set"}
 MAXLON=${MAXLON-"not_set"}
 
+if [ "$MINLAT" = "not_set" -o "$MAXLAT" = "not_set" -o "$MINLON" = "not_set" -o "$MAXLON" = "not_set" ] ; then
+ FILES=""
+ for FILE in synop_z ship_z dribu_z temp_t temp_u temp_v temp_q airep_t airep_u airep_v pilot_u pilot_v; do
+   [[ -s $FILE.dat ]] && FILES="$FILES $FILE.dat"
+ done
+ # Find map corners
+ MINLAT=$( cat ${FILES} | perl -pe 's/( ){1,}/ /g' | cut -d " " -f 2 | sort -n | head -1 )
+
+ if [ ! "$MINLAT" ] ; then
+   MINLAT=-90.
+   MAXLAT=90.
+   MINLON=-180.
+   MAXLON=180.
+ else
+   MAXLAT=$( cat ${FILES} | perl -pe 's/( ){1,}/ /g' | cut -d " " -f 2 | sort -n | tail -1 )
+   MINLON=$( cat ${FILES} | perl -pe 's/( ){1,}/ /g' | cut -d " " -f 3 | sort -n | head -1 )
+   MAXLON=$( cat ${FILES} | perl -pe 's/( ){1,}/ /g' | cut -d " " -f 3 | sort -n | tail -1 )
+ fi
+
+fi
+
 set -x
 for FILE in synop_z ship_z dribu_z temp_t temp_u temp_v temp_q airep_t airep_u airep_v pilot_u pilot_v; do
 
   if [ -s ${FILE}.dat ]; then 
-
-   if [ "$MINLAT" = "not_set" -o "$MAXLAT" = "not_set" -o "$MINLON" = "not_set" -o "$MAXLON" = "not_set" ] ; then
-
-     # Find map corners
-     MINLAT=$( cat ${FILE}.dat | sort -n | head -1  | cut -c2-10 )
-
-     if [ ! "$MINLAT" ] ; then
-       MINLAT=-90.
-       MAXLAT=90.
-       MINLON=-180.
-       MAXLON=180.
-     else
-       MAXLAT=$( cat ${FILE}.dat | sort -n -k 1 | tail -1  | cut -f 2 -d " " )
-       MINLON=$( cat ${FILE}.dat | sort -n -k 2 | head -1  | cut -f 3 -d " " )
-       MAXLON=$( cat ${FILE}.dat | sort -n -k 2 | tail -1  | cut -f 3 -d " " )
-     fi
-
-    fi
 
     rm -f passive active rejecte blacklisted || true
  
@@ -107,8 +110,7 @@ if(qcfl==1)print lon,lat
 set terminal png
 set out "map_${FILE}_${DATE}${TIME}.png"
 set pointsize 0.1
-set xtics -120,40
-set mxtics 8
+set mxtics 2
 set mytics 2
 set title "${FILE} ${DATE} ${TIME} UTC"
 
