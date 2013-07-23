@@ -1,11 +1,14 @@
 SUBROUTINE my_choices
 
 USE data, ONLY : data_to_verify,data_source,    &
-                 sdate,edate_obs,obint,maxtim,  &
-                 varlist,nparver
+                 sdate,edate,edate_obs,obint,   &
+                 maxtim,  &
+                 varlist,nparver,fcint
 USE functions, ONLY : get_maxtim
 
 IMPLICIT NONE
+
+INTEGER :: maxtim_obs,maxtim_mod
 
 !---------------------------------------
 
@@ -31,7 +34,12 @@ IMPLICIT NONE
 
     CASE('vfld','VFLD')
    
-       IF (maxtim == 0) maxtim=get_maxtim(sdate,edate_obs,obint)
+       IF (maxtim == 0) THEN
+            IF ( edate_obs == 0 ) edate_obs = edate
+            maxtim_obs=get_maxtim(sdate,edate_obs,obint)
+            maxtim_mod=get_maxtim(sdate,edate,fcint)
+            maxtim = MAX(maxtim_obs,maxtim_mod)
+       ENDIF
 
        !
        ! If we apply height adjustment we need to read the observations first
@@ -50,7 +58,13 @@ IMPLICIT NONE
    
     CASE('vfld_temp','VFLD_TEMP')
    
-       IF (maxtim == 0) maxtim=get_maxtim(sdate,edate_obs,obint)
+       IF (maxtim == 0) THEN
+            IF ( edate_obs == 0 ) edate_obs = edate
+            maxtim_obs=get_maxtim(sdate,edate_obs,obint)
+            maxtim_mod=get_maxtim(sdate,edate,fcint)
+            maxtim = MAX(maxtim_obs,maxtim_mod)
+       ENDIF
+
        CALL read_vfld_temp
        CALL read_vobs_temp
    

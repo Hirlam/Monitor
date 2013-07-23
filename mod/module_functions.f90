@@ -22,6 +22,11 @@ REAL FUNCTION tics(xmin,xmax)
 
  !------------------------------------------
 
+  IF ( ABS(xmax-xmin) < TINY(xmin)) THEN
+   tics = 1.0
+   RETURN
+  ENDIF
+
   magn_diff=ABS(xmax-xmin)
   magn=FLOOR(LOG10(magn_diff))
   magn_diff = NINT(magn_diff /10.**magn)
@@ -57,14 +62,14 @@ END FUNCTION get_maxmon
 !-----------------------------------------------
 !-----------------------------------------------
 !-----------------------------------------------
-INTEGER FUNCTION get_maxtim(sdate,edate,int)
+INTEGER FUNCTION get_maxtim(sdate,edate,fcint)
 
  ! Estimate data array length based on startdate, enddate
  ! and interval in hours
 
  IMPLICIT NONE
 
- INTEGER :: sdate,edate,int
+ INTEGER :: sdate,edate,fcint
 
  INTEGER :: ydiff,mdiff,ddiff
 
@@ -73,11 +78,11 @@ INTEGER FUNCTION get_maxtim(sdate,edate,int)
  ddiff = MOD(edate,100) - MOD(sdate,100)
 
  
- get_maxtim = ydiff * 12 * 31 * 24 / int +  &
-              mdiff      * 31 * 24 / int +  &
-             (ddiff + 2)      * 24 / int 
+ get_maxtim = ydiff * 12 * 31 * 24 / fcint +  &
+              mdiff      * 31 * 24 / fcint +  &
+             (ddiff + 2)      * 24 / fcint 
 
-             !WRITE(6,*)sdate,edate,ydiff,mdiff,ddiff,get_maxtim
+ !WRITE(6,*)sdate,edate,fcint,ydiff,mdiff,ddiff,get_maxtim
 
 END FUNCTION get_maxtim
 !-----------------------------------------------
