@@ -308,7 +308,8 @@ sub plot_command {
     foreach (@col_def) {
         $i++;
         if ( $i gt 0 ) { $plot = "$plot,"; }
-        $plot = $plot . " '$input_file' using 1:" . $col_def[$i]{COLUMN};
+        $column = 1 * $col_def[$i]{COLUMN} ;
+        $plot = $plot . " '$input_file' using 1:" . $column ;
         if ( $col_def[$i]{LEGEND} =~ /CASES/ ) {
           $plot = $plot . " axes x1y2 title '$col_def[$i]{LEGEND}' with linespoints lt 0 lw $lw ";
         } else {

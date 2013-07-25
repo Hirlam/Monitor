@@ -35,31 +35,34 @@ SUBROUTINE scorediffs(exp1,exp2,nfclen,par,     &
       confid = confide/100.0
 
   ncases(:) = 0
+  diff(:,:) = 0
   DO j=1,nfclen
 
-      l = 0
-      DO i=istart,iend
-        IF ( all_sign_stat(i)%n(1,j,par) == 0 ) CYCLE 
-        l = l + 1
-        x(l) = SQRT( all_sign_stat(i)%r(exp1,j,par) /  &
-                       all_sign_stat(i)%n(1,j,par) )
-        y(l) = SQRT( all_sign_stat(i)%r(exp2,j,par) /  &
-                       all_sign_stat(i)%n(1,j,par) )
-      ENDDO 
+     l = 0
+     DO i=istart,iend
+       IF ( all_sign_stat(i)%n(1,j,par) == 0 ) CYCLE 
+       l = l + 1
+       x(l) = SQRT( all_sign_stat(i)%r(exp1,j,par) /  &
+                      all_sign_stat(i)%n(1,j,par) )
+       y(l) = SQRT( all_sign_stat(i)%r(exp2,j,par) /  &
+                      all_sign_stat(i)%n(1,j,par) )
+     ENDDO 
 
-      ncases(j) = l
+     ncases(j) = l
+
+     IF ( l == 0 ) CYCLE
 
 !--- transform correlations to something more Gaussian
 
-      if (lztrans) then
-        x(1:l) = 0.5*log( (1.-0.01*x(1:l))/(1.+0.01*x(1:l)) )
-        y(1:l) = 0.5*log( (1.-0.01*y(1:l))/(1.+0.01*y(1:l)) )
-      endif
+     if (lztrans) then
+       x(1:l) = 0.5*log( (1.-0.01*x(1:l))/(1.+0.01*x(1:l)) )
+       y(1:l) = 0.5*log( (1.-0.01*y(1:l))/(1.+0.01*y(1:l)) )
+     endif
 
 !--- calculate the value of t corresponding to the confidence interval
 !--- using bisection.
 
-       tcrit= t4_confid(confid,l-1) 
+     tcrit= t4_confid(confid,l-1) 
 
 !--- calculate differences
 
@@ -76,22 +79,22 @@ SUBROUTINE scorediffs(exp1,exp2,nfclen,par,     &
      avs =0.5*avs/l
      avd =avd/l
 
-!---- normalize
+!--- normalize
 
-      if (lnorm) then
-          d(1:l,j)  = d(1:l,j)/avs
-          avd = avd/avs
-      endif
+     if (lnorm) then
+        d(1:l,j)  = d(1:l,j)/avs
+        avd = avd/avs
+     endif
 
 !--- auto-correlation-corrected standard deviation of mean
 
-      call stats (d(1:l,j),avd,l,sigmean)
+     call stats (d(1:l,j),avd,l,sigmean)
 
 !--- confidence interval is between avd-dy and avd+dy
 
-      dy = sigmean*tcrit
+     dy = sigmean*tcrit
 
-      diff(j,:) = (/avd,dy/)
+     diff(j,:) = (/avd,dy/)
 
    ENDDO
 
@@ -120,6 +123,11 @@ SUBROUTINE stats (d,avd,nsc,sigmean)
        var = var + (d(i)-avd)*(d(i)-avd)
       enddo
       var = var/nsc
+
+      if ( var < tiny(var) ) then
+        sigmean = 0.
+        return
+      endif
 
 !--- Sample lag-one auto-covariance
 
@@ -170,21 +178,23 @@ END SUBROUTINE stats
       if( ndf.le.0 ) then
          write(6,*)ndf,' degrees of freedom!!'
          write(6,*)' student t not defined'
+         t4_confid = 0.
          return
       end if
       cf_wish = 1.0 - 0.5*(1.0-conf_level)
+      cf_out  = cf_wish * 2
       xmin = 0.1
       xmax = 100.0
       niter=0
       do while (abs(cf_wish-cf_out).gt.0.000001.and.niter.lt.1000)
-      niter=niter+1
-      x = 0.5*(xmin+xmax)
-      cf_out =  probst(x,ndf,error)
-      if( cf_out.lt.cf_wish ) then
-      xmin = x
-      else
-      xmax = x
-      end if
+        niter=niter+1
+        x = 0.5*(xmin+xmax)
+        cf_out =  probst(x,ndf,error)
+        if( cf_out.lt.cf_wish ) then
+          xmin = x
+        else
+          xmax = x
+        end if
       end do
       t4_confid=x
       write(6,*)'conf_level ndf t4_confid=',conf_level,ndf,t4_confid
