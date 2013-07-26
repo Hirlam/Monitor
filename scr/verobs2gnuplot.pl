@@ -419,7 +419,8 @@ EOF
     foreach (@col_def) {
         $i++;
         if ( $i gt 0 ) { $plot = "$plot,"; }
-        $plot = $plot . " '$input_file' using " . $col_def[$i]{COLUMN} . ":1";
+		$column = 1 * $col_def[$i]{COLUMN} ;
+        $plot = $plot . " '$input_file' using " . $column . ":1";
         if ( $col_def[$i]{LEGEND} =~ /CASES/ ) {
           $plot = $plot . " title '$col_def[$i]{LEGEND}' with linespoints lt 0 lw $lw axis x2y1 ";
         } else {
