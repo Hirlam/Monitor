@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Script to make all softlinks real files
 # This is due to a bug in the firefox file protocol
 #
