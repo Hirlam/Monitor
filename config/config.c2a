@@ -10,7 +10,7 @@ CC      := xlc
 CCFLAGS := -O2 -xP -g  $(MACHINECPP) 
 
 # Fortran
-FC    := xlf90
+FC    := xlf95_r
 FREE  := -qfree=f90 -qsuffix=f=f90 -qsuffix=cpp=F90
 FIXED := -qfixed
 
@@ -21,8 +21,8 @@ MODNAME = $(shell echo $(*F) | tr "[:upper:]" "[:lower:]")
 MODEXT := mod
 
 # Link
-LD          := xlf
-LDFLAGS     := -g -bnoquiet -lxlf90
+LD          := xlf95_r
+LDFLAGS     := -g
 
 # AR
 AR      := ar
