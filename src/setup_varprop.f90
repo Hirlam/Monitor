@@ -74,7 +74,7 @@ SUBROUTINE setup_varprop
  DO i=1,nparver
   v => varprop(i)
   SELECT CASE(varprop(i)%id)
-  CASE('TT')
+  CASE('TT','TTHA')
     varprop(i) = variable(v%lev,0,50.,400.,-200.,v%id,'Temperature','deg C')
   CASE('FF')
     varprop(i) = variable(v%lev,0,50.,200.,0.,v%id,'Wind speed','m/s')

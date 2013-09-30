@@ -424,7 +424,7 @@ SUBROUTINE quality_control
  IF ( estimate_qc_limit ) THEN
 
     WRITE(lunqc,*)
-    WRITE(lunqc,*)' Qualtiy control limits (QC_LIM_SCALE STDV QC_LIM) '
+    WRITE(lunqc,*)' Qualtiy control limits (QC_LIM_SCALE,STDV,QC_LIM) '
     WRITE(lunqc,*)
 
     DO k=1,nparver
