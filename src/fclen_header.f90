@@ -9,7 +9,7 @@ SUBROUTINE fclen_header(lfclen,nuf,uh,uf,ai,txt)
  
  ! Local
 
- INTEGER :: i,ii,j
+ INTEGER :: i,ii,j,uhl(1:24)
 
  INTEGER, ALLOCATABLE :: fclen(:)
 
@@ -24,8 +24,12 @@ SUBROUTINE fclen_header(lfclen,nuf,uh,uf,ai,txt)
  
  lfirst = .TRUE.
 
+ !
+ ! Write initial hours used
+ !
  whour = '{'
  j = 0
+ uhl = -1
  DO i=0,23 
     IF (uh(i)) THEN
        WRITE(wh,'(I2.2)')i
@@ -37,11 +41,16 @@ SUBROUTINE fclen_header(lfclen,nuf,uh,uf,ai,txt)
        ENDIF
 
        j = j + 1
+       uhl(j) = i
 
     ENDIF
  ENDDO
  whour = TRIM(whour)//'}'
 
+ IF ( j == 8               .AND.  &
+      uhl(2)-uhl(1) == 3   .AND.  &
+      uhl(8) == 21 )              &
+     whour = '{00,03,...,21}'
  IF ( j > 8 ) whour = '{All hours}'
 
  IF ( lfclen ) THEN
@@ -62,11 +71,20 @@ SUBROUTINE fclen_header(lfclen,nuf,uh,uf,ai,txt)
     ENDIF
     txt =''
     IF (ii > 8 ) THEN
-       wname='(2I4.3,A5,I3.3)'
+       IF ( ANY(fclen(1:ii) > 99) ) THEN
+         wname='(2I4.3,A5,I3.3)'
+       ELSE
+         wname='(2I3.2,A5,I2.2)'
+       ENDIF
        WRITE(txt,wname)fclen(1:2),' ... ',fclen(ii)
     ELSE
        IF ( ai == 0 ) THEN
-          wname='(XX(1X,I3.2))'
+
+          IF ( ANY(fclen(1:ii) > 99) ) THEN
+            wname='(XX(1X,I3.3))'
+          ELSE
+            wname='(XX(1X,I2.2))'
+          ENDIF
           WRITE(wname(2:3),'(I2.2)')MAX(ii,1)
           WRITE(txt,wname)fclen(1:ii)
        ELSE
@@ -76,7 +94,11 @@ SUBROUTINE fclen_header(lfclen,nuf,uh,uf,ai,txt)
          
           txt =''
           DO i=1,ii
-             WRITE(txt5,'(I3.2,A1,I3.2)')fclen(i),'-',fclen(i)-ai
+             IF ( fclen(i) > 99 ) THEN
+               WRITE(txt5,'(I3.2,A1,I3.2)')fclen(i),'-',fclen(i)-ai
+             ELSE
+               WRITE(txt5,'(I2.2,A1,I2.2)')fclen(i),'-',fclen(i)-ai
+             ENDIF
              txt = TRIM(txt)//' '//txt5
           ENDDO
 

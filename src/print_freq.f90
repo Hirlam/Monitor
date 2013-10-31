@@ -1,4 +1,5 @@
-SUBROUTINE print_freq(lunout,nparver,nr,scat,p1,par_active,uh,uf)
+SUBROUTINE print_freq(lunout,nparver,nr,scat, &
+                      p1,p2,par_active,uh,uf)
 
  !
  ! Plot Frequency distribution
@@ -9,6 +10,7 @@ SUBROUTINE print_freq(lunout,nparver,nr,scat,p1,par_active,uh,uf)
  USE types
  USE functions
  USE timing
+ USE constants, ONLY : seasonal_name1,seasonal_name2
  USE data, ONLY : nexp,station_name,err_ind,csi,varprop, &
                   expname,                               &
                   lfcver,output_mode,                    &
@@ -25,7 +27,7 @@ SUBROUTINE print_freq(lunout,nparver,nr,scat,p1,par_active,uh,uf)
 
  ! Input
  INTEGER, INTENT(IN) :: lunout,nparver,nr,       &
-                        p1,par_active(nparver)
+                        p1,p2,par_active(nparver)
 
  TYPE(scatter_type), INTENT(IN) :: scat(nparver)
 
@@ -161,8 +163,26 @@ SUBROUTINE print_freq(lunout,nparver,nr,scat,p1,par_active,uh,uf)
     ENDIF
     WRITE(lunout,'(A,X,A)')'#HEADING_1',TRIM(wtext)
 
-    ! Line 2
-    WRITE(lunout,'(A,X,A)')'#HEADING_2',TRIM(varprop(j)%text)
+   ! Line 2
+    wtext = ''
+    IF (p1 == 0 ) THEN
+    ELSEIF(p1 < 13) THEN
+    
+       SELECT CASE(period_freq)
+       CASE(1)
+        WRITE(wtext,'(A8,A8)')'Period: ',seasonal_name2(p1)
+       CASE(3)
+        WRITE(wtext,'(A8,A8)')'Period: ',seasonal_name1(p1)
+       END SELECT
+    
+    ELSEIF(p1 < 999999 ) THEN
+       WRITE(wtext,'(A8,I8)')'Period: ',p1
+    ELSE
+       WRITE(wtext,'(A8,I8,A1,I8)')'Period: ',p1,'-',p2
+    ENDIF
+ 
+    wtext = TRIM(varprop(j)%text)//'  '//TRIM(wtext)
+    WRITE(lunout,'(A,X,A)')'#HEADING_2',TRIM(wtext)
 
     ! Line 3
     IF ( show_fc_length ) THEN

@@ -326,6 +326,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
        WRITE(wtext,'(A8,I8,A1,I8)')'Period: ',        &
        yymm,'-',yymm2
     ENDIF
+    wtext = TRIM(varprop(j)%text)//'   '//TRIM(wtext)
     WRITE(lunout,'(A,X,A)')'#HEADING_2',TRIM(wtext)
 
     ! Line 3
@@ -333,8 +334,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
 
        CALL fclen_header(( .NOT. lfcver .OR. ( nuse_fclen /= nfclengths )), &
                          maxfclenval,uh(j,:),uf(j,:),varprop(j)%acc,wtext1)
-       wtext = TRIM(varprop(j)%text)//'   '//TRIM(wtext1)
-       WRITE(lunout,'(A,X,A)')'#HEADING_3',TRIM(wtext)
+       WRITE(lunout,'(A,X,A)')'#HEADING_3',TRIM(wtext1)
 
     ENDIF
 

@@ -427,8 +427,10 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
     ENDIF
 
     ! Create headers
- 
     ! Line 1
+    WRITE(lunout,'(A,X,A)')'#HEADING_1',TRIM(varprop(j)%text)
+ 
+    ! Line 2
     IF(ALLOCATED(station_name).AND. stnr > 0 ) THEN
        wtext='Station: '//trim(station_name(csi))
     ELSE
@@ -441,23 +443,21 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
        wtext=TRIM(wname)//' stations'
        IF ( TRIM(tag) /= '#' ) wtext='Selection: '//TRIM(tag)//'  '//TRIM(wtext)
     ENDIF
-    WRITE(lunout,'(A,X,A)')'#HEADING_1',TRIM(wtext)
+    WRITE(lunout,'(A,X,A)')'#HEADING_2',TRIM(wtext)
 
-    ! Line 2
-    WRITE(lunout,'(A,X,A)')'#HEADING_2',TRIM(varprop(j)%text)
 
     ! Line 3
     IF ( show_fc_length ) THEN
 
        CALL fclen_header(.true.,maxfclenval,uh(j,:),uf(j,:),varprop(j)%acc,wtext)
 
+       WRITE(lunout,'(A,X,A)')'#HEADING_3',TRIM(wtext)
+
        IF ( ut /= 0 ) THEN
           wname = ' '
           WRITE(wname(1:3),'(I3)')ut
-          wtext = TRIM(wtext)//'  Window:'//TRIM(wname)//'h'
+          WRITE(lunout,'(A,X,A)')'#HEADING_4',' Averaging window:'//TRIM(wname)//'h'
        ENDIF
-
-       WRITE(lunout,'(A,X,A)')'#HEADING_3',TRIM(wtext)
 
     ENDIF
 

@@ -763,7 +763,7 @@ SUBROUTINE verify
          IF ( lprint_freq .AND. leach_station )              &
          CALL print_freq(lunout,nparver,obs(i)%stnr,         &
               scat_data(:,l),                                &
-              periods(l),par_active,                         &
+              periods(l),periods(l+1),par_active,            &
               used_hours(:,l,:),used_fclen(:,l,:))
 
          IF ( lprint_scat .AND. leach_station)                     &
@@ -896,7 +896,7 @@ SUBROUTINE verify
        IF ( lprint_freq )                        &
        CALL print_freq(lunout,nparver,0,         &
             all_scat_data(:,l),                  &
-            periods(l),par_active,               &
+            periods(l),periods(l+1),par_active,  &
             used_hours(:,l,:),used_fclen(:,l,:))
 
        IF ( lprint_scat)                             &
