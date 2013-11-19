@@ -244,7 +244,6 @@ SUBROUTINE read_vfld_temp
              hir(max_found_stat)%stnr   = istnr
              hir(max_found_stat)%lat    = lat
              hir(max_found_stat)%lon    = lon
-             hir(max_found_stat)%hgt    = hgt
 
            ENDIF
 
@@ -260,6 +259,9 @@ SUBROUTINE read_vfld_temp
           ENDIF
 
           stat_i = stations(istnr)
+
+          ! Store experiment specific station height
+          hir(stat_i)%hgtmod(l) = hgt
 
           !
           ! Station found! Allocate data array if 

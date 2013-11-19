@@ -20,7 +20,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
                   len_lab,period_freq,period_type,              &
                   output_type,output_mode,                      &
                   show_times,use_fclen,timdiff,time_shift,      &
-                  len_lab,err_ind
+                  len_lab,err_ind,cini_hours
 
 
  IMPLICIT NONE
@@ -153,11 +153,11 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
     rmse = SQRT(rmse/rnum)
 
     IF ( ntimver_out == 1 ) THEN
-          my_tag = TRIM(tag)//'_ALL'
+          my_tag = TRIM(tag)//TRIM(cini_hours)//'_ALL'
     ELSE
           chour = ' '
           WRITE(chour,'(I2.2)')hour(kk)
-          my_tag = TRIM(tag)//'_'//TRIM(chour)
+          my_tag = TRIM(tag)//TRIM(cini_hours)//'_'//TRIM(chour)
     ENDIF
 
     CALL make_fname(prefix,period,stnr,my_tag,    &

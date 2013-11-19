@@ -102,6 +102,7 @@ MODULE types
     INTEGER :: stnr,ntim,                    &
                nexp,nfclengths,nparver
     REAL    :: lat,lon,hgt
+    REAL, ALLOCATABLE :: hgtmod(:)
     LOGICAL :: active,obs_is_allocated
 
     INTEGER,            POINTER :: pos(:)

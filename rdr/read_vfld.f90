@@ -8,9 +8,14 @@ SUBROUTINE read_vfld
  ! Ulf Andrae, SMHI, 2004
  !
 
- USE data
- USE functions
- USE constants
+ USE data, only : hir,obs,varprop,exp_offset,fclen, &
+                  expname,modpath,stime,etime,  &
+                  stnlist,sdate,edate,nfclengths, &
+                  nexp,err_ind,print_read,maxstn, &
+                  fcint,lunin,nparver,qca,qclr,qcur, &
+                  allocate_mod
+
+ USE constants, only : gravit,tzero,tlapse
 
  IMPLICIT NONE
 
@@ -53,8 +58,8 @@ SUBROUTINE read_vfld
 !----------------------------------------------------------
 
  ! Init 
- stations       = 0
- max_found_stat = 0
+ stations         = 0
+ max_found_stat   = 0
  old_version_flag = -1
      version_flag = 0
  old_ninvar       = -1
@@ -274,7 +279,6 @@ SUBROUTINE read_vfld
                 hir(max_found_stat)%stnr   = istnr
                 hir(max_found_stat)%lat    = lat 
                 hir(max_found_stat)%lon    = lon 
-                hir(max_found_stat)%hgt    = hgt 
    
                 IF (max_found_stat > maxstn) THEN
                    WRITE(6,*)'Increase maxstn',max_found_stat
@@ -292,6 +296,9 @@ SUBROUTINE read_vfld
           ENDIF
 
           stat_i = stations(istnr)
+
+          ! Store experiment specific station height
+          hir(stat_i)%hgtmod(l)    = hgt 
 
           !
           ! Station found! Allocate data array if 
@@ -378,7 +385,7 @@ SUBROUTINE read_vfld
                     qca(hir(stat_i)%hgt,err_ind) .AND. &
                     qca(obs(stat_i)%hgt,err_ind) )     &
                hir(stat_i)%o(i)%nal(l,j,m) =           &
-               val(mm) - tzero + ((hir(stat_i)%hgt-obs(stat_i)%hgt)*tlapse)
+               val(mm) - tzero + ((hir(stat_i)%hgtmod(l)-obs(stat_i)%hgt)*tlapse)
             END SELECT
 
           ENDDO PARVER_LOOP
@@ -417,7 +424,7 @@ SUBROUTINE read_vfld
 
  RETURN
 
-END
+END SUBROUTINE read_vfld
 
 INTEGER function find_var(ninvar,invar,cvar)
 

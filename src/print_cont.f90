@@ -35,7 +35,8 @@ SUBROUTINE print_cont(p1,p2,nr,par_active,    &
 
        IF ( j /= cont_table(i)%ind ) CYCLE
 
-      CALL make_fname('c',period,0,tag,           &
+      cwrk = TRIM(tag)//TRIM(cini_hours)
+      CALL make_fname('c',period,0,cwrk,           &
                        varprop(j)%id,varprop(j)%lev, &
                        output_mode,2,             &
                        contfile)

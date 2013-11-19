@@ -27,7 +27,8 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
                       lunout,               &
                       station_name,csi,     &
                       maxfclenval,          &
-                      period_freq
+                      period_freq,          &
+                      cini_hours
 
  IMPLICIT NONE
 
@@ -333,14 +334,14 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
        EXP_LOOP : DO i=1,nexp_plot 
 
           IF ( ntimver_out == 1 ) THEN
-             my_tag = TRIM(tag)//'_ALL'
+             my_tag = TRIM(tag)//TRIM(cini_hours)//'_ALL'
           ELSE
              chour = ' '
              WRITE(chour,'(I2.2)')map_hour
-             my_tag = TRIM(tag)//'_'//TRIM(chour)
+             my_tag = TRIM(tag)//TRIM(cini_hours)//'_'//TRIM(chour)
           ENDIF
 
-          my_tag = TRIM(my_tag)//'_'//TRIM(expname(i))
+          my_tag = TRIM(my_tag)//TRIM(cini_hours)//'_'//TRIM(expname(i))
 
           CALL make_fname(prefix,period,stnr,     &
                my_tag,                            &

@@ -14,7 +14,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
                   show_bias,show_rmse,show_stdv,show_obs,       &
                   show_var,show_skw,                            &
                   copied_obs,copied_mod,period_freq,period_type,&
-                  output_type,lprint_seasonal,err_ind
+                  output_type,lprint_seasonal,err_ind,cini_hours
 
  IMPLICIT NONE
 
@@ -237,6 +237,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
           rnum(ntimver_l) = rnum(1)
            obs(ntimver_l) =  obs(1)
           bias(ntimver_l,:) = bias(1,:)
+          snum(ntimver_l) = snum(1)
 
           IF ( show_rmse .OR. show_stdv ) THEN
             rmse(ntimver_l,:) = rmse(1,:)
@@ -280,7 +281,9 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
     END SELECT
 
     IF ( output_mode == 2 ) THEN
-       CALL make_fname(prefix,period,stnr,tag,     &
+       wtext=TRIM(tag)//TRIM(cini_hours)
+       CALL make_fname(prefix,period,stnr,         &
+                       wtext,                      &
                        varprop(j)%id,              &
                        varprop(j)%lev,             &
                        output_mode,output_type,    &

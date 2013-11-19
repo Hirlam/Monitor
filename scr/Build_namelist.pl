@@ -57,7 +57,8 @@
  $nameread{'read_section'}{'MODPATH'}=$modpath ;
  $nameread{'read_section'}{'OBINT'}=$obint;
  $nameread{'read_section'}{'FCINT'}=$ENV{'FCINT_'.$type};
- $nameread{'read_section'}{'FCLEN'}=join(',',split(' ',$ENV{'FCLEN_'.$type}));
+ $nameread{'read_section'}{'FCLEN'}=join(',',split(' ',$ENV{'FCLEN_READ_'.$type})) or
+ $nameread{'read_section'}{'FCLEN'}=join(',',split(' ',$ENV{'FCLEN_'.$type})) ;
 
  #
  # Define variables
@@ -254,7 +255,7 @@
    if ( $selection_num gt 1 ) { $def{'def'}{'STNLIST_PLOT'} = '-1' } ;
 
    # Set default tag according to selection
-   $def{'def'}{'TAG'} = '\''.$selection.'_'.$ini_hour.'\'' ;
+   $def{'def'}{'TAG'} = '\''.$selection.'\'' ;
 
    #
    # Make sure STNLIST is defined only once and 

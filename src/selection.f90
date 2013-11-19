@@ -115,10 +115,11 @@ SUBROUTINE selection(flag)
    WRITE(6,*)'Station height selection'
    ii = 0
    DO i=1,maxstn
-      IF ( ( hir(i)%hgt > hgt_ulim .OR. hir(i)%hgt < hgt_llim) .AND. hir(i)%active) THEN
+      IF ( ( ANY(hir(i)%hgtmod > hgt_ulim) .OR.  &
+             ANY(hir(i)%hgtmod < hgt_llim)) .AND. hir(i)%active) THEN
          hir(i)%active = .FALSE.
       ELSEIF ( hir(i)%active) THEN
-        WRITE(6,*)hir(i)%stnr,hir(i)%hgt
+        WRITE(6,*)hir(i)%stnr,hir(i)%hgtmod
         ii = ii + 1
       ENDIF
    ENDDO

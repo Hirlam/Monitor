@@ -13,7 +13,8 @@ SUBROUTINE print_sign_test(lunout,nexp,nparver,         &
                   timdiff,time_shift,show_fc_length,            &
                   copied_obs,copied_mod,period_freq,period_type,&
                   output_type,lprint_seasonal,                  &
-                  control_exp_nr,sign_time_diff,err_ind,confint
+                  control_exp_nr,sign_time_diff,err_ind,confint,&
+                  cini_hours
 
  IMPLICIT NONE
 
@@ -90,7 +91,8 @@ SUBROUTINE print_sign_test(lunout,nexp,nparver,         &
 
       prefix = 'sign'
       wname  = TRIM(expname(control_exp_nr))//'_'//TRIM(expname(i))
-      IF ( TRIM(tag) /= '#' ) wname  = TRIM(tag)//'_'//TRIM(wname)
+      IF ( TRIM(tag) /= '#' ) &
+      wname  = TRIM(tag)//TRIM(cini_hours)//'_'//TRIM(wname)
 
       IF ( output_mode == 2 ) THEN
          CALL make_fname(prefix,period,stnr,wname,   &

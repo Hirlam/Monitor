@@ -16,7 +16,7 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
                   mparver,corr_pairs,flag_pairs,exp_pairs,       &
                   period_freq,maxfclenval,                       &
                   scat_min,scat_max,scat_magn,len_lab,           &
-                  lscat_yave
+                  lscat_yave,cini_hours
  USE functions
 
  IMPLICIT NONE
@@ -349,14 +349,15 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
       ! Set filename
       i = lcorr_pairs(j,2)
 
-      my_tag = TRIM(tag)//'_'//TRIM(expname(jj))
+      my_tag = TRIM(tag)//TRIM(cini_hours)//'_'//TRIM(expname(jj))
       IF( full_scatter ) THEN
         CALL make_fname(prefix,period,nr,my_tag,       &
                         varprop(i)%id,varprop(i)%lev,  &
                         output_mode,output_type,fname)
       ELSE
         WRITE(cnum(1:2),'(I2.2)')j
-        CALL make_fname(prefix,period,nr,tag,     &
+        my_tag = TRIM(tag)//TRIM(cini_hours)
+        CALL make_fname(prefix,period,nr,my_tag,     &
                        cnum(1:2),0,               &
                        output_mode,output_type,fname)
       ENDIF

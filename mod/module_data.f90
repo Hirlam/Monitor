@@ -99,6 +99,7 @@ MODULE data
  CHARACTER(LEN=99) :: statname='statistics.html'! Name of output statistics file
  CHARACTER(LEN=50) :: name='Unknown'            ! Station name
  CHARACTER(LEN=50) :: tag='#'                   ! Tag on plot
+ CHARACTER(LEN=50) :: cini_hours=''             ! String for ini hours in file name
  CHARACTER(LEN=99) :: obspath        ='../'     ! Path to observation data
  CHARACTER(LEN=299) :: modpath(maxexp)='../'     ! Path to model data
 
@@ -470,8 +471,10 @@ END FUNCTION qclr
  !
 
  DO k = 1,maxstn
-    ALLOCATE(hir(k)%o(maxtim))
+    ALLOCATE(hir(k)%o(maxtim),&
+             hir(k)%hgtmod(nexp))
     NULLIFY(hir(k)%pos)
+    hir(k)%hgtmod = err_ind
  ENDDO
    
  hir%ntim       = 0
@@ -479,11 +482,8 @@ END FUNCTION qclr
  hir%nexp       = nexp
  hir%nparver    = nparver
  hir%nfclengths = nfclengths
- 
  hir%lat        = err_ind
  hir%lon        = err_ind
- hir%hgt        = err_ind
-
  hir%active     = .FALSE.
 
  hir%obs_is_allocated = .TRUE.

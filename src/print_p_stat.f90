@@ -41,7 +41,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
                   show_rmse,show_stdv,show_bias,show_obs,&
                   show_var,show_skw,                     &
                   ltemp,lev_lst,window_pos,output_type,  &
-                  output_mode,len_lab
+                  output_mode,len_lab,cini_hours
 
  USE functions
 
@@ -162,7 +162,8 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
  NPAR_LOOP : DO j=1,npar
 
     IF ( output_mode == 2 ) THEN
-       CALL make_fname(prefix,period1,stnr,tag,   &
+       wtext = TRIM(tag)//TRIM(cini_hours)
+       CALL make_fname(prefix,period1,stnr,wtext, &
                        varprop(j)%id,             &
                        varprop(j)%lev,            &
                        output_mode,output_type,   &

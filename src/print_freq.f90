@@ -19,7 +19,8 @@ SUBROUTINE print_freq(lunout,nparver,nr,scat, &
                   ncla,classtype,pre_fcla,               &
                   mincla,maxcla,my_ymax,my_ymin,         &
                   mpre_cla,copied_mod,copied_obs,        &
-                  period_freq,output_type,len_lab
+                  period_freq,output_type,len_lab,       &
+                  cini_hours
 
  IMPLICIT NONE
 
@@ -74,9 +75,10 @@ SUBROUTINE print_freq(lunout,nparver,nr,scat, &
  DO j=1,nparver
 
     IF ( output_mode == 2 ) THEN
-       CALL make_fname('f',period,nr,tag,          &
+       wtext = TRIM(tag)//TRIM(cini_hours)
+       CALL make_fname('f',period,nr,wtext,         &
                        varprop(j)%id,varprop(j)%lev,&
-                       output_mode,output_type,    &
+                       output_mode,output_type,     &
                        fname)
        CALL open_output(fname)
     ENDIF

@@ -11,6 +11,7 @@ SUBROUTINE check_namelist
  IMPLICIT NONE
 
  INTEGER :: i,j,ctime
+ CHARACTER(LEN=2) :: ci = ''
 
  !---------------------------------------------
 
@@ -170,16 +171,21 @@ SUBROUTINE check_namelist
        i=i+1
        IF ( ((i-1) * fcint) == 24 ) EXIT
     ENDDO
-    WRITE(6,*)'  Changed NINI_HOURS to',nini_hours
-    WRITE(6,*)'  Changed INI_HOURS to' , ini_hours(1:nini_hours)
+    cini_hours = '_ALL'
  ELSE
     nini_hours = 0
+    cini_hours = ''
     DO i=1,24
-       IF( ini_hours(i) /= -1 ) nini_hours = nini_hours + 1
+       IF( ini_hours(i) /= -1 ) THEN
+          nini_hours = nini_hours + 1
+          WRITE(ci,'(I2.2)')i
+          cini_hours = TRIM(cini_hours)//'_'//ci
+       ENDIF 
     ENDDO
-    WRITE(6,*)'  Changed NINI_HOURS to',nini_hours
-    WRITE(6,*)'  Changed INI_HOURS to' , ini_hours(1:nini_hours)
  ENDIF
+ WRITE(6,*)'  Changed NINI_HOURS to',nini_hours
+ WRITE(6,*)'  Changed INI_HOURS to' , ini_hours(1:nini_hours)
+ WRITE(6,*)'  Changed CINI_HOURS to' , TRIM(cini_hours)
 
  
  ! Check date 

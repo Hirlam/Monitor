@@ -126,7 +126,10 @@ FCINT_SURF=06
 # List of initial times, use ALL or specific times
 SURFINI_HOURS="ALL"
 
-# Forecast lengths used for verification
+# Forecast lengths to read from vfld files
+FCLEN_SURF_READ="00 06 12 18 24 30 36 42 48"
+
+# Forecast lengths used for GEN verification
 FCLEN_SURF="00 06 12 18 24 30 36 42 48"
 
 # Forecast lengths used in daily variation calculations
