@@ -202,22 +202,8 @@ MODULE data
                                         ! At the same time
  LOGICAL :: use_pos  = .FALSE.          ! CALL verify_pos
 
- ! Parameters for bias_map
- REAL    :: map_scale                 = 2.0e7    ! Map scale
- REAL    :: MAP_VERTICAL_LONGITUDE    = 0.0
- REAL    :: MAP_CENTRE_LATITUDE       = 55.      ! Map centre lat
- REAL    :: MAP_CENTRE_LONGITUDE      = 25.      ! Map centre lon
- REAL    :: MAP_LOWER_LEFT_LATITUDE   = 40.
- REAL    :: MAP_LOWER_LEFT_LONGITUDE  = 10.
- REAL    :: MAP_UPPER_RIGHT_LATITUDE  = 70.
- REAL    :: MAP_UPPER_RIGHT_LONGITUDE = 50.
 
- ! POLAR_STEREOGRAPHIC and MERCATOR is tested
- CHARACTER(LEN=50) :: MAP_PROJECTION      = 'POLAR_STEREOGRAPHIC'
-
- ! Use CENTRE or CORNER
- CHARACTER(LEN=50) :: MAP_AREA_DEFINITION = 'CENTRE'
-
+ ! Parameters for maps
  LOGICAL :: plot_bias_map          = .FALSE.  ! Plot map with bias
  LOGICAL :: plot_rmse_map          = .FALSE.  ! Plot map with rmse
  LOGICAL :: plot_stdv_map          = .FALSE.  ! Plot map with stdv
@@ -230,7 +216,6 @@ MODULE data
  REAL    :: map_bias_interval(max_map_interval,mparver)= -1.      ! Set your own bias interval
  REAL    :: map_rmse_interval(max_map_interval,mparver)= -1.      ! Set your own rmse interval
  REAL    :: map_stdv_interval(max_map_interval,mparver)= -1.      ! Set your own rmse interval
- INTEGER :: map_type                    =  0       ! 0 plots symbols, 1 plots numbers
 
 
  ! What to plot on verification plots
@@ -339,22 +324,12 @@ MODULE data
                  print_bias_map,                        &
                  print_rmse_map,                        &
                  print_stdv_map,                        &
-                 map_scale,                             &
                  plot_obs_map,                          &
                  print_obs_map,                         &
                  map_obs_interval,                      &
                  map_rmse_interval,                     &
                  map_stdv_interval,                     &
-                 map_bias_interval,map_type,            &
-                 MAP_VERTICAL_LONGITUDE,                &
-                 MAP_CENTRE_LATITUDE,                   &
-                 MAP_CENTRE_LONGITUDE,                  &
-                 MAP_LOWER_LEFT_LATITUDE,               &
-                 MAP_LOWER_LEFT_LONGITUDE,              &
-                 MAP_UPPER_RIGHT_LATITUDE,              &
-                 MAP_UPPER_RIGHT_LONGITUDE,             &
-                 MAP_PROJECTION,                        &
-                 MAP_AREA_DEFINITION,                   &
+                 map_bias_interval,                     &
                  lprint_selection,                      &
                  lprint_summary,                        &
                  lprint_read,print_read,                &

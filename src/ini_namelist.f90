@@ -39,9 +39,6 @@ SUBROUTINE ini_namelist
  cont_ind     = 0
  cont_param   = 0
 
- ! Map projection
- map_vertical_longitude = 0.
-
  ! Selection
  reverse_selection = .FALSE.
 

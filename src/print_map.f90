@@ -15,8 +15,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
                       stat,                 &
                       varprop,expname,      &
                       show_fc_length,ldiff, &
-                      ntimver,map_scale,    &
-                      nparver,              &
+                      ntimver,nparver,      &
                       used_hours,used_fclen,&
                       timdiff,time_shift,   &
                       map_stdv_interval,    &

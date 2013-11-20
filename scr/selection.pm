@@ -111,11 +111,6 @@
    'CBOX%WLON' => '20.',
    'CBOX%NLAT' => '60.',
    'CBOX%ELON' => '30.',
-   'MAP_SCALE'=>7.0e6,
-   'MAP_CENTRE_LATITUDE'=>57.5,
-   'MAP_CENTRE_LONGITUDE'=>25.,
-   'MAP_PROJECTION'=> '\'POLAR_STEREOGRAPHIC\'',
-   'MAP_AREA_DEFINITION '=> '\'CENTRE\'',
    },
   'Greenland' => {
    'STNLIST'=> '4208,4214,4220,4242,4250,4253,4260,4266,4272,4285,4320,4351,4373',
@@ -133,11 +128,6 @@
    'CBOX%WLON' => '-25.',
    'CBOX%NLAT' => '67.',
    'CBOX%ELON' => '-12.',
-   'MAP_SCALE'=>7.5e6,
-   'MAP_CENTRE_LATITUDE'=>65.,
-   'MAP_CENTRE_LONGITUDE'=>-18.,
-   'MAP_PROJECTION'=> '\'POLAR_STEREOGRAPHIC\'',
-   'MAP_AREA_DEFINITION '=> '\'CENTRE\'',
    },
   'Netherland' => {
    'CBOX%ACTIVE' => 'T',
