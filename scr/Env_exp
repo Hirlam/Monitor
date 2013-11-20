@@ -62,6 +62,7 @@ STNLIST_PLOT_TXT=-1
 # TN : Min T2m
 # TX : Max T2m
 # TD : Td2m
+# TDD : Td2m deficit ( TT - TD )
 # FF : Wind speed
 # FX : Max wind speed
 # GG : Wind gust

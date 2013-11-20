@@ -60,6 +60,16 @@
    'MAP_BIAS_INTERVAL'=> '-6.,-4.,-2.,0.,2.,4.,6.',
  },
 
+ 'TDD'=>{
+   'TEXT'              => 'Td2m deficit',
+   'TEXT_TEMP'         => 'Dew point deficit' ,
+   'MAP_BIAS_INTERVAL' => '-6.,-4.,-2.,0.,2.,4.,6.',
+   'UNIT'              => 'deg C',
+   'LIM'               => '50.',
+   'ULIM'              => '400.',
+   'LLIM'              => '-200.',
+ },
+
  'FI'=>{
    'TEXT_TEMP'        => 'Geopotential',
  },

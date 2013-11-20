@@ -21,7 +21,7 @@ SUBROUTINE read_vfld
 
  REAL, PARAMETER :: mflag = -99.
 
- INTEGER :: i,ii,j,k,l,ll,m,mm,n,       &
+ INTEGER :: i,ii,j,k,l,ll,m,mm,n,m2,    &
             ierr = 0,                   &
             cdate = 999999,             &
             ctime = 999999,             &
@@ -357,7 +357,7 @@ SUBROUTINE read_vfld
                 sca = 1.0
                 SELECT CASE(invar(n))
  
-                CASE('TT','TN','TX')
+                CASE('TT','TN','TX','TD')
                    sub = tzero
                 CASE('QQ')
                    sca = 1.e3
@@ -386,6 +386,16 @@ SUBROUTINE read_vfld
                     qca(obs(stat_i)%hgt,err_ind) )     &
                hir(stat_i)%o(i)%nal(l,j,m) =           &
                val(mm) - tzero + ((hir(stat_i)%hgtmod(l)-obs(stat_i)%hgt)*tlapse)
+              CASE('TDD')
+               mm=find_var(ninvar,invar,varprop(m)%id(1:2))
+               m2=find_var(ninvar,invar,'TT')
+               ! CALC hgt adjustment
+               IF ( qclr(val(mm),varprop(m)%llim) .AND. &
+                    qcur(val(mm),varprop(m)%ulim) .AND. &
+                    qclr(val(m2),varprop(m)%llim) .AND. &
+                    qcur(val(m2),varprop(m)%ulim) )     &
+                 hir(stat_i)%o(i)%nal(l,j,m) =          &
+                 val(m2) - val(mm)
             END SELECT
 
           ENDDO PARVER_LOOP
