@@ -341,7 +341,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
              my_tag = TRIM(tag)//TRIM(cini_hours)//'_'//TRIM(chour)
           ENDIF
 
-          my_tag = TRIM(my_tag)//TRIM(cini_hours)//'_'//TRIM(expname(i))
+          my_tag = TRIM(my_tag)//'_'//TRIM(expname(i))
 
           CALL make_fname(prefix,period,stnr,     &
                my_tag,                            &

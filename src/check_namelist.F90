@@ -178,7 +178,7 @@ SUBROUTINE check_namelist
     DO i=1,24
        IF( ini_hours(i) /= -1 ) THEN
           nini_hours = nini_hours + 1
-          WRITE(ci,'(I2.2)')i
+          WRITE(ci,'(I2.2)')ini_hours(i)
           cini_hours = TRIM(cini_hours)//'_'//ci
        ENDIF 
     ENDDO
