@@ -371,8 +371,20 @@ SUBROUTINE read_vfld
               ENDIF
             ENDDO INVAR_LOOP
 
-            ! Static pseudo variables
-            SELECT CASE(TRIM(varprop(m)%id))
+            mm=find_var(ninvar,invar,varprop(m)%id)
+            IF ( mm == 0 ) THEN
+
+             !
+             ! Set derived pseudo variables if not 
+             ! already in the input data
+             !
+
+             SELECT CASE(TRIM(varprop(m)%id))
+              CASE('PE1','PE3','PE6','PE12','PE24')
+               mm=find_var(ninvar,invar,'PE')
+               IF ( qclr(val(mm),varprop(m)%llim) .AND. &
+                    qcur(val(mm),varprop(m)%ulim) )     &
+               hir(stat_i)%o(i)%nal(l,j,m) = val(mm)
               CASE('LA')
                hir(stat_i)%o(i)%nal(l,j,m) = hir(stat_i)%lat
               CASE('HG')
@@ -396,7 +408,9 @@ SUBROUTINE read_vfld
                     qcur(val(m2),varprop(m)%ulim) )     &
                  hir(stat_i)%o(i)%nal(l,j,m) =          &
                  val(m2) - val(mm)
-            END SELECT
+             END SELECT
+
+            ENDIF
 
           ENDDO PARVER_LOOP
 

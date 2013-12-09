@@ -106,7 +106,7 @@
  },
 
  'PE'=>{
-   'TEXT'        => 'Precipitation',
+   'TEXT'        => '12h Precipitation',
    'CONT_CLASS'  => 7,
    'CONT_LIM'    =>'0.1,0.3,1.0,3.0,10.0,30.0,100.0',
    'PRE_FCLA'    =>'0.1,0.3,1.0,3.0,10.0,30.0,100.0',
@@ -114,6 +114,73 @@
    'TWIND_SURF'       => 00,
    'ACC'         => 12,
    'UNIT'         => 'mm/12h',
+   'LLIM'         => '0.',
+   'ULIM'         => '500.',
+ },
+
+ 'PE1'=>{
+   'TEXT'        => '1h Precipitation',
+   'CONT_CLASS'  => 7,
+   'CONT_LIM'    =>'0.1,0.3,1.0,3.0,10.0,30.0,100.0',
+   'PRE_FCLA'    =>'0.1,0.3,1.0,3.0,10.0,30.0,100.0',
+   'MAP_BIAS_INTERVAL'=> '-20.,-10.,-5.,0.,5.,10.,15.',
+   'TWIND_SURF'       => 00,
+   'ACC'         => 1,
+   'UNIT'         => 'mm/1h',
+   'LLIM'         => '0.',
+   'ULIM'         => '500.',
+ },
+
+ 'PE3'=>{
+   'TEXT'        => '3h Precipitation',
+   'CONT_CLASS'  => 7,
+   'CONT_LIM'    =>'0.1,0.3,1.0,3.0,10.0,30.0,100.0',
+   'PRE_FCLA'    =>'0.1,0.3,1.0,3.0,10.0,30.0,100.0',
+   'MAP_BIAS_INTERVAL'=> '-20.,-10.,-5.,0.,5.,10.,15.',
+   'TWIND_SURF'       => 00,
+   'ACC'         => 3,
+   'UNIT'         => 'mm/3h',
+   'LLIM'         => '0.',
+   'ULIM'         => '500.',
+ },
+
+ 'PE6'=>{
+   'TEXT'        => '6h Precipitation',
+   'CONT_CLASS'  => 7,
+   'CONT_LIM'    =>'0.1,0.3,1.0,3.0,10.0,30.0,100.0',
+   'PRE_FCLA'    =>'0.1,0.3,1.0,3.0,10.0,30.0,100.0',
+   'MAP_BIAS_INTERVAL'=> '-20.,-10.,-5.,0.,5.,10.,15.',
+   'TWIND_SURF'       => 00,
+   'ACC'         => 6,
+   'UNIT'         => 'mm/6h',
+   'LLIM'         => '0.',
+   'ULIM'         => '500.',
+ },
+
+ 'PE12'=>{
+   'TEXT'        => '12h Precipitation',
+   'CONT_CLASS'  => 7,
+   'CONT_LIM'    =>'0.1,0.3,1.0,3.0,10.0,30.0,100.0',
+   'PRE_FCLA'    =>'0.1,0.3,1.0,3.0,10.0,30.0,100.0',
+   'MAP_BIAS_INTERVAL'=> '-20.,-10.,-5.,0.,5.,10.,15.',
+   'TWIND_SURF'       => 00,
+   'ACC'         => 12,
+   'UNIT'         => 'mm/12h',
+   'LLIM'         => '0.',
+   'ULIM'         => '500.',
+ },
+
+ 'PE24'=>{
+   'TEXT'        => '24h Precipitation',
+   'CONT_CLASS'  => 7,
+   'CONT_LIM'    =>'0.1,0.3,1.0,3.0,10.0,30.0,100.0',
+   'PRE_FCLA'    =>'0.1,0.3,1.0,3.0,10.0,30.0,100.0',
+   'MAP_BIAS_INTERVAL'=> '-20.,-10.,-5.,0.,5.,10.,15.',
+   'TWIND_SURF'       => 00,
+   'ACC'         => 24,
+   'UNIT'         => 'mm/24h',
+   'LLIM'         => '0.',
+   'ULIM'         => '1000.',
  },
 
  'CH'=>{
@@ -127,18 +194,6 @@
    'UNIT'        => 'octas',
    'LLIM'        => 0.,
  }, 
-
- 'PE3'=>{
-   'TEXT'        => 'Precipitation 3h',
-   'CONT_CLASS'  => 7,
-   'CONT_LIM'    =>'0.1,0.3,1.0,3.0,10.0,30.0,100.0',
-   'PRE_FCLA'    =>'0.1,0.3,1.0,3.0,10.0,30.0,100.0',
-   'MAP_BIAS_INTERVAL'=> '-20.,-10.,-5.,0.,5.,10.,15.',
-   'TWIND_SURF'       => 00,
-   'ACC'          => 3,
-   'LLIM'         => '0.',
-   'UNIT'         => 'mm/3h',
- },
 
  'QQ'=>{
    'TEXT'        => 'Q2m',

@@ -70,7 +70,11 @@ STNLIST_PLOT_TXT=-1
 # DD : Wind direction
 # QQ : Specific humidity
 # RH : Relative humidity
-# PE : Precipitation
+# PE1 : Precipitation 1h
+# PE3 : Precipitation 3h
+# PE6 : Precipitation 6h
+# PE|PE12 : Precipitation 12h
+# PE24 : Precipitation 24h
 # NN : Total Cloud cover
 # VI : Visibility, not in vfld files yet
 #

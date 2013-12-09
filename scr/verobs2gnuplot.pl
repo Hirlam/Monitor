@@ -364,7 +364,7 @@ EOF
 
     print GP <<EOF;
 set xdata time
-set format x "%d/%m"
+set format x "%HZ %d/%m"
 EOF
 
     &plot_command ;
