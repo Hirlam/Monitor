@@ -161,19 +161,19 @@ SUBROUTINE read_vfld
        IF ( version_flag /= old_version_flag ) THEN
            SELECT CASE(version_flag)
            CASE(0)
-            IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val)
+             IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
              ninvar=8
-             ALLOCATE(invar(ninvar),val(ninvar))
+             ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
              invar = (/'NN','DD','FF','TT','RH','PS','PE','QQ'/)
            CASE(1)
-            IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val)
+             IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
              ninvar=10
-             ALLOCATE(invar(ninvar),val(ninvar))
+             ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
              invar = (/'NN','DD','FF','TT','RH','PS','PE','QQ','VI','TD'/)
           CASE(2,3)
-            IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val)
+             IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
              ninvar=15
-             ALLOCATE(invar(ninvar),val(ninvar))
+             ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
              invar = (/'NN','DD','FF','TT','RH', &
                        'PS','PE','QQ','VI','TD', &
                        'TX','TN','GG','GX','FX'/)
@@ -195,12 +195,13 @@ SUBROUTINE read_vfld
           IF ( ninvar /= old_ninvar ) THEN
             IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
             ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
-            old_ninvar = ninvar
           ENDIF
           DO i=1,ninvar
             READ(lunin,*,IOSTAT=ierr)invar(i),inacc(i)
           ENDDO
        END SELECT
+
+       old_ninvar = ninvar
 
        !
        ! Read, identify and store station data

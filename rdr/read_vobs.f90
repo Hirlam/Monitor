@@ -110,22 +110,24 @@ SUBROUTINE read_vobs
           CALL abort
        ENDIF
 
+       IF ( print_read > 1 ) WRITE(6,*)'FILE version',version_flag,old_version_flag
+
        IF ( version_flag /= old_version_flag ) THEN
          SELECT CASE(version_flag)
           CASE(0)
-            IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val)
+            IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
             ninvar=8
-            ALLOCATE(invar(ninvar),val(ninvar))
+            ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
             invar = (/'NN','DD','FF','TT','RH','PS','PE','QQ'/)
           CASE(1)
-            IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val)
+            IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
             ninvar=10
-            ALLOCATE(invar(ninvar),val(ninvar))
+            ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
             invar = (/'NN','DD','FF','TT','RH','PS','PE','QQ','VI','TD'/)
           CASE(2,3)
-            IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val)
+            IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
             ninvar=15
-            ALLOCATE(invar(ninvar),val(ninvar))
+            ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
             invar = (/'NN','DD','FF','TT','RH', &
                       'PS','PE','QQ','VI','TD', &
                       'TX','TN','GG','GX','FX'/)
@@ -147,12 +149,12 @@ SUBROUTINE read_vobs
           IF ( ninvar /= old_ninvar ) THEN
             IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
             ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
-            old_ninvar = ninvar
           ENDIF
           DO i=1,ninvar
             READ(lunin,*)invar(i),inacc(i)
           ENDDO
        END SELECT
+       old_ninvar = ninvar
 
        !
        ! Read, identify and store station data
@@ -173,8 +175,7 @@ SUBROUTINE read_vobs
              CALL abort
           END SELECT
 
-          IF (ierr  /= 0) CYCLE READ_STATION_OBS
-          IF (istnr == 0) CYCLE READ_STATION_OBS
+          IF (ierr  /= 0 .OR. istnr == 0 ) CYCLE READ_STATION_OBS
 
           !
           ! Find station index
@@ -297,7 +298,7 @@ SUBROUTINE read_vobs
 
           ENDDO PARVER_LOOP
 
-          IF (print_read > 1 ) WRITE(6,*)obs(stat_i)%o(i)%val
+          IF (print_read > 1 ) WRITE(6,*)varprop(1:nparver)%id,obs(stat_i)%o(i)%val
 
        ENDDO READ_STATION_OBS
 
