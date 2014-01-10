@@ -40,7 +40,7 @@ SUBROUTINE verify
  ! Local
  !
 
- INTEGER :: i,j,k,l,n,o,oo,ii,                          &
+ INTEGER :: i,j,k,l,n,nn,o,oo,ii,                       &
             jj,jjstart,jjcheck(nfclengths),             &
             tim_ind,                                    &
             mindate(maxstn),maxdate(maxstn),            &
@@ -545,8 +545,15 @@ SUBROUTINE verify
 
                 IF(varprop(k)%acc /= 0) THEN
 
+                  !
+                  ! Special for accumulated values
+                  !
+
+                  SELECT CASE(varprop(k)%acctype) 
+                  CASE(0)
+
                    !
-                   ! Special for accumulated values
+                   ! Take difference between fclen(n) and fclen(ind_pe(k,n))
                    !
 
                    IF(fclen(n) == varprop(k)%acc) THEN
@@ -581,6 +588,29 @@ SUBROUTINE verify
                       all_exp_verified = .FALSE.
                       CYCLE EXP_LOOP
                    ENDIF
+
+                  CASE(2)
+
+                   !
+                   ! Take MIN over fclen(ind_pe(k,n)) - fclen(n)
+                   !
+
+                   nn=MAX(1,ind_pe(k,n)+1)
+                   diff_prep = MINVAL(hir(i)%o(j)%nal(o,nn:n,k))
+
+                  CASE(3)
+
+                   !
+                   ! Take MAX over fclen(ind_pe(k,n)) - fclen(n)
+                   !
+
+                   nn=MAX(1,ind_pe(k,n)+1)
+                   diff_prep = MAXVAL(hir(i)%o(j)%nal(o,nn:n,k))
+
+                  CASE DEFAULT
+                   CALL ABORT
+                 END SELECT
+
                 ELSE
                    diff_prep=hir(i)%o(j)%nal(o,n,k)
                 ENDIF

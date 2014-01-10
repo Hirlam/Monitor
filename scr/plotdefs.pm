@@ -46,12 +46,16 @@
    'TWIND_SURF'  => 12,
    'TEXT'        => 'Min T2m',
    'MAP_BIAS_INTERVAL'=> '-6.,-4.,-2.,0.,2.,4.,6.',
+   'ACC'         => 12,
+   'ACCTYPE'     => 2,
  },
  
  'TX'=>{
    'TWIND_SURF'  => 12,
    'TEXT'        => 'Max T2m',
    'MAP_BIAS_INTERVAL'=> '-6.,-4.,-2.,0.,2.,4.,6.',
+   'ACC'         => 12,
+   'ACCTYPE'     => 3,
  },
  
  'TD'=>{
@@ -95,7 +99,9 @@
 
  'GX'=>{
    'TEXT'        => 'Max Wind Gust',
-   'MAP_BIAS_INTERVAL'=> '-10.,-5.,-2.5,0.,2.5,5.,10.'
+   'MAP_BIAS_INTERVAL'=> '-10.,-5.,-2.5,0.,2.5,5.,10.',
+   'ACC'         => 6,
+   'ACCTYPE'     => 3,
  },
 
  'DD'=>{

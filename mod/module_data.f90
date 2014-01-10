@@ -141,7 +141,9 @@ MODULE data
 
  ! Selection
  CHARACTER(LEN=len_lab)      :: varlist(mparver) = '#'
- TYPE(variable)              :: setprop(mparver) = variable(0,0,err_ind,err_ind,err_ind,'#','#','#')
+ TYPE(variable)              :: setprop(mparver) = variable(0,0,0,          &
+                                                   err_ind,err_ind,err_ind, &
+                                                   '#','#','#')
  TYPE(variable), &
  ALLOCATABLE,TARGET          :: varprop(:) 
 

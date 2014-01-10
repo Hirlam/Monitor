@@ -51,7 +51,7 @@ MODULE types
  !
 
  TYPE variable
-    INTEGER :: lev,acc
+    INTEGER :: lev,acc,acctype
     REAL    :: lim,ulim,llim
     CHARACTER(LEN=10) :: id ='XX'
     CHARACTER(LEN=50) :: text ='XX'
