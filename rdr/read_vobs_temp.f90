@@ -141,7 +141,7 @@ SUBROUTINE read_vobs_temp
              ipr = 1
              ifi = 2
           CASE DEFAULT
-             WRITE(6,*)'Cannot handle this vfld-file version',version_flag
+             WRITE(6,*)'Cannot handle this vobs-file version',version_flag
              CALL abort
           END SELECT
        ENDIF
