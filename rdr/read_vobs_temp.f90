@@ -26,8 +26,10 @@ SUBROUTINE read_vobs_temp
             wrk(mparver),               &
             version_flag,               &
             old_version_flag,           &
-            ipr,ifi,ninvar
+            ipr,ifi,ninvar,             &
+            old_ninvar
  
+ INTEGER, ALLOCATABLE :: inacc(:)
  
  REAL :: lat,lon,hgt
  REAL, ALLOCATABLE :: val(:)
@@ -36,17 +38,21 @@ SUBROUTINE read_vobs_temp
 
  CHARACTER(LEN=200) :: fname =' '
  CHARACTER(LEN= 10) :: ndate =' '
- CHARACTER(LEN=  6), ALLOCATABLE :: invar(:)
+ CHARACTER(LEN= 10), ALLOCATABLE :: invar(:)
 
 !----------------------------------------------------------
 
+ ! Init 
  ipr = -1 
  ifi = -1 
- version_flag = 0
- old_version_flag = -1
  stations       = 0
  max_found_stat = 0
- use_stnlist = ( MAXVAL(stnlist) > 0 ) 
+ old_version_flag = -1
+ version_flag   = 0
+ old_ninvar     = -1
+ ninvar         = 0
+
+ use_stnlist =( MAXVAL(stnlist) > 0 )
 
  CALL allocate_obs
 
@@ -94,13 +100,14 @@ SUBROUTINE read_vobs_temp
 
        ENDIF
 
-       IF ( print_read > 0 ) WRITE(6,*)'READ ',TRIM(fname)
+       IF (print_read > 0 ) WRITE(6,'(2A)')'READ ',TRIM(fname)
 
        version_flag = 0
 
        READ(lunin,'(1x,3I6)',IOSTAT=ierr)num_stat,num_temp,version_flag
+       WRITE(6,'(1x,3I6)',IOSTAT=ierr)num_stat,num_temp,version_flag
        IF ( ierr /= 0 ) THEN
-         WRITE(6,*)'Error reading first line of vobs file'
+         WRITE(6,*)'Error reading first line of vobs file',ierr
          CALL abort
        ENDIF
 
@@ -115,9 +122,18 @@ SUBROUTINE read_vobs_temp
           CYCLE TIME_LOOP
        ENDIF
 
+      ! Skip the synop stations
       SELECT CASE (version_flag)
        CASE(0:3)
           READ(lunin,*)num_temp_lev
+          DO k=1,num_stat
+            READ(lunin,*)
+          ENDDO
+       CASE(4)
+          READ(lunin,*)ninvar
+          DO k=1,ninvar
+            READ(lunin,*)
+          ENDDO
           DO k=1,num_stat
             READ(lunin,*)
           ENDDO
@@ -126,20 +142,40 @@ SUBROUTINE read_vobs_temp
        END SELECT
 
        IF ( version_flag /= old_version_flag ) THEN
-         IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val)
            SELECT CASE(version_flag)
            CASE(0)
              ninvar=7
-             ALLOCATE(invar(ninvar),val(ninvar))
+             IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
+             ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
              invar = (/'PR','FI','TT','RH','DD','FF','QQ'/)
              ipr = 1
              ifi = 2
            CASE(1:2)
              ninvar=8
-             ALLOCATE(invar(ninvar),val(ninvar))
+             IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
+             ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
              invar = (/'PR','FI','TT','RH','DD','FF','QQ','TD'/)
              ipr = 1
              ifi = 2
+           CASE(4)
+             ipr = -1 
+             ifi = -1 
+             READ(lunin,*)num_temp_lev
+             READ(lunin,*)ninvar
+              IF ( ninvar /= old_ninvar ) THEN
+                IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
+                ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
+             ENDIF
+             DO i=1,ninvar
+               READ(lunin,*)invar(i),inacc(i)
+               IF ( invar(i) == 'PR' ) ipr = i
+               IF ( invar(i) == 'PP' ) ipr = i
+               IF ( invar(i) == 'FI' ) ifi = i
+             ENDDO
+             IF ( ipr == -1 .OR. ifi == -1 ) THEN
+               WRITE(6,*)'FI or PR/PP not found'
+               CALL abort
+             ENDIF
           CASE DEFAULT
              WRITE(6,*)'Cannot handle this vobs-file version',version_flag
              CALL abort
@@ -152,7 +188,7 @@ SUBROUTINE read_vobs_temp
           CASE(0)
              READ(lunin,*,iostat=ierr)istnr,lat,lon
              hgt = mflag
-          CASE(1:2)
+          CASE(1:2,4)
              READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt
           CASE DEFAULT
              WRITE(6,*)'Cannot handle this vobs-file version',version_flag
@@ -231,7 +267,7 @@ SUBROUTINE read_vobs_temp
           CASE(0)
              1001 format(1x,f5.0,f6.0,f6.1,f6.1,f5.0,f5.0,en13.3e2)
              READ(lunin,1001,iostat=ierr)val
-          CASE(1:2)
+          CASE(1:2,4)
              READ(lunin,*,iostat=ierr)val
           END SELECT 
 
@@ -294,6 +330,12 @@ SUBROUTINE read_vobs_temp
  DO i=1,maxstn
     obs(i)%active = ( obs(i)%ntim > 0 )
  ENDDO
+
+ ! Clear memory
+
+ IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val)
+ IF ( ALLOCATED(inacc) ) DEALLOCATE(inacc)
+
  RETURN
 
 END
