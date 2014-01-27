@@ -80,7 +80,7 @@ STNLIST_PLOT_TXT=-1
 #
 
 # Active parameters
-SURFPAR="PS FF FX GG GX DD TT TN TX TD RH QQ NN PE"
+SURFPAR="PS FF GX DD TT TN TX TD RH QQ NN PE"
 
 # Things to plot:
 # GEN    : General forcast length statistics
