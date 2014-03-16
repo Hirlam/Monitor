@@ -152,6 +152,8 @@ SUBROUTINE read_vobs
           ENDIF
           DO i=1,ninvar
             READ(lunin,*)invar(i),inacc(i)
+            IF ( invar(i)(1:2) == 'TM' ) &
+            invar(i)(1:2) = 'TN'
           ENDDO
        END SELECT
        old_ninvar = ninvar

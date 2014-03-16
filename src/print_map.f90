@@ -45,7 +45,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
             maxn,                       &
             numstn,period,              &
             nexp_plot,ntimver_out,      &
-            map_hour
+            map_hour,kk6,kk18
 
  INTEGER, ALLOCATABLE :: stn(:)
 
@@ -126,6 +126,8 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
  ELSE
     DO i=1,ntimver
        hour(i)=(i-1)*timdiff + time_shift
+       IF ( hour(i) ==  6 ) kk6  = i
+       IF ( hour(i) == 18 ) kk18 = i
     ENDDO
  ENDIF
 
@@ -155,7 +157,6 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
        !
        IF ( ( varprop(j)%id == 'TN'   .OR.  &
               varprop(j)%id == 'TX' ) .AND. &
-                      ntimver == 4      .AND. &
                 ( ntimver_out /= 1 )    .AND. &
                 ( show_times(1) == 0  ) .AND. &
                 ( show_times(2) == 12 ) .AND. &
@@ -163,8 +164,8 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
             .NOT. lfcver                      &
           ) THEN
           IF (.NOT. ANY( show_times == hour(kki) )) CYCLE
-          IF ( hour(kki) == 0  ) kk = 2
-          IF ( hour(kki) == 12 ) kk = 4
+          IF ( hour(kki) == 0  ) kk = kk6
+          IF ( hour(kki) == 12 ) kk = kk18
           map_hour = hour(kki)
        ELSE
           IF ( ntimver_out /= 1 .AND. .NOT. ANY( show_times == hour(kki) )) CYCLE

@@ -596,8 +596,12 @@ SUBROUTINE verify
                    !
 
                    nn=MAX(1,ind_pe(k,n)+1)
-                   diff_prep = MINVAL(hir(i)%o(j)%nal(o,nn:n,k))
-
+                   diff_prep = hir(i)%o(j)%nal(o,n,k)
+                   DO l=nn,n-1
+                     IF (ABS(hir(i)%o(j)%nal(o,l,k)-err_ind)>1.e-6) THEN
+                       diff_prep = MIN(hir(i)%o(j)%nal(o,l,k),diff_prep)
+                     ENDIF
+                   ENDDO
                   CASE(3)
 
                    !
@@ -605,7 +609,12 @@ SUBROUTINE verify
                    !
 
                    nn=MAX(1,ind_pe(k,n)+1)
-                   diff_prep = MAXVAL(hir(i)%o(j)%nal(o,nn:n,k))
+                   diff_prep = hir(i)%o(j)%nal(o,n,k)
+                   DO l=nn,n-1
+                     IF (ABS(hir(i)%o(j)%nal(o,l,k)-err_ind)>1.e-6) THEN
+                       diff_prep = MAX(hir(i)%o(j)%nal(o,l,k),diff_prep)
+                     ENDIF
+                   ENDDO
 
                   CASE DEFAULT
                    CALL ABORT

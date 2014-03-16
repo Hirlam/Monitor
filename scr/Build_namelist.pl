@@ -176,7 +176,7 @@
           } ;
          } ;
 
-         foreach $prop ('ACC','LIM','LLIM','ULIM') {         
+         foreach $prop ('ACCTYPE','ACC','LIM','LLIM','ULIM') {         
           if ( exists $tmp{$_}{$prop} ) {
             $nameread{'read_section'}{'SETPROP('.$k.')%ID'}='\''.$_.'\'' ;
             $nameread{'read_section'}{'SETPROP('.$k.')%'.$prop}=$tmp{$_}{$prop} ;
