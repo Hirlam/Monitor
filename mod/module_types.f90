@@ -174,7 +174,7 @@ MODULE types
     REAL,    POINTER :: obs(:),obs2(:),obs3(:)
     ! (nexp,nparver)
     REAL,    POINTER :: bias(:,:),s2(:,:),s3(:,:)
-    REAL,    POINTER :: rmse(:,:)
+    REAL,    POINTER :: rmse(:,:),mabe(:,:)
     ! nparver
     INTEGER, POINTER :: n(:)
 !   INTEGER, POINTER :: r(:,:)

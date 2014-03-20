@@ -20,7 +20,7 @@ SUBROUTINE do_stat(per_ind,p1,p2)
  TYPE (statistics), ALLOCATABLE  :: statall(:,:,:)
 
  CHARACTER(LEN=4 ) :: ttype = 'TIME'
- CHARACTER(LEN=31) :: text  = '    BIAS    RMSE    STDV     N'
+ CHARACTER(LEN=38) :: text  = '    BIAS    MAE     RMSE    STDV     N'
 !---------------------------------
 
  timing_id = 0
@@ -172,6 +172,7 @@ SUBROUTINE do_stat(per_ind,p1,p2)
  IF ( print_bias_map ) CALL print_map(0,minval(p1),maxval(p2),0,per_ind,rar_active)
  IF ( print_rmse_map ) CALL print_map(0,minval(p1),maxval(p2),1,per_ind,rar_active)
  IF ( print_stdv_map ) CALL print_map(0,minval(p1),maxval(p2),3,per_ind,rar_active)
+ IF ( print_mabe_map ) CALL print_map(0,minval(p1),maxval(p2),4,per_ind,rar_active)
 
  IF ( print_obs_map  ) CALL print_map(0,minval(p1),maxval(p2),2,per_ind,rar_active)
 
@@ -315,8 +316,8 @@ SUBROUTINE write_stat(p,t,s,n)
 
  INTEGER :: o
  REAL    :: rn(n)
- CHARACTER(LEN=30) :: form1='(2A6,x(3f8.3,I7))'
- CHARACTER(LEN=30) :: form2='(A6,I5,x(3f8.3,I7))'
+ CHARACTER(LEN=30) :: form1='(2A6,x(4f8.3,I7))'
+ CHARACTER(LEN=30) :: form2='(A6,I5,x(4f8.3,I7))'
  
 !------------------------------------------
 
@@ -339,7 +340,7 @@ SUBROUTINE write_stat(p,t,s,n)
 
        WRITE(lunstat,form1)p,cc,              &
            (      s(o)%bias/rn(o),            &
-!                 s(o)%mabe/rn(o),            &
+                  s(o)%mabe/rn(o),            &
              sqrt(s(o)%rmse/rn(o)),           &
              sqrt(ABS(s(o)%rmse/rn(o)         &
                     -(s(o)%bias/rn(o))**2)),  &
@@ -348,7 +349,7 @@ SUBROUTINE write_stat(p,t,s,n)
  ELSE
        WRITE(lunstat,form2)p,t,               &
            (      s(o)%bias/rn(o),            &
-!                 s(o)%mabe/rn(o),            &
+                  s(o)%mabe/rn(o),            &
              sqrt(s(o)%rmse/rn(o)),           &
              sqrt(ABS(s(o)%rmse/rn(o)         &
                     -(s(o)%bias/rn(o))**2)),  &

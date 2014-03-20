@@ -21,6 +21,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
                       map_stdv_interval,    &
                       map_rmse_interval,    &
                       map_bias_interval,    &
+                      map_mabe_interval,    &
                       map_obs_interval,     &
                       use_fclen,show_times, &
                       lunout,               &
@@ -51,7 +52,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
 
  REAL :: lmax,lint,   &
          interval(maxint+1) =(/-6.,-4.,-2.,0.,2.,4.,6./),       &
-         rnum,bias,rmse,obs,                                    &
+         rnum,bias,rmse,obs,mabe,                               &
          minlat,maxlat,minlon,maxlon
 
  REAL, ALLOCATABLE :: lat(:),lon(:),dat(:,:)
@@ -76,6 +77,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
  ! 1 : rmse
  ! 2 : value
  ! 3 : stdv
+ ! 4 : mabe
  !
 
  SELECT CASE(ptype)
@@ -99,6 +101,11 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
     IF (lfcver) prefix = 'M_o'
     mtext = ' '
     nexp_plot = nexp + 1
+ CASE(4)
+    prefix = 'm_a'
+    IF (lfcver) prefix = 'M_a'
+    mtext = 'mae'
+    nexp_plot = nexp
  CASE DEFAULT
     WRITE (6,*)'No such ptype in plot_map',ptype
     CALL abort
@@ -190,17 +197,20 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
             IF ( ntimver_out == 1 ) THEN
              rnum = 0.
              bias = 0.
+             mabe = 0.
              rmse = 0.
               obs = 0.
              DO k = 1,ntimver
                rnum = rnum + FLOAT(stat(l)%s(i,j,k)%n)
                bias = bias +       stat(l)%s(i,j,k)%bias
+               mabe = mabe +       stat(l)%s(i,j,k)%mabe
                rmse = rmse +       stat(l)%s(i,j,k)%rmse
                 obs = obs  +       stat(l)%s(i,j,k)%obs
              ENDDO
             ELSE
                rnum = FLOAT(stat(l)%s(i,j,kk)%n)
                bias =       stat(l)%s(i,j,kk)%bias
+               mabe =       stat(l)%s(i,j,kk)%mabe
                rmse =       stat(l)%s(i,j,kk)%rmse
                 obs =       stat(l)%s(i,j,kk)%obs
             ENDIF
@@ -232,6 +242,8 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
             CASE(3)
                 dat(i,ll) = SQRT (ABS(rmse/MAX(rnum,1.)- &
                                      (bias/MAX(rnum,1.))**2))
+            CASE(4)
+                dat(i,ll) = mabe / MAX(rnum,1.)
             CASE DEFAULT
                WRITE (6,*)'No such ptype in plot_map',ptype
                CALL abort
@@ -269,6 +281,9 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
        CASE(3)
           user_interval = ( ABS(map_stdv_interval(1,j) -   &
                             map_stdv_interval(maxint+1,j) ) > 1.e-6 )
+       CASE(4)
+          user_interval = ( ABS(map_mabe_interval(1,j) -   &
+                            map_mabe_interval(maxint+1,j) ) > 1.e-6 )
        CASE DEFAULT
           user_interval = .FALSE.
        END SELECT
@@ -282,12 +297,14 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
              DO m=-maxint/2,maxint/2
                 interval(m+maxint/2+1) = m*lint
              ENDDO
-          CASE(1,2,3)
+          CASE(1,2,3,4)
              lint = lmax / maxint
              DO m=0,maxint
                 interval(m+1) = m*lint
              ENDDO
           CASE DEFAULT
+             WRITE(6,*)'This case is not coded'
+             CALL abort
           END SELECT
 
        ELSE
@@ -301,6 +318,8 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
              interval = map_obs_interval(:,j)
           CASE(3)
              interval = map_stdv_interval(:,j)
+          CASE(4)
+             interval = map_mabe_interval(:,j)
           END SELECT
 
        ENDIF

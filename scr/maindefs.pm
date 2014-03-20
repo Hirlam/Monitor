@@ -37,6 +37,7 @@
      'PLOT_BIAS_MAP' =>'F',
      'PLOT_RMSE_MAP' =>'F',
      'PLOT_STDV_MAP' =>'F',
+     'PLOT_MABE_MAP' =>'F',
      'LFCVER'        =>'T',
      'LDIFF'         => 'T',
      'SHOW_OBS'      => 'F',
@@ -65,6 +66,7 @@
  'SIGN_TIME_DIFF' => '-1',
  'LPLOT_STAT' => 'T',
  'SHOW_BIAS' => 'T',
+ 'SHOW_MABE' => 'F',
  'SHOW_RMSE' => 'F',
  'SHOW_STDV' => 'T',
  'SHOW_VAR'  => 'T',
@@ -72,6 +74,7 @@
 
  'MAP' => {
  # Map plots
+ 'PLOT_MABE_MAP' => 'F',
  'PLOT_BIAS_MAP' => 'T',
  'PLOT_RMSE_MAP' => 'T',
  'LSTAT_GEN'     => 'T',
@@ -84,6 +87,10 @@
  'TIME' => {
   # Timeseries
   'LTIMESERIE_STAT'=> 'T',
+  'SHOW_MABE' => 'F',
+  'SHOW_BIAS' => 'T',
+  'SHOW_STDV' => 'T',
+  'SHOW_RMSE' => 'F',
   'USE_FCLEN' => join(',',split(' ',$ENV{FCLEN_TIME})),
  },
 
@@ -116,4 +123,3 @@
  },
 
 );
-

@@ -79,6 +79,7 @@ MODULE timeserie
 
      ALLOCATE(                                 &
               time_stat(i)%obs(nparver),       &            
+              time_stat(i)%mabe(nexp,nparver), &
               time_stat(i)%bias(nexp,nparver), &
               time_stat(i)%rmse(nexp,nparver), &
               time_stat(i)%n(nparver),         &
@@ -86,6 +87,7 @@ MODULE timeserie
               time_stat(i)%time            )
 
      time_stat(i)%obs  = 0.
+     time_stat(i)%mabe = 0.
      time_stat(i)%bias = 0.
      time_stat(i)%rmse = 0.
      time_stat(i)%n    = 0
@@ -112,6 +114,7 @@ MODULE timeserie
 
         ALLOCATE(                            &
         all_time_stat(i)%obs(nparver),       &            
+        all_time_stat(i)%mabe(nexp,nparver), &            
         all_time_stat(i)%bias(nexp,nparver), &            
         all_time_stat(i)%rmse(nexp,nparver), &
         all_time_stat(i)%n(nparver),         &
@@ -122,6 +125,7 @@ MODULE timeserie
         all_time_stat(i)%time = ctime
 
         all_time_stat(i)%obs  = 0.
+        all_time_stat(i)%mabe = 0.
         all_time_stat(i)%bias = 0.
         all_time_stat(i)%rmse = 0.
         all_time_stat(i)%n    = 0
@@ -166,6 +170,7 @@ MODULE timeserie
 
      NULLIFY(                   &
         time_stat(i)%obs,       &
+        time_stat(i)%mabe,      &
         time_stat(i)%bias,      &
         time_stat(i)%rmse,      &
         time_stat(i)%n,         &
@@ -174,6 +179,7 @@ MODULE timeserie
 
      NULLIFY(                   &
         all_time_stat(i)%obs,   &
+        all_time_stat(i)%mabe,  &
         all_time_stat(i)%bias,  &
         all_time_stat(i)%rmse,  &
         all_time_stat(i)%n,     &
@@ -292,6 +298,7 @@ MODULE timeserie
 
   p_data = exp_diff + obs_data
   time_stat(oo)%obs(par_ind)    = time_stat(oo)%obs(par_ind)    + obs_data
+  time_stat(oo)%mabe(:,par_ind) = time_stat(oo)%mabe(:,par_ind) + ABS(exp_diff)
   time_stat(oo)%bias(:,par_ind) = time_stat(oo)%bias(:,par_ind) + exp_diff
   time_stat(oo)%rmse(:,par_ind) = time_stat(oo)%rmse(:,par_ind) + exp_diff**2
   time_stat(oo)%n(par_ind)      = time_stat(oo)%n(par_ind) + 1
@@ -328,6 +335,7 @@ MODULE timeserie
 
        DO o = 1,all_time_stat_max
          all_time_stat(o)%obs  = all_time_stat(o)%obs  + time_stat(o)%obs  
+         all_time_stat(o)%mabe = all_time_stat(o)%mabe + time_stat(o)%mabe 
          all_time_stat(o)%bias = all_time_stat(o)%bias + time_stat(o)%bias 
          all_time_stat(o)%rmse = all_time_stat(o)%rmse + time_stat(o)%rmse 
          all_time_stat(o)%n    = all_time_stat(o)%n    + time_stat(o)%n    
@@ -361,6 +369,7 @@ MODULE timeserie
           IF ( .NOT. ASSOCIATED(time_stat(i)%date) ) CYCLE
      
           DEALLOCATE(time_stat(i)%obs,     &
+                     time_stat(i)%mabe,    &
                      time_stat(i)%bias,    &
                      time_stat(i)%rmse,    &
                      time_stat(i)%n,       &
@@ -388,6 +397,7 @@ MODULE timeserie
           IF ( .NOT. ASSOCIATED(all_time_stat(i)%date) ) CYCLE
 
           DEALLOCATE(all_time_stat(i)%obs,     &
+                     all_time_stat(i)%mabe,    &
                      all_time_stat(i)%bias,    &
                      all_time_stat(i)%rmse,    &
                      all_time_stat(i)%n,       &
@@ -426,6 +436,7 @@ MODULE timeserie
 
    DO o=1,time_stat_max
       time_stat(o)%obs  = 0.
+      time_stat(o)%mabe = 0.
       time_stat(o)%bias = 0.
       time_stat(o)%rmse = 0.
       time_stat(o)%n    = 0

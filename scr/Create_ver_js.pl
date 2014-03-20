@@ -216,19 +216,32 @@ sub map {
  my @mp  = ();
  my @mpt = ();
 
+ if ( exists $selectionloop{'MAP'}{'PLOT_MABE_MAP'} ) {
+  if ( $selectionloop{'MAP'}{'PLOT_MABE_MAP'} eq 'T' ) {
+    @mp  = (@mp ,'a'   );
+    @mpt = (@mpt,'Mae');
+  } ;
+ } ;
+
  if ( exists $selectionloop{'MAP'}{'PLOT_BIAS_MAP'} ) {
+  if ( $selectionloop{'MAP'}{'PLOT_BIAS_MAP'} eq 'T' ) {
     @mp  = (@mp ,'b'   );
     @mpt = (@mpt,'Bias');
+  } ;
  } ;
 
  if ( exists $selectionloop{'MAP'}{'PLOT_RMSE_MAP'} ) {
+  if ( $selectionloop{'MAP'}{'PLOT_RMSE_MAP'} eq 'T' ) {
     @mp  = (@mp ,'r'   );
     @mpt = (@mpt,'Rmse');
+  } ;
  } ;
 
  if ( exists $selectionloop{'MAP'}{'PLOT_STDV_MAP'} ) {
+  if ( $selectionloop{'MAP'}{'PLOT_STDV_MAP'} eq 'T' ) {
     @mp  = (@mp ,'s'   );
     @mpt = (@mpt,'Stdv');
+  } ;
  } ;
 
  $mp  ='\''.join('\',\'',@mp ).'\'';

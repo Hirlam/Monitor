@@ -206,9 +206,11 @@ MODULE data
 
 
  ! Parameters for maps
+ LOGICAL :: plot_mabe_map          = .FALSE.  ! Plot map with mabe
  LOGICAL :: plot_bias_map          = .FALSE.  ! Plot map with bias
  LOGICAL :: plot_rmse_map          = .FALSE.  ! Plot map with rmse
  LOGICAL :: plot_stdv_map          = .FALSE.  ! Plot map with stdv
+ LOGICAL :: print_mabe_map         = .FALSE.  ! Print map with mabe
  LOGICAL :: print_bias_map         = .FALSE.  ! Print map with bias
  LOGICAL :: print_rmse_map         = .FALSE.  ! Print map with rmse
  LOGICAL :: print_stdv_map         = .FALSE.  ! Print map with stdv
@@ -216,11 +218,13 @@ MODULE data
  LOGICAL :: print_obs_map          = .FALSE.  ! Print map with observations
  REAL    ::  map_obs_interval(max_map_interval,mparver)= -1.      ! Set your own obs interval 
  REAL    :: map_bias_interval(max_map_interval,mparver)= -1.      ! Set your own bias interval
+ REAL    :: map_mabe_interval(max_map_interval,mparver)= -1.      ! Set your own mabe interval
  REAL    :: map_rmse_interval(max_map_interval,mparver)= -1.      ! Set your own rmse interval
  REAL    :: map_stdv_interval(max_map_interval,mparver)= -1.      ! Set your own rmse interval
 
 
  ! What to plot on verification plots
+ LOGICAL :: show_mabe        = .FALSE.  ! Plot mabe
  LOGICAL :: show_bias        = .TRUE.   ! Plot bias
  LOGICAL :: show_rmse        = .TRUE.   ! Plot rmse
  LOGICAL :: show_stdv        = .FALSE.  ! Plot stdv
@@ -320,9 +324,11 @@ MODULE data
                  lcontingency,                          &
                  ltimeserie_stat,                       &
                  lprint_timeserie_stat,                 &
+                 plot_mabe_map,                         &
                  plot_bias_map,                         &
                  plot_rmse_map,                         &
                  plot_stdv_map,                         &
+                 print_mabe_map,                        &
                  print_bias_map,                        &
                  print_rmse_map,                        &
                  print_stdv_map,                        &
@@ -332,6 +338,7 @@ MODULE data
                  map_rmse_interval,                     &
                  map_stdv_interval,                     &
                  map_bias_interval,                     &
+                 map_mabe_interval,                     &
                  lprint_selection,                      &
                  lprint_summary,                        &
                  lprint_read,print_read,                &
@@ -353,7 +360,7 @@ MODULE data
                  ncla,classtype,pre_fcla,               &
                  maxcla,mincla,                         &
                  show_bias,show_rmse,show_stdv,show_obs,&
-                 show_var,show_skw,                     &
+                 show_var,show_skw,show_mabe,           &
                  period_type,period_freq,               &
                  print_qc,                              &
                  lquality_control,qc_fclen,qc_lim,      &

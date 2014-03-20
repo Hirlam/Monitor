@@ -12,7 +12,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
                   nfclengths,nuse_fclen,tag,                    &
                   timdiff,time_shift,show_fc_length,ltiming,    &
                   show_bias,show_rmse,show_stdv,show_obs,       &
-                  show_var,show_skw,                            &
+                  show_var,show_skw,show_mabe,                  &
                   copied_obs,copied_mod,period_freq,period_type,&
                   output_type,lprint_seasonal,err_ind,cini_hours
 
@@ -36,6 +36,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
       zfc,zslask2
 
  REAL, TARGET, ALLOCATABLE :: &
+            mabe(:,:),        &
             bias(:,:),        &
             rmse(:,:),        &
             stdv(:,:),        &
@@ -73,6 +74,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
  ! Force settings
  IF ( show_obs ) THEN
     show_rmse = .FALSE. 
+    show_mabe = .FALSE. 
     show_bias = .FALSE. 
     show_stdv = .FALSE. 
  ENDIF
@@ -108,6 +110,8 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
  IF ( show_rmse .OR. show_stdv .OR. show_skw )          &
  ALLOCATE(rmse(ntimver_l,nexp),                         &
           stdv(ntimver_l,nexp))
+ IF ( show_mabe ) &
+ ALLOCATE(mabe(ntimver_l,nexp))
 
  IF ( show_var .OR. show_skw )                          &
  ALLOCATE(stdvi(ntimver_l,nexp),stdvo(ntimver_l),       &
@@ -123,7 +127,8 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
    ctype(ntypes) = 'OBS'
  ENDIF
 
- IF ( show_rmse .OR. show_bias .OR. show_stdv ) THEN
+ IF ( show_rmse .OR. show_bias .OR. &
+      show_mabe .OR. show_stdv ) THEN
    ntypes = ntypes + 1 
    ctype(ntypes) = 'BIAS'
  ENDIF
@@ -171,6 +176,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
           rmse = 0.
           stdv = 0.
        ENDIF
+       IF ( show_mabe ) mabe = 0.
        IF ( show_var .OR. show_skw ) THEN
          stdvi = 0.
          stdvo = 0.
@@ -193,6 +199,13 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
           bias(k,i) =      s(i,j,k)%bias/rnum(k)
        ENDDO
        ENDDO
+       IF ( show_mabe ) THEN
+        DO i=1,nexp
+         DO k=1,ntimver
+          mabe(k,i) =      s(i,j,k)%mabe/rnum(k)
+         ENDDO
+        ENDDO
+       ENDIF
 
        IF ( show_rmse .OR. show_stdv ) THEN
           DO i=1,nexp
@@ -243,6 +256,9 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
             rmse(ntimver_l,:) = rmse(1,:)
             stdv(ntimver_l,:) = stdv(1,:)
           ENDIF
+
+          IF ( show_mabe ) &
+          mabe(ntimver_l,:) = mabe(1,:)
 
           IF ( show_var .OR. show_skw ) THEN
             stdvi(ntimver_l,:) = stdvi(1,:)
@@ -353,6 +369,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
        IF (show_rmse) npp = npp + nexp
        IF (show_stdv) npp = npp + nexp
        IF (show_bias) npp = npp + nexp
+       IF (show_mabe) npp = npp + nexp
     CASE('VAR')
        npp = 1 + nexp + npp
     CASE('SKW')
@@ -417,6 +434,13 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
         k=k+1
         pdat(k)%v => bias(1:ntimver_l,i)
         WRITE(lunout,'(A,I2.2,2(X,A))')'#COLUMN_',k+1,'BIAS',TRIM(expname(i))
+      ENDDO
+     ENDIF 
+     IF ( show_mabe ) THEN
+      DO i=1,nexp
+        k=k+1
+        pdat(k)%v => mabe(1:ntimver_l,i)
+        WRITE(lunout,'(A,I2.2,2(X,A))')'#COLUMN_',k+1,'MAE',TRIM(expname(i))
       ENDDO
      ENDIF 
 
@@ -502,6 +526,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
 
  ! Clear memory
  IF(ALLOCATED(obs)  ) DEALLOCATE(obs)
+ IF(ALLOCATED(mabe) ) DEALLOCATE(mabe)
  IF(ALLOCATED(bias) ) DEALLOCATE(bias)
  IF(ALLOCATED(rmse) ) DEALLOCATE(rmse)
  IF(ALLOCATED(stdv) ) DEALLOCATE(stdv)

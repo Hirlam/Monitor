@@ -39,7 +39,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
                   timeserie_wind,sumup_tolerance,obint,  &
                   copied_obs,copied_mod,                 &
                   show_rmse,show_stdv,show_bias,show_obs,&
-                  show_var,show_skw,                     &
+                  show_var,show_skw,show_mabe,           &
                   ltemp,lev_lst,window_pos,output_type,  &
                   output_mode,len_lab,cini_hours
 
@@ -81,6 +81,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
  REAL,    ALLOCATABLE, TARGET ::  obs(:),   &
                                  snum(:,:), &
                                  rnum(:,:), &
+                                 mabe(:,:), &
                                  bias(:,:), &
                                  rmse(:,:), &
                                  stdv(:,:)
@@ -146,6 +147,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
            date(maxtim),        &
            time(maxtim),        &
             obs(maxtim),        &
+           mabe(maxtim,nexp),   &
            bias(maxtim,nexp),   &
            rmse(maxtim,nexp),   &
            stdv(maxtim,nexp),   &
@@ -219,6 +221,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
 
     rnum = 0.
     snum = 0.
+    mabe = 0.
     bias = 0.
     rmse = 0.
     stdv = 0.
@@ -263,6 +266,8 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
           snum(ii,k) = FLOAT(time_stat(i)%n(j))
 
           IF ( ldiff ) THEN
+             IF ( show_mabe ) &
+             mabe(ii,k) =          time_stat(i)%mabe(k,j)/rnum(ii,k)
              bias(ii,k) =          time_stat(i)%bias(k,j)/rnum(ii,k)
              rmse(ii,k) = SQRT(    time_stat(i)%rmse(k,j)/rnum(ii,k) )
              stdv(ii,k) = SQRT(ABS(time_stat(i)%rmse(k,j)/rnum(ii,k) - &
@@ -403,6 +408,18 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
               sumup_tolerance,obint,         &
               err_ind,window_pos,.true.)
 
+              ndate = date
+              ntime = time
+
+              CALL carefull_sumup(           &
+              mabe(:,k),ndate(:),ntime(:),   &
+              ii,maxtim,ut,dlen, &
+              data_min(k),data_max(k),       &
+              data_ave(k),ndate(1),00,       &
+              sumup_tolerance,obint,         &
+              err_ind,window_pos,.true.)
+
+
            ENDIF
 
       ENDIF
@@ -470,6 +487,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
        IF (show_rmse) npp = nexp
        IF (show_stdv) npp = npp + nexp
        IF (show_bias) npp = npp + nexp
+       IF (show_mabe) npp = npp + nexp
     ELSE
        npp = 1 + nexp
        IF ( show_var ) npp = 1 + nexp + npp
@@ -516,6 +534,13 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
         k=k+1
         pdat(k)%v => bias(1:ntim_use,i)
         WRITE(lunout,'(A,I2.2,2(X,A))')'#COLUMN_',k+2,'BIAS',TRIM(expname(i))
+      ENDDO
+     ENDIF 
+     IF ( show_mabe ) THEN
+      DO i=1,nexp
+        k=k+1
+        pdat(k)%v => mabe(1:ntim_use,i)
+        WRITE(lunout,'(A,I2.2,2(X,A))')'#COLUMN_',k+2,'MAE',TRIM(expname(i))
       ENDDO
      ENDIF 
     ELSE 

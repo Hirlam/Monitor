@@ -235,6 +235,7 @@ SUBROUTINE check_namelist
     output_type = 0
 
     lprint_timeserie_stat = ltimeserie_stat 
+    print_mabe_map        = plot_mabe_map
     print_bias_map        = plot_bias_map
     print_rmse_map        = plot_rmse_map
     print_stdv_map        = plot_stdv_map

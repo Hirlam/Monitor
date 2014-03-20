@@ -51,5 +51,6 @@ SUBROUTINE ini_namelist
  ! Show settings
  show_var = .FALSE.
  show_skw = .FALSE.
+ show_mabe = .FALSE.
 
 END SUBROUTINE ini_namelist
