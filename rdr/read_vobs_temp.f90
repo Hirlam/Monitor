@@ -29,10 +29,8 @@ SUBROUTINE read_vobs_temp
             ipr,ifi,ninvar,             &
             old_ninvar
  
- INTEGER, ALLOCATABLE :: inacc(:)
- 
  REAL :: lat,lon,hgt
- REAL, ALLOCATABLE :: val(:)
+ REAL, ALLOCATABLE :: val(:),inacc(:)
 
  LOGICAL :: use_stnlist
 
@@ -42,9 +40,9 @@ SUBROUTINE read_vobs_temp
 
 !----------------------------------------------------------
 
- ! Init 
- ipr = -1 
- ifi = -1 
+ ! Init
+ ipr = -1
+ ifi = -1
  stations       = 0
  max_found_stat = 0
  old_version_flag = -1
@@ -142,6 +140,7 @@ SUBROUTINE read_vobs_temp
        END SELECT
 
        IF ( version_flag /= old_version_flag ) THEN
+
            SELECT CASE(version_flag)
            CASE(0)
              ninvar=7
@@ -180,6 +179,9 @@ SUBROUTINE read_vobs_temp
              WRITE(6,*)'Cannot handle this vobs-file version',version_flag
              CALL abort
           END SELECT
+
+          old_ninvar = ninvar
+       
        ENDIF
 
        READ_STATION_OBS : DO k=1,num_temp
@@ -277,7 +279,7 @@ SUBROUTINE read_vobs_temp
 
           kk_lev = 0
           DO kkk=1,my_temp_lev
-             IF (ABS(val(1) -lev_lst(kkk)) < 1.e-6 ) kk_lev = kkk
+             IF (ABS(val(ipr) - lev_lst(kkk)) < 1.e-6) kk_lev = kkk
           ENDDO
           IF ( kk_lev == 0 ) CYCLE READ_LEV_OBS
 

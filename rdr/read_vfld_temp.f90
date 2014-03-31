@@ -34,11 +34,11 @@ SUBROUTINE read_vfld_temp
             wrk(mparver),               &
             version_flag,               &
             old_version_flag,           &
-            ipr,ifi,ninvar
+            ipr,ifi,ninvar,             &
+            old_ninvar
  
  REAL :: lat,lon,hgt
- REAL, ALLOCATABLE :: val(:)
-
+ REAL, ALLOCATABLE :: val(:),inacc(:)
 
  LOGICAL :: allocated_this_time(maxstn),&
             found_any_time,use_stnlist,lfound
@@ -46,19 +46,23 @@ SUBROUTINE read_vfld_temp
  CHARACTER(LEN=200) :: fname = ' '
  CHARACTER(LEN= 10) :: cwrk  ='yyyymmddhh',cwrko
  CHARACTER(LEN= 03) :: cfclen  ='  ',cfcleno
- CHARACTER(LEN=  6), ALLOCATABLE :: invar(:)
+ CHARACTER(LEN= 10), ALLOCATABLE :: invar(:)
 
 
 !----------------------------------------------------------
 
+ ! Init
+ hgt            = err_ind
  ipr = -1
  ifi = -1
  stations       = 0
  max_found_stat = 0
- use_stnlist    = ( MAXVAL(stnlist) > 0 ) 
- hgt            = err_ind
  old_version_flag = -1
-     version_flag = 0
+ version_flag   = 0
+ old_ninvar     = -1
+ ninvar         = 0
+
+ use_stnlist =( MAXVAL(stnlist) > 0 )
 
  CALL allocate_mod
 
@@ -165,29 +169,59 @@ SUBROUTINE read_vfld_temp
           DO k=1,num_stat
             READ(lunin,*)
           ENDDO
+      CASE(4)
+          READ(lunin,*)ninvar
+          DO k=1,ninvar
+            READ(lunin,*)
+          ENDDO
+          DO k=1,num_stat
+            READ(lunin,*)
+          ENDDO
        CASE DEFAULT
           WRITE(6,*)'Cannot handle this version flag',version_flag
        END SELECT 
 
        IF ( version_flag /= old_version_flag ) THEN
-         IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val)
            SELECT CASE(version_flag)
            CASE(0)
              ninvar=7
-             ALLOCATE(invar(ninvar),val(ninvar))
+             IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
+             ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
              invar = (/'PR','FI','TT','RH','DD','FF','QQ'/)
              ipr = 1
              ifi = 2
            CASE(1:3)
              ninvar=8
-             ALLOCATE(invar(ninvar),val(ninvar))
+             IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
+             ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
              invar = (/'PR','FI','TT','RH','DD','FF','QQ','TD'/)
              ipr = 1
              ifi = 2
+           CASE(4)
+             ipr = -1 
+             ifi = -1 
+             READ(lunin,*)num_temp_lev
+             READ(lunin,*)ninvar
+              IF ( ninvar /= old_ninvar ) THEN
+                IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
+                ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
+                old_ninvar = ninvar
+             ENDIF
+             DO i=1,ninvar
+               READ(lunin,*)invar(i),inacc(i)
+               IF ( invar(i) == 'PR' ) ipr = i
+               IF ( invar(i) == 'PP' ) ipr = i
+               IF ( invar(i) == 'FI' ) ifi = i
+             ENDDO
+             IF ( ipr == -1 .OR. ifi == -1 ) THEN
+               WRITE(6,*)'FI or PR/PP not found'
+               CALL abort
+             ENDIF
           CASE DEFAULT
              WRITE(6,*)'Cannot handle this vfld-file version',version_flag
              CALL abort
           END SELECT
+          old_ninvar = ninvar
        ENDIF
 
        old_version_flag = version_flag
@@ -198,9 +232,11 @@ SUBROUTINE read_vfld_temp
           CASE(0)
              READ(lunin,*,iostat=ierr)istnr,lat,lon
              hgt = err_ind
-          CASE(1:3)
+          CASE(1:4)
              READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt
           CASE DEFAULT
+             WRITE(6,*)'Cannot handle this vobs-file version',version_flag
+             CALL abort
           END SELECT 
 
           IF (ierr /= 0) CYCLE READ_STATION_MOD
@@ -299,14 +335,13 @@ SUBROUTINE read_vfld_temp
           val = mflag
 
           SELECT CASE(version_flag)
-          CASE(0:3)
+          CASE(0:4)
              READ(lunin,*,iostat=ierr)val
           END SELECT 
 
           IF (ierr /= 0 ) CYCLE READ_LEV_MOD
 
           kk_lev = 0
-
           DO kkk=1,my_temp_lev
              IF (ABS(val(ipr) - lev_lst(kkk)) < 1.e-6) kk_lev = kkk
           ENDDO
