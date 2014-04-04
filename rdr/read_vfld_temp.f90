@@ -35,7 +35,7 @@ SUBROUTINE read_vfld_temp
             version_flag,               &
             old_version_flag,           &
             ipr,ifi,ninvar,             &
-            old_ninvar
+            old_ninvar,nvars
  
  REAL :: lat,lon,hgt
  REAL, ALLOCATABLE :: val(:),inacc(:)
@@ -170,8 +170,8 @@ SUBROUTINE read_vfld_temp
             READ(lunin,*)
           ENDDO
       CASE(4)
-          READ(lunin,*)ninvar
-          DO k=1,ninvar
+          READ(lunin,*)nvars
+          DO k=1,nvars
             READ(lunin,*)
           ENDDO
           DO k=1,num_stat
@@ -202,10 +202,9 @@ SUBROUTINE read_vfld_temp
              ifi = -1 
              READ(lunin,*)num_temp_lev
              READ(lunin,*)ninvar
-              IF ( ninvar /= old_ninvar ) THEN
-                IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
-                ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
-                old_ninvar = ninvar
+             IF ( ninvar /= old_ninvar ) THEN
+               IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
+               ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
              ENDIF
              DO i=1,ninvar
                READ(lunin,*)invar(i),inacc(i)
