@@ -200,10 +200,6 @@ SUBROUTINE read_vfld
          DO i=1,ninvar
            READ(lunin,*,IOSTAT=ierr)invar(i),inacc(i)
            IF ( invar(i) == 'FI' ) ifi = i
-           IF ( ifi == -1 ) THEN
-             WRITE(6,*)'FI not found'
-             CALL abort
-           ENDIF
          ENDDO
        END SELECT
 
@@ -243,7 +239,12 @@ SUBROUTINE read_vfld
           CASE(3)
              READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val
           CASE(4)
-             READ(lunin,*,iostat=ierr)istnr,lat,lon,val
+             IF ( ifi /= -1 ) THEN
+               READ(lunin,*,iostat=ierr)istnr,lat,lon,val
+               hgt = val(ifi)
+             ELSE
+               READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val
+             ENDIF
           CASE DEFAULT
              WRITE(6,*)'Cannot handle this vfld-file version',version_flag
              CALL abort
