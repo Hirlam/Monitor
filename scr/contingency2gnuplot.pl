@@ -37,6 +37,8 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
     $partag = $tmp[-2];
     $xscale = "";
     if ( $partag eq "PE" ) { $xscale="set logscale x" ; } ;
+    if ( $partag eq "CH" ) { $xscale="set logscale x" ; } ;
+    if ( $partag eq "PE3" ) { $xscale="set logscale x" ; } ;
 
     @EXT = ('','.ps','.1.png','.1.jpg','.svg') ;
 
@@ -181,13 +183,16 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
                my $TS  = $missing; if ($a+$b+$c > 0) {$TS = $a/($a+$b+$c);}
                #Area index:
                my $AI = $missing;
-               unless ($b == 0 or $c == 0) {
+	       unless ($KUI == $missing) {
+		 my $ZAIB = 0;
+		 my $ZAIC = 0;
+		 if( $b > 0 ) {$ZAIB = $b / ($a + $c) *
+                       log( $nn * $b /(( $b+$d)*($a+$b))); }
+		 if( $c > 0 ) {$ZAIC = $c / ($b + $d) *
+                       log( $nn * $c /(( $a+$c)*($c+$d))); }
+                 $AI = $KUI + $ZAIB + $ZAIC ;
 
-                  $AI=($a*$d-$b*$c)/(($b + $d)*($a + $c)) + $c / ($b + $d) *              
-                       log( $nn * $c /(( $a+$c)*($c+$d))) + $b / ($a + $c) * 
-                       log( $nn * $b /(( $b+$d)*($a+$b)));
-
-                  if ( ($a*$d-$b*$c)/(($b + $d)*($a + $c)) < 0) {$AI=-$AI;}
+                 if ( ($a*$d-$b*$c)/(($b + $d)*($a + $c)) < 0) {$AI=-$AI;}
 
 	       }
 	       # Symmetric Extreme Dependency Score (Hogan et al. 2009, QJRMS):
