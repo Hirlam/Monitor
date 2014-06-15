@@ -199,6 +199,7 @@ SCAN_INPUT: foreach $input_file (@FILES) {
        if ( $col_def[$ii-2]{LEGEND} ne OBS ) { $ncol = ( $ii -1 ) / $nexp ; } ;
      
        for (my $i=0; $i < $ii; $i++) {
+          if ( $col_def[$i]{LEGEND} =~/MAE/  ) {  $col_def[$i]{PT} = 8 } ;
           if ( $col_def[$i]{LEGEND} =~/RMSE/ ) {  $col_def[$i]{PT} = 7 } ;
           if ( $col_def[$i]{LEGEND} =~/BIAS/ ) {  $col_def[$i]{PT} = 4 } ;
           if ( $col_def[$i]{LEGEND} =~/STDV/ ) {  $col_def[$i]{PT} = 3 } ;

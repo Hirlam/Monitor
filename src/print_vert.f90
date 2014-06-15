@@ -17,6 +17,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
                   lev_lst,ltemp,nfclengths,                     &
                   show_fc_length,tag,                           &
                   show_bias,show_rmse,show_stdv,show_obs,       &
+                  show_mabe,                                    &
                   len_lab,period_freq,period_type,              &
                   output_type,output_mode,                      &
                   show_times,use_fclen,timdiff,time_shift,      &
@@ -43,6 +44,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
 
  REAL, TARGET ::                   &
             bias(nexp,nlev),       &
+            mabe(nexp,nlev),       &
             rmse(nexp,nlev),       &
             stdv(nexp,nlev),       &
             rnum(nexp,nlev),       &
@@ -70,6 +72,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
  !
  IF ( show_obs ) THEN
     show_rmse = .FALSE.
+    show_mabe = .FALSE.
     show_bias = .FALSE.
     show_stdv = .FALSE.
  ENDIF
@@ -116,6 +119,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
 
      num = 0.
     rnum = 0.
+    mabe = 0.
     bias = 0.
     rmse = 0.
     obs  = 0.
@@ -128,6 +132,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
            num(i,jj) =  num(i,jj) +       s(i,j_ind,k)%n
           rnum(i,jj) = rnum(i,jj) + FLOAT(s(i,j_ind,k)%n)
           bias(i,jj) = bias(i,jj) +       s(i,j_ind,k)%bias
+          mabe(i,jj) = mabe(i,jj) +       s(i,j_ind,k)%mabe
           rmse(i,jj) = rmse(i,jj) +       s(i,j_ind,k)%rmse
            obs(i,jj) =  obs(i,jj) +       s(i,j_ind,k)%obs
         ENDDO
@@ -135,6 +140,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
            num(i,jj) =  num(i,jj) +       s(i,j_ind,kk)%n
           rnum(i,jj) = rnum(i,jj) + FLOAT(s(i,j_ind,kk)%n)
           bias(i,jj) = bias(i,jj) +       s(i,j_ind,kk)%bias
+          mabe(i,jj) = mabe(i,jj) +       s(i,j_ind,kk)%mabe
           rmse(i,jj) = rmse(i,jj) +       s(i,j_ind,kk)%rmse
            obs(i,jj) =  obs(i,jj) +       s(i,j_ind,kk)%obs
        ENDIF
@@ -149,6 +155,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
        obs  = obs / rnum
     ELSE
        bias = bias / rnum
+       mabe = mabe / rnum
     ENDIF
     rmse = SQRT(rmse/rnum)
 
@@ -265,6 +272,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
     IF (show_rmse) npp = nexp
     IF (show_stdv) npp = npp + nexp
     IF (show_bias) npp = npp + nexp
+    IF (show_mabe) npp = npp + nexp
 
     ! Add one column for number of cases 
     npp = npp + 1
@@ -307,6 +315,13 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
         pdat(k)%v => bias(i,1:nlev)
         WRITE(lunout,'(A,I2.2,2(X,A))')'#COLUMN_',k+1,'BIAS',TRIM(expname(i))
       ENDDO
+    IF ( show_mabe ) THEN
+      DO i=1,nexp
+        k=k+1
+        pdat(k)%v => mabe(i,1:nlev)
+        WRITE(lunout,'(A,I2.2,2(X,A))')'#COLUMN_',k+1,'MAE',TRIM(expname(i))
+      ENDDO
+    ENDIF 
     ENDIF 
     IF ( show_obs ) THEN
       DO i=1,nexp
