@@ -29,7 +29,6 @@ SUBROUTINE add_stat(s,o,d)
  s%obs2 = s%obs2 + o**2 
  s%s3   = s%s3   + p**3
  s%obs3 = s%obs3 + o**3
- s%mabe = s%mabe + ABS(d)
  s%n    = s%n    + 1
 
  RETURN
