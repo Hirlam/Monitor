@@ -8,7 +8,7 @@
 
 # Set colors for lines
 
-@col_def_lt  = (1,2,3,4,5,6,8,7);
+@col_def_lt  = (1,2,3,4,5,6,8,7,9);
 @col_def_lt  = (0,@col_def_lt);
 
 # Line thickness
