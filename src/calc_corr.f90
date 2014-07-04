@@ -19,23 +19,24 @@ SUBROUTINE calc_corr(nobs,xval,yval,            &
 !-------------------------------------------------------------------------------
 ! Bin the data
 !-------------------------------------------------------------------------------
-    sumy   = 0.
-    sumx   = 0.
-    sumxx  = 0.
-    sumyy  = 0.
-    sumxy  = 0.
-    sumxy2 = 0.
 
-    DO i=1,nobs
+  sumy   = 0.
+  sumx   = 0.
+  sumxx  = 0.
+  sumyy  = 0.
+  sumxy  = 0.
+  sumxy2 = 0.
 
-       sumy   = sumy   + yval(i)
-       sumyy  = sumyy  + yval(i)*yval(i)
-       sumx   = sumx   + xval(i)
-       sumxx  = sumxx  + xval(i)*xval(i)
-       sumxy  = sumxy  + xval(i)*yval(i)
-       sumxy2 = sumxy2 + (xval(i)-yval(i))*(xval(i)-yval(i))
+  DO i=1,nobs
 
-    ENDDO
+     sumy   = sumy   + yval(i)
+     sumyy  = sumyy  + yval(i)*yval(i)
+     sumx   = sumx   + xval(i)
+     sumxx  = sumxx  + xval(i)*xval(i)
+     sumxy  = sumxy  + xval(i)*yval(i)
+     sumxy2 = sumxy2 + (xval(i)-yval(i))*(xval(i)-yval(i))
+
+  ENDDO
 
   XMEAN  = 0.
   YMEAN  = 0.
@@ -52,21 +53,21 @@ SUBROUTINE calc_corr(nobs,xval,yval,            &
   YMEAN = SUMY*XPTD
   XMEAN = SUMX*XPTD
   BIAS = YMEAN-XMEAN
-  STDV = SQRT(SUMXY2*XPTD-BIAS**2)
+  STDV = SQRT(ABS(SUMXY2*XPTD-BIAS**2))
   RMSE = SQRT(SUMXY2*XPTD)
 
-    XHELP = XPT*SUMXX-SUMX*SUMX
-    YHELP = XPT*SUMYY-SUMY*SUMY
+  XHELP = XPT*SUMXX-SUMX*SUMX
+  YHELP = XPT*SUMYY-SUMY*SUMY
 
-    STDEVX = ABS(XHELP/(XPT*(XPT-1.)))
-    STDEVX = SQRT(STDEVX)
-    STDEVY = ABS(YHELP/(XPT*(XPT-1.)))
-    STDEVY = SQRT(STDEVY)
+  STDEVX = ABS(XHELP/(XPT*(XPT-1.)))
+  STDEVX = SQRT(STDEVX)
+  STDEVY = ABS(YHELP/(XPT*(XPT-1.)))
+  STDEVY = SQRT(STDEVY)
 
-    IF (XMEAN /= 0.) SID    = STDEVD/XMEAN
-    IF (XHELP >  0.) RV     = 1. - XPT*SUMXY2/XHELP
-    IF (STDEVX /= 0. .AND. STDEVY /= 0.) &
-        CORR   = (SUMXY-XPT*XMEAN*YMEAN)/(STDEVX*STDEVY*(XPT-1.))
+  IF (XMEAN /= 0.) SID    = STDEVD/XMEAN
+  IF (XHELP >  0.) RV     = 1. - XPT*SUMXY2/XHELP
+  IF (STDEVX /= 0. .AND. STDEVY /= 0.) &
+      CORR   = (SUMXY-XPT*XMEAN*YMEAN)/(STDEVX*STDEVY*(XPT-1.))
 
  RETURN
 END SUBROUTINE 

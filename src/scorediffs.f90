@@ -50,7 +50,7 @@ SUBROUTINE scorediffs(exp1,exp2,nfclen,par,     &
 
      ncases(j) = l
 
-     IF ( l == 0 ) CYCLE
+     IF ( l < 2 ) CYCLE
 
 !--- transform correlations to something more Gaussian
 
