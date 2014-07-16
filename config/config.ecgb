@@ -16,6 +16,9 @@ MYFCFLAGS := -O3 -fbacktrace -g -Wall
 MODNAME = $(shell echo $(*F) | tr "[:upper:]" "[:lower:]")
 MODEXT := mod
 
+ODB_MONITOR   := 
+ODBLIBS_EXTRA := 
+
 # Link
 LD          := $(FC)
 LDFLAGS     := -O3 -fbacktrace -g -Wall -Werror

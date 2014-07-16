@@ -7,7 +7,7 @@ CPP        := /lib/cpp
 
 # C
 CC      := xlc 
-CCFLAGS := -O2 -xP -g  $(MACHINECPP) 
+CCFLAGS := -O2 -g  $(MACHINECPP) 
 
 # Fortran
 FC    := xlf95_r
@@ -20,9 +20,14 @@ MYFCFLAGS :=  -d -qnoextname -qarch=auto -qtune=auto -qmaxmem=-1 -g -O3 -qstrict
 MODNAME = $(shell echo $(*F) | tr "[:upper:]" "[:lower:]")
 MODEXT := mod
 
+ODB_MONITOR   := -DODB_MONITOR
+ODBLIBS_EXTRA := -lessl
+LD_MPI_DUMMY    = /project/hirald/auxlibs/lib/libmpidummy.a
+LD_NETCDF_DUMMY = /project/hirald/auxlibs/lib/libnetcdfdummy.a
+
 # Link
 LD          := xlf95_r
-LDFLAGS     := -g
+LDFLAGS     := -g -qsmp -bbigtoc
 
 # AR
 AR      := ar
@@ -34,7 +39,7 @@ RMDIR   := rmdir
 
 # Flags
 FCFLAGS := $(MYFCFLAGS) -I$(ROOTDIR)/inc -I$(ROOTDIR)/$(ARCH)/mod
-CPPFLAGS := -I$(ROOTDIR)/inc
+CPPFLAGS := -I$(ROOTDIR)/inc $(ODB_MONITOR)
 
 # depf90mod.x search extensions ( -f is default )
 MODEXTS=-E F90 -E F -E f90 -E -f 

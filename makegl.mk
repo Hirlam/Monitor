@@ -28,6 +28,15 @@ OBJSF90 := $(addsuffix .o, $(basename $(SRCSF90)))
 OBJS := $(OBJSF90) $(OBJSF) $(OBJSC) 
 SRCS := $(SRCSF90) $(SRCSF) $(SRCSC) 
 
+SQLITE_INC  = -I$(HM_LIB)/util/sqlite3/flibs/ -I$(HM_LIB)/util/sqlite3/sqlite-autoconf-3080002/include/
+ifeq "$(strip $(MAKEUP))" "yes"
+  ODBLIBS_PATH  = $(HM_LIB)/$(ARCH)/src
+  ODBINC        =-I$(ODBLIBS_PATH)/.modpath
+else
+  ODBLIBS_PATH  = $(HM_DATA)/gmkpack_build/
+  ODBINC        =-I$(ODBLIBS_PATH)/src/local/odb/module -I$(ODBLIBS_PATH)/src/main/odb/module
+endif
+
 TARGET := $(ROOTDIR)/$(ARCH)/lib/$(MAKECMDGOALS).a
 
 $(MAKECMDGOALS): $(TARGET)
@@ -40,22 +49,22 @@ $(TARGET): $(OBJS)
 
 %.o: %.F90
 	$(CPP) $(CPPFLAGS) $< $(*F)_pp.f90
-	$(FC) $(FCFLAGS) $(FLUFLAG) $(FREE) -c $(*F)_pp.f90
+	$(FC) $(SQLITE_INC) $(ODBINC) $(FCFLAGS) $(FLUFLAG) $(FREE) -c $(*F)_pp.f90
 	$(MV) $(*F)_pp.o $(*F).o
 
 %.o: %.f90
 	$(CPP) $(CPPFLAGS) $< $(*F)_pp.f90
-	$(FC) $(FCFLAGS) $(FLUFLAG) $(FREE) -c $(*F)_pp.f90
+	$(FC) $(SQLITE_INC) $(ODBINC) $(FCFLAGS) $(FLUFLAG) $(FREE) -c $(*F)_pp.f90
 	$(MV) $(*F)_pp.o $(*F).o
 
 %.o: %.F
 	$(CPP) $(CPPFLAGS) $< $(*F)_pp.f
-	$(FC) $(FCFLAGS) $(FLUFLAG) $(FIXED) -c $(*F)_pp.f
+	$(FC) $(SQLITE_INC) $(ODBINC) $(FCFLAGS) $(FLUFLAG) $(FIXED) -c $(*F)_pp.f
 	$(MV) $(*F)_pp.o $(*F).o
 
 %.o: %.f
 	$(CPP) $(CPPFLAGS) $< $(*F)_pp.f
-	$(FC) $(FCFLAGS) $(FIXED) -c $(*F)_pp.f
+	$(FC) $(SQLITE_INC) $(ODBINC) $(FCFLAGS) $(FIXED) -c $(*F)_pp.f
 	$(MV) $(*F)_pp.o $(*F).o
 
 depend dependencies.inc: $(SRCS)

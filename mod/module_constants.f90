@@ -12,6 +12,7 @@
   REAL, PARAMETER :: tzero     = 273.15
   REAL, PARAMETER :: melt_heat = 3.34e5 ! J/kg
   REAL, PARAMETER :: rair      = 2.8704E2
+  REAL, PARAMETER :: radi      = 1.7453292E-02          ! pi / 180._jprb
   REAL, PARAMETER :: tlapse    = 0.0065
 
   CHARACTER(LEN=3), PARAMETER  ::                      &
