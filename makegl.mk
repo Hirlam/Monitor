@@ -34,7 +34,7 @@ ifeq "$(strip $(MAKEUP))" "yes"
   ODBINC        =-I$(ODBLIBS_PATH)/.modpath
 else
   ODBLIBS_PATH  = $(HM_DATA)/gmkpack_build/
-  ODBINC        =-I$(ODBLIBS_PATH)/src/local/odb/module -I$(ODBLIBS_PATH)/src/main/odb/module
+  ODBINC        =-I$(ODBLIBS_PATH)/src/local/odb/module -I$(ODBLIBS_PATH)/src/main/odb/module -I$(ODBLIBS_PATH)/src/local/xrd/module -I$(ODBLIBS_PATH)/src/main/xrd/module
 endif
 
 TARGET := $(ROOTDIR)/$(ARCH)/lib/$(MAKECMDGOALS).a
