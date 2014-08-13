@@ -13,10 +13,8 @@ else
   instrument_satelite=$7
   satelite_channels=$8
 
-  if [ "$WRK" == "" -o "$FCINT" == "" -o "$EXTRARCH" == "" ]; then
+  if [ "$FCINT" == "" ]; then
     echo "The following environment variables are needed:"
-    echo "     WRK: $WRK"
-    echo "EXTRARCH: $EXTRARCH"
     echo "   FCINT: $FCINT"
     exit 1
   fi
