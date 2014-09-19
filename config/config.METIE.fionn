@@ -5,12 +5,12 @@ MACHINECPP :=
 CPP        := /lib/cpp -E -traditional
 
 # C
-CC      := gcc 
-CCFLAGS := -O3 -traceback -g $(MACHINECPP) 
+CC      := icc 
+CCFLAGS := -O2 -traceback -g $(MACHINECPP) 
 
 # Fortran
 FC := ifort
-MYFCFLAGS := -O3 -traceback -g 
+MYFCFLAGS := -O2 -traceback -g
 
 # Modules
 MODNAME = $(shell echo $(*F) | tr "[:upper:]" "[:lower:]")
