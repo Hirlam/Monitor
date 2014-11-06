@@ -248,17 +248,23 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
           CALL fclen_header(.TRUE.,hour(kk),luh,ldum,varprop(j)%acc,wtext)
           DEALLOCATE(ldum)
        ELSE
+          ALLOCATE(ldum(0:maxfclenval))
+          ldum = .FALSE.
+          luh  = .FALSE.
           WRITE(chour,'(I2.2,1X,A3)')hour(kk),'UTC'
-          luh = .FALSE.
           DO k=0,23
             IF ( .NOT. uh(jl(1),k) ) CYCLE
             DO l=0,maxfclenval
-                IF ( .NOT. uf(jl(1),l) ) CYCLE
-                IF( MOD(k + l,24) == hour(kk)) luh(k) = .TRUE.
+              IF ( .NOT. uf(jl(1),l) ) CYCLE
+              IF( MOD(k + l,24) == hour(kk)) THEN 
+                luh(k) = .TRUE.
+                ldum(l) = .TRUE.
+              ENDIF
             ENDDO
           ENDDO
-          CALL fclen_header(.TRUE.,maxfclenval,luh,uf(jl,:),varprop(j)%acc,wtext)
+          CALL fclen_header(.TRUE.,maxfclenval,luh,ldum,varprop(j)%acc,wtext)
           wtext = 'Statistics at '//TRIM(chour)//'  '//TRIM(wtext)
+          DEALLOCATE(ldum)
        ENDIF
     ENDIF
     WRITE(lunout,'(A,X,A)')'#HEADING_3',TRIM(wtext)
