@@ -279,6 +279,15 @@ SUBROUTINE read_vobs
                obs(stat_i)%o(i)%val(m) = obs(stat_i)%lat
               CASE('HG')
                obs(stat_i)%o(i)%val(m) = obs(stat_i)%hgt
+              CASE('PE12')
+               ! Use PE if PE12 not found
+               mm = find_var(ninvar,invar,varprop(m)%id(1:2))
+               IF ( mm > 0 ) THEN
+                IF ( qca(val(mm),mflag)            .AND. &
+                     qclr(val(mm),varprop(m)%llim) .AND. &
+                     qcur(val(mm),varprop(m)%ulim) )     &
+                obs(stat_i)%o(i)%val(m) = val(mm)
+               ENDIF
               CASE('TTHA','TNHA','TXHA')
                ! Convert to celcius
                mm = find_var(ninvar,invar,varprop(m)%id(1:2))
