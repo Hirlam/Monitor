@@ -45,6 +45,9 @@ MODULE module_obsmon
   LOGICAL                  :: lamsub
   LOGICAL                  :: lmhs
   LOGICAL                  :: liasi
+  LOGICAL                  :: lscatt
+  LOGICAL                  :: lscatt_u10m
+  LOGICAL                  :: lscatt_v10m
   LOGICAL                  :: lradar,lradarv,lradardbz,lradarrh
   CHARACTER(LEN=10),ALLOCATABLE,DIMENSION(:) :: cdate(:)
   LOGICAL                  :: lstat
@@ -67,13 +70,14 @@ MODULE module_obsmon
                       lamsu,lamsua,lamsub, &
                       lmhs, &
                       liasi, &
+                      lscatt, lscatt_u10m, lscatt_v10m, &
                       lradar,lradarv,lradardbz,lradarrh
 
   CONTAINS
 
   SUBROUTINE init_obsmon()
     USE module_obstypes, ONLY : alloc_obs,init_amsua,init_amsub,init_iasi,init_conv_surf,init_conv_vert,init_mhs,nused, &
-                                init_radar
+                                init_radar,init_scatt
     IMPLICIT NONE
     LOGICAL                  :: dry
     INTEGER                  :: i
@@ -227,6 +231,16 @@ MODULE module_obsmon
         CALL init_iasi(dry)
       ENDIF
 
+      ! Scatterometer
+      IF ( ( lall ) .OR. ( lscatt ) .OR. ( lscatt_u10m ) ) THEN
+        CALL init_scatt(dry,"u10m")
+      ENDIF
+
+      ! Scatterometer
+      IF ( ( lall ) .OR. ( lscatt ) .OR. ( lscatt_v10m) ) THEN
+        CALL init_scatt(dry,"v10m")
+      ENDIF
+
       ! RADAR
       IF ( ( lall ) .OR. ( lradar ) .OR. ( lradarv )) THEN
         CALL init_radar(dry,"radarv")
@@ -359,6 +373,9 @@ MODULE module_obsmon
     lamsub          = .FALSE.
     lmhs            = .FALSE.
     liasi           = .FALSE.
+    lscatt          = .FALSE.
+    lscatt_u10m     = .FALSE.
+    lscatt_v10m     = .FALSE.
     lradar          = .FALSE.
     lradarv         = .FALSE.
     lradardbz       = .FALSE.

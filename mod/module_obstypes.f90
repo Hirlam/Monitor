@@ -196,6 +196,52 @@ MODULE module_obstypes
     nused=nused+1
   END SUBROUTINE init_conv_surf
 
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !
+  !  Scatterometer 
+  !
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  SUBROUTINE init_scatt(dry,obtype)
+    IMPLICIT NONE
+    LOGICAL,INTENT(IN)            :: dry
+    CHARACTER(LEN=*),INTENT(IN)   :: obtype
+
+    IF ( .NOT. dry ) THEN
+      all_obs(nused)%lsat=.FALSE.
+      all_obs(nused)%var%level=0
+      all_obs(nused)%var%level1=0
+      all_obs(nused)%var%level2=0
+      all_obs(nused)%var%vertco=1
+      all_obs(nused)%var%subtypestart=0
+      all_obs(nused)%var%subtypeend=200000
+      all_obs(nused)%obnumber=9
+      SELECT CASE (TRIM(obtype))
+        CASE ("u10m")
+          all_obs(nused)%name="scatt"
+          all_obs(nused)%var%name="u10m"
+          all_obs(nused)%var%nr=124
+        CASE ("v10m")
+          all_obs(nused)%name="scatt"
+          all_obs(nused)%var%name="v10m"
+          all_obs(nused)%var%nr=125
+        CASE DEFAULT
+          WRITE(*,*) "Variable obtype not defined: ",obtype
+          CALL ABORT
+      END SELECT
+
+      all_obs(nused)%var%fname=all_obs(nused)%var%name
+      ! Not used sensor properties at the moment. Don't separate satelites!
+      all_obs(nused)%sensor%id=0
+      all_obs(nused)%sensor%name="ascat"
+      all_obs(nused)%sensor%satid=-1
+      all_obs(nused)%sensor%channel=-1
+      all_obs(nused)%sensor%channel=-1
+      all_obs(nused)%sensor%channels=-1
+      IF ( verbose > 1 ) write(*,*) nused,'-> Init ',TRIM(all_obs(nused)%name)
+    ENDIF
+    nused=nused+1
+  END SUBROUTINE init_scatt
+
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !
   ! Conventional observations with vertical levels 

@@ -11,7 +11,7 @@ set_bases(){
 }
 
 set_obtypes(){
-  obtypes="synop dribu ship aircraft temp amsua amsub mhs iasi radar"
+  obtypes="synop dribu ship aircraft temp amsua amsub mhs iasi radar scatt"
   #obtypes="iasi"
 }
 
