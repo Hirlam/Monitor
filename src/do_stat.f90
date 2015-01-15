@@ -21,6 +21,8 @@ SUBROUTINE do_stat(per_ind,p1,p2)
 
  CHARACTER(LEN=4 ) :: ttype = 'TIME'
  CHARACTER(LEN=38) :: text  = '    BIAS    MAE     RMSE    STDV     N'
+ CHARACTER(LEN=5 ) :: clev
+ CHARACTER(LEN=len_lab ) :: cid
 !---------------------------------
 
  timing_id = 0
@@ -114,19 +116,20 @@ SUBROUTINE do_stat(per_ind,p1,p2)
 
     DO j=1,nparver
 
+       cid = TRIM(varprop(j)%id)//TRIM(clev(varprop(j)%lev))
        onestat = statistics(0.,0.,0.,0,0,0.,0.,0.,0.,0.)
 
        DO k=1,ntimver
 
           IF (leach_station) &
-          CALL write_stat(varprop(j)%id,vertime(k),stat(i)%s(:,j,k),nexp)
+          CALL write_stat(cid,vertime(k),stat(i)%s(:,j,k),nexp)
           DO o=1,nexp
-             CALL   acc_stat(onestat(o),stat(i)%s(o,j,k),1,1,1)
+             CALL acc_stat(onestat(o),stat(i)%s(o,j,k),1,1,1)
           ENDDO
 
        ENDDO
 
-       IF(leach_station) CALL write_stat(varprop(j)%id,999,onestat,nexp)
+       IF(leach_station) CALL write_stat(cid,999,onestat,nexp)
 
     ENDDO
 
@@ -206,11 +209,12 @@ SUBROUTINE do_stat(per_ind,p1,p2)
 
     LOOP_NPARVER : DO j=1,nparver
 
+       cid = TRIM(varprop(j)%id)//TRIM(clev(varprop(j)%lev))
        onestat = statistics(0.,0.,0.,0,0,0.,0.,0.,0.,0.)
 
        DO k=1,ntimver
 
-          CALL write_stat(varprop(j)%id,vertime(k),statall(:,j,k),nexp)
+          CALL write_stat(cid,vertime(k),statall(:,j,k),nexp)
 
           DO o=1,nexp
              CALL acc_stat(onestat(o),statall(o,j,k),1,1,1)
@@ -218,7 +222,7 @@ SUBROUTINE do_stat(per_ind,p1,p2)
 
        ENDDO
 
-       CALL write_stat(varprop(j)%id,999,onestat,nexp)
+       CALL write_stat(cid,999,onestat,nexp)
 
     ENDDO LOOP_NPARVER
 
@@ -358,3 +362,19 @@ SUBROUTINE write_stat(p,t,s,n)
 
  RETURN
 END SUBROUTINE write_stat
+!--------------------------------------------------
+CHARACTER(LEN=5) FUNCTION clev(lev)
+ IMPLICIT NONE
+
+ INTEGER :: lev,magn
+ CHARACTER(LEN=4) :: cform = '(IX)'
+
+ clev = ''
+
+ IF (lev > 0 ) THEN
+   magn=FLOOR(LOG10(FLOAT(lev)))+1
+   WRITE(cform(3:3),'(I1)')magn
+   WRITE(clev,cform)lev
+ ENDIF
+
+END FUNCTION clev
