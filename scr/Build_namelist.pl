@@ -143,7 +143,7 @@
 
       # Add information for each level
       $ilev = 1 ;
-      while ( $ilev le $nlev ) {
+      while ( $ilev <= $nlev ) {
 	 $k = ($i-1)*$nlev + $ilev ;
 
          # Contingency settings
@@ -202,7 +202,7 @@
 
  } ;
 
- if ( $j gt 0 ) { $selectionloop{'scat_ver'}{'CONT_PARAM'}=$j; } ;
+ if ( $j > 0 ) { $selectionloop{'scat_ver'}{'CONT_PARAM'}=$j; } ;
  if ( exists $plots{'DAYVAR'} ) { $selectionloop{'DAYVAR'}{'NTIMVER'}=24/$obint ; } ;
  if ( exists $plots{'VERT'}   ) { $selectionloop{'VERT'}{'NTIMVER'}=24/$obint   ; } ;
  if ( exists $plots{'MAP'}    ) {
@@ -252,7 +252,7 @@
    $selection_num++ ;
 
    # Only plot single stations for the first selection
-   if ( $selection_num gt 1 ) { $def{'def'}{'STNLIST_PLOT'} = '-1' } ;
+   if ( $selection_num > 1 ) { $def{'def'}{'STNLIST_PLOT'} = '-1' } ;
 
    # Set default tag according to selection
    $def{'def'}{'TAG'} = '\''.$selection.'\'' ;
@@ -266,7 +266,7 @@
    unless ( $selections{$selection}{'STNLIST'} =~ /\*/ ) {
       $nstnlist = split(',',$selections{$selection}{'STNLIST'});
       $nstn_not_used = $nameread{'read_section'}{'MAXSTN'}-$nstnlist ;
-      unless ( $nstn_not_used eq 0 ) {
+      if ( $nstn_not_used ) {
          $selections{$selection}{'STNLIST'} = $selections{$selection}{'STNLIST'}.','.$nstn_not_used.'*0';
       } ;
    } ;
@@ -344,7 +344,7 @@
    unless ( exists $plots{'CONT'} ) { ${$default}{'scat_ver'}{'CONT_PARAM'   } =  0  ; } ;
 
    # Only produce xml for the first selection
-   if ( $selection_num gt 1 ) { ${$default}{'scat_ver'}{'LPREP_XML'} = 'F' } ;
+   if ( $selection_num > 1 ) { ${$default}{'scat_ver'}{'LPREP_XML'} = 'F' } ;
 
 
    # 

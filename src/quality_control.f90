@@ -17,7 +17,7 @@ SUBROUTINE quality_control
  ! Local
  !
 
- INTEGER :: i,j,k,n,o,ii,                               &
+ INTEGER :: i,j,k,l,n,o,ii,nn,                          &
             jj,jjstart,jjcheck(nfclengths),             &
             wdate,wtime,                                &
             ind_pe(nparver,nfclengths),                 &
@@ -83,23 +83,23 @@ SUBROUTINE quality_control
  ENDIF
 
  IF ( print_qc > 0 ) THEN
-    WRITE(lunqc,*)
     DO i=1,nfclengths
        IF(qc_fclen(i) == -1 ) EXIT
        WRITE(lunqc,*)'Quality check forecast length ',qc_fclen(i)
     ENDDO
+    WRITE(lunqc,*)
  ENDIF
-
 
  !
  ! Find accumulation index locations
  !
 
- IF (print_qc>1) WRITE(lunqc,*)'Accumulation index'
  ind_pe = 0
- DO j=1,nparver
+ IF ( ANY(varprop(:)%acc /= 0) ) THEN
+  IF (print_qc>1) WRITE(lunqc,*)'Accumulation index'
+  DO j=1,nparver
     IF ( varprop(j)%acc == 0 ) CYCLE
-    IF (print_qc>1) WRITE(lunqc,*)varprop(j)%id,varprop(j)%acc
+    IF (print_qc>1) WRITE(lunqc,*)varprop(j)%text,varprop(j)%acc
    DO i=1,nfclengths
 
     IF ( fclen(i) < varprop(j)%acc ) CYCLE 
@@ -108,10 +108,12 @@ SUBROUTINE quality_control
 
     IF (fclen(i)-fclen(ind_pe(j,i)) < varprop(j)%acc ) ind_pe(j,i) = 0
 
-    IF (print_qc>1) WRITE(lunqc,*)i,varprop(j)%id,fclen(i),ind_pe(j,i)
+    IF (print_qc>1) WRITE(lunqc,*)i,fclen(i),fclen(ind_pe(j,i)),ind_pe(j,i)
 
    ENDDO
- ENDDO
+  ENDDO
+  IF (print_qc>1) WRITE(lunqc,*)
+ ENDIF
 
  IF ( .NOT. estimate_qc_limit ) THEN
 
@@ -148,15 +150,17 @@ SUBROUTINE quality_control
 
     IF ( .NOT. hir(i)%obs_is_allocated ) THEN
        WRITE(6,*)'Your model data is not allocated '
+       WRITE(6,*)'Set RELEASE_MEMORY = F'
        CYCLE STATION_CYCLE
     ENDIF
 
     IF (.NOT.(hir(i)%active.AND.obs(i)%active)) THEN
+       IF (release_memory) DEALLOCATE(obs(i)%o,hir(i)%o)
        CYCLE STATION_CYCLE
     ENDIF
 
     IF (hir(i)%stnr /= obs(i)%stnr) THEN
-       WRITE(6,*)'Your stations does not agree',hir(i)%stnr,obs(i)%stnr
+       WRITE(6,*)'Your stations does not agree',hir(i)%stnr,obs(i)%stnr,i
        CALL abort
     ENDIF
 
@@ -249,19 +253,22 @@ SUBROUTINE quality_control
 
                 IF(varprop(k)%acc /= 0) THEN
 
+                  !
+                  ! Special for accumulated values
+                  !
+
+                  SELECT CASE(varprop(k)%acctype) 
+                  CASE(0)
+
                    !
-                   ! Special for precipitation
+                   ! Take difference between fclen(n) and fclen(ind_pe(k,n))
                    !
 
                    IF(fclen(n) == varprop(k)%acc) THEN
-
                       diff_prep = hir(i)%o(jj)%nal(o,n,k)
-
                    ELSEIF(fclen(n) > varprop(k)%acc .AND. ind_pe(k,n) > 0 ) THEN
-
                       IF ( print_qc > 2 ) WRITE(lunqc,*)'EXP fclen -acc_int',o,ind_pe(k,n), &
                       hir(i)%o(jj)%nal(o,ind_pe(k,n),k)
-
                       IF (ABS(hir(i)%o(jj)%nal(o,ind_pe(k,n),k)-err_ind)<1.e-6) CYCLE EXP_LOOP
 
                       diff_prep = hir(i)%o(jj)%nal(o,n          ,k) - &
@@ -288,6 +295,38 @@ SUBROUTINE quality_control
                    ELSE
                       CYCLE EXP_LOOP
                    ENDIF
+
+                  CASE(2)
+
+                   !
+                   ! Take MIN over fclen(ind_pe(k,n)) - fclen(n)
+                   !
+
+                   nn=MAX(1,ind_pe(k,n)+1)
+                   diff_prep = hir(i)%o(jj)%nal(o,n,k)
+                   DO l=nn,n-1
+                     IF (ABS(hir(i)%o(jj)%nal(o,l,k)-err_ind)>1.e-6) THEN
+                       diff_prep = MIN(hir(i)%o(jj)%nal(o,l,k),diff_prep)
+                     ENDIF
+                   ENDDO
+                  CASE(3)
+
+                   !
+                   ! Take MAX over fclen(ind_pe(k,n)) - fclen(n)
+                   !
+
+                   nn=MAX(1,ind_pe(k,n)+1)
+                   diff_prep = hir(i)%o(jj)%nal(o,n,k)
+                   DO l=nn,n-1
+                     IF (ABS(hir(i)%o(jj)%nal(o,l,k)-err_ind)>1.e-6) THEN
+                       diff_prep = MAX(hir(i)%o(jj)%nal(o,l,k),diff_prep)
+                     ENDIF
+                   ENDDO
+
+                  CASE DEFAULT
+                   CALL ABORT
+                 END SELECT
+
                 ELSE
                    diff_prep=hir(i)%o(jj)%nal(o,n,k)
                 ENDIF
@@ -300,6 +339,8 @@ SUBROUTINE quality_control
 
                  IF(varprop(k)%id == 'DD'.AND.ABS(diff(o)) > 180.) &
                  diff(o) = diff(o) + SIGN(360.,180.-diff(o))
+
+                IF ( print_qc > 2 )WRITE(lunqc,*)'Diff_prep',o,diff_prep,obs(i)%o(j)%val(k),diff(o)
 
                 !
                 ! Gross error check
@@ -326,38 +367,61 @@ SUBROUTINE quality_control
                   .NOT. ANY(qc_control).AND. &
                   .NOT. estimate_qc_limit      ) THEN
 
-                !
-                ! Reject erroneous observations
-                !
+               !
+               ! Reject erroneous observations
+               !
 
-                IF (varprop(k)%acc == 0 ) THEN
+               IF (varprop(k)%acc == 0 ) THEN
+                IF (print_qc > 1 ) THEN
+                  WRITE(lunqc,'(A,2I10,2I3)')'GROSS ERROR station:', &
+                  hir(i)%stnr,hir(i)%o(jj)%date,hir(i)%o(jj)%time,fclen(n)
+                  WRITE(lunqc,*)varprop(k)%text(1:15),qc_lim(k),     &
+                  obs(i)%o(j)%val(k),hir(i)%o(jj)%nal(:,n,k)
+                ENDIF
+
+                gross_error(1,i,k)   = gross_error(1,i,k) + 1
+                obs(i)%o(j)%val(k) = err_ind
+
+               ELSE
+                SELECT CASE(varprop(k)%acctype)
+
+                 CASE(0)
+
+                  IF ( (fclen(n) == varprop(k)%acc).OR. &
+                       (fclen(n) >  varprop(k)%acc .AND.  ind_pe(k,n) > 0 )) THEN
                    IF (print_qc > 1 ) THEN
-                      WRITE(lunqc,'(A,2I10,2I3)')'GROSS ERROR station:', &
-                      hir(i)%stnr,hir(i)%o(jj)%date,hir(i)%o(jj)%time,fclen(n)
-                      WRITE(lunqc,*)varprop(k)%id,qc_lim(k),     &
-                      obs(i)%o(j)%val(k),hir(i)%o(jj)%nal(:,n,k)
+                     IF (lprint_gross_first ) THEN
+                       WRITE(lunqc,'(A)')'GROSS ERROR station: stnr, date, time, fclen'
+                       WRITE(lunqc,'(A)')'Obstype, qc limit, obs, model'
+                       lprint_gross_first = .FALSE.
+                     ENDIF
+                     WRITE(lunqc,'(A,2I10,2I3)')'GROSS ERROR station:', &
+                     hir(i)%stnr,hir(i)%o(jj)%date,hir(i)%o(jj)%time,fclen(n)
+                     WRITE(lunqc,*)varprop(k)%text(1:15),qc_lim(k),     &
+                     obs(i)%o(j)%val(k),obs(i)%o(j)%val(k)+diff(1)
                    ENDIF
 
                    gross_error(1,i,k)   = gross_error(1,i,k) + 1
                    obs(i)%o(j)%val(k) = err_ind
 
-                ELSEIF ( (fclen(n) == varprop(k)%acc).OR. &
-                         (fclen(n) >  varprop(k)%acc .AND.  ind_pe(k,n) > 0 )) THEN
+                  ENDIF
+
+                 CASE(2:3)
+
                    IF (print_qc > 1 ) THEN
-                      IF (lprint_gross_first ) THEN
-                         WRITE(lunqc,'(A)')'GROSS ERROR station: stnr, date, time, fclen'
-                         WRITE(lunqc,'(A)')'Obstype, qc limit, obs, model'
-                         lprint_gross_first = .FALSE.
-                      ENDIF
-                      WRITE(lunqc,'(A,2I10,2I3)')'GROSS ERROR station:', &
-                      hir(i)%stnr,hir(i)%o(jj)%date,hir(i)%o(jj)%time,fclen(n)
-                      WRITE(lunqc,*)varprop(k)%id,qc_lim(k),     &
-                      obs(i)%o(j)%val(k),obs(i)%o(j)%val(k)+diff(1)
+                     WRITE(lunqc,'(A,2I10,2I3)')'GROSS ERROR station:', &
+                     hir(i)%stnr,hir(i)%o(jj)%date,hir(i)%o(jj)%time,fclen(n)
+                     WRITE(lunqc,*)varprop(k)%text(1:15),qc_lim(k),     &
+                     obs(i)%o(j)%val(k),hir(i)%o(jj)%nal(:,n,k)
                    ENDIF
 
                    gross_error(1,i,k)   = gross_error(1,i,k) + 1
                    obs(i)%o(j)%val(k) = err_ind
 
+                  CASE DEFAULT
+                   WRITE(6,*)'Unknown acctype',varprop(k)%acctype
+                   CALL abort
+                 END SELECT
                 ENDIF
 
 
@@ -388,13 +452,13 @@ SUBROUTINE quality_control
 
      
      !
-     ! Reject non quality controled observations
+     ! Reject non quality controlled observations
      !
 
      IF (.NOT. estimate_qc_limit ) THEN
 
         IF ( .NOT. ALL(par_is_checked) .AND. print_qc > 1 ) THEN
-           WRITE(lunqc,'(A,2I10,I3)')'Could not control station:', &
+           WRITE(lunqc,'(A,2I10,I3)')'   No check station:', &
            obs(i)%stnr,obs(i)%o(j)%date,obs(i)%o(j)%time
         ENDIF
 
@@ -404,7 +468,7 @@ SUBROUTINE quality_control
 
            IF ( ABS(obs(i)%o(j)%val(k)-err_ind) > 1.e-6 ) THEN
 
-              IF (print_qc > 1 ) WRITE(lunqc,*)varprop(k)%id,obs(i)%o(j)%val(k)
+              IF (print_qc > 1 ) WRITE(lunqc,*)varprop(k)%text(1:20),obs(i)%o(j)%val(k)
               obs(i)%o(j)%val(k) = err_ind
    
               gross_error(2,i,k) = gross_error(2,i,k) + 1
@@ -435,7 +499,7 @@ SUBROUTINE quality_control
           qc_lim(k) = qc_lim_scale(k) * stdv
        ENDIF
 
-       WRITE(lunqc,*)varlist(k),qc_lim_scale(k),stdv,qc_lim(k)
+       WRITE(lunqc,*)varprop(k)%text(1:20),qc_lim_scale(k),stdv,qc_lim(k)
     ENDDO
     WRITE(lunqc,*)
 

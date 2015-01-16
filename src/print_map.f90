@@ -163,7 +163,8 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
        ! Map min/max temp at 00|12 to 06|18
        !
        IF ( ( varprop(j)%id == 'TN'   .OR.  &
-              varprop(j)%id == 'TX' ) .AND. &
+              varprop(j)%id == 'TX'   .OR.  &
+              varprop(j)%id == 'PE' ) .AND. &
                 ( ntimver_out /= 1 )    .AND. &
                 ( show_times(1) == 0  ) .AND. &
                 ( show_times(2) == 12 ) .AND. &
