@@ -1,4 +1,4 @@
-ARCH=linuxgfortran
+ARCH=cca.gnu
 
 # CPP
 MACHINECPP :=
@@ -22,12 +22,12 @@ MODEXT := mod
 
 ODB_MONITOR   := -DODB_MONITOR
 ODBLIBS_EXTRA := -lpthread
-LD_MPI_DUMMY    = $(AUXLIBS)/libmpidummyR64.a
-LD_NETCDF_DUMMY = $(AUXLIBS)/libnetcdfdummyR64.a
+LD_MPI_DUMMY    = $(AUXLIBS)/libmpi_serial.a
+LD_NETCDF_DUMMY = -L/opt/cray/netcdf/4.3.0/GNU/48/lib/ -lnetcdf -lnetcdff
 
 # Link
 LD          := $(FC)
-LDFLAGS     := -O3 -fbacktrace -g -Wall -Werror
+LDFLAGS     := -O3 -fbacktrace -g -Wall -Werror -fopenmp
 
 # AR
 AR      := ar

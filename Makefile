@@ -20,11 +20,11 @@ ifeq "$(strip $(ODB_MONITOR))" "-DODB_MONITOR"
     ODBLIBS_PATH   = $(HM_LIB)/$(ARCH)/src
     ODB_GLUE       = $(HM_LIB)/src/odb/scripts/
     # AUXLIBS not from makeup at the moment
-    ODBLIBS       := $(ODBLIBS_PATH)/libECMA.a $(ODBLIBS_PATH)/libCCMA.a $(ODBLIBS_PATH)/libodbmain.a  $(ODBLIBS_PATH)/libodbport.a $(ODBLIBS_PATH)/libodb.a $(ODBLIBS_PATH)/libodbdummy.a  $(ODBLIBS_PATH)/libxrd.a $(AUXLIBS)/libmpidummyR64.a $(AUXLIBS)/libnetcdfdummyR64.a $(HM_LIB)/util/sqlite3/flibs/libfsqlite.a $(HM_LIB)/util/sqlite3/sqlite-autoconf-3080002/lib/libsqlite3.a -ldl $(ODBLIBS_EXTRA)
+    ODBLIBS       := $(ODBLIBS_PATH)/libECMA.a $(ODBLIBS_PATH)/libCCMA.a $(ODBLIBS_PATH)/libodbmain.a  $(ODBLIBS_PATH)/libodbport.a $(ODBLIBS_PATH)/libodb.a $(ODBLIBS_PATH)/libodbdummy.a  $(ODBLIBS_PATH)/libifsaux.a $(AUXLIBS)/libmpidummyR64.a $(AUXLIBS)/libnetcdfdummyR64.a $(HM_LIB)/util/sqlite3/flibs/libfsqlite.a $(HM_LIB)/util/sqlite3/sqlite-autoconf-3080002/lib/libsqlite3.a -ldl $(ODBLIBS_EXTRA)
   else
-    ODBLIBS_PATH   = $(HM_DATA)/gmkpack_build/
+    ODBLIBS_PATH   = $(HOMEPACK)/gmkpack_build/
     ODB_GLUE       = $(ODBLIBS_PATH)/src/main/odb/scripts/
-    ODBLIBS       := $(ODBLIBS_PATH)/lib/libcma-odb.main.a $(ODBLIBS_PATH)/lib/libodb.main.a $(ODBLIBS_PATH)/lib/libcma-odb.main.a $(ODBLIBS_PATH)/lib/libxrd.main.a $(LD_MPI_DUMMY) $(LD_NETCDF_DUMMY) $(HM_LIB)/util/sqlite3/flibs/libfsqlite.a $(HM_LIB)/util/sqlite3/sqlite-autoconf-3080002/lib/libsqlite3.a -ldl $(ODBLIBS_EXTRA)
+    ODBLIBS       := $(ODBLIBS_PATH)/lib/libcma-odb.main.a $(ODBLIBS_PATH)/lib/libodb.main.a $(ODBLIBS_PATH)/lib/libcma-odb.main.a $(ODBLIBS_PATH)/lib/libifsaux.main.a $(LD_MPI_DUMMY) $(LD_NETCDF_DUMMY) $(HM_LIB)/util/sqlite3/flibs/libfsqlite.a $(HM_LIB)/util/sqlite3/sqlite-autoconf-3080002/lib/libsqlite3.a -ldl $(ODBLIBS_EXTRA)
   endif
 else
   DEFS     = verobs jbconv
