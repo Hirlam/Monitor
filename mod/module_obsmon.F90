@@ -386,6 +386,7 @@ MODULE module_obsmon
 
   SUBROUTINE write_output(cdtg,ind)
     USE module_obstypes, ONLY      : all_obs,nused
+    USE module_odb_extract, ONLY   : istatus
 #ifdef ODB_MONITOR
     USE sqlite,          ONLY      : SQLITE_DATABASE,SQLITE_STATEMENT,SQLITE_COLUMN,&
                                      SQLITE_CHAR,SQLITE_INT,SQLITE_REAL,&
@@ -446,7 +447,7 @@ MODULE module_obsmon
         call sqlite3_open( TRIM(outfile_stat)//'.db', db )
 
         ! Define columns
-        offset=6
+        offset=7
         ncols=11
         allocate(column((ncols*3)+offset))
         allocate(colname((ncols*3)+offset))
@@ -456,6 +457,7 @@ MODULE module_obsmon
         colname(4)="satname"
         colname(5)="varname"
         colname(6)="level"
+        colname(7)="passive"
         do ii=1,3
           i=(ii-1)*ncols
           select case (ii)
@@ -491,6 +493,8 @@ MODULE module_obsmon
         if(sqlite3_error(db)) write(*,*) 'WARNING: sqlite3_column_props '//TRIM(sqlite3_errmsg(db))
         call sqlite3_column_props( column(6), trim(colname(6)), SQLITE_INT )
         if(sqlite3_error(db)) write(*,*) 'WARNING: sqlite3_column_props '//TRIM(sqlite3_errmsg(db))
+        call sqlite3_column_props( column(7), trim(colname(7)), SQLITE_INT )
+        if(sqlite3_error(db)) write(*,*) 'WARNING: sqlite3_column_props '//TRIM(sqlite3_errmsg(db))
         do i=offset+1,(ncols*3)+offset
           call sqlite3_column_props( column(i), trim(colname(i)), SQLITE_REAL )
           if(sqlite3_error(db)) write(*,*) 'WARNING: sqlite3_column_props '//TRIM(sqlite3_errmsg(db))
@@ -513,6 +517,8 @@ MODULE module_obsmon
         call sqlite3_set_column( column(5), TRIM(all_obs(obs)%var%name) )
         if(sqlite3_error(db)) CALL sql_error('sqlite3_set_column '//TRIM(sqlite3_errmsg(db)))
         call sqlite3_set_column( column(6), level )
+        if(sqlite3_error(db)) CALL sql_error('sqlite3_set_column '//TRIM(sqlite3_errmsg(db)))
+        call sqlite3_set_column( column(7), istatus(3) )
         if(sqlite3_error(db)) CALL sql_error('sqlite3_set_column '//TRIM(sqlite3_errmsg(db)))
         do ii=1,3
           i=(ii-1)*ncols
@@ -834,8 +840,8 @@ MODULE module_obsmon
     istatus(5)=ianflag_odb(i)                                                                           ! Canari status
 
    
-    ! Update statistics if observation is active
-    IF (( istatus(1) > 0 ) .OR. (istatus(5) > 0 )) THEN
+    ! Update statistics if observation is active or passive
+    IF (( istatus(1) > 0 ) .OR. (istatus(5) > 0 ) .OR. (istatus(3) > 0 )) THEN
       ! Summation
       ! Check if land or sea point
       ! LSM=1 means land point
