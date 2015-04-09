@@ -135,6 +135,11 @@ MODULE module_obstypes
           all_obs(nused)%name="synop"
           all_obs(nused)%var%name="snow"
           all_obs(nused)%var%nr=92
+        CASE("synop_apd") ! 128
+          all_obs(nused)%obnumber=1
+          all_obs(nused)%name="synop"
+          all_obs(nused)%var%name="apd"
+          all_obs(nused)%var%nr=128
         CASE ("ship_z")
           all_obs(nused)%obnumber=1
           all_obs(nused)%name="ship"

@@ -16,6 +16,7 @@ MODULE module_obsmon
   LOGICAL                  :: lsynop_u10m
   LOGICAL                  :: lsynop_v10m
   LOGICAL                  :: lsynop_snow
+  LOGICAL                  :: lsynop_apd
   LOGICAL                  :: lship
   LOGICAL                  :: lship_z
   LOGICAL                  :: lship_t2m
@@ -132,7 +133,9 @@ MODULE module_obsmon
         IF ( ( lall ) .OR. ( lsynop ) .OR. ( lsynop_snow) ) THEN
           CALL init_conv_surf(dry,"synop_snow")
         ENDIF
-
+        IF ( ( lall ) .OR. ( lsynop ) .OR. ( lsynop_apd) ) THEN
+          CALL init_conv_surf(dry,"synop_apd")
+        ENDIF
       ENDIF
  
       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
