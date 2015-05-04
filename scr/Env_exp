@@ -106,6 +106,7 @@ SURFPLOT="GEN TIME MAP FREQ SCAT CONT XML DAYVAR"
 # WILSON        : Wilson diagram, a combination of POD, TS, FAR and frequency bias
 # KSS           : Hansen-Kupiers skill score
 # AI            : Area index
+# EDS           : Extreme Dependency Score
 # SEDS          : Symmetric Extreme Dependency Score
 # EDI           : Extremal Dependency Index
 # SEDI          : Symmetric Extremal Dependency Index
