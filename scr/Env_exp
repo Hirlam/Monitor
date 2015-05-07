@@ -30,11 +30,17 @@ HELP="Observation verification comparison between \
 # Date handling
 # PERIOD_TYPE 1 : SDATE - EDATE, 
 #             2 : SDATE - EDATE in monthly pieces
+#             3 : SDATE - EDATE in monthly pieces per year
+#
+# PERIOD_FREQ   : Freqency for PERIOD_TYPE=3
+#             3 : Seasonal ( DJF,MAM,JJA,SON )
+#         other : Number of months in period
 # 
 # IDATE is the very first date for PERIOD_TYPE=2 it determines the 
 # lentght of the date menu in WebgraF
 #
 PERIOD_TYPE=1
+PERIOD_FREQ=1
 
 SDATE=20080901
 EDATE=20080905
@@ -222,7 +228,7 @@ WEBCALL="$BASE/WebgraF/bin/WebgraF -p $PROJECT"
 
 # Export all variables
 export PROJECT WEBCALL WEBGRAF_BASE BASE BIN MYEXP IDATE SDATE EDATE HELP SCR WRK
-export OUTPUT_TYPE PERIOD_TYPE
+export OUTPUT_TYPE PERIOD_TYPE PERIOD_FREQ
 export LEV_LST LEV_LST_RH LEV_LST_TD SURFPAR TEMPPAR 
 export OBINT_SURF FCINT_SURF 
 export FCLEN_SURF FCLEN_DAYVAR FCLEN_SCAT FCLEN_SURF_TIME

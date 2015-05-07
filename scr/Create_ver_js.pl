@@ -38,8 +38,17 @@
 
  # Time handling
  $period_type = $ENV{PERIOD_TYPE}; 
- @period_v = ('','\'00000000\'','\'gen_date\',\'00YYYYMM\',\'00'.$ENV{EDATE}.'\',\'00'.$ENV{IDATE}.'\'');
- @period_t = ('','\'00000000\'','\'gen_date\',\'YYYYMM\',\''.$ENV{EDATE}.'\',\''.$ENV{IDATE}.'\'');
+ $period_freq = $ENV{PERIOD_FREQ} or $period_freq = 1 ;
+ @period_v = ('','\'00000000\'',
+              '\'gen_date\',\'00YYYYMM\',\'00'.$ENV{EDATE}.'\',\'00'.$ENV{IDATE}.'\'',
+              '\'month_num\',1,'.12/$period_freq.',1,7') ;
+ if ( $period_freq eq 3 ) {
+   @period_t = ('','\'00000000\'','\'gen_date\',\'YYYYMM\',\''.$ENV{EDATE}.'\',\''.$ENV{IDATE}.'\'',
+              '\'season_txt\',1,'.12/$period_freq.',1') ;
+ } else {
+   @period_t = ('','\'00000000\'','\'gen_date\',\'YYYYMM\',\''.$ENV{EDATE}.'\',\''.$ENV{IDATE}.'\'',
+              '\'month_txt\',1,'.12/$period_freq.','.$period_freq) ;
+ } 
 
  # Stations
  if ( $ENV{STNLIST_PLOT} ne -1 ) {

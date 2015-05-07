@@ -672,6 +672,27 @@ var p = arguments[0]
       if ( reverse ) { p = p.reverse() }
    }
 
+// Season text list
+   if ( p[0] == 'season_txt' ) {
+
+      mstart = 1 ; mstop = 4 ; reverse = false
+
+      if ( p[1] != undefined ) {
+         if ( p[1] < p[2] ) { mstart = p[1] ; mstop = p[2] ; reverse = false }
+                       else { mstart = p[2] ; mstop = p[1] ; reverse = true  }
+      }
+
+      clean(p)
+      jj = 0
+      for ( mm=mstart ; mm <= mstop ; mm++ ) {
+         
+         p[(jj)] =  seasons[pre_lan][(mm-1)]
+         jj += 1
+      }
+
+      if ( reverse ) { p = p.reverse() }
+   }
+
 // General date stepping
    if ( p[0] == 'gen_date' || p[0] == 'txt_date' ) {
 

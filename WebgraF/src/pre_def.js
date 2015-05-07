@@ -142,6 +142,7 @@ this.rtpo  = rtpo
 
 var pre_lan = 0
 var months  = new Array()
+var seasons = new Array()
 
 // English
 lang[0] = new language_def("WebgraF","Favorites","All","Save","DEL","Clear","Choices",
@@ -152,6 +153,7 @@ lang[0] = new language_def("WebgraF","Favorites","All","Save","DEL","Clear","Cho
                             "Save as a cookie","Clear this menu","Flip this menu","Remove this item")
 
 months[0] = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] 
+seasons[0] = ['DJF','MAM','JJA','SON']
 
 
 // Swedish
@@ -163,3 +165,4 @@ lang[1] = new language_def("WebgraF","Favoriter","Alla","Spara","DEL","Rensa","V
                             "Spara som en kaka","Rensa denna meny","Vänd denna meny","Tag bort denna post")
 
 months[1] = ['Jan','Feb','Mar','Apr','Maj','Jun','Jul','Aug','Sep','Okt','Nov','Dec']
+seasons[1] = ['DJF','MAM','JJA','SON']
