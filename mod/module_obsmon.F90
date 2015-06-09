@@ -830,14 +830,16 @@ MODULE module_obsmon
 
     ! Check status
     istatus=0
-    IF ((istatus_acthdr_odb(i) == 1).and.(istatus_actbod_odb(i) == 1)) THEN                             ! Active
+    IF (istatus_actbod_odb(i) == 1) THEN                             ! Active
       istatus=(/1,0,0,0,0/)
     ENDIF
-    IF ((istatus_rejhdr_odb(i) == 1).OR.(istatus_rejbod_odb(i) == 1)) THEN                              ! Rejected
+    IF (istatus_rejbod_odb(i) == 1) THEN                             ! Rejected
       istatus=(/0,1,0,0,0/)
-    ELSEIF ((istatus_pashdr_odb(i) == 1).OR.(istatus_pasbod_odb(i) == 1)) THEN                          ! Passive
+    ENDIF
+    IF (istatus_pasbod_odb(i) == 1) THEN                             ! Passive
       istatus=(/0,0,1,0,0/)
-    ELSEIF ((istatus_blkhdr_odb(i) == 1).OR.(istatus_blkbod_odb(i) == 1)) THEN                          ! Blacklisted
+    ENDIF
+    IF (istatus_blkbod_odb(i) == 1) THEN                             ! Blacklisted
       istatus=(/0,0,0,1,0/)
     ENDIF
     istatus(5)=ianflag_odb(i)                                                                           ! Canari status
