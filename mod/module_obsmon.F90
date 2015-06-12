@@ -838,6 +838,9 @@ MODULE module_obsmon
     ENDIF
     IF (istatus_pasbod_odb(i) == 1) THEN                             ! Passive
       istatus=(/0,0,1,0,0/)
+      IF (istatus_rejbod_odb(i) == 1) THEN                           ! Passive, but rejected
+        istatus=(/0,1,0,0,0/)
+      ENDIF
     ENDIF
     IF (istatus_blkbod_odb(i) == 1) THEN                             ! Blacklisted
       istatus=(/0,0,0,1,0/)
