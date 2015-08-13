@@ -1,6 +1,7 @@
 SUBROUTINE print_cont(p1,p2,nr,par_active,    &
                       uh,uf)
 
+ USE constants, ONLY : seasonal_name1,seasonal_name2
  USE data
  USE contingency
 
@@ -71,12 +72,23 @@ SUBROUTINE print_cont(p1,p2,nr,par_active,    &
        WRITE(luncont,'(A)')TRIM(cwrk)
 
        ! Line 3
-       IF ( period == 0 ) THEN
-          wname=''
-          WRITE(wname,'(A,I8,A,I8)')' Period: ',p1,'-',p2
+       wname = ''
+       IF (p1 == 0 ) THEN
+       ELSEIF(p1 < 13) THEN
+   
+         SELECT CASE(period_freq)
+          CASE(1)
+           WRITE(wname,'(A8,A8)')'Period: ',seasonal_name2(p1)
+          CASE(3)
+           WRITE(wname,'(A8,A8)')'Period: ',seasonal_name1(p1)
+         END SELECT
+   
+       ELSEIF(p1 < 999999 ) THEN
+          WRITE(wname,'(A8,I8)')'Period: ',p1
        ELSE
-          WRITE(wname,'(A,I8)')' Period:',period
+          WRITE(wname,'(A8,I8,A1,I8)')'Period: ',p1,'-',p2
        ENDIF
+
        WRITE(luncont,'(A)')TRIM(wname)
 
        ! Line 4
