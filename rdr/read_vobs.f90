@@ -305,6 +305,12 @@ SUBROUTINE read_vobs
                     qcur(val(m2),varprop(m)%ulim) )     &
                  obs(stat_i)%o(i)%val(m) =              &
                  val(m2) - val(mm)
+              CASE('NN')
+                IF ( qca(obs(stat_i)%o(i)%val(m),err_ind) ) THEN
+                 ! Translate clould cover to discrete eights
+                 obs(stat_i)%o(i)%val(m) =              &
+                 FLOAT(NINT(obs(stat_i)%o(i)%val(m)))
+                ENDIF
             END SELECT
 
           ENDDO PARVER_LOOP
