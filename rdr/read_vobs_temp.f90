@@ -25,7 +25,6 @@ SUBROUTINE read_vobs_temp
             max_found_stat,             &
             wrk(mparver),               &
             version_flag,               &
-            old_version_flag,           &
             ipr,ifi,ninvar,             &
             old_ninvar
  
@@ -45,7 +44,6 @@ SUBROUTINE read_vobs_temp
  ifi = -1
  stations       = 0
  max_found_stat = 0
- old_version_flag = -1
  version_flag   = 0
  old_ninvar     = -1
  ninvar         = 0
@@ -103,7 +101,6 @@ SUBROUTINE read_vobs_temp
        version_flag = 0
 
        READ(lunin,'(1x,3I6)',IOSTAT=ierr)num_stat,num_temp,version_flag
-       WRITE(6,'(1x,3I6)',IOSTAT=ierr)num_stat,num_temp,version_flag
        IF ( ierr /= 0 ) THEN
          WRITE(6,*)'Error reading first line of vobs file',ierr
          CALL abort
@@ -139,51 +136,47 @@ SUBROUTINE read_vobs_temp
           WRITE(6,*)'Cannot handle this version flag',version_flag
        END SELECT
 
-       IF ( version_flag /= old_version_flag ) THEN
+       SELECT CASE(version_flag)
+        CASE(0)
+         ninvar=7
+         IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
+         ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
+         invar = (/'PR','FI','TT','RH','DD','FF','QQ'/)
+         ipr = 1
+         ifi = 2
+        CASE(1:2)
+         ninvar=8
+         IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
+         ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
+         invar = (/'PR','FI','TT','RH','DD','FF','QQ','TD'/)
+         ipr = 1
+         ifi = 2
+        CASE(4)
+         ipr = -1 
+         ifi = -1 
+         READ(lunin,*)num_temp_lev
+         READ(lunin,*)ninvar
+          IF ( ninvar /= old_ninvar ) THEN
+            IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
+            ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
+         ENDIF
+         DO i=1,ninvar
+           READ(lunin,*)invar(i),inacc(i)
+           IF ( invar(i) == 'PR' ) ipr = i
+           IF ( invar(i) == 'PP' ) ipr = i
+           IF ( invar(i) == 'FI' ) ifi = i
+         ENDDO
+         IF ( ipr == -1 .OR. ifi == -1 ) THEN
+           WRITE(6,*)'FI or PR/PP not found'
+           CALL abort
+         ENDIF
+        CASE DEFAULT
+         WRITE(6,*)'Cannot handle this vobs-file version',version_flag
+         CALL abort
+       END SELECT
 
-           SELECT CASE(version_flag)
-           CASE(0)
-             ninvar=7
-             IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
-             ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
-             invar = (/'PR','FI','TT','RH','DD','FF','QQ'/)
-             ipr = 1
-             ifi = 2
-           CASE(1:2)
-             ninvar=8
-             IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
-             ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
-             invar = (/'PR','FI','TT','RH','DD','FF','QQ','TD'/)
-             ipr = 1
-             ifi = 2
-           CASE(4)
-             ipr = -1 
-             ifi = -1 
-             READ(lunin,*)num_temp_lev
-             READ(lunin,*)ninvar
-              IF ( ninvar /= old_ninvar ) THEN
-                IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
-                ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
-             ENDIF
-             DO i=1,ninvar
-               READ(lunin,*)invar(i),inacc(i)
-               IF ( invar(i) == 'PR' ) ipr = i
-               IF ( invar(i) == 'PP' ) ipr = i
-               IF ( invar(i) == 'FI' ) ifi = i
-             ENDDO
-             IF ( ipr == -1 .OR. ifi == -1 ) THEN
-               WRITE(6,*)'FI or PR/PP not found'
-               CALL abort
-             ENDIF
-          CASE DEFAULT
-             WRITE(6,*)'Cannot handle this vobs-file version',version_flag
-             CALL abort
-          END SELECT
-
-          old_ninvar = ninvar
+       old_ninvar = ninvar
        
-       ENDIF
-
        READ_STATION_OBS : DO k=1,num_temp
 
           SELECT CASE(version_flag)

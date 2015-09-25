@@ -33,7 +33,6 @@ SUBROUTINE read_vfld_temp
             max_found_stat,             &
             wrk(mparver),               &
             version_flag,               &
-            old_version_flag,           &
             ipr,ifi,ninvar,             &
             old_ninvar,nvars
  
@@ -57,7 +56,6 @@ SUBROUTINE read_vfld_temp
  ifi = -1
  stations       = 0
  max_found_stat = 0
- old_version_flag = -1
  version_flag   = 0
  old_ninvar     = -1
  ninvar         = 0
@@ -75,7 +73,7 @@ SUBROUTINE read_vfld_temp
  WHERE( lev_lst > 0 ) wrk = 1
  my_temp_lev = SUM(wrk)
 
- IF (lprint_read) WRITE(6,*)'MY_TEMP_LEV',my_temp_lev
+ IF (print_read>1) WRITE(6,*)'MY_TEMP_LEV',my_temp_lev
 
  !
  ! Loop over all times
@@ -156,6 +154,8 @@ SUBROUTINE read_vfld_temp
          WRITE(6,*)'Error reading first line of vfld file',ierr
          CALL abort
        ENDIF
+       IF (print_read > 1 ) WRITE(6,*)'NUM_STAT,NUM_TEMP,VERSION_FLAG',&
+       num_stat,num_temp,version_flag
 
        IF ( num_temp == 0 ) THEN
           CLOSE(lunin)
@@ -163,13 +163,13 @@ SUBROUTINE read_vfld_temp
        ENDIF
 
        SELECT CASE (version_flag)
-       CASE(0:3)
+        CASE(0:3)
           READ(lunin,*)num_temp_lev
 
           DO k=1,num_stat
             READ(lunin,*)
           ENDDO
-      CASE(4)
+        CASE(4)
           READ(lunin,*)nvars
           DO k=1,nvars
             READ(lunin,*)
@@ -177,53 +177,52 @@ SUBROUTINE read_vfld_temp
           DO k=1,num_stat
             READ(lunin,*)
           ENDDO
-       CASE DEFAULT
+        CASE DEFAULT
           WRITE(6,*)'Cannot handle this version flag',version_flag
        END SELECT 
 
-       IF ( version_flag /= old_version_flag ) THEN
-           SELECT CASE(version_flag)
-           CASE(0)
-             ninvar=7
-             IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
-             ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
-             invar = (/'PR','FI','TT','RH','DD','FF','QQ'/)
-             ipr = 1
-             ifi = 2
-           CASE(1:3)
-             ninvar=8
-             IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
-             ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
-             invar = (/'PR','FI','TT','RH','DD','FF','QQ','TD'/)
-             ipr = 1
-             ifi = 2
-           CASE(4)
-             ipr = -1 
-             ifi = -1 
-             READ(lunin,*)num_temp_lev
-             READ(lunin,*)ninvar
-             IF ( ninvar /= old_ninvar ) THEN
-               IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
-               ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
-             ENDIF
-             DO i=1,ninvar
-               READ(lunin,*)invar(i),inacc(i)
-               IF ( invar(i) == 'PR' ) ipr = i
-               IF ( invar(i) == 'PP' ) ipr = i
-               IF ( invar(i) == 'FI' ) ifi = i
-             ENDDO
-             IF ( ipr == -1 .OR. ifi == -1 ) THEN
-               WRITE(6,*)'FI or PR/PP not found'
-               CALL abort
-             ENDIF
-          CASE DEFAULT
-             WRITE(6,*)'Cannot handle this vfld-file version',version_flag
-             CALL abort
-          END SELECT
-          old_ninvar = ninvar
-       ENDIF
+       SELECT CASE(version_flag)
+        CASE(0)
+          ninvar=7
+          IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
+          ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
+          invar = (/'PR','FI','TT','RH','DD','FF','QQ'/)
+          ipr = 1
+          ifi = 2
+        CASE(1:3)
+          ninvar=8
+          IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
+          ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
+          invar = (/'PR','FI','TT','RH','DD','FF','QQ','TD'/)
+          ipr = 1
+          ifi = 2
+        CASE(4)
+          ipr = -1 
+          ifi = -1 
+          READ(lunin,*)num_temp_lev
+          READ(lunin,*)ninvar
+          IF (print_read>1)WRITE(6,*)'NUM_TEMP_LEV,NINVAR',&
+          num_temp_lev,ninvar
+          IF ( ninvar /= old_ninvar ) THEN
+            IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
+            ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
+          ENDIF
+          DO i=1,ninvar
+            READ(lunin,*)invar(i),inacc(i)
+            IF ( invar(i) == 'PR' ) ipr = i
+            IF ( invar(i) == 'PP' ) ipr = i
+            IF ( invar(i) == 'FI' ) ifi = i
+          ENDDO
+          IF ( ipr == -1 .OR. ifi == -1 ) THEN
+            WRITE(6,*)'FI or PR/PP not found'
+            CALL abort
+          ENDIF
+        CASE DEFAULT
+          WRITE(6,*)'Cannot handle this vfld-file version',version_flag
+          CALL abort
+       END SELECT
 
-       old_version_flag = version_flag
+       old_ninvar = ninvar
 
        READ_STATION_MOD : DO k=1,num_temp
 
@@ -234,12 +233,13 @@ SUBROUTINE read_vfld_temp
           CASE(1:4)
              READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt
           CASE DEFAULT
-             WRITE(6,*)'Cannot handle this vobs-file version',version_flag
+             WRITE(6,*)'Cannot handle this vfld-file version',version_flag
              CALL abort
           END SELECT 
 
           IF (ierr /= 0) CYCLE READ_STATION_MOD
 
+          IF (print_read>1) WRITE(6,*)'Treat station',istnr
           !
           ! Find station index
           ! Search the first experiment only
@@ -338,7 +338,10 @@ SUBROUTINE read_vfld_temp
              READ(lunin,*,iostat=ierr)val
           END SELECT 
 
-          IF (ierr /= 0 ) CYCLE READ_LEV_MOD
+          IF (ierr /= 0 ) THEN
+            IF (print_read>1) WRITE(6,*)'Error reading val'
+            CYCLE READ_LEV_MOD
+          ENDIF
 
           kk_lev = 0
           DO kkk=1,my_temp_lev
@@ -346,7 +349,7 @@ SUBROUTINE read_vfld_temp
           ENDDO
           IF (kk_lev == 0 ) CYCLE READ_LEV_MOD
 
-          IF (lprint_read) WRITE(6,*)'KK_LEV',kk_lev,val(1),lev_lst(kk_lev)
+          IF (print_read>1) WRITE(6,*)'KK_LEV',kk_lev,val(1),lev_lst(kk_lev)
 
           ! Do not use levels below model topography
           IF ( (ABS(hgt    - err_ind ) > 1.e-6) .AND. &
@@ -377,6 +380,7 @@ SUBROUTINE read_vfld_temp
 
               ENDIF
             ENDDO INVAR_LOOP
+            IF (print_read>1) WRITE(6,*)varprop(m)%id,hir(stat_i)%o(i)%nal(l,j,m)
           ENDDO PARVER_LOOP
 
        ENDDO READ_LEV_MOD
