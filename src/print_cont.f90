@@ -16,7 +16,7 @@ SUBROUTINE print_cont(p1,p2,nr,par_active,    &
 
  INTEGER, ALLOCATABLE :: sumcol(:)
 
- CHARACTER(LEN= 25) :: cform='(A20,XXI9,X,A1,X,I9)'
+ CHARACTER(LEN= 25) :: cform='(A30,XXI9,X,A1,X,I9)'
  CHARACTER(LEN= 25) :: hform='(XXXX,A)'
  CHARACTER(LEN=100) :: cwrk = '',wname=''
  CHARACTER(LEN=  8) :: cperiod = ''
