@@ -22,7 +22,7 @@ MODEXT := mod
 
 ODB_MONITOR   := -DODB_MONITOR
 ODBLIBS_EXTRA :=
-LD_MPI_DUMMY    = $(AUXLIBS)/libmpi_serial.a
+LD_MPI_DUMMY    = $(AUXLIBS)/libmpidummy.a
 LD_NETCDF_DUMMY = $(AUXLIBS)/libnetcdfdummy.a
 
 # Link
