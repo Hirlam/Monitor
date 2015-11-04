@@ -22,8 +22,8 @@ MODEXT := mod
 
 ODB_MONITOR   := -DODB_MONITOR
 ODBLIBS_EXTRA := -lpthread
-LD_MPI_DUMMY    = $(AUXLIBS)/libmpidummyR64.a
-LD_NETCDF_DUMMY = $(AUXLIBS)/libnetcdfdummyR64.a
+LD_MPI_DUMMY    = $(AUXLIBS)/libmpidummy.a
+LD_NETCDF_DUMMY = $(AUXLIBS)/libnetcdfdummy.a
 
 # Link
 LD          := $(FC)
