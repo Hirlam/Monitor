@@ -93,7 +93,8 @@ MODULE data
 
  ! Experiment and name
  INTEGER           :: nexp = 1                  ! Number of experiments
- CHARACTER(LEN=50) :: expname(maxexp)='OBS'     ! Name of experiments
+ CHARACTER(LEN=50) ::  expname(maxexp)='OBS'    ! Name of experiments
+ CHARACTER(LEN=50) :: fexpname(maxexp)='#'      ! Name of exp on vfld files
  INTEGER           :: smallest_exp_ind = 0      ! The location of the experiment with the smallest domain
  INTEGER           :: exp_offset(maxexp) = 0    ! Define the offset of initial hours
  CHARACTER(LEN=99) :: statname='statistics.html'! Name of output statistics file
@@ -305,7 +306,7 @@ MODULE data
                  show_times,nshow_times,                &
                  timeserie_wind,window_pos,             &
                  stnlist,stnlist_bl,stnlist_plot,       &
-                 nexp,expname,tag,                      &
+                 nexp,fexpname,expname,tag,             &
                  exp_offset,                            &
                  smallest_exp_ind,                      &
                  varlist,setprop,                       &

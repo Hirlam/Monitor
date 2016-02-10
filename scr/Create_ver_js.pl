@@ -22,7 +22,8 @@
 
  # Experiment
 
- my @exp=split(' ',$ENV{EXP});
+ $exp = $ENV{DISPLAY_EXP} or $exp = $ENV{EXP} ;
+ my @exp=split(' ',$exp);
  $nexp = scalar(@exp) ;
  $expname ='\''.join('\',\'',@exp).'\'';
  $nlev = 0 ; 

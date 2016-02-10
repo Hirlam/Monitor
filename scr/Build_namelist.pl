@@ -46,14 +46,19 @@
  # Define experiments, obs and modelpath
  #
 
- @exp     = split(' ',$ENV{EXP}) ;
+ $dexp = $ENV{EXP} unless ( $ENV{DISPLAY_EXP} ) ;
+
  @modpath = split(' ',$ENV{MODPATH}) ;
+ @exp     = split(' ',$ENV{EXP}) ;
  $exp     = '\''.join('\',\'',@exp).'\'';
+ @dexp     = split(' ',$ENV{DISPLAY_EXP}) ;
+ $dexp     = '\''.join('\',\'',@dexp).'\'';
  $modpath = '\''.join('\',\'',@modpath).'\'';
  $obint   = $ENV{'OBINT_'.$type};
 
  $nameread{'read_section'}{'NEXP'}   =scalar(@exp) ;
- $nameread{'read_section'}{'EXPNAME'}=$exp;
+ $nameread{'read_section'}{'EXPNAME'}=$dexp;
+ $nameread{'read_section'}{'FEXPNAME'}=$exp;
  $nameread{'read_section'}{'MODPATH'}=$modpath ;
  $nameread{'read_section'}{'OBINT'}=$obint;
  $nameread{'read_section'}{'FCINT'}=$ENV{'FCINT_'.$type};

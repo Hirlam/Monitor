@@ -106,6 +106,7 @@ SUBROUTINE read_vfld_temp
 
     SUB_EXP_LOOP : DO ll=1,nexp
 
+       IF ( fexpname(ll) == '#' ) fexpname(ll) = expname(ll)
        IF ( exp_offset(ll) /= 0 ) THEN
          CALL adddtg(cdate,ctime,-exp_offset(ll)*3600,cdateo,ctimeo)
          WRITE(cwrko(1:10),'(I8,I2.2)')cdateo,ctimeo/10000
@@ -114,9 +115,9 @@ SUBROUTINE read_vfld_temp
          ELSE
            WRITE(cfcleno,'(I2.2,1X)')fclen(j)+exp_offset(ll)
          ENDIF
-         fname = TRIM(modpath(ll))//'vfld'//TRIM(expname(ll))//cwrko//TRIM(cfcleno)
+         fname = TRIM(modpath(ll))//'vfld'//TRIM(fexpname(ll))//cwrko//TRIM(cfcleno)
        ELSE
-         fname = TRIM(modpath(ll))//'vfld'//TRIM(expname(ll))//cwrk//TRIM(cfclen)
+         fname = TRIM(modpath(ll))//'vfld'//TRIM(fexpname(ll))//cwrk//TRIM(cfclen)
        ENDIF
 
        INQUIRE(FILE=fname,EXIST=lfound)
@@ -137,9 +138,9 @@ SUBROUTINE read_vfld_temp
          ELSE
            WRITE(cfcleno,'(I2.2,1X)')fclen(j)+exp_offset(l)
          ENDIF
-         fname = TRIM(modpath(l))//'vfld'//TRIM(expname(l))//cwrko//TRIM(cfcleno)
+         fname = TRIM(modpath(l))//'vfld'//TRIM(fexpname(l))//cwrko//TRIM(cfcleno)
        ELSE
-         fname = TRIM(modpath(l))//'vfld'//TRIM(expname(l))//cwrk//TRIM(cfclen)
+         fname = TRIM(modpath(l))//'vfld'//TRIM(fexpname(l))//cwrk//TRIM(cfclen)
        ENDIF
 
        OPEN(lunin,file=fname,status='old',iostat=ierr)
