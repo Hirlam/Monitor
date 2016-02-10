@@ -166,10 +166,10 @@ SUBROUTINE check_namelist
              i = 1
     nini_hours = 0
     DO 
-       ini_hours(i)=(i-1) * fcint
+       ini_hours(i)=(i-1) * fcint+stime
        nini_hours = nini_hours + 1
        i=i+1
-       IF ( ((i-1) * fcint) == 24 ) EXIT
+       IF ( ((i-1) * fcint+stime) >= 24 ) EXIT
     ENDDO
     cini_hours = '_ALL'
  ELSE
