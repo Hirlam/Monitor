@@ -36,7 +36,7 @@ SUBROUTINE read_vobs
  REAL :: lat,lon,hgt,sub,sca
  REAL, ALLOCATABLE :: val(:)
 
- CHARACTER(LEN=200) :: fname =' '
+ CHARACTER(LEN=200) :: path,fname =' '
  CHARACTER(LEN= 10) :: ndate =' '
  CHARACTER(LEN= 10), ALLOCATABLE :: invar(:)
 
@@ -76,7 +76,9 @@ SUBROUTINE read_vobs
 
  IF (print_read > 1) WRITE(6,*)'TIME:',cdate,ctime/10000
  WRITE(ndate(1:10),'(I8.8,I2.2)')cdate,ctime/10000
- fname = TRIM(obspath)//'vobs'//ndate
+ path = obspath
+ CALL check_path(cdate,path)
+ fname = TRIM(path)//'vobs'//ndate
 
  i = i + 1
 

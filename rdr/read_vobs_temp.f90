@@ -33,7 +33,7 @@ SUBROUTINE read_vobs_temp
 
  LOGICAL :: use_stnlist
 
- CHARACTER(LEN=200) :: fname =' '
+ CHARACTER(LEN=200) :: fname =' ',path
  CHARACTER(LEN= 10) :: ndate =' '
  CHARACTER(LEN= 10), ALLOCATABLE :: invar(:)
 
@@ -73,7 +73,8 @@ SUBROUTINE read_vobs_temp
 
  IF (print_read>1) WRITE(6,*)'TIME:',cdate,ctime/10000
  WRITE(ndate,'(I8.8,I2.2)')cdate,ctime/10000
- fname = TRIM(obspath)//'vobs'//ndate
+ path = obspath
+ fname = TRIM(path)//'vobs'//ndate
 
  !
  ! Read obs data

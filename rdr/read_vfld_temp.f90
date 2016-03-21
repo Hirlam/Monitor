@@ -42,7 +42,7 @@ SUBROUTINE read_vfld_temp
  LOGICAL :: allocated_this_time(maxstn),&
             found_any_time,use_stnlist,lfound
 
- CHARACTER(LEN=200) :: fname = ' '
+ CHARACTER(LEN=200) :: fname = ' ',path
  CHARACTER(LEN= 10) :: cwrk  ='yyyymmddhh',cwrko
  CHARACTER(LEN= 03) :: cfclen  ='  ',cfcleno
  CHARACTER(LEN= 10), ALLOCATABLE :: invar(:)
@@ -106,6 +106,9 @@ SUBROUTINE read_vfld_temp
 
     SUB_EXP_LOOP : DO ll=1,nexp
 
+       path = modpath(ll)
+       CALL check_path(cdate,path)
+
        IF ( fexpname(ll) == '#' ) fexpname(ll) = expname(ll)
        IF ( exp_offset(ll) /= 0 ) THEN
          CALL adddtg(cdate,ctime,-exp_offset(ll)*3600,cdateo,ctimeo)
@@ -115,9 +118,9 @@ SUBROUTINE read_vfld_temp
          ELSE
            WRITE(cfcleno,'(I2.2,1X)')fclen(j)+exp_offset(ll)
          ENDIF
-         fname = TRIM(modpath(ll))//'vfld'//TRIM(fexpname(ll))//cwrko//TRIM(cfcleno)
+         fname = TRIM(path)//'vfld'//TRIM(fexpname(ll))//cwrko//TRIM(cfcleno)
        ELSE
-         fname = TRIM(modpath(ll))//'vfld'//TRIM(fexpname(ll))//cwrk//TRIM(cfclen)
+         fname = TRIM(path)//'vfld'//TRIM(fexpname(ll))//cwrk//TRIM(cfclen)
        ENDIF
 
        INQUIRE(FILE=fname,EXIST=lfound)
@@ -130,6 +133,9 @@ SUBROUTINE read_vfld_temp
 
     EXP_LOOP : DO l=1,nexp
 
+       path = modpath(l)
+       CALL check_path(cdate,path)
+
        IF ( exp_offset(l) /= 0 ) THEN
          CALL adddtg(cdate,ctime,-exp_offset(l)*3600,cdateo,ctimeo)
          WRITE(cwrko(1:10),'(I8,I2.2)')cdateo,ctimeo/10000
@@ -138,9 +144,9 @@ SUBROUTINE read_vfld_temp
          ELSE
            WRITE(cfcleno,'(I2.2,1X)')fclen(j)+exp_offset(l)
          ENDIF
-         fname = TRIM(modpath(l))//'vfld'//TRIM(fexpname(l))//cwrko//TRIM(cfcleno)
+         fname = TRIM(path)//'vfld'//TRIM(fexpname(l))//cwrko//TRIM(cfcleno)
        ELSE
-         fname = TRIM(modpath(l))//'vfld'//TRIM(fexpname(l))//cwrk//TRIM(cfclen)
+         fname = TRIM(path)//'vfld'//TRIM(fexpname(l))//cwrk//TRIM(cfclen)
        ENDIF
 
        OPEN(lunin,file=fname,status='old',iostat=ierr)
