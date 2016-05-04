@@ -6,6 +6,8 @@
 # Usage: verobs2gnuplot.pl *.txt, where *.txt is the textfiles produced by verobs
 #
 
+my $searchdir = "";
+
 # Set colors for lines
 
 @col_def_lt  = (1,2,3,4,5,6,8,7,9);
@@ -46,18 +48,34 @@ if ( $OUTPUT_TYPE eq 1 ) {
     
 @EXT = ('','.ps','.1.png','.1.jpg','.svg') ;
 
-if ( $ARGV[0] eq '-d' ) {
+# Read arguments
 
- print" Scanning $ENV{PWD} for *.txt files \n";
+while ( <@ARGV> ) {
+   if ( /-d/) { $searchdir = $ARGV[$n+1] or die "Please use -d SEARCHDIR \n"; } ;
+   if ( /-t/) { $vertype   = $ARGV[$n+1] or die "Please use -t VERTYPE   \n"; } ;
+   $n++ ;
+}
+
+
+if ( $searchdir ne "" ) {
+
+ print" Scanning $searchdir for *.txt files \n";
 
  # Read file from the current directory
- opendir MYDIR, "." ;
+ opendir MYDIR, "$searchdir" ;
  @FILES = grep !/^\.\.?/, readdir MYDIR ;
  @FILES = grep /\.txt$/, @FILES ;
  close MYDIR ;
 
 } else { @FILES = @ARGV } ;
 
+if ( $vertype eq "SURF" ) {
+ $map_ps=1;
+} elsif ( $vertype eq "TEMP" ) {
+ $map_ps=2;
+} else {
+ die "Unknown vertype:$vertype\n"; 
+};
 
 SCAN_INPUT: foreach $input_file (@FILES) {
 
@@ -476,6 +494,6 @@ EOF
     foreach (@sfile) {
         $i++;
         if ( $i gt 0 ) { $plot = "$plot,"; }
-        $plot = $plot . " '$input_file"."_".$_."' title '$sint[$i] $sintu[$i]' lt $map_colors[$i] ps 1 pt $map_pt";
+        $plot = $plot . " '$input_file"."_".$_."' title '$sint[$i] $sintu[$i]' lt $map_colors[$i] ps $map_ps pt $map_pt";
     }
 }

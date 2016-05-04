@@ -70,7 +70,7 @@ fi
 # Call gnuplot to create the graphics
 #
 
-$SCR/verobs2gnuplot.pl -d || exit
+$SCR/verobs2gnuplot.pl -d . -t SURF || exit
 if [ `echo $SURFPLOT | grep -c CONT` -gt 0 ] ; then
    export SELECTOR
    for SELECTOR in $SCORETYPES ; do

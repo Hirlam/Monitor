@@ -68,7 +68,7 @@ fi
 # Call gnuplot to create the graphics
 #
 
-$SCR/verobs2gnuplot.pl -d || exit
+$SCR/verobs2gnuplot.pl -d . -t TEMP || exit
 if [ `echo $TEMPPLOT | grep -c CONT` -gt 0 ] ; then
    export SELECTOR
    for SELECTOR in $SCORETYPES ; do
@@ -115,6 +115,9 @@ elif [ $OUTPUT_TYPE -eq 3 ] ; then
 elif [ $OUTPUT_TYPE -eq 4 ] ; then
    TARARG="$TARARG *.svg"
 fi
+
+[ `echo $TEMPPLOT | grep -c XML` -gt 0 ] && TARARG="$TARARG *.xml style.xsl"
+
 tar cvf temp.tar $TARARG
 $WEBCALL -e Temp -f temp.tar
 rm -f *.jpg *.ps *.png *.svg temp.tar
@@ -127,7 +130,6 @@ if [ `echo $TEMPPLOT | grep -c VERT` -gt 0 ] ; then
    #
 
    TARARG="*.html"
-   [ `echo $TEMPPLOT | grep -c XML` -gt 0 ] && TARARG="$TARARG *.xml style.xsl"
 
    if [ $OUTPUT_TYPE -eq 1 ] ; then
       rm -f *.ps

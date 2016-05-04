@@ -16,7 +16,9 @@
  #
 
  use selection ;
- use plotdefs ;
+ 
+ eval { require $ENV{PLOTDEFS}; };
+ if ( $@ ) { use plotdefs ; }
  use maindefs ;
  use skilldefs ;
 
