@@ -348,7 +348,10 @@ SUBROUTINE verify
        CALL abort
     ENDIF
 
-    IF (lprint_verif) WRITE(6,*)'DO STATION',i,hir(i)%stnr
+    IF (lprint_verif) THEN 
+      WRITE(6,*)
+      WRITE(6,*)'DO STATION',i,hir(i)%stnr
+    ENDIF
 
 
     !
@@ -403,6 +406,8 @@ SUBROUTINE verify
        wtime = wtime / 10000
 
        IF (lprint_verif) WRITE(6,*)'CHECK TIME VER ',wdate,wtime
+       IF (lprint_verif) WRITE(6,*)'FC TIME IS     ',&
+       hir(i)%o(j)%date,hir(i)%o(j)%time,fclen(n)
 
        IF (obs(i)%o(obs(i)%ntim)%date < wdate) CYCLE J_CYCLE
 
@@ -531,6 +536,8 @@ SUBROUTINE verify
 
              DO o=1,nexp
                IF (ABS(hir(i)%o(j)%nal(o,n,k)-err_ind) < 1.e-6) THEN
+                  IF (lprint_verif) WRITE(6,*)'SKIP due to missing data in ',&
+                  TRIM(expname(o))
                   IF ( demand_equal ) hir(i)%o(j)%nal(:,n,k) = err_ind
                   CYCLE NPARVER_LOOP
                ENDIF

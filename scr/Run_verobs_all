@@ -10,7 +10,7 @@ fi
 [[ -s $ENV_EXP ]] || { echo "Please give an existing Env_exp file" ; exit 1 ; }
 
 ./Clean_ver_js       $ENV_EXP || exit
-./Run_verobs_surface $ENV_EXP || exit
-./Run_verobs_temp    $ENV_EXP || exit
+./Run_verobs $ENV_EXP SURF || exit
+./Run_verobs $ENV_EXP TEMP || exit
 ./Link2file          $ENV_EXP || exit
 ./Transport_ver      $ENV_EXP || exit

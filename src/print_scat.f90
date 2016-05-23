@@ -40,7 +40,7 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
             lflag_pairs(mparver,2),  &
              lexp_pairs(mparver,2),  &
             nlevmin,nlevmax,         &
-            nlevels,itmp
+            nlevels
 
  CHARACTER(LEN= 10) :: cnum     =' '
  CHARACTER(LEN=100) :: fname    =' ',sname =' '
@@ -54,7 +54,7 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
 
  CHARACTER(LEN=100), ALLOCATABLE :: axist(:,:)
 
- REAL :: minax(2),maxax(2),rtmp
+ REAL :: minax(2),maxax(2),rtmp,rcnt
 
  REAL, ALLOCATABLE :: val(:,:),level(:)
 
@@ -415,15 +415,15 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
         OPEN(UNIT=37,FILE=sname)
         DO i=1,nbin
           rtmp = 0.0
-          itmp = 0
+          rcnt = 0.0
           DO m=1,nbin
             rtmp = rtmp + &
                    sbin(jj)%array(i,m) * &
                    sbin(jj)%biny(m-1) 
-            itmp = itmp + sbin(jj)%array(i,m)
+            rcnt = rcnt + sbin(jj)%array(i,m)
           ENDDO
-          IF ( itmp > 0 ) &
-          WRITE(37,*)sbin(jj)%binx(i-1),rtmp/FLOAT(itmp)
+          IF ( rcnt > 0. ) &
+          WRITE(37,*)sbin(jj)%binx(i-1),rtmp/rcnt
         ENDDO
         CLOSE(37)
       ENDIF

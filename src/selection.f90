@@ -119,6 +119,7 @@ SUBROUTINE selection(flag)
              obs(i)%hgt < hgt_llim) .AND. hir(i)%active) THEN
          hir(i)%active = .FALSE.
       ELSEIF ( hir(i)%active) THEN
+        IF (lprint_selection) &
         WRITE(6,*)hir(i)%stnr,hir(i)%hgtmod
         ii = ii + 1
       ENDIF

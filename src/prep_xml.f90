@@ -22,9 +22,10 @@ SUBROUTINE prep_xml(lunxml,nparver,nr,time,scat)
 
  INTEGER :: j,jj,kk,l,timing_id
 
- REAL    :: xmean,ymean,          &
-            stdevx,stdevy,        &
-            bias,rmse,stdv,corr
+ REAL    :: xmean(nexp),ymean(nexp),          &
+            stdevx(nexp),stdevy(nexp),        &
+            bias(nexp),rmse(nexp),            &
+            stdv(nexp),corr(nexp)
 
  REAL, ALLOCATABLE :: xval(:),yval(:)
 
@@ -73,29 +74,32 @@ SUBROUTINE prep_xml(lunxml,nparver,nr,time,scat)
         ENDIF
 
         CALL calc_corr(kk,xval(1:kk),yval(1:kk),   &
-                       xmean,ymean,stdevx,stdevy,  &
-                       bias,rmse,stdv,corr)
+                       xmean(jj),ymean,(jj),       &
+                       stdevx,(jj),stdevy(jj),     &
+                       bias(jj),rmse(jj),          &
+                       stdv(jj),corr(jj))
 
-        IF ( jj == 1 ) THEN
-           WRITE(lunxml,*)'<MEAN_OBS>',xmean,'</MEAN_OBS>'
-           WRITE(lunxml,*)'<STDV_OBS>',stdevx,'</STDV_OBS>'
-        ENDIF
 
+    ENDDO
+
+    WRITE(lunxml,*)'<MEAN_OBS>',xmean(1),'</MEAN_OBS>'
+    WRITE(lunxml,*)'<STDV_OBS>',stdevx(1),'</STDV_OBS>'
+
+    DO jj=1,nexp
         WRITE(lunxml,*)'<EXP>'
         WRITE(lunxml,*)'<ID>',nr,'</ID>'
         WRITE(lunxml,*)'<NAME>',TRIM(expname(jj)),'</NAME>'
         WRITE(lunxml,*)'<NUM>',kk,'</NUM>'
-        WRITE(lunxml,*)'<MEAN>',ymean,'</MEAN>'
-        WRITE(lunxml,*)'<STDV>',stdv,'</STDV>'
-        WRITE(lunxml,*)'<BIAS>',bias,'</BIAS>'
-        WRITE(lunxml,*)'<RMSE>',rmse,'</RMSE>'
-        WRITE(lunxml,*)'<CORR>',corr,'</CORR>'
+        WRITE(lunxml,*)'<MEAN>',ymean(jj),'</MEAN>'
+        WRITE(lunxml,*)'<STDV>',stdv(jj),'</STDV>'
+        WRITE(lunxml,*)'<BIAS>',bias(jj),'</BIAS>'
+        WRITE(lunxml,*)'<RMSE>',rmse(jj),'</RMSE>'
+        WRITE(lunxml,*)'<CORR>',corr(jj),'</CORR>'
         WRITE(lunxml,*)'</EXP>'
+    ENDDO
 
-     ENDDO
-
-     WRITE(lunxml,*)'</STATION>'
-     CLOSE(lunxml)
+    WRITE(lunxml,*)'</STATION>'
+    CLOSE(lunxml)
 
   ENDDO
 

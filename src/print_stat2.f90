@@ -13,7 +13,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
                   timdiff,time_shift,show_fc_length,ltiming,    &
                   show_bias,show_rmse,show_stdv,show_obs,       &
                   show_var,show_skw,show_mabe,                  &
-                  copied_obs,copied_mod,period_freq,period_type,&
+                  period_freq,period_type,                      &
                   output_type,lprint_seasonal,err_ind,cini_hours
 
  IMPLICIT NONE

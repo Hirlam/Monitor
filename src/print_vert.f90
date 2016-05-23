@@ -117,7 +117,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
 
     IF ( ntimver_out /= 1 .AND. .NOT. ANY( show_times == hour(kk) )) CYCLE
 
-     num = 0.
+     num = 0
     rnum = 0.
     mabe = 0.
     bias = 0.

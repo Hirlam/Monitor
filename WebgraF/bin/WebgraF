@@ -62,6 +62,7 @@ $BASNAME = "none"     ;
 $INFO    = "none"     ;
 $BASE    = $WEBGRAF_BASE  ;
 $TRANSPORT  = "false" ;
+$COPY_DIR_BY  = "cp -r" ;
 
 $n = 0 ;
 while ( <@ARGV> ) {
@@ -76,6 +77,7 @@ while ( <@ARGV> ) {
    if ( /-a/) { $FILE    = $ARGV[($n + 1)] ; $ADDFILE = "true"       ; } ;
    if ( /-j/) { $HOST_PAGE = $ARGV[($n + 1)] ; $ADD_HP = "true" ; } ;
    if ( /-f/) { $FILE    = $ARGV[($n + 1)] ; } ;
+   if ( /-fm/) { $FILE    = $ARGV[($n + 1)] ; $COPY_DIR_BY ="mv" ;} ;
    if ( /-m/) { $MESSAGE = $ARGV[($n + 1)] ; } ;
    if ( /-d/) { die "USE -r for delete \n" ; } ;
    if ( /-t/) { $TRANSPORT = "true" ; } ;
@@ -646,7 +648,7 @@ $BASENTRY =~ s/ //g ;
 print "$BASENTRY \n" ;
 if ( -s "$FILE" ) { 
 	if ( -d "$FILE" ) { 
-		print "Copy directory $FILE "; system ("cp -r $FILE/* $BASENTRY/.") 
+		print "Copy directory $FILE "; system ("$COPY_DIR_BY $FILE/* $BASENTRY/.") 
 	} elsif ( $FILE =~m/\.html/) {
 		print "Copy $FILE \n"; system ("cp $FILE $BASENTRY/info.html") 
 	} elsif ( $FILE =~m/\.png/) {

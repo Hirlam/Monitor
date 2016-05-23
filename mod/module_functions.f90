@@ -153,8 +153,7 @@ INTEGER :: difdtg
     m2 = MOD(date(i),10000)/100
     d2 = MOD(date(i),100)
     
-!EC    CALL daydiff(y2,m2,d2,y1,m1,d1,diff,ierr)
-    diff = difdtg(date1,0,date(i),0)/86400.
+    diff = difdtg(date1,0,date(i),0)/86400
 
     IF (diff.GT.step) THEN
        missing_index = i - 1

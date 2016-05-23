@@ -42,7 +42,7 @@ SUBROUTINE read_vfld_temp
  LOGICAL :: allocated_this_time(maxstn),&
             found_any_time,use_stnlist,lfound
 
- CHARACTER(LEN=200) :: fname = ' ',path
+ CHARACTER(LEN=299) :: fname = ' ',path
  CHARACTER(LEN= 10) :: cwrk  ='yyyymmddhh',cwrko
  CHARACTER(LEN= 03) :: cfclen  ='  ',cfcleno
  CHARACTER(LEN= 10), ALLOCATABLE :: invar(:)

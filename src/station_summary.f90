@@ -39,11 +39,12 @@ SUBROUTINE station_summary
 
        IF (maxstn < maxstn_print .OR. lprint_summary ) THEN
 
+          WRITE(6,*)'STATION :',hir(k)%stnr,hir(k)%lat,hir(k)%lon
           WRITE(6,*)'MODEL PERIOD',hir(k)%o(1)%date,hir(k)%o(hir(k)%ntim)%date,hir(k)%ntim
    
           IF(lprint_summary) THEN
              DO l=1,hir(k)%ntim
-                WRITE(6,*)' MODEL :',hir(k)%stnr,hir(k)%o(l)%date,hir(k)%o(l)%time
+                WRITE(6,*)' MODEL :',hir(k)%o(l)%date,hir(k)%o(l)%time
              ENDDO
           ENDIF
    
@@ -51,7 +52,7 @@ SUBROUTINE station_summary
    
           IF(lprint_summary) THEN
              DO l=1,obs(k)%ntim
-                WRITE(6,*)' OBS   :',obs(k)%stnr,obs(k)%o(l)%date,obs(k)%o(l)%time
+                WRITE(6,*)' OBS   :',obs(k)%o(l)%date,obs(k)%o(l)%time
              ENDDO
           ENDIF
 

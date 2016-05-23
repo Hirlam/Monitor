@@ -10,8 +10,8 @@ SUBROUTINE print_sign_test(lunout,nexp,nparver,         &
                   csi,use_fclen,lfcver,                         &
                   maxfclenval,len_lab,output_mode,              &
                   nfclengths,nuse_fclen,tag,                    &
-                  timdiff,time_shift,show_fc_length,            &
-                  copied_obs,copied_mod,period_freq,period_type,&
+                  time_shift,show_fc_length,                    &
+                  period_freq,period_type,                      &
                   output_type,lprint_seasonal,                  &
                   control_exp_nr,sign_time_diff,err_ind,confint,&
                   cini_hours

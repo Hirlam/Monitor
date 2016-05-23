@@ -3,49 +3,62 @@
 set -a
 
 #
-# Run verobs for surface variables
+# Run verobs for surface or temp variables
 #
 
-if [ $# -eq 1 ] ; then
+if [ $# -eq 2 ] ; then
    ENV_EXP=$1
+   DIR=$2
 else
-   echo "Please give an Env_exp file"
+   echo "Please give an Env_exp file and SURF|TEMP as argument"
    exit 1
 fi
 [[ -s $ENV_EXP ]] || { echo "Please give an existing Env_exp file" ; exit 1 ; }
 
 . $ENV_EXP  || { echo "Could not source $ENV_EXP" ; exit 1 ; }
 
+
+case $DIR in
+ SURF)
+  ENTRY="Surface"
+  PARARG=$SURFPAR
+ ;;
+ TEMP)
+  ENTRY="Temp"
+  PARARG=$TEMPPAR
+ ;;
+ *)
+  echo "Unknown verification type $DIR"
+  exit 1
+ ;;
+ esac
+
 cd $SCR || exit
 
 
 # Generate namelists
 
-DIR=SURF
-
 mkdir $WRK/${DIR}_$$ || exit
 
 if [ $ALL_AT_ONCE == "yes" ] ; then
-   ./Build_namelist.pl -t ${DIR} -p "$SURFPAR" > $WRK/${DIR}_$$/fort.10 || exit
+   ./Build_namelist.pl -t ${DIR} -p "$PARARG" > $WRK/${DIR}_$$/fort.10 || exit
 else
 
-   NPAR=$( echo $SURFPAR | wc | awk '{print $2}' )
+   NPAR=$( echo ${DIR}PAR | wc | awk '{print $2}' )
    [[ $PAR_PER_BLOCK -gt $NPAR ]] && PAR_PER_BLOCK=$NPAR
 
    I=1
    FF=""
-   for F in $SURFPAR ; do
+   for F in ${DIR}PAR ; do
       II=$(( $I % $PAR_PER_BLOCK ))
       FF="$FF $F"
       if [ $II -eq 0 -o $I -eq $NPAR ] ; then 
         ./Build_namelist.pl -t ${DIR} -p "$FF" > $WRK/${DIR}_$$/namelist_$I || exit
-        grep varlist  $WRK/${DIR}_$$/namelist_$I
         FF=""
       fi
       I=$(( $I + 1 ))
    done
 fi
-
 
 cd $WRK/${DIR}_$$ || exit
 
@@ -65,63 +78,80 @@ else
    done
 fi
 
-
 #
 # Call gnuplot to create the graphics
 #
 
-$SCR/verobs2gnuplot.pl -d . -t SURF || exit
-if [ `echo $SURFPLOT | grep -c CONT` -gt 0 ] ; then
+$SCR/verobs2gnuplot.pl -d . -t ${DIR} || exit
+
+ls c_*.html 1>/dev/null 2>/dev/null && {
    export SELECTOR
    for SELECTOR in $SCORETYPES ; do
      $SCR/contingency2gnuplot.pl c_*.html || exit
    done
-fi
-RESIZE=100%
+}
+
 
 [[ $WEBCALL == ""  ]] && exit
 
 # Quality control information
 if [ -s fort.48 ] ; then
-echo '<pre>'   > quality.html
-cat fort.48   >> quality.html
-echo '</pre>' >> quality.html
+ echo '<pre>'   > quality.html
+ cat fort.48   >> quality.html
+ echo '</pre>' >> quality.html
 fi
+
+# Clean work files
+rm -f *.txt* *.poly fort.* *.dat plot.gp
 
 #
 # Generate browser friendly graphics and gather files
 #
-rm -f fig.tar
 
 cp $SCR/style.xsl .
-tar cvf fig.tar *.html
-[[ `echo $SURFPLOT | grep -c XML` -gt 0 ]] && tar rvf fig.tar *.xml style.xsl
 
+if [ `echo $TEMPPLOT | grep -c VERT` -gt 0 -a $DIR = "TEMP" ] ; then
+
+   #
+   # Vertical profiles
+   #
+
+   mkdir vert 
+   mv l*.ps l*.png l*.jpg l*.svg vert/.
+   cp *.html *.xml *.xsl vert/.
+
+   cd vert
+   if [ $OUTPUT_TYPE -eq 1 ] ; then
+      echo "Convert postscript to png..."
+      for F in $( ls -1 *.ps ) ; do
+         FF=$( basename $F .ps )
+         convert -resize 100% rotate -90 $FF.ps $FF.png
+      done
+   fi 
+   $WEBCALL -e ${ENTRY}_prof -fm $PWD/
+   cd -
+   rmdir vert
+
+fi
+
+#
+# Deal with per level plots or surface plots
+#
+
+TARARG="*.html"
 if [ $OUTPUT_TYPE -eq 1 ] ; then
+   echo "Convert postscript to png..."
    for F in $( $SCR/Create_file_list.pl .ps ) ; do
       FF=$( basename $F .ps )
-      convert -resize $RESIZE -rotate 90 $FF.ps $FF.png
-      tar rvf fig.tar $FF.ps $FF.png
-   done
-elif [ $OUTPUT_TYPE -eq 2 ] ; then
-   for F in $( $SCR/Create_file_list.pl .png ) ; do
-      tar rvf fig.tar $F
-   done
-elif [ $OUTPUT_TYPE -eq 3 ] ; then
-   for F in $( $SCR/Create_file_list.pl .jpg ) ; do
-      tar rvf fig.tar $F
-   done
-elif [ $OUTPUT_TYPE -eq 4 ] ; then
-   for F in $( $SCR/Create_file_list.pl .svg ) ; do
-      tar rvf fig.tar $F
+      convert -resize 100% -rotate 90 $FF.ps $FF.png
    done
 fi
 
 # Send data to WebgraF and create interface
-$WEBCALL -e Surface -f fig.tar
-cd $SCR 
-./Create_ver_js.pl SURF
+$WEBCALL -e $ENTRY -fm $PWD/
+cd $SCR
+./Create_ver_js.pl $DIR
 
 # Clean
-rm -rf $WRK/${DIR}_$$
+rm -rf $WRK/${DIR}_$$ || exit
 rm -f input.js
