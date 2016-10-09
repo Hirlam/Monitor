@@ -14,7 +14,8 @@ SUBROUTINE do_stat(per_ind,p1,p2)
             wrk(mparver),nlev
  INTEGER :: vertime(ntimver),timing_id, &
              par_active(nparver),       &
-             rar_active(nparver,ntimver)
+             rar_active(nparver,ntimver), &
+             pro_active(nparver,0:ntimver)
 
  TYPE (statistics) :: onestat(nexp)
  TYPE (statistics), ALLOCATABLE  :: statall(:,:,:)
@@ -33,16 +34,32 @@ SUBROUTINE do_stat(per_ind,p1,p2)
 102 format(2A5,5(A31))
 103 format(5(A31))
 
+ ! Determine number of levels
+
+ wrk = 0
+ WHERE ( lev_lst > 0 ) wrk = 1 
+ nlev = SUM(wrk)
 
  ! Recheck active stations
  par_active = 0
  rar_active = 0
+ pro_active = 0
  DO i=1,maxstn
    DO j=1,ntimver
     DO k=1,nparver
        rar_active(k,j) = rar_active(k,j) + stat(i)%par_active(k,j)
     ENDDO
+    IF ( ltemp ) THEN
+     DO k=1,nparver,nlev
+       pro_active(k,j) = pro_active(k,j) + MAXVAL(stat(i)%par_active(k:k+nlev-1,j))
+     ENDDO
+    ENDIF
    ENDDO
+   IF ( ltemp ) THEN
+     DO k=1,nparver,nlev
+       pro_active(k,0) = pro_active(k,0) + MAXVAL(stat(i)%par_active(k:k+nlev-1,:))
+     ENDDO
+   ENDIF
  ENDDO
 
  !
@@ -153,17 +170,9 @@ SUBROUTINE do_stat(per_ind,p1,p2)
     IF ( ltemp .AND. leach_station  .AND.     &
          ( lplot_vert .OR. lprint_vert ) )  THEN
 
-      wrk = 0
-      WHERE ( lev_lst > 0 ) wrk = 1 
-      nlev = SUM(wrk)
-
-      DO k=1,nparver
-         par_active(k) = MAXVAL(rar_active(k,:))
-      ENDDO
-
       IF ( lprint_vert )                                     &
       CALL print_vert(lunout,nexp,nlev,nparver,ntimver,      &
-      stat(i)%s,stat(i)%stnr,p1(i),p2(i),par_active,         &
+      stat(i)%s,stat(i)%stnr,p1(i),p2(i),pro_active,         &
       used_hours(:,per_ind,:),used_fclen(:,per_ind,:))
 
     ENDIF
@@ -255,14 +264,10 @@ SUBROUTINE do_stat(per_ind,p1,p2)
     !
     IF ( ltemp .AND. ( lplot_vert .OR. lprint_vert ) )  THEN
 
-       wrk = 0
-       WHERE ( lev_lst > 0 ) wrk = 1 
-       nlev = SUM(wrk)
-
        IF ( lprint_vert )                               &
        CALL print_vert(lunout,nexp,nlev,nparver,ntimver,&
                       statall,0,MINVAL(p1),MAXVAL(p2),  &
-                      rar_active,                       &
+                      pro_active,                       &
                       used_hours(:,per_ind,:),          &
                       used_fclen(:,per_ind,:))
 
