@@ -33,6 +33,11 @@ MODULE module_obsmon
   LOGICAL                  :: ltemp_u
   LOGICAL                  :: ltemp_v
   LOGICAL                  :: ltemp_q
+  LOGICAL                  :: llimb
+  LOGICAL                  :: lamv
+  LOGICAL                  :: lamv_u
+  LOGICAL                  :: lamv_v
+  LOGICAL                  :: lamv_t
   LOGICAL                  :: laircraft
   LOGICAL                  :: laircraft_u
   LOGICAL                  :: laircraft_v
@@ -45,6 +50,7 @@ MODULE module_obsmon
   LOGICAL                  :: lamsua
   LOGICAL                  :: lamsub
   LOGICAL                  :: lmhs
+  LOGICAL                  :: latms
   LOGICAL                  :: liasi
   LOGICAL                  :: lscatt
   LOGICAL                  :: lscatt_u10m
@@ -64,12 +70,13 @@ MODULE module_obsmon
                       lship , lship_z,  &
                       ldribu, ldribu_z, &
                       lmetar, lmetar_z, &
-                      ltemp , ltemp_t,  ltemp_u,  ltemp_v, ltemp_q, &
+                      llimb, ltemp , ltemp_t,  ltemp_u,  ltemp_v, ltemp_q, &
+                      lamv ,  lamv_u,  lamv_v, lamv_t, &
                       laircraft, laircraft_u, laircraft_v, laircraft_t, &
                       lpilot, lpilot_u, lpilot_v, &
                       latovs, &
                       lamsu,lamsua,lamsub, &
-                      lmhs, &
+                      lmhs, latms, &
                       liasi, &
                       lscatt, lscatt_u10m, lscatt_v10m, &
                       lradar,lradarv,lradardbz,lradarrh
@@ -77,7 +84,7 @@ MODULE module_obsmon
   CONTAINS
 
   SUBROUTINE init_obsmon()
-    USE module_obstypes, ONLY : alloc_obs,init_amsua,init_amsub,init_iasi,init_conv_surf,init_conv_vert,init_mhs,nused, &
+    USE module_obstypes, ONLY : alloc_obs,init_amsua,init_amsub,init_iasi,init_atms,init_conv_surf,init_conv_vert,init_mhs,nused, &
                                 init_radar,init_scatt
     IMPLICIT NONE
     LOGICAL                  :: dry
@@ -196,6 +203,20 @@ MODULE module_obsmon
       ENDIF
 
       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      ! Limbs 
+      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      IF ( ( lall ) .OR. ( llimb ) ) THEN
+        CALL init_conv_vert(dry,"limb")
+      ENDIF
+
+      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      ! AMVs
+      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      IF ( ( lall ) .OR. ( lamv ) ) THEN
+        CALL init_conv_vert(dry,"amv")
+      ENDIF
+
+      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       ! aircraftS
       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       IF ( ( lall ) .OR. ( laircraft ) ) THEN
@@ -227,6 +248,11 @@ MODULE module_obsmon
       ! MHS 
       IF ( ( lall ) .OR. ( latovs ) .OR. ( lamsu ) .OR. (lmhs) ) THEN
         CALL init_mhs(dry)
+      ENDIF
+
+      ! ATMS
+      IF ( ( lall ) .OR. ( latovs ) .OR. ( lamsu ) .OR. (latms) ) THEN
+        CALL init_atms(dry)
       ENDIF
 
       ! IASI
@@ -364,6 +390,11 @@ MODULE module_obsmon
     ltemp_u         = .FALSE.
     ltemp_v         = .FALSE.
     ltemp_q         = .FALSE.
+    llimb           = .FALSE.
+    lamv            = .FALSE.
+    lamv_u          = .FALSE.
+    lamv_v          = .FALSE.
+    lamv_t          = .FALSE.
     laircraft       = .FALSE.
     laircraft_u     = .FALSE.
     laircraft_v     = .FALSE.

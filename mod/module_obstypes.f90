@@ -278,10 +278,18 @@ MODULE module_obstypes
           obtype_nvars=4
           ALLOCATE(obtype_vars(obtype_nvars))
           obtype_vars=(/2,3,4,7/)
+        CASE ("limb")
+          obtype_nvars=1
+          ALLOCATE(obtype_vars(obtype_nvars))
+          obtype_vars=(/162/)
         CASE ("pilot")
           obtype_nvars=2
           ALLOCATE(obtype_vars(obtype_nvars))
           obtype_vars=(/3,4/)
+        CASE ("amv")
+          obtype_nvars=3
+          ALLOCATE(obtype_vars(obtype_nvars))
+          obtype_vars=(/2,3,4/)
         CASE DEFAULT
           WRITE(*,*) "Variables not defined for obtype: ",obt
           CALL ABORT
@@ -297,10 +305,14 @@ MODULE module_obstypes
         SELECT CASE (obt)
           CASE ("aircraft")
             obnr=2
+          CASE ("amv")
+            obnr=3
           CASE ("temp")
             obnr=5
           CASE ("pilot")
             obnr=6
+          CASE ("limb")
+            obnr=10
           CASE DEFAULT
             WRITE(*,*) "Obtype not defined: ",obt
             CALL ABORT
@@ -314,6 +326,8 @@ MODULE module_obstypes
             obvar="v"
           CASE (7)
             obvar="q"
+          CASE (162)
+            obvar="bend_angle"
           CASE DEFAULT
             WRITE(*,*) "Variable not defined: ",obv
             CALL ABORT
@@ -746,7 +760,77 @@ MODULE module_obstypes
     ENDDO
     DEALLOCATE(instrument_satelites)
   END SUBROUTINE init_mhs
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !
+  !  ATMS 
+  !
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  SUBROUTINE init_atms(dry)
+    IMPLICIT NONE
+    LOGICAL,INTENT(IN)   :: dry
+    INTEGER              :: i,channel
+    LOGICAL              :: channels_from_namelist
+    LOGICAL              :: satelites_from_namelist
+    CHARACTER(LEN=10)    :: name
+    CHARACTER(LEN=10)    :: instrument
+    INTEGER,PARAMETER    :: atms_all_channels=22
+  
+    instrument="ATMS"
+    CALL read_satelites_from_namelist(instrument,satelites_from_namelist)
+    ! Default values
+    IF ( .NOT. satelites_from_namelist ) THEN
+      instrument_nsatelites=1
+      ALLOCATE(instrument_satelites(instrument_nsatelites))
+      instrument_satelites=(/224/)
+    ENDIF
  
+    DO i=1,instrument_nsatelites
+      SELECT CASE (instrument_satelites(i))
+        CASE(224)
+          name="jpss0"
+          CALL read_channels_from_namelist(instrument,name,channels_from_namelist)
+          ! Default values
+          IF ( .NOT. channels_from_namelist ) THEN
+            instrument_used_channels=22
+            ALLOCATE(instrument_channels(instrument_used_channels))
+            instrument_channels=(/1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22/)
+          ENDIF
+        CASE DEFAULT
+          WRITE(*,*) 'Satelite ',instrument_satelites(i),' is not defined ',TRIM(instrument)
+          CALL ABORT
+      END SELECT
+ 
+      DO channel=1,instrument_used_channels
+        IF ( .NOT. dry ) THEN
+          all_obs(nused)%obnumber=7
+          all_obs(nused)%name="satem"
+          all_obs(nused)%lsat=.TRUE.
+          all_obs(nused)%sensor%name="atms"
+          all_obs(nused)%sensor%satelite=name
+          all_obs(nused)%sensor%id=19
+          all_obs(nused)%sensor%satid=instrument_satelites(i)
+          all_obs(nused)%sensor%channel=instrument_channels(channel)
+          all_obs(nused)%sensor%used_channels=instrument_used_channels
+          all_obs(nused)%sensor%channels=atms_all_channels
+          all_obs(nused)%var%nr=119
+          all_obs(nused)%var%name="rad"
+          all_obs(nused)%var%vertco=3
+ 
+          all_obs(nused)%var%fname=all_obs(nused)%var%name
+          ! Not used variable properties. Satelites uses the channels as vertical levels
+          all_obs(nused)%var%level1=-1
+          all_obs(nused)%var%level2=-1
+ 
+          IF ( verbose > 1 ) write(*,*) nused,'-> Init ATMS    channel: ',instrument_channels(channel),&
+                                              ' on satelite: ',trim(all_obs(nused)%sensor%satelite)
+        ENDIF
+        nused=nused+1
+      ENDDO
+      DEALLOCATE(instrument_channels)
+    ENDDO
+    DEALLOCATE(instrument_satelites)
+  END SUBROUTINE init_atms
+
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !
   !  IASI 
@@ -908,6 +992,8 @@ MODULE module_obstypes
     NAMELIST / TEMP  / vars
     NAMELIST / AIRCRAFT / vars
     NAMELIST / PILOT / vars
+    NAMELIST / AMV / vars
+    NAMELIST / LIMB / vars
 
     vars_from_namelist=.FALSE.
     vars=-99
@@ -918,6 +1004,10 @@ MODULE module_obstypes
       SELECT CASE (TRIM(obt))
         CASE ("temp") 
           READ(4,NML=TEMP,IOSTAT=ios)
+        CASE ("amv") 
+          READ(4,NML=AMV,IOSTAT=ios)
+        CASE ("limb") 
+          READ(4,NML=LIMB,IOSTAT=ios)
         CASE ("aircraft")
           READ(4,NML=AIRCRAFT,IOSTAT=ios)
         CASE ("pilot")
@@ -965,6 +1055,7 @@ MODULE module_obstypes
     NAMELIST / AMSUA / satelites
     NAMELIST / AMSUB / satelites
     NAMELIST / MHS   / satelites
+    NAMELIST / ATMS  / satelites
     NAMELIST / IASI  / satelites
   
     satelites_from_namelist=.FALSE. 
@@ -980,6 +1071,8 @@ MODULE module_obstypes
           READ(4,NML=AMSUB,IOSTAT=ios)
         CASE ("MHS")
           READ(4,NML=MHS,IOSTAT=ios)
+        CASE ("ATMS")
+          READ(4,NML=ATMS,IOSTAT=ios)
         CASE ("IASI")
           READ(4,NML=IASI,IOSTAT=ios)
         CASE DEFAULT
@@ -1036,6 +1129,7 @@ MODULE module_obstypes
      NAMELIST / MHS_NOAA19 / channels
      NAMELIST / MHS_METOP1 / channels
      NAMELIST / MHS_METOP2 / channels
+     NAMELIST / ATMS_JPSS0 / channels
      NAMELIST / IASI_METOP1 / channels
      NAMELIST / IASI_METOP2 / channels
  
@@ -1082,6 +1176,11 @@ MODULE module_obstypes
               READ(4,NML=MHS_METOP1,IOSTAT=ios)
             CASE("metop2")
               READ(4,NML=MHS_METOP2,IOSTAT=ios)
+          END SELECT
+        CASE ("ATMS")
+          SELECT CASE (TRIM(name))
+            CASE("jpss0")
+              READ(4,NML=ATMS_JPSS0,IOSTAT=ios)
           END SELECT
         CASE ("IASI")
           SELECT CASE (TRIM(name))
