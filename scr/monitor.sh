@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x 
+
 if [ "$#" -ne "4" -a "$#" -ne "6" -a "$#" -ne "8" ]; then
   echo "Usage $0 dtgstart dtgend base obtype [ instrument instrument_selection [ instrument_satelite satelite_channels ]]"
   exit 1

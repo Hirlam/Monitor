@@ -1,4 +1,4 @@
-#!/pack/local/bin/perl -w
+#!/usr/bin/env perl -w
 
 system('grep \#include src/*/*.[Ffc] >input.fil');
 

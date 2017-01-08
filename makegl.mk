@@ -28,6 +28,7 @@ OBJSF90 := $(addsuffix .o, $(basename $(SRCSF90)))
 OBJS := $(OBJSF90) $(OBJSF) $(OBJSC) 
 SRCS := $(SRCSF90) $(SRCSF) $(SRCSC) 
 
+ifeq "$(strip $(ODB_MONITOR))" "-DODB_MONITOR"
 SQLITE_INC  = -I$(HM_LIB)/util/sqlite3/flibs/ -I$(HM_LIB)/util/sqlite3/sqlite-autoconf-3080002/include/
 ifeq "$(strip $(MAKEUP))" "yes"
   ODBLIBS_PATH  = $(HM_LIB)/$(ARCH)/src
@@ -35,6 +36,7 @@ ifeq "$(strip $(MAKEUP))" "yes"
 else
   ODBLIBS_PATH  = $(HOMEPACK)/gmkpack_build/
   ODBINC        =-I$(ODBLIBS_PATH)/src/local/odb/module -I$(ODBLIBS_PATH)/src/main/odb/module -I$(ODBLIBS_PATH)/src/local/ifsaux/module -I$(ODBLIBS_PATH)/src/main/ifsaux/module
+endif
 endif
 
 TARGET := $(ROOTDIR)/$(ARCH)/lib/$(MAKECMDGOALS).a

@@ -36,9 +36,12 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
     @tmp    = split( '_', $prefix );
     $partag = $tmp[-2];
     $xscale = "";
+    if ( $partag eq "PE12" ) { $xscale="set logscale x" ; } ;
+    if ( $partag eq "PE6" ) { $xscale="set logscale x" ; } ;
+    if ( $partag eq "PE3" ) { $xscale="set logscale x" ; } ;
+    if ( $partag eq "PE1" ) { $xscale="set logscale x" ; } ;
     if ( $partag eq "PE" ) { $xscale="set logscale x" ; } ;
     if ( $partag eq "CH" ) { $xscale="set logscale x" ; } ;
-    if ( $partag eq "PE3" ) { $xscale="set logscale x" ; } ;
 
     @EXT = ('','.ps','.1.png','.1.jpg','.svg') ;
 
@@ -168,11 +171,16 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
 		}
                else {die "Your chosen selector: $selector is not supported\n"}
                my $nn=$a+$b+$c+$d;
+               my $n2=2;
 
                #False alarm RATIO:
                my $FAR = $missing; if ($a+$b > 0) {$FAR = $b/($a+$b);}
                #Probability of detection:
                my $POD = $missing; if ($a+$c > 0) {$POD = $a/($a+$c);}
+               #False alarm RATIO Complimentary class :
+               my $FARC = $missing; if ($c+$d > 0) {$FARC = $c/($c+$d);}
+               #Probability of detection Complimentary class :
+               my $PODC = $missing; if ($d+$b > 0) {$PODC = $d/($d+$b);}
                #False alarm RATE:
                my $FA  = $missing; if( $b+$d > 0) {$FA  = $b/($b+$d);}
                #Kuipers index:
@@ -181,6 +189,11 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
                my $FBI = $missing; if ($a+$c > 0) {$FBI = ($a + $b)/($a + $c);}
                # Threat score
                my $TS  = $missing; if ($a+$b+$c > 0) {$TS = $a/($a+$b+$c);}
+               # Correlation or square root of Doolittle first score :
+#               my $COR  = $missing; if ($a+$b+$c+$d > 0) {$COR = ($a*$d-$b*$c)*($a*$d-$b*$c)/(($b + $d)*($a + $c)*($a + $b)*($c + $d));}
+               my $COR  = $missing; if ( ($b + $d)*($a + $c)*($a + $b)*($c + $d) > 0) {$COR = ($a*$d-$b*$c)/sqrt(($b + $d)*($a + $c)*($a + $b)*($c + $d));}
+               # Heidke skill score or Doolittle second score :
+               my $HEI  = $missing; if ( ($a + $b)*($b + $d) + ($a + $c)*($c + $d) > 0) {$HEI = 2*($a*$d-$b*$c)/(($a + $b)*($b + $d) + ($a + $c)*($c + $d));}
                #Area index:
                my $AI = $missing;
 	       unless ($KUI == $missing) {
@@ -267,7 +280,7 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
 	       }
 	     
                print SCOREFILE  "$lowerlimit $FAR $POD ";
-               print SCOREFILE2 "$centralx $lowerlimit $FAR $POD $FA $KUI $FBI $AI $SEDS $EDI $SEDI $ETS $OFREQ $MFREQ $nn $TS $EDS \n";
+               print SCOREFILE2 "$centralx $lowerlimit $FAR $POD $FA $KUI $FBI $AI $SEDS $EDI $SEDI $ETS $OFREQ $MFREQ $nn $TS $EDS $FARC $PODC $COR $HEI \n";
 	   } #loop over classes
 
            print SCOREFILE "\n";
@@ -302,6 +315,13 @@ $ctype = 'FAR';
 $output_file = $skill_score_def{$ctype}.$prefix."_". $selector . $EXT[$output_type] ;
 &header($skill_score_txt{$ctype}) ;
 &gen_plot($skill_score_txt{$ctype},3); }
+
+# False alarm ratio complimentary class
+if ($ENV{'SCORELIST'}=~'FARC'){
+$ctype = 'FARC';
+$output_file = $skill_score_def{$ctype}.$prefix."_". $selector . $EXT[$output_type] ;
+&header($skill_score_txt{$ctype}) ;
+&gen_plot($skill_score_txt{$ctype},18); }
 
 #Kuiper skill score
 if ($ENV{'SCORELIST'}=~'KSS'){
@@ -373,6 +393,27 @@ $ctype = 'POD';
 $output_file = $skill_score_def{$ctype}.$prefix."_". $selector . $EXT[$output_type] ;
 &header($skill_score_txt{$ctype}) ;
 &gen_plot($skill_score_txt{$ctype},4); }
+
+# PODC
+if ($ENV{'SCORELIST'}=~'PODC'){
+$ctype = 'PODC';
+$output_file = $skill_score_def{$ctype}.$prefix."_". $selector . $EXT[$output_type] ;
+&header($skill_score_txt{$ctype}) ;
+&gen_plot($skill_score_txt{$ctype},19); }
+
+# COR
+if ($ENV{'SCORELIST'}=~'COR'){
+$ctype = 'COR';
+$output_file = $skill_score_def{$ctype}.$prefix."_". $selector . $EXT[$output_type] ;
+&header($skill_score_txt{$ctype}) ;
+&gen_plot($skill_score_txt{$ctype},20); }
+
+# HEI
+if ($ENV{'SCORELIST'}=~'HEI'){
+$ctype = 'HEI';
+$output_file = $skill_score_def{$ctype}.$prefix."_". $selector . $EXT[$output_type] ;
+&header($skill_score_txt{$ctype}) ;
+&gen_plot($skill_score_txt{$ctype},21); }
 
 #Frequency
 if ($ENV{'SCORELIST'}=~'Frequency'){

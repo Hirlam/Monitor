@@ -88,3 +88,8 @@ obsmon: mod $(CMALIBS) ./$(ARCH)/prg
 depf90mod.x: ./$(ARCH)/bin
 	$(MAKE) -C tools -f Makefile ARCH=$(ARCH) ROOTDIR=$(ROOTDIR) $(ROOTDIR)/$(ARCH)/bin/depf90mod.x
 
+install:
+	install -D  $(ROOTDIR)/$(ARCH)/bin/verobs $(DESTDIR)/bin/verobs
+
+uninstall:
+	rm -f  $(DESTDIR)/bin/verobs
