@@ -325,13 +325,13 @@ SUBROUTINE write_stat(p,t,s,n)
 
  INTEGER :: o
  REAL    :: rn(n)
- CHARACTER(LEN=30) :: form1='(2A6,x(4f8.3,I7))'
- CHARACTER(LEN=30) :: form2='(A6,I5,x(4f8.3,I7))'
+ CHARACTER(LEN=30) :: form1='(2A6,xx(4f8.3,I7))'
+ CHARACTER(LEN=30) :: form2='(A6,I5,xx(4f8.3,I7))'
  
 !------------------------------------------
 
- WRITE(form1(6:6),'(I1)')n
- WRITE(form2(8:8),'(I1)')n
+ WRITE(form1(6:7),'(I2.2)')n
+ WRITE(form2(8:9),'(I2.2)')n
 
  rn = 1.
  WHERE (s%n > 0 ) rn = FLOAT(s%n)

@@ -87,7 +87,7 @@ SCAN_INPUT: foreach $input_file (@FILES) {
     @sint      = ();
     @sintu     = ();
 
-    $col_count = 0 ;
+    $col_count = -1 ;
 
     if ( defined $minnum ) {
        undef $minnum ;
@@ -177,9 +177,8 @@ SCAN_INPUT: foreach $input_file (@FILES) {
 
         if ( $_ =~ /#COLUMN/ ) {
             $col_count++ ;
-
-            if ( scalar(@col_def_lt) < $col_count ) {
-                $col_def_lt[$col_count] = $col_count ;
+            unless ( exists($col_def_lt[$col_count]) ) {
+                $col_def_lt[$col_count]=$col_count ;
             } ;
 
 
