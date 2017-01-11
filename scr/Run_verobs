@@ -44,7 +44,7 @@ if [ $ALL_AT_ONCE == "yes" ] ; then
    ./Build_namelist.pl -t ${DIR} -p "$PARARG" > $WRK/${DIR}_$$/fort.10 || exit
 else
 
-   NPAR=$( echo ${DIR}PAR | wc | awk '{print $2}' )
+   NPAR=$( echo ${PARARG} | wc | awk '{print $2}' )
    [[ $PAR_PER_BLOCK -gt $NPAR ]] && PAR_PER_BLOCK=$NPAR
 
    I=1
