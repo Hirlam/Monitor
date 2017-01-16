@@ -7,6 +7,7 @@
 #
 
 my $searchdir = "";
+my $vertype = "SURF";
 
 # Set colors for lines
 
@@ -67,7 +68,7 @@ if ( $searchdir ne "" ) {
  @FILES = grep /\.txt$/, @FILES ;
  close MYDIR ;
 
-} else { @FILES = @ARGV } ;
+} else { @FILES = grep(!/\-t|\b$vertype\b/,@ARGV) ; } ;
 
 if ( $vertype eq "SURF" ) {
  $map_ps=1;
@@ -292,6 +293,10 @@ SCAN_INPUT: foreach $input_file (@FILES) {
 #################################################################
 #################################################################
 sub plot_sign {
+
+print GP <<EOF;
+set xtics 0,3,72
+EOF
   
   if ( defined $minnum ) {
     print GP <<EOF;
@@ -382,7 +387,7 @@ EOF
 
     print GP <<EOF;
 set xdata time
-set format x "%HZ %d/%m"
+set format x "%d/%m\\n %HZ"
 EOF
 
     &plot_command ;
@@ -392,6 +397,10 @@ EOF
 #################################################################
 #################################################################
 sub gen_stat {
+
+print GP <<EOF;
+set xtics 0,3,72
+EOF
 
   if ( defined $minnum ) {
     print GP <<EOF;
