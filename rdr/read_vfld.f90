@@ -374,9 +374,10 @@ SUBROUTINE read_vfld
                 sca = 1.0
                 SELECT CASE(invar(n))
  
-                CASE('TT','TN','TX','TD')
+                CASE('TT','TN','TX','TD','TTP1','TTP2', &
+                     'TDP1','TDP2')
                    sub = tzero
-                CASE('QQ')
+                CASE('QQ','QQP1','QQP2')
                    sca = 1.e3
                 END SELECT
 
@@ -406,7 +407,7 @@ SUBROUTINE read_vfld
                hir(stat_i)%o(i)%nal(l,j,m) = hir(stat_i)%lat
               CASE('HG')
                hir(stat_i)%o(i)%nal(l,j,m) = hgt
-              CASE('TTHA','TNHA','TXHA')
+              CASE('TTHA','TNHA','TXHA','TTP1HA')
                mm=find_var(ninvar,invar,varprop(m)%id(1:2))
                ! CALC hgt adjustment
                IF ( qclr(val(mm),varprop(m)%llim) .AND. &

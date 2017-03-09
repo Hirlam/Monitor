@@ -245,3 +245,22 @@
  },
    
 );
+
+# Insert patch info
+ @patchvar = ('TT','TN','TX','DD','FF','RH','QQ','TD');
+ @npatch = (1,2);
+
+foreach $patch ( @patchvar ) { 
+  foreach $n ( @npatch ) { 
+    $lpar = $patch.'P'.$n;
+    unless ( exists $plotdefs{$lpar} ) { 
+      for $role ( sort keys %{ $plotdefs{$patch} } ) {
+          ${plotdefs}{$lpar}{$role}=${plotdefs}{$patch}{$role};
+      } ;
+      $plotdefs{$lpar}{'TEXT'} = $plotdefs{$lpar}{'TEXT'}.' '.$n.' patch';
+    } ;
+  } ;
+} ;
+
+1 ;
+

@@ -277,6 +277,18 @@ SUBROUTINE read_vobs
 
             ! Static pseudo variables
             SELECT CASE(varprop(m)%id)
+              CASE('FFP1','FFP2','DDP1','DDP2','RHP1','RHP2')
+               mm = find_var(ninvar,invar,varprop(m)%id(1:2))
+               IF ( mm > 0 ) THEN
+                IF ( qca(val(mm),mflag)) &
+                obs(stat_i)%o(i)%val(m) = val(mm)
+               ENDIF
+              CASE('QQP1','QQP2')
+               mm = find_var(ninvar,invar,varprop(m)%id(1:2))
+               IF ( mm > 0 ) THEN
+                IF ( qca(val(mm),mflag)) &
+                obs(stat_i)%o(i)%val(m) = val(mm) * 1.e3
+               ENDIF
               CASE('LA')
                obs(stat_i)%o(i)%val(m) = obs(stat_i)%lat
               CASE('HG')
@@ -290,13 +302,16 @@ SUBROUTINE read_vobs
                      qcur(val(mm),varprop(m)%ulim) )     &
                 obs(stat_i)%o(i)%val(m) = val(mm)
                ENDIF
-              CASE('TTHA','TNHA','TXHA')
+              CASE('TTHA','TNHA','TXHA','TTP1','TTP2', &
+                   'TDP1','TDP2','TNP1','TNP2','TXP1','TXP2')
                ! Convert to celcius
                mm = find_var(ninvar,invar,varprop(m)%id(1:2))
+               IF ( mm > 0 ) THEN
                 IF ( qca(val(mm),mflag)            .AND. &
                      qclr(val(mm),varprop(m)%llim) .AND. &
                      qcur(val(mm),varprop(m)%ulim) )     &
                obs(stat_i)%o(i)%val(m) = val(mm) - tzero
+               ENDIF
               CASE('TDD')
                mm=find_var(ninvar,invar,varprop(m)%id(1:2))
                m2=find_var(ninvar,invar,'TT')

@@ -52,7 +52,7 @@ SUBROUTINE setup_varprop
       DO j=1,nlev
         k = k + 1
         varprop(k)%id=TRIM(varlist(i))
-        varprop(k)%lev=lev_lst(j)
+        varprop(k)%lev=INT(lev_lst(j))
       ENDDO
       i = i + 1
     ENDDO
@@ -74,9 +74,9 @@ SUBROUTINE setup_varprop
  DO i=1,nparver
   v => varprop(i)
   SELECT CASE(varprop(i)%id)
-  CASE('TT','TTHA')
+  CASE('TT','TTHA','TTP1','TTP2')
     varprop(i) = variable(v%lev,0,0,50.,400.,-200.,v%id,'Temperature','deg C')
-  CASE('FF')
+  CASE('FF','FFP1','FFP2')
     varprop(i) = variable(v%lev,0,0,50.,200.,0.,v%id,'Wind speed','m/s')
   CASE('FX')
     varprop(i) = variable(v%lev,0,0,50.,200.,0.,v%id,'Max wind speed','m/s')
@@ -96,21 +96,21 @@ SUBROUTINE setup_varprop
     varprop(i) = variable(v%lev,0,0,50.,1100.,0.,v%id,'Surface Pressure','hPa')
   CASE('NN')
     varprop(i) = variable(v%lev,0,0,10.,8.,0.,v%id,'Cloud cover','octas')
-  CASE('TD')
+  CASE('TD','TDP1','TDP2')
     varprop(i) = variable(v%lev,0,0,50.,400.,-200.,v%id,'Dew point temperature','deg C')
-  CASE('TN')
+  CASE('TN','TNP1','TNP2')
     varprop(i) = variable(v%lev,12,2,50.,400.,-200.,v%id,'Minimum temperature','deg C')
-  CASE('TX')
+  CASE('TX','TXP1','TXP2')
     varprop(i) = variable(v%lev,12,3,50.,400.,-200.,v%id,'Maximum temperature','deg C')
   CASE('VI')
     varprop(i) = variable(v%lev,0,0,5.e5,1.e12,0.,v%id,'Visibility','m')
-  CASE('DD')
+  CASE('DD','DDP1','DDP2')
     varprop(i) = variable(v%lev,0,0,720.,360.,0.,v%id,'Wind direction','deg')
   CASE('WT')
     varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Sensible heat flux','w/m^2')
   CASE('WQ')
     varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Latent heat flux','w/m^2')
-  CASE('QQ')
+  CASE('QQ','QQP1','QQP2')
     varprop(i) = variable(v%lev,0,0,50.,100.,0.,v%id,'Specific humidity','g/Kg')
   CASE('SW')
     varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Short wave radiation','W/m^2')
