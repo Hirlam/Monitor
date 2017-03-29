@@ -11,8 +11,8 @@ my $vertype = "SURF";
 
 # Set colors for lines
 
-@col_def_lt  = (1,2,3,4,5,6,8,7,9);
-@col_def_lt  = (0,@col_def_lt);
+@col_def_lt  = (0,1,2,3,4,5,6,8,7,9);
+eval { require $ENV{LOCALDEFS}; } if $ENV{LOCALDEFS} ;
 
 # Line thickness
 $lw=2;

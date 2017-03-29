@@ -42,50 +42,52 @@
 # Get input
  
 
-$PROJECT = "WebgraF_PROJECT"  ;
-$ENTRY   = "WebgraF_ENTRY"     ;
-$FILE    = "any file" ;
-$DELETE  = "false"    ;
-$GETFILE = "false"    ;
-$LIST    = "false"    ;
-$GETINFO = "false"    ;
-$EXPORT  = "false"    ;
-$CLEAN   = "false"    ;
-$ADDUSER = "false"    ;
-$RENAME  = "false"    ;
-$ADDFILE = "false"    ;
-$INSTALL = "false"    ;
-$ADD_HP  = "false"    ;
-$MESSAGE = "none"     ;
-$NEWNAME = "none"     ;
-$BASNAME = "none"     ;
-$INFO    = "none"     ;
-$BASE    = $WEBGRAF_BASE  ;
-$TRANSPORT  = "false" ;
-$COPY_DIR_BY  = "cp -r" ;
+my $PROJECT = "WebgraF_PROJECT"  ;
+my $ENTRY   = "WebgraF_ENTRY"     ;
+my $FILE    = "any file" ;
+my $DELETE  = "false"    ;
+my $GETFILE = "false"    ;
+my $LIST    = "false"    ;
+my $GETINFO = "false"    ;
+my $EXPORT  = "false"    ;
+my $CLEAN   = "false"    ;
+my $ADDUSER = "false"    ;
+my $RENAME  = "false"    ;
+my $ADDFILE = "false"    ;
+my $INSTALL = "false"    ;
+my $ADD_HP  = "false"    ;
+my $MESSAGE = "none"     ;
+my $NEWNAME = "none"     ;
+my $BASNAME = "none"     ;
+my $INFO    = "none"     ;
+my $BASE    = $WEBGRAF_BASE  ;
+my $TRANSPORT  = "false" ;
+my $COPY_DIR_BY  = "cp -r" ;
+my $PRINT_ACTIVE_BASE="false";
 
 $n = 0 ;
 while ( <@ARGV> ) {
 
-   if ( /-h/) { die $usage ; } ;
-   if ( /-p/) { $PROJECT = $ARGV[($n + 1)] ; $PROJECT = " $PROJECT " ; } ;
-   if ( /-e/) { $ENTRY   = $ARGV[($n + 1)] ; $ENTRY   = " $ENTRY "   ; } ;
-   if ( /-u/) { $WEBUSER = $ARGV[($n + 1)] ; $ADDUSER = "true"       ; } ;
-   if ( /-i/) { $INFO    = $ARGV[($n + 1)] ; $GETINFO = "true"       ; } ;
-   if ( /-n/) { $NEWNAME = $ARGV[($n + 1)] ; $RENAME  = "true"       ; } ;
-   if ( /-c/) { $CLEANAGE= $ARGV[($n + 1)] ; $CLEAN   = "true"       ; } ;
-   if ( /-a/) { $FILE    = $ARGV[($n + 1)] ; $ADDFILE = "true"       ; } ;
-   if ( /-j/) { $HOST_PAGE = $ARGV[($n + 1)] ; $ADD_HP = "true" ; } ;
-   if ( /-f/) { $FILE    = $ARGV[($n + 1)] ; } ;
-   if ( /-fm/) { $FILE    = $ARGV[($n + 1)] ; $COPY_DIR_BY ="mv" ;} ;
-   if ( /-m/) { $MESSAGE = $ARGV[($n + 1)] ; } ;
-   if ( /-d/) { die "USE -r for delete \n" ; } ;
-   if ( /-t/) { $TRANSPORT = "true" ; } ;
-   if ( /-I/) { $INSTALL = "true" ; } ;
-   if ( /-x/) { $EXPORT  = "true" ; } ;
-   if ( /-g/) { $GETFILE = "true" ; } ;
-   if ( /-r/) { $DELETE  = "true" ; } ;
-   if ( /-l/) { $LIST    = "true" ; } ;
+   if ( /^-h/) { die $usage ; } ;
+   if ( /^-p/) { $PROJECT = $ARGV[($n + 1)] ; $PROJECT = " $PROJECT " ; } ;
+   if ( /^-e/) { $ENTRY   = $ARGV[($n + 1)] ; $ENTRY   = " $ENTRY "   ; } ;
+   if ( /^-u/) { $WEBUSER = $ARGV[($n + 1)] ; $ADDUSER = "true"       ; } ;
+   if ( /^-i/) { $INFO    = $ARGV[($n + 1)] ; $GETINFO = "true"       ; } ;
+   if ( /^-n/) { $NEWNAME = $ARGV[($n + 1)] ; $RENAME  = "true"       ; } ;
+   if ( /^-c/) { $CLEANAGE= $ARGV[($n + 1)] ; $CLEAN   = "true"       ; } ;
+   if ( /^-a/) { $FILE    = $ARGV[($n + 1)] ; $ADDFILE = "true"       ; } ;
+   if ( /^-j/) { $HOST_PAGE = $ARGV[($n + 1)] ; $ADD_HP = "true" ; } ;
+   if ( /^-f/) { $FILE    = $ARGV[($n + 1)] ; } ;
+   if ( /^-fm/) { $FILE    = $ARGV[($n + 1)] ; $COPY_DIR_BY ="mv" ;} ;
+   if ( /^-m/) { $MESSAGE = $ARGV[($n + 1)] ; } ;
+   if ( /^-d/) { die "USE -r for delete \n" ; } ;
+   if ( /^-t/) { $TRANSPORT = "true" ; } ;
+   if ( /^-I/) { $INSTALL = "true" ; } ;
+   if ( /^-x/) { $EXPORT  = "true" ; } ;
+   if ( /^-g/) { $GETFILE = "true" ; } ;
+   if ( /^-r/) { $DELETE  = "true" ; } ;
+   if ( /^-l/) { $LIST    = "true" ; } ;
+   if ( /^-v/) { $PRINT_ACTIVE_BASE = "true" ; } ;
 
    if ( /-I/) {
       if ( $ARGV[($n + 1)] ) { 
@@ -107,6 +109,12 @@ while ( <@ARGV> ) {
 if ( ! $CLEANAGE) { $CLEANAGE = 9999 ; } ;
 
 chdir $BASE or die "Could not go to $BASE \n" ;
+
+if ( $PRINT_ACTIVE_BASE =~ /true/ ) {
+ print"$BASE\n";
+ exit ;
+}
+
 
 #
 # Check name

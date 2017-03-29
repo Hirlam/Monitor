@@ -310,7 +310,7 @@ SUBROUTINE read_vobs
                 IF ( qca(val(mm),mflag)            .AND. &
                      qclr(val(mm),varprop(m)%llim) .AND. &
                      qcur(val(mm),varprop(m)%ulim) )     &
-               obs(stat_i)%o(i)%val(m) = val(mm) - tzero
+                obs(stat_i)%o(i)%val(m) = val(mm) - tzero
                ENDIF
               CASE('TDD')
                mm=find_var(ninvar,invar,varprop(m)%id(1:2))

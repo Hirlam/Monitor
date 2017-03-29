@@ -20,7 +20,7 @@ MODULE data
  INTEGER, PARAMETER :: lunxml  = 47
  INTEGER, PARAMETER :: lunqc   = 48
  INTEGER, PARAMETER :: len_lab = 6
- INTEGER, PARAMETER :: maxexp  = 10     ! Max experiments
+ INTEGER, PARAMETER :: maxexp  = 20     ! Max experiments
  INTEGER, PARAMETER :: mparver = 200    ! Max parameters to verify
  INTEGER, PARAMETER :: maxfclen= 48     ! Maximum number of forecast lengths
  INTEGER, PARAMETER :: maxfclenval= 240 ! Maximum forecast length value in hours
@@ -144,7 +144,7 @@ MODULE data
  CHARACTER(LEN=len_lab)      :: varlist(mparver) = '#'
  TYPE(variable)              :: setprop(mparver) = variable(0,0,0,          &
                                                    err_ind,err_ind,err_ind, &
-                                                   '#','#','#')
+                                                   '#','#','#',.TRUE.)
  TYPE(variable), &
  ALLOCATABLE,TARGET          :: varprop(:) 
 

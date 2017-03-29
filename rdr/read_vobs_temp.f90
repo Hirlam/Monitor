@@ -282,7 +282,8 @@ SUBROUTINE read_vobs_temp
           PARVER_LOOP : DO m=1,nparver
             INVAR_LOOP : DO n=1,ninvar
               IF ( varprop(m)%id == invar(n) .AND. &
-                   (ABS(varprop(m)%lev - val(ipr)) < 1.e-6 ) ) THEN
+                   (ABS(varprop(m)%lev - val(ipr)) < 1.e-6 ) .AND. &
+                   varprop(m)%active ) THEN
 
                 ! Check for missing data flag
                 IF ( .NOT. qca(val(n),mflag) ) CYCLE PARVER_LOOP

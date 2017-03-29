@@ -3,7 +3,7 @@ SUBROUTINE setup_varprop
  !
  ! Setup the properties for the selected variables
  !
- ! Ulf Andrae, SMHI, 2011
+ ! Ulf Andrae, SMHI, 2011-2017
  !
 
  USE DATA
@@ -75,87 +75,91 @@ SUBROUTINE setup_varprop
   v => varprop(i)
   SELECT CASE(varprop(i)%id)
   CASE('TT','TTHA','TTP1','TTP2')
-    varprop(i) = variable(v%lev,0,0,50.,400.,-200.,v%id,'Temperature','deg C')
+    varprop(i) = variable(v%lev,0,0,50.,400.,-200.,v%id,'Temperature','deg C',.FALSE.)
   CASE('FF','FFP1','FFP2')
-    varprop(i) = variable(v%lev,0,0,50.,200.,0.,v%id,'Wind speed','m/s')
+    varprop(i) = variable(v%lev,0,0,50.,200.,0.,v%id,'Wind speed','m/s',.FALSE.)
   CASE('FX')
-    varprop(i) = variable(v%lev,0,0,50.,200.,0.,v%id,'Max wind speed','m/s')
+    varprop(i) = variable(v%lev,0,0,50.,200.,0.,v%id,'Max wind speed','m/s',.FALSE.)
   CASE('GG')
-    varprop(i) = variable(v%lev,0,0,50.,200.,0.,v%id,'Wind gust','m/s')
+    varprop(i) = variable(v%lev,0,0,50.,200.,0.,v%id,'Wind gust','m/s',.FALSE.)
   CASE('GX')
-    varprop(i) = variable(v%lev,6,3,50.,200.,0.,v%id,'Max wind gust','m/s')
+    varprop(i) = variable(v%lev,6,3,50.,200.,0.,v%id,'Max wind gust','m/s',.FALSE.)
   CASE('HG')
-    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Height','m')
+    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Height','m',.FALSE.)
   CASE('LA')
-    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Latitude','deg')
+    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Latitude','deg',.FALSE.)
   CASE('FI')
-    varprop(i) = variable(v%lev,0,0,500.,1.e9,0.,v%id,'Height','m')
+    varprop(i) = variable(v%lev,0,0,500.,1.e9,0.,v%id,'Height','m',.FALSE.)
   CASE('RH')
-    varprop(i) = variable(v%lev,0,0,100.,100.,0.,v%id,'Relative Humidity','%')
+    varprop(i) = variable(v%lev,0,0,100.,100.,0.,v%id,'Relative Humidity','%',.FALSE.)
   CASE('PS')
-    varprop(i) = variable(v%lev,0,0,50.,1100.,0.,v%id,'Surface Pressure','hPa')
+    varprop(i) = variable(v%lev,0,0,50.,1100.,0.,v%id,'Surface Pressure','hPa',.FALSE.)
   CASE('NN')
-    varprop(i) = variable(v%lev,0,0,10.,8.,0.,v%id,'Cloud cover','octas')
+    varprop(i) = variable(v%lev,0,0,10.,8.,0.,v%id,'Cloud cover','octas',.FALSE.)
   CASE('TD','TDP1','TDP2')
-    varprop(i) = variable(v%lev,0,0,50.,400.,-200.,v%id,'Dew point temperature','deg C')
+    varprop(i) = variable(v%lev,0,0,50.,400.,-200.,v%id,'Dew point temperature','deg C',.FALSE.)
   CASE('TN','TNP1','TNP2')
-    varprop(i) = variable(v%lev,12,2,50.,400.,-200.,v%id,'Minimum temperature','deg C')
+    varprop(i) = variable(v%lev,12,2,50.,400.,-200.,v%id,'Minimum temperature','deg C',.FALSE.)
   CASE('TX','TXP1','TXP2')
-    varprop(i) = variable(v%lev,12,3,50.,400.,-200.,v%id,'Maximum temperature','deg C')
+    varprop(i) = variable(v%lev,12,3,50.,400.,-200.,v%id,'Maximum temperature','deg C',.FALSE.)
   CASE('VI')
-    varprop(i) = variable(v%lev,0,0,5.e5,1.e12,0.,v%id,'Visibility','m')
+    varprop(i) = variable(v%lev,0,0,5.e5,1.e12,0.,v%id,'Visibility','m',.FALSE.)
   CASE('DD','DDP1','DDP2')
-    varprop(i) = variable(v%lev,0,0,720.,360.,0.,v%id,'Wind direction','deg')
+    varprop(i) = variable(v%lev,0,0,720.,360.,0.,v%id,'Wind direction','deg',.FALSE.)
   CASE('WT')
-    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Sensible heat flux','w/m^2')
+    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Sensible heat flux','w/m^2',.FALSE.)
   CASE('WQ')
-    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Latent heat flux','w/m^2')
+    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Latent heat flux','w/m^2',.FALSE.)
   CASE('QQ','QQP1','QQP2')
-    varprop(i) = variable(v%lev,0,0,50.,100.,0.,v%id,'Specific humidity','g/Kg')
+    varprop(i) = variable(v%lev,0,0,50.,100.,0.,v%id,'Specific humidity','g/Kg',.FALSE.)
   CASE('SW')
-    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Short wave radiation','W/m^2')
+    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Short wave radiation','W/m^2',.FALSE.)
   CASE('UW')
-    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Momentum flux','m^2/s^2')
+    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Momentum flux','m^2/s^2',.FALSE.)
   CASE('NR')
-    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Net radiation','W/m^2')
+    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Net radiation','W/m^2',.FALSE.)
   CASE('GR')
-    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Global radiation','W/m^2')
+    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Global radiation','W/m^2',.FALSE.)
   CASE('SU')
-    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Short wave radiation up','W/m^2')
+    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Short wave radiation up','W/m^2',.FALSE.)
   CASE('SD')
-    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Short wave radiation down','W/m^2')
+    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Short wave radiation down','W/m^2',.FALSE.)
   CASE('LU')
-    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Long wave radiation up','W/m^2')
+    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Long wave radiation up','W/m^2',.FALSE.)
   CASE('LD')
-    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Long wave radiation down','W/m^2')
+    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Long wave radiation down','W/m^2',.FALSE.)
   CASE('LW')
-    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Long wave radiation','W/m^2')
+    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Long wave radiation','W/m^2',.FALSE.)
   CASE('GS')
-    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Ground heat flux','W/m^2')
+    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Ground heat flux','W/m^2',.FALSE.)
   CASE('GC')
-    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Residual ground heat flux','W/m^2')
+    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Residual ground heat flux','W/m^2',.FALSE.)
   CASE('HB')
-    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Surface heat budget residual','W/m^2')
+    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Surface heat budget residual','W/m^2',.FALSE.)
   CASE('PE')
-    varprop(i) = variable(v%lev,12,0,50.,500.,0.,v%id,'Precipitation','mm')
+    varprop(i) = variable(v%lev,12,0,50.,500.,0.,v%id,'Precipitation','mm',.FALSE.)
   CASE('PD')
-    varprop(i) = variable(v%lev,24,0,50.,500.,0.,v%id,'Precipitation','mm')
+    varprop(i) = variable(v%lev,24,0,50.,500.,0.,v%id,'Precipitation','mm',.FALSE.)
   CASE('RF')
-    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Runoff','mm/day')
+    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Runoff','mm/day',.FALSE.)
   CASE('TU')
-    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'dT/dz/dU/dz','Ks/m')
+    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'dT/dz/dU/dz','Ks/m',.FALSE.)
   CASE('UZ')
-    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'dU/dz','s^-1')
+    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'dU/dz','s^-1',.FALSE.)
   CASE('TZ')
-    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'dT/dz','deg C/m')
+    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'dT/dz','deg C/m',.FALSE.)
   CASE('WP')
-    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Wind power','kW')
+    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Wind power','kW',.FALSE.)
   CASE('WH')
-    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Energy','kWh')
+    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Energy','kWh',.FALSE.)
   CASE DEFAULT
     varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,v%id,v%id)
   END SELECT
  ENDDO
+
+ !
+ ! Copy namelist settings
+ !
 
  i = 1
  DO WHILE ( setprop(i)%id /= '#' .OR. i <= nparver ) 
@@ -165,6 +169,8 @@ SUBROUTINE setup_varprop
 
       IF ( v%id  == setprop(i)%id  .AND. &
            (v%lev == setprop(i)%lev .OR. setprop(i)%lev == -1 ) ) THEN
+
+         v%active = setprop(i)%active 
 
          IF ( setprop(i)%text /= '#'   ) v%text     = setprop(i)%text
          IF ( setprop(i)%unit /= '#'   ) v%unit     = setprop(i)%unit
@@ -202,20 +208,6 @@ SUBROUTINE setup_varprop
  ENDIF
 
  !
- ! Set unit for accumulated variables
- ! Disabled, done from namelist
- !
-
-!DO j=1,nparver
-!  v => varprop(j)
-!  IF ( v%acc == 0 ) CYCLE
-!  magn=FLOOR(LOG10(FLOAT(v%acc)))+1
-!  WRITE(cform(3:3),'(I1)')magn
-!  WRITE(clev,cform)v%acc
-!  v%unit = TRIM(v%unit)//'/'//TRIM(clev)//'h'
-!ENDDO
-
- !
  ! Summarize the settings
  !
 
@@ -223,13 +215,14 @@ SUBROUTINE setup_varprop
  WRITE(6,*)' Variable setting summary '
 
  DO i=1,nparver
-  WRITE(6,*)
-  WRITE(6,*)'NAME:',TRIM(varprop(i)%text)
-  WRITE(6,*)'ID:  ',TRIM(varprop(i)%id)
-  WRITE(6,*)'UNIT:',TRIM(varprop(i)%unit)
-  WRITE(6,*)'LEVEL:',varprop(i)%lev
-  WRITE(6,*)'ACC/ACCTYPE:',varprop(i)%acc,varprop(i)%acctype
-  WRITE(6,*)'LOW/UP LIM:',varprop(i)%llim,varprop(i)%ulim
+  WRITE(6,*)'Variable:',i
+  WRITE(6,*)' NAME:',TRIM(varprop(i)%text)
+  WRITE(6,*)' ID:  ',TRIM(varprop(i)%id)
+  WRITE(6,*)' UNIT:',TRIM(varprop(i)%unit)
+  WRITE(6,*)' LEVEL:',varprop(i)%lev
+  WRITE(6,*)' ACC/ACCTYPE:',varprop(i)%acc,varprop(i)%acctype
+  WRITE(6,*)' LOW/UP LIM:',varprop(i)%llim,varprop(i)%ulim
+  WRITE(6,*)' ACTIVE:',varprop(i)%active
  ENDDO
  WRITE(6,*)
 

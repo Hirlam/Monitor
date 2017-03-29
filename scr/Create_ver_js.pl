@@ -10,6 +10,9 @@
  use maindefs ;
  use skilldefs ;
 
+ # Add local deviations 
+ eval { require $ENV{LOCALDEFS}; } if $ENV{LOCALDEFS} ;
+
  $WEBCALL=$ENV{WEBCALL} ;
 
  #

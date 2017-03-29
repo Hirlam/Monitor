@@ -56,6 +56,7 @@ MODULE types
     CHARACTER(LEN=10) :: id ='XX'
     CHARACTER(LEN=50) :: text ='XX'
     CHARACTER(LEN=10) :: unit ='XX'
+    LOGICAL :: active = .TRUE.
  END TYPE variable
 
  !

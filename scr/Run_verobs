@@ -49,7 +49,7 @@ else
 
    I=1
    FF=""
-   for F in ${DIR}PAR ; do
+   for F in ${PARARG} ; do
       II=$(( $I % $PAR_PER_BLOCK ))
       FF="$FF $F"
       if [ $II -eq 0 -o $I -eq $NPAR ] ; then 

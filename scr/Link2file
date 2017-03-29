@@ -20,7 +20,8 @@ else
  exit 1
 fi
 
-for F in $( find $WEBGRAF_BASE -type l | grep -v svn ) ; do 
+ACTIVE_BASE=$( $WEBCALL -v )
+for F in $( find $ACTIVE_BASE -type l | grep -v svn ) ; do 
   base=$( dirname $F )
   FF=$( ls -l $F | cut -d">" -f2  | sed "s/ //g" )
   rm -f $F

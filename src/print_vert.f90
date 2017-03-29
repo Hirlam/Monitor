@@ -63,7 +63,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
  CHARACTER(LEN=30 ) :: cform='   '
 
  LOGICAL, ALLOCATABLE :: ldum(:)
- LOGICAL :: luh(0:23)
+ LOGICAL :: luh(0:23),lluh
 
 !------------------------------------------
 
@@ -253,9 +253,19 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
           luh  = .FALSE.
           WRITE(chour,'(I2.2,1X,A3)')hour(kk),'UTC'
           DO k=0,23
-            IF ( .NOT. uh(jl(1),k) ) CYCLE
+           lluh = .FALSE.
+           DO jj= 1,nlev
+              j_ind = (j/nlev-1)*nlev + jj
+              lluh = lluh .OR. uh(j_ind,k)
+           ENDDO
+            IF ( .NOT. lluh ) CYCLE
             DO l=0,maxfclenval
-              IF ( .NOT. uf(jl(1),l) ) CYCLE
+             lluh = .FALSE.
+             DO jj= 1,nlev
+              j_ind = (j/nlev-1)*nlev + jj
+              lluh = lluh .OR. uf(j_ind,l)
+             ENDDO
+              IF ( .NOT. lluh ) CYCLE
               IF( MOD(k + l,24) == hour(kk)) THEN 
                 luh(k) = .TRUE.
                 ldum(l) = .TRUE.
@@ -377,7 +387,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
     ENDDO
     DEALLOCATE(pdat)
 
- ENDDO
+  ENDDO
  ENDDO
 
  RETURN

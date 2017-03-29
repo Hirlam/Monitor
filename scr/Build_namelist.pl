@@ -22,6 +22,9 @@
  use maindefs ;
  use skilldefs ;
 
+ # Add local deviations 
+ eval { require $ENV{LOCALDEFS}; } if $ENV{LOCALDEFS} ;
+
  unless ( @ARGV ) { die "Please give SURF or TEMP as argument \n" ; } ;
 
  $n=0;
@@ -84,11 +87,7 @@
     # Define TEMP specific things
     #
 
-    if ( $ENV{ALL_AT_ONCE} eq "no" && defined $ENV{"LEV_LST_$inpar"} ) {
-       @lev = split(' ',$ENV{"LEV_LST_$inpar"});
-    } else {
-       @lev = split(' ',$ENV{LEV_LST});
-    }
+    @lev = split(' ',$ENV{LEV_LST});
 
     $nlev = scalar(@lev);
     $nameread{'read_section'}{'LEV_LST'} = join(',',@lev);
@@ -134,6 +133,11 @@
  # Define variable specific things
  $i=0;
  foreach ( split(' ',$inpar) ) {
+
+      my @lev_list_par = () ;
+      if ( defined $ENV{"LEV_LST_$_"} ) {
+         @lev_list_par = split(' ',$ENV{"LEV_LST_$_"});
+      }
 
       $i++ ;
 
@@ -182,6 +186,17 @@
             $nameread{'read_section'}{'SETPROP('.$k.')%'.$prop}='\''.$tmp{$_}{$prop}.'\'';
           } ;
          } ;
+
+         if ( $type =~ /TEMP/ ) {
+          $nameread{'read_section'}{'SETPROP('.$k.')%LEV'}=$lev[$ilev-1];
+
+          # Switch of levels if they are not in the specific list
+          if ( scalar(@lev_list_par) > 0 ) {
+            unless ( grep /^$lev[$ilev-1]$/, @lev_list_par ) {
+              $nameread{'read_section'}{'SETPROP('.$k.')%ACTIVE'}='.FALSE.',
+            }
+          }
+         }
 
          foreach $prop ('ACCTYPE','ACC','LIM','LLIM','ULIM') {         
           if ( exists $tmp{$_}{$prop} ) {

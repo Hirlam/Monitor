@@ -35,7 +35,7 @@
     'EDI'           => 'Extremal Dependency Index',
     'SEDI'          => 'Symmetric Extremal Dependency Index',
     'AI'            => 'Area index',
-    'FAR'           => 'False alarme ratio', 
+    'FAR'           => 'False alarme ratio',
     'FARC'          => 'False alarme ratio complimentary class',
     'FA'            => 'False alarme rate',
     'Frequencybias' => 'Freq bias',
