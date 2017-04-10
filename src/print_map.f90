@@ -46,7 +46,8 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
             maxn,                       &
             numstn,period,              &
             nexp_plot,ntimver_out,      &
-            map_hour,kk6,kk18
+            map_hour,kk6,kk18,          &
+            map_hour_lag
 
  INTEGER, ALLOCATABLE :: stn(:)
 
@@ -155,6 +156,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
 
  PAR_LOOP : DO j=1,nparver
 
+    map_hour_lag = 0
     FC_LOOP  : DO kki=1,ntimver_out
 
        kk = 0
@@ -172,8 +174,14 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
             .NOT. lfcver                      &
           ) THEN
           IF (.NOT. ANY( show_times == hour(kki) )) CYCLE
-          IF ( hour(kki) == 0  ) kk = kk6
-          IF ( hour(kki) == 12 ) kk = kk18
+          IF ( hour(kki) == 0  ) THEN
+              kk = kk6
+              map_hour_lag = 6
+          ENDIF
+          IF ( hour(kki) == 12 ) THEN
+            kk = kk18
+            map_hour_lag = 6
+          ENDIF
           map_hour = hour(kki)
        ELSE
           IF ( ntimver_out /= 1 .AND. .NOT. ANY( show_times == hour(kki) )) CYCLE
@@ -442,7 +450,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
             IF ( .NOT. used_hours(j,per_ind,k) ) CYCLE
             DO l=0,maxfclenval
                 IF ( .NOT. used_fclen(j,per_ind,l) ) CYCLE
-                IF( MOD(k + l,24) == map_hour) luh(k) = .TRUE.
+                IF( MOD(k + l,24) == ( map_hour + map_hour_lag ) ) luh(k) = .TRUE.
             ENDDO
           ENDDO
           luf = .FALSE.
@@ -450,10 +458,9 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
             IF ( .NOT. luh(k) ) CYCLE
             DO l=0,maxfclenval
                IF ( .NOT. used_fclen(j,per_ind,l) ) CYCLE
-               IF( MOD(k + l,24) == map_hour) luf(l) = .TRUE.
+               IF( MOD(k + l,24) == ( map_hour + map_hour_lag )) luf(l) = .TRUE.
             ENDDO
           ENDDO
-         
           CALL fclen_header(.NOT.lfcver,maxfclenval,   &
                             luh,luf,                   &
                             varprop(j)%acc,wtext)
