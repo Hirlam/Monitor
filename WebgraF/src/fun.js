@@ -245,8 +245,8 @@ function figName(p)
  
    if (my_con[con_ind] == 'All' ) {
      for (j = 0; j < (spec_name.length - 1); j++) {
-       if ( msep[j] == undefined ) { msep[j] = sep }
-       this.src += mlist[spec_name[j]].v[p[spec_name[j]]] + msep[j]
+       if ( msep[spec_name[j]] == undefined ) { msep[spec_name[j]] = sep }
+       this.src += mlist[spec_name[j]].v[p[spec_name[j]]] + msep[spec_name[j]]
      }
      this.src += mlist[spec_name[j]].v[p[spec_name[j]]]
      this.src += "." + ext
