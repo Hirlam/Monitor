@@ -15,7 +15,7 @@ SUBROUTINE read_vobs
 
  REAL, PARAMETER :: mflag = -99.
 
- INTEGER :: i,ii,k,m,mm,n,m2,           &
+ INTEGER :: i,ii,k,m,mm,n,m2,mmp,m2p,   &
             ierr = 0,                   &
             cdate = 999999,             &
             ctime = 999999,             &
@@ -33,7 +33,7 @@ SUBROUTINE read_vobs
  
  INTEGER, ALLOCATABLE :: inacc(:)
 
- REAL :: lat,lon,hgt,sub,sca
+ REAL :: lat,lon,hgt,sub,sca,rtmp
  REAL, ALLOCATABLE :: val(:)
 
  CHARACTER(LEN=200) :: path,fname =' '
@@ -43,7 +43,7 @@ SUBROUTINE read_vobs
  LOGICAL :: use_stnlist
 
  ! Functions
- INTEGER :: find_var
+ INTEGER :: find_var,find_varprop
 
 !----------------------------------------------------------
 
@@ -315,13 +315,23 @@ SUBROUTINE read_vobs
               CASE('TDD')
                mm=find_var(ninvar,invar,varprop(m)%id(1:2))
                m2=find_var(ninvar,invar,'TT')
-               ! Calc dew point deficit
-               IF ( qclr(val(mm),varprop(m)%llim) .AND. &
-                    qcur(val(mm),varprop(m)%ulim) .AND. &
-                    qclr(val(m2),varprop(m)%llim) .AND. &
-                    qcur(val(m2),varprop(m)%ulim) )     &
-                 obs(stat_i)%o(i)%val(m) =              &
-                 val(m2) - val(mm)
+               mmp=find_varprop(varprop(m)%id(1:2))
+               m2p=find_varprop('TT')
+               IF ( mm > 0 .AND. mmp > 0 .AND. &
+                    m2 > 0 .AND. m2p > 0 ) THEN
+                ! Calc dew point deficit
+                IF ( qca(val(mm),mflag)             .AND. &
+                     qca(val(m2),mflag)             .AND. &
+                     qclr(val(mm),varprop(mmp)%llim) .AND. &
+                     qcur(val(mm),varprop(mmp)%ulim) .AND. &
+                     qclr(val(m2),varprop(m2p)%llim) .AND. &
+                     qcur(val(m2),varprop(m2p)%ulim) ) THEN
+                  rtmp = val(m2) - val(mm)
+                  IF ( qclr(rtmp,varprop(m)%llim) .AND. &
+                       qcur(rtmp,varprop(m)%ulim) )     &
+                       obs(stat_i)%o(i)%val(m) = rtmp
+                ENDIF
+               ENDIF
               CASE('NN')
                 IF ( qca(obs(stat_i)%o(i)%val(m),err_ind) ) THEN
                  ! Translate clould cover to discrete eights

@@ -23,6 +23,7 @@ SUBROUTINE read_vfld
  REAL, PARAMETER :: mflag = -99.
 
  INTEGER :: i,ii,j,k,l,ll,m,mm,n,m2,    &
+            mmp,m2p,                    &
             ierr = 0,                   &
             cdate = 999999,             &
             ctime = 999999,             &
@@ -46,7 +47,8 @@ SUBROUTINE read_vfld
  REAL, ALLOCATABLE :: val(:)
 
  LOGICAL :: allocated_this_time(maxstn),&
-            found_any_time,use_stnlist,lfound
+            found_any_time,use_stnlist,lfound,&
+            check_lim
 
  CHARACTER(LEN=299) :: path,fname = ' '
  CHARACTER(LEN= 10) :: cwrk  ='yyyymmddhh',cwrko
@@ -54,7 +56,7 @@ SUBROUTINE read_vfld
  CHARACTER(LEN= 10), ALLOCATABLE :: invar(:) 
 
  ! Functions
- INTEGER :: find_var
+ INTEGER :: find_var,find_varprop
 
 !----------------------------------------------------------
 
@@ -65,6 +67,7 @@ SUBROUTINE read_vfld
      version_flag = 0
  old_ninvar       = -1
      ninvar       = 0
+ ifi = 1
 
  use_stnlist =( MAXVAL(stnlist) > 0 )
 
@@ -372,6 +375,7 @@ SUBROUTINE read_vfld
                 ! Special treatment of some variabels
                 sub = 0.0
                 sca = 1.0
+                check_lim = .FALSE.
                 SELECT CASE(invar(n))
  
                 CASE('TT','TN','TX','TD','TTP1','TTP2', &
@@ -379,11 +383,14 @@ SUBROUTINE read_vfld
                    sub = tzero
                 CASE('QQ','QQP1','QQP2')
                    sca = 1.e3
+                CASE('VI')
+                   check_lim = .TRUE.
                 END SELECT
 
                 ! Check for missing data / gross error
-                 IF ( qclr(val(n),varprop(m)%llim) .AND. &
-                      qcur(val(n),varprop(m)%ulim) )     &
+                 IF ( (qclr(val(n),varprop(m)%llim)  .AND. &
+                       qcur(val(n),varprop(m)%ulim)) .OR.  &
+                       check_lim )     &
                 hir(stat_i)%o(i)%nal(l,j,m) = ( val(n) - sub ) * sca
 
               ENDIF
@@ -419,13 +426,17 @@ SUBROUTINE read_vfld
               CASE('TDD')
                mm=find_var(ninvar,invar,varprop(m)%id(1:2))
                m2=find_var(ninvar,invar,'TT')
-               ! CALC hgt adjustment
-               IF ( qclr(val(mm),varprop(m)%llim) .AND. &
-                    qcur(val(mm),varprop(m)%ulim) .AND. &
-                    qclr(val(m2),varprop(m)%llim) .AND. &
-                    qcur(val(m2),varprop(m)%ulim) )     &
-                 hir(stat_i)%o(i)%nal(l,j,m) =          &
-                 val(m2) - val(mm)
+               mmp=find_varprop(varprop(m)%id(1:2))
+               m2p=find_varprop('TT')
+               IF ( mm > 0 .AND. mmp > 0 .AND. &
+                    m2 > 0 .AND. m2p > 0 ) THEN
+                IF ( qclr(val(mm),varprop(mmp)%llim) .AND. &
+                     qcur(val(mm),varprop(mmp)%ulim) .AND. &
+                     qclr(val(m2),varprop(m2p)%llim) .AND. &
+                     qcur(val(m2),varprop(m2p)%ulim) )     &
+                  hir(stat_i)%o(i)%nal(l,j,m) =          &
+                  val(m2) - val(mm)
+               ENDIF
              END SELECT
 
             ENDIF
@@ -486,3 +497,22 @@ INTEGER function find_var(ninvar,invar,cvar)
  ENDDO
  
 END function find_var
+INTEGER function find_varprop(cvar)
+
+ USE data, ONLY : varprop,nparver
+
+ IMPLICIT NONE
+
+ CHARACTER(LEN=*), INTENT(IN) :: cvar
+ 
+ INTEGER :: i
+ 
+ find_varprop = 0
+ DO i=1,nparver
+    IF ( TRIM(cvar) == TRIM(varprop(i)%id) ) THEN
+       find_varprop = i
+       EXIT
+    ENDIF
+ ENDDO
+ 
+END function find_varprop
