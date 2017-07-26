@@ -74,6 +74,7 @@ SUBROUTINE read_vobs_temp
  IF (print_read>1) WRITE(6,*)'TIME:',cdate,ctime/10000
  WRITE(ndate,'(I8.8,I2.2)')cdate,ctime/10000
  path = obspath
+ CALL check_path(cdate,path)
  fname = TRIM(path)//'vobs'//ndate
 
  !
