@@ -100,7 +100,7 @@
  'GX'=>{
    'TEXT'        => 'Max Wind Gust',
    'MAP_BIAS_INTERVAL'=> '-10.,-5.,-2.5,0.,2.5,5.,10.',
-   'ACC'         => 6,
+   'ACC'         => 1,
    'ACCTYPE'     => 3,
  },
 
