@@ -42,6 +42,7 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
     if ( $partag eq "PE1" ) { $xscale="set logscale x" ; } ;
     if ( $partag eq "PE" ) { $xscale="set logscale x" ; } ;
     if ( $partag eq "CH" ) { $xscale="set logscale x" ; } ;
+    if ( $partag eq "VI" ) { $xscale="set logscale x" ; } ;
 
     @EXT = ('','.ps','.1.png','.1.jpg','.svg') ;
 
