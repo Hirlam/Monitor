@@ -107,7 +107,9 @@ SURFPLOT="GEN TIME MAP FREQ SCAT CONT XML DAYVAR"
 # Frequency     : Frequency
 # Frequencybias : Frequency bias
 # POD           : Probability of detection ( hit rate )
+# PODC          : Probability of detection ( hit rate ), compilmentary class
 # FAR           : False alarm ratio
+# FARC          : False alarm ratio, complimentary class
 # FA            : False alarm rate
 # TS            : Threath score
 # WILSON        : Wilson diagram, a combination of POD, TS, FAR and frequency bias
@@ -118,6 +120,8 @@ SURFPLOT="GEN TIME MAP FREQ SCAT CONT XML DAYVAR"
 # EDI           : Extremal Dependency Index
 # SEDI          : Symmetric Extremal Dependency Index
 # ETS           : Equitable threat score
+# HEI           : Heidke skill score or Doolittle second score
+# COR           : Correlation or square root of Doolittle first score
 
 SCORELIST="WILSON KSS Frequency"  
 
