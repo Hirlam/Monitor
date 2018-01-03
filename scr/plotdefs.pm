@@ -32,7 +32,7 @@
  },
 
  'TTHA'=>{
-   'TEXT'        => 'T2m, height adjusted',
+   'TEXT'        => 'T2m, height corr.',
    'TEXT_TEMP'   => 'Temperature' ,
    'MAP_BIAS_INTERVAL'=> '-8.,-2.,-0.5,0.,0.5,2.,8.',
    'CONT_CLASS'  => 12,

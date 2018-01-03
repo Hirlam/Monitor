@@ -301,7 +301,7 @@ t[9] = v[9] ;
 spec_name =[0,8,1,2,3,9,7,6,4,5]
 
 mname = ['Type','Period','Station','Selection','Parameter','Level','Exp',$map_hour_title,'Error','Initial time']
-loc =['l','l','t','l','t','l','l','t']
+loc =['l','l','t','t','t','l','l','l','l','l','l']
 $download
 pdir ='$pdir/'
 ext='$EXT'
@@ -371,7 +371,7 @@ t[7] = v[7] ;
 spec_name =[0,1,2,3,7,4,5,6]
 
 mname = ['Score','Period','Station','Selection','Parameter','Level','Type','Initial time']
-loc =['l','l','t','l','t','l','l','t','l']
+loc =['t','l','t','t','l','l','l','l']
 $download
 pdir ='$pdir/'
 ext='$EXT'
@@ -420,12 +420,12 @@ v[5] = v[5].reverse()
 t[5] = v[5]
 v[6] = [$ini_hours] ;
 t[6] = v[6] ;
-loc = ['l','t','t','t','l','t','t']
+mname = ['Type','Period','Station','Selection','Parameter','Level','Initial time']
+loc = ['l','l','t','t','t','l','l']
 spec_name =[0,1,2,3,6,4,5]
 
 $download ;
 
-mname = ['Type','Period','Station','Selection','Parameter','Level','Initial time']
 help = '$ENV{HELP}'; hide_help = false ;
 pdir ='$type/'
 ext='$EXT'
@@ -542,7 +542,7 @@ v[7] = [$ini_hours] ;
 t[7] = v[7] ;
 
 mname = ['Type','Period','Station','Selection','Parameter','Level','Exp','Initial time']
-loc = ['l','t','t','t','l','t','t','l']
+loc = ['l','l','t','t','l','l','t','l']
 spec_name =[0,1,2,3,7,6,4,5]
 $download
 pdir ='$type/'

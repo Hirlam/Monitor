@@ -191,7 +191,7 @@ if ( $EXPORT =~ /true/ ) {
    print " $PROJECT \n" ;
    if ( $PROJECT =~ /WebgraF_PROJECT/ ) {
 	   chdir $WEBGRAF_BASE or die ;
-	   system(" tar cvf $CALLDIR/Install_WebgraF.tar Make_links src src2") ;
+	   system(" tar cf $CALLDIR/Install_WebgraF.tar Make_links src src2") ;
 	   print " Created $CALLDIR/Install_WebgraF.tar \n" ;
 	   exit ;
    } ;
@@ -200,7 +200,7 @@ if ( $EXPORT =~ /true/ ) {
    chdir $PROJECT or die "Could not change dir to $PROJECT \n" ;
 
    if ( $ENTRY   =~ /WebgraF_ENTRY/    ) { 
-	print "Export $PROJECT \n" ;
+	print " Export $PROJECT \n" ;
         @ENTRYS = &get_dir ;
    } else {
 	print "Export $ENTRY @ $PROJECT \n" ;
@@ -231,12 +231,12 @@ if ( $EXPORT =~ /true/ ) {
 	   $WRK =~ s/ //g ;
            symlink $OLDFILE, $NEWFILE ;
            &update_input_list($ENTRY) ;
-	   print "Added $ENTRY to $XPORT \n" ;
+	   print " Added $ENTRY to $XPORT \n" ;
    };
 
    &update_input_list(@ENTRYS) ;
    chdir $BASE or die "Could not change dir to $BASE \n" ;
-   system("tar cvf $CALLDIR/$XPORT.tar $XPORT ") ;
+   system("tar cf $CALLDIR/$XPORT.tar $XPORT ") ;
    system("rm -rf $XPORT ") ;
    exit ;
 
@@ -283,7 +283,7 @@ if ( $ADDFILE =~ /true/ ) {
       };
       chdir $BASE or die "Could not change dir to $BASE \n" ;
       system("rm -rf ___tmp___");
-      print "Added $FILE as $WRK\n";
+      print " Added $FILE as $WRK\n";
       &make_index() ;
 
    } elsif ( $len == 3 ){
@@ -304,7 +304,7 @@ if ( $ADDFILE =~ /true/ ) {
         chdir $WRK or die "Could not go to $WRK \n" ;
 	system ("ln -sf ../src/* .") ;
         system("chmod 777 *") ;
-	print "Added $WRK \n";
+	print " Added $WRK \n";
 	if ( $FILE =~ /WebgraF.tar/ ) { exit ; } ;
       } else {
 	$WRK = $PROJECT ;
@@ -328,7 +328,7 @@ if ( $ADDFILE =~ /true/ ) {
       symlink $OLDFILE, $NEWFILE ;
       &update_input_list(@ENTRYS) ;
 
-      print "Added $FILE as $WRK\n";
+      print " Added $FILE as $WRK\n";
 
       chdir ".." ;
 
@@ -427,7 +427,6 @@ if ( $TRANSPORT =~ /true/) {
       $XPORT=$CALLDIR."/".$PROJECT."___".$ENTRY."___transport.tar" ;
       system("tar cf $XPORT *") ;
    } ;
-   print "Created $XPORT \n";
    exit ;
 } ;
 
@@ -619,7 +618,7 @@ if ( ! grep /$PROJECT/, @PROJECTS ) {
 	mkdir $WRK,0777 ; chdir $WRK ;
 	system ("ln -sf ../src/* .") ;
         system("chmod 777 *") ;
-	print "Added $WRK \n";
+	print " Added $WRK \n";
 	if ( $FILE =~ /WebgraF.tar/ ) { exit ; } ;
 } else {
 	$WRK = $PROJECT ;
@@ -639,7 +638,7 @@ if ( ! grep /$ENTRY/, @ENTRYS ) {
 	$WRK = $ENTRY ;
 	$WRK =~ s/ //g ;
 	mkdir $WRK,0755  ;
-	print "Added $PROJECT/$ENTRY \n";
+	print " Added $PROJECT/$ENTRY \n";
 	@ENTRYS = (@ENTRYS,$ENTRY) ;
 }else {
 	print "Update $PROJECT/$ENTRY \n";
