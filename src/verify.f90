@@ -122,7 +122,7 @@ SUBROUTINE verify
 
     ind_pe(j,i)=TRANSFER(MINLOC(ABS(fclen(1:nfclengths)-(fclen(i)-varprop(j)%acc))),ii)
 
-    IF (fclen(i)-fclen(ind_pe(j,i)) < varprop(j)%acc ) ind_pe(j,i) = 0
+    IF (fclen(i)-fclen(ind_pe(j,i)) < varprop(j)%acc ) ind_pe(j,i) = -1
 
     IF (lprint_verif) WRITE(6,*)i,varprop(j)%text,fclen(i),ind_pe(j,i)
 
@@ -596,32 +596,36 @@ SUBROUTINE verify
                       CYCLE EXP_LOOP
                    ENDIF
 
-                  CASE(2)
+                  CASE(2,3)
 
                    !
-                   ! Take MIN over fclen(ind_pe(k,n)) - fclen(n)
+                   ! Take MIN/MAX over fclen(ind_pe(k,n)) - fclen(n)
                    !
 
-                   nn=MAX(1,ind_pe(k,n)+1)
-                   diff_prep = hir(i)%o(j)%nal(o,n,k)
-                   DO l=nn,n-1
-                     IF (ABS(hir(i)%o(j)%nal(o,l,k)-err_ind)>1.e-6) THEN
-                       diff_prep = MIN(hir(i)%o(j)%nal(o,l,k),diff_prep)
+                   IF ( ind_pe(k,n) < 0 ) THEN
+                     diff_prep = hir(i)%o(j)%nal(o,n,k)
+                     IF ( lprint_verif ) &
+                     WRITE(6,*)fclen(n),hir(i)%o(j)%nal(o,n,k)
+                   ELSE
+                     nn=MAX(1,ind_pe(k,n)+1)
+                     IF ( lprint_verif ) THEN
+                      WRITE(6,*)'n,nn',n,nn
+                      WRITE(6,*)'Acc period:',fclen(n),fclen(nn)
+                      WRITE(6,*)fclen(n),hir(i)%o(j)%nal(o,n,k)
                      ENDIF
-                   ENDDO
-                  CASE(3)
-
-                   !
-                   ! Take MAX over fclen(ind_pe(k,n)) - fclen(n)
-                   !
-
-                   nn=MAX(1,ind_pe(k,n)+1)
-                   diff_prep = hir(i)%o(j)%nal(o,n,k)
-                   DO l=nn,n-1
+                    diff_prep = hir(i)%o(j)%nal(o,n,k)
+                    DO l=nn,n-1
                      IF (ABS(hir(i)%o(j)%nal(o,l,k)-err_ind)>1.e-6) THEN
-                       diff_prep = MAX(hir(i)%o(j)%nal(o,l,k),diff_prep)
+                       IF ( lprint_verif ) &
+                       WRITE(6,*)fclen(l),hir(i)%o(j)%nal(o,l,k)
+                       IF (varprop(k)%acctype == 2 ) THEN
+                        diff_prep = MIN(hir(i)%o(j)%nal(o,l,k),diff_prep)
+                       ELSE 
+                        diff_prep = MAX(hir(i)%o(j)%nal(o,l,k),diff_prep)
+                       ENDIF
                      ENDIF
-                   ENDDO
+                    ENDDO
+                   ENDIF
 
                   CASE DEFAULT
                    CALL ABORT
