@@ -103,6 +103,7 @@ MODULE data
  CHARACTER(LEN=50) :: cini_hours=''             ! String for ini hours in file name
  CHARACTER(LEN=99) :: obspath        ='../'     ! Path to observation data
  CHARACTER(LEN=299) :: modpath(maxexp)='../'     ! Path to model data
+ LOGICAL           :: use_analysis(maxexp) = .TRUE.
 
  ! Fc len and times to verify
  INTEGER :: nfclengths          =  0            ! Number of fclengths to verify
@@ -312,7 +313,7 @@ MODULE data
                  varlist,setprop,                       &
                  lev_lst,                               &
                  name,statname,                         &
-                 obspath,modpath,                       &
+                 obspath,modpath,use_analysis,          &
                  lfcver,leach_station,ltiming,          &
                  lallstat,                              &
                  lplot_seasonal,lprint_seasonal,        &

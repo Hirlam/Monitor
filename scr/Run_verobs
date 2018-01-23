@@ -102,7 +102,7 @@ if [ -s fort.48 ] ; then
 fi
 
 # Clean work files
-rm -f *.txt* *.poly fort.* *.dat plot.gp
+rm -f *.txt* *.poly fort.* *.dat plot.gp || exit 1
 
 #
 # Generate browser friendly graphics and gather files
@@ -117,7 +117,7 @@ if [ `echo $TEMPPLOT | grep -c VERT` -gt 0 -a $DIR = "TEMP" ] ; then
    #
 
    mkdir vert 
-   mv l*.ps l*.png l*.jpg l*.svg vert/.
+   mv l*.ps l*.png l*.jpg l*.svg vert/. || exit 1
    cp *.html *.xml *.xsl vert/.
 
    cd vert

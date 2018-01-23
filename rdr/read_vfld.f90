@@ -14,7 +14,7 @@ SUBROUTINE read_vfld
                   stnlist,sdate,edate,nfclengths, &
                   nexp,err_ind,print_read,maxstn, &
                   fcint,lunin,nparver,qca,qclr,qcur, &
-                  allocate_mod
+                  allocate_mod,use_analysis
 
  USE constants, only : gravit,tzero,tlapse
 
@@ -115,7 +115,9 @@ SUBROUTINE read_vfld
        path = modpath(ll)
        CALL check_path(cdate,path)
 
-       IF ( exp_offset(ll) /= 0 ) THEN
+       IF ( use_analysis(ll) .AND. fclen(j) == 0 ) THEN
+         fname = TRIM(path)//'vfld'//TRIM(fexpname(ll))//cwrk
+       ELSEIF ( exp_offset(ll) /= 0 ) THEN
          CALL adddtg(cdate,ctime,-exp_offset(ll)*3600,cdateo,ctimeo)
          WRITE(cwrko(1:10),'(I8,I2.2)')cdateo,ctimeo/10000
          IF ( ( fclen(j) + exp_offset(ll) ) > 99 ) THEN

@@ -18,6 +18,8 @@
     'PERIOD_FREQ'      => $ENV{PERIOD_FREQ},
     'OUTPUT_TYPE'      => $ENV{OUTPUT_TYPE},
     'OUTPUT_MODE'      => 2,
+    'USE_ANALYSIS'     => ("$ENV{USE_ANALYSIS}" or '20*F'),
+
  },
 ) ;
 
