@@ -28,7 +28,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
                       station_name,csi,     &
                       maxfclenval,          &
                       period_freq,          &
-                      cini_hours
+                      cini_hours,exp_offset
 
  IMPLICIT NONE
 
@@ -442,7 +442,8 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
           CALL fclen_header(.TRUE.,maxfclenval,        &
                             used_hours(j,per_ind,:),   &
                             used_fclen(j,per_ind,:),   &
-                            varprop(j)%acc,wtext)
+                            varprop(j)%acc,            &
+                            MAXVAL(exp_offset),wtext)
        ENDIF
     ELSE
           luh = .FALSE.
@@ -463,7 +464,8 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
           ENDDO
           CALL fclen_header(.NOT.lfcver,maxfclenval,   &
                             luh,luf,                   &
-                            varprop(j)%acc,wtext)
+                            varprop(j)%acc,            &
+                            MAXVAL(exp_offset),wtext)
     ENDIF
 
 

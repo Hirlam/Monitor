@@ -16,7 +16,7 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
                   mparver,corr_pairs,flag_pairs,exp_pairs,       &
                   period_freq,maxfclenval,                       &
                   scat_min,scat_max,scat_magn,len_lab,           &
-                  lscat_yave,cini_hours
+                  lscat_yave,cini_hours,exp_offset
  USE functions
 
  IMPLICIT NONE
@@ -255,6 +255,7 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
                       uh(lcorr_pairs(j,1),:),        &
                       uf(lcorr_pairs(j,1),:),        &
                       varprop(lcorr_pairs(j,1))%acc, &
+                      MAXVAL(exp_offset),            &
                       wtext3)
 
     nexp_plot = 1

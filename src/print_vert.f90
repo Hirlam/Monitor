@@ -21,14 +21,14 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
                   len_lab,period_freq,period_type,              &
                   output_type,output_mode,                      &
                   show_times,use_fclen,timdiff,time_shift,      &
-                  len_lab,err_ind,cini_hours
+                  len_lab,err_ind,cini_hours,exp_offset
 
 
  IMPLICIT NONE
 
  INTEGER,           INTENT(IN) :: lunout,nexp,nlev,nparver,     &
                                   ntimver,stnr,yymm,yymm2,      &
-                                  rar_active(nparver,ntimver)
+                                  rar_active(nparver,0:ntimver)
  TYPE (statistics), INTENT(IN) :: s(nexp,nparver,ntimver)
 
  LOGICAL,           INTENT(IN) :: uh(nparver,0:23),uf(nparver,0:maxfclenval)
@@ -239,13 +239,15 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
     ENDIF
 
     IF ( ntimver_out == 1 ) THEN
-       CALL fclen_header(.TRUE.,maxfclenval,luh,uf(jl,:),varprop(jl)%acc,wtext)
+       CALL fclen_header(.TRUE.,maxfclenval,luh,uf(jl,:),varprop(jl)%acc, &
+                         MAXVAL(exp_offset),wtext)
     ELSE
        IF (lfcver) THEN
           ALLOCATE(ldum(0:hour(kk)))
           ldum           = .FALSE.
           ldum(hour(kk)) = .TRUE.
-          CALL fclen_header(.TRUE.,hour(kk),luh,ldum,varprop(j)%acc,wtext)
+          CALL fclen_header(.TRUE.,hour(kk),luh,ldum,varprop(j)%acc, &
+                            MAXVAL(exp_offset),wtext)
           DEALLOCATE(ldum)
        ELSE
           ALLOCATE(ldum(0:maxfclenval))
@@ -272,7 +274,8 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
               ENDIF
             ENDDO
           ENDDO
-          CALL fclen_header(.TRUE.,maxfclenval,luh,ldum,varprop(j)%acc,wtext)
+          CALL fclen_header(.TRUE.,maxfclenval,luh,ldum,varprop(j)%acc, &
+                            MAXVAL(exp_offset),wtext)
           wtext = 'Statistics at '//TRIM(chour)//'  '//TRIM(wtext)
           DEALLOCATE(ldum)
        ENDIF

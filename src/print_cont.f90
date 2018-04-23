@@ -95,7 +95,8 @@ SUBROUTINE print_cont(p1,p2,nr,par_active,    &
        IF ( show_fc_length ) THEN
           CALL fclen_header(.TRUE.,maxfclenval,        &
                             uh(j,:),uf(j,:),           &
-                            varprop(j)%acc,cwrk)
+                            varprop(j)%acc,            &
+                            MAXVAL(exp_offset),cwrk)
 
        ENDIF
        WRITE(luncont,'(A)')TRIM(cwrk)

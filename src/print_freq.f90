@@ -20,7 +20,7 @@ SUBROUTINE print_freq(lunout,nparver,nr,scat, &
                   mincla,maxcla,my_ymax,my_ymin,         &
                   mpre_cla,copied_mod,copied_obs,        &
                   period_freq,output_type,len_lab,       &
-                  cini_hours
+                  cini_hours,exp_offset
 
  IMPLICIT NONE
 
@@ -188,7 +188,8 @@ SUBROUTINE print_freq(lunout,nparver,nr,scat, &
 
     ! Line 3
     IF ( show_fc_length ) THEN
-       CALL fclen_header(.true.,maxfclenval,uh(j,:),uf(j,:),varprop(j)%acc,wtext)
+       CALL fclen_header(.true.,maxfclenval,uh(j,:),uf(j,:), &
+                         varprop(j)%acc,MAXVAL(exp_offset),wtext)
        WRITE(lunout,'(A,X,A)')'#HEADING_3',TRIM(wtext)
     ENDIF
 

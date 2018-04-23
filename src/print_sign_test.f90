@@ -14,7 +14,7 @@ SUBROUTINE print_sign_test(lunout,nexp,nparver,         &
                   period_freq,period_type,                      &
                   output_type,lprint_seasonal,                  &
                   control_exp_nr,sign_time_diff,err_ind,confint,&
-                  cini_hours
+                  cini_hours,exp_offset
 
  IMPLICIT NONE
 
@@ -170,7 +170,8 @@ SUBROUTINE print_sign_test(lunout,nexp,nparver,         &
     IF ( show_fc_length ) THEN
 
        CALL fclen_header(( .NOT. lfcver .OR. ( nuse_fclen /= nfclengths )), &
-                         maxfclenval,uh(j,:),uf(j,:),varprop(j)%acc,wtext1)
+                         maxfclenval,uh(j,:),uf(j,:),varprop(j)%acc,        &
+                         MAXVAL(exp_offset),wtext1)
        wtext = TRIM(varprop(j)%text)//'   '//TRIM(wtext1)
        WRITE(lunout,'(A,X,A)')'#HEADING_4',TRIM(wtext)
 

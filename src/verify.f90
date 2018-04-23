@@ -53,7 +53,7 @@ SUBROUTINE verify
             ind_pe(nparver,nfclengths),                 &
             year_map(12) = 0,                           &
             par_active(nparver),                        &
-            len_scat,per_ind
+            len_scat,per_ind,fclen_used
 
  INTEGER, ALLOCATABLE :: periods(:)
 
@@ -391,9 +391,9 @@ SUBROUTINE verify
      FC_CYCLE : DO n=1,nfclengths
 
        IF (lprint_verif) THEN
-          WRITE(6,*)'FC TIME',i,j,n    
-          WRITE(6,*)'FC TIME',hir(i)%o(j)%date,hir(i)%o(j)%time
-          WRITE(6,*)'FC TIME',fclen(n)
+          WRITE(6,*)' FC TIME',i,j,n    
+          WRITE(6,*)' FC TIME',hir(i)%o(j)%date,hir(i)%o(j)%time
+          WRITE(6,*)' FC TIME',fclen(n)
        ENDIF
 
        !
@@ -405,8 +405,8 @@ SUBROUTINE verify
                    fclen(n)*3600,wdate,wtime)
        wtime = wtime / 10000
 
-       IF (lprint_verif) WRITE(6,*)'CHECK TIME VER ',wdate,wtime
-       IF (lprint_verif) WRITE(6,*)'FC TIME IS     ',&
+       IF (lprint_verif) WRITE(6,*)' CHECK TIME VER ',wdate,wtime
+       IF (lprint_verif) WRITE(6,*)' FC TIME IS     ',&
        hir(i)%o(j)%date,hir(i)%o(j)%time,fclen(n)
 
        IF (obs(i)%o(obs(i)%ntim)%date < wdate) CYCLE J_CYCLE
@@ -415,10 +415,10 @@ SUBROUTINE verify
        ! Loop over all observations and all times
        !
 
-       IF (lprint_verif) WRITE(6,*)'JJSTART AT START ',jjstart
+       IF (lprint_verif) WRITE(6,*)' JJSTART AT START ',jjstart
        JJ_CYCLE : DO jj=jjstart,obs(i)%ntim
 
-       IF (lprint_verif) WRITE(6,*)'CHECK TIME OBS ',   &
+       IF (lprint_verif) WRITE(6,*)'  CHECK TIME OBS ',   &
           obs(i)%o(jj)%date,obs(i)%o(jj)%time
 
        !
@@ -433,7 +433,7 @@ SUBROUTINE verify
 
           found_right_time = .TRUE.
 
-          IF (lprint_verif) WRITE(6,*)'TIME VER ',wdate,wtime
+          IF (lprint_verif) WRITE(6,*)'  TIME VER ',wdate,wtime
 
           ! If this is right and existing date calc stat
           ! Save min/max date and set correct time index
@@ -483,7 +483,7 @@ SUBROUTINE verify
              ENDIF
           ELSE
              tim_ind = wtime/timdiff+1
-             IF ( lprint_verif ) WRITE(6,*)'TIM_IND',tim_ind,wtime,timdiff
+             IF ( lprint_verif ) WRITE(6,*)'  TIM_IND',tim_ind,wtime,timdiff
           ENDIF
 
           SELECT CASE(period_type) 
@@ -520,7 +520,7 @@ SUBROUTINE verify
 
              IF(ABS(obs(i)%o(jj)%val(k)-err_ind) <= 1.e-6) CYCLE NPARVER_LOOP
 
-             IF (lprint_verif) WRITE(6,*)'DO VER ',varprop(k)%id,obs(i)%o(jj)%val(k)
+             IF (lprint_verif) WRITE(6,*)'   DO VER ',varprop(k)%id,obs(i)%o(jj)%val(k)
 
              !
              ! Tmax and Tmin can only be verified at 06 and 18 UTC
@@ -543,7 +543,7 @@ SUBROUTINE verify
                ENDIF
              ENDDO
 
-             IF (lprint_verif) WRITE(6,*)'FOUND DATA'
+             IF (lprint_verif) WRITE(6,*)'   FOUND DATA'
              all_exp_verified = .TRUE.
              tmpdiff          = 0.
 
@@ -563,9 +563,11 @@ SUBROUTINE verify
                    ! Take difference between fclen(n) and fclen(ind_pe(k,n))
                    !
 
-                   IF(fclen(n) == varprop(k)%acc) THEN
+                   fclen_used = fclen(n) + exp_offset(o,wtime)
+
+                   IF(fclen_used == varprop(k)%acc) THEN
                       diff_prep = hir(i)%o( j)%nal(o,n,k)
-                   ELSEIF(fclen(n) > varprop(k)%acc .AND. ind_pe(k,n) > 0 ) THEN
+                   ELSEIF(fclen_used > varprop(k)%acc .AND. ind_pe(k,n) > 0 ) THEN
 
                       IF (ABS(hir(i)%o(j)%nal(o,ind_pe(k,n),k)-err_ind)<1.e-6) THEN
                          IF (demand_equal ) hir(i)%o(j)%nal(:,ind_pe(k,n),k) = err_ind
@@ -637,7 +639,7 @@ SUBROUTINE verify
 
                 diff =  diff_prep - obs(i)%o(jj)%val(k)
 
-                IF(lprint_verif) WRITE(6,*)'diff ',diff
+                IF(lprint_verif) WRITE(6,*)'    diff ',diff
 
                 !
                 ! Wind direction
@@ -657,7 +659,7 @@ SUBROUTINE verify
              ! Add statistics when we know if all experiments where valid
              ! 
 
-             IF ( lprint_verif ) WRITE(6,*)'ALL_EXP_VERIFIED',all_exp_verified
+             IF ( lprint_verif ) WRITE(6,*)'   ALL_EXP_VERIFIED',all_exp_verified
 
              ALL_EXP_TEST : IF (all_exp_verified) THEN
 
@@ -711,7 +713,7 @@ SUBROUTINE verify
                    !
                    ! The main verification
                    !
-                   IF ( lprint_verif ) WRITE(6,*)'Add',obs(i)%o(jj)%date,obs(i)%o(jj)%time,tim_ind
+                   IF ( lprint_verif ) WRITE(6,*)'     Add',obs(i)%o(jj)%date,obs(i)%o(jj)%time,tim_ind
  
                    allstat(i,per_ind)%par_active(k,tim_ind) = 1
                    DO o=1,nexp
@@ -737,7 +739,7 @@ SUBROUTINE verify
 
           ENDDO NPARVER_LOOP
 
-          IF (lprint_verif) WRITE(6,*)'DONE NPARVER_LOOP'
+          IF (lprint_verif) WRITE(6,*)'    DONE NPARVER_LOOP'
 
           CYCLE FC_CYCLE
 

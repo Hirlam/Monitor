@@ -1,9 +1,9 @@
-SUBROUTINE fclen_header(lfclen,nuf,uh,uf,ai,txt)
+SUBROUTINE fclen_header(lfclen,nuf,uh,uf,ai,ofs,txt)
 
  IMPLICIT NONE
 
  LOGICAL,          INTENT( IN) :: lfclen
- INTEGER,          INTENT( IN) :: nuf,ai
+ INTEGER,          INTENT( IN) :: nuf,ai,ofs
  LOGICAL,          INTENT( IN) :: uh(0:23),uf(0:nuf)
  CHARACTER(LEN=*), INTENT(OUT) :: txt
  
@@ -18,6 +18,7 @@ SUBROUTINE fclen_header(lfclen,nuf,uh,uf,ai,txt)
  CHARACTER(LEN=20) :: wname = ''
  CHARACTER(LEN=50) :: whour = ''
  CHARACTER(LEN= 2) :: wh    = ''
+ CHARACTER(LEN=11) :: wofs  = ''
  CHARACTER(LEN= 7) :: txt5  = ''
 
  !-----------------------------------------------
@@ -52,6 +53,10 @@ SUBROUTINE fclen_header(lfclen,nuf,uh,uf,ai,txt)
       uhl(8) == 21 )              &
      whour = '{00,03,...,21}'
  IF ( j > 8 ) whour = '{All hours}'
+
+ IF ( ofs /= 0 ) THEN
+   WRITE(wofs,'(A8,I2.2,A1)')'Max lag:',ofs,'h'
+ ENDIF
 
  IF ( lfclen ) THEN
 
@@ -104,9 +109,9 @@ SUBROUTINE fclen_header(lfclen,nuf,uh,uf,ai,txt)
 
        ENDIF
     ENDIF
-    txt = 'Used '//TRIM(whour)//' +'//TRIM(txt)
+    txt = 'Used '//TRIM(whour)//' +'//TRIM(txt)//' '//wofs
  ELSE
-    txt = 'Hours: '//TRIM(whour)
+    txt = 'Hours: '//TRIM(whour)//' '//wofs
  ENDIF
 
  IF (lfclen ) DEALLOCATE(fclen)

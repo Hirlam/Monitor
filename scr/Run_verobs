@@ -117,7 +117,7 @@ if [ `echo $TEMPPLOT | grep -c VERT` -gt 0 -a $DIR = "TEMP" ] ; then
    #
 
    mkdir vert 
-   mv l*.ps l*.png l*.jpg l*.svg vert/. || exit 1
+   mv l*.ps l*.png l*.jpg l*.svg vert/.
    cp *.html *.xml *.xsl vert/.
 
    cd vert

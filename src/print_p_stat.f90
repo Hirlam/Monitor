@@ -40,7 +40,8 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
                   show_rmse,show_stdv,show_bias,show_obs,&
                   show_var,show_skw,show_mabe,           &
                   ltemp,lev_lst,window_pos,output_type,  &
-                  output_mode,len_lab,cini_hours
+                  output_mode,len_lab,cini_hours,        &
+                  exp_offset
 
  USE functions
 
@@ -466,7 +467,8 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
     ! Line 3
     IF ( show_fc_length ) THEN
 
-       CALL fclen_header(.true.,maxfclenval,uh(j,:),uf(j,:),varprop(j)%acc,wtext)
+       CALL fclen_header(.TRUE.,maxfclenval,uh(j,:),uf(j,:), &
+                         varprop(j)%acc,MAXVAL(exp_offset),wtext)
 
        WRITE(lunout,'(A,X,A)')'#HEADING_3',TRIM(wtext)
 

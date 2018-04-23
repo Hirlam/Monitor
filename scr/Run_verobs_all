@@ -10,7 +10,7 @@ else
 fi
 [[ -s $ENV_EXP ]] || { echo "Please give an existing Env_exp file" ; exit 1 ; }
 
-LOGFILE=$( echo $ENV_EXP | sed "s/Env_exp_//" ).log
+LOGFILE=$( echo $( basename $ENV_EXP ) | sed "s/Env_exp_//" ).log
 
 echo
 echo "Output goes to $LOGFILE"
@@ -23,3 +23,11 @@ set -x
 
 ./Link2file          $ENV_EXP || exit
 ./Transport_ver      $ENV_EXP || exit
+
+set +x
+
+. $ENV_EXP
+
+echo
+echo "To view your result open $BASE/WebgraF/$PROJECT/index.html in your browser"
+echo

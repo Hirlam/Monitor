@@ -23,7 +23,7 @@
  use skilldefs ;
 
  # Add local deviations 
- eval { require $ENV{LOCALDEFS}; } if $ENV{LOCALDEFS} ;
+ require $ENV{LOCALDEFS} if $ENV{LOCALDEFS} ;
 
  unless ( @ARGV ) { die "Please give SURF or TEMP as argument \n" ; } ;
 

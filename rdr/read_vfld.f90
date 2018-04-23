@@ -39,7 +39,7 @@ SUBROUTINE read_vfld
             stations(10000000),         &
             max_found_stat,             &
             aerr,version_flag,          &
-            old_version_flag,ifi
+            old_version_flag,ifi,hh
  
  INTEGER, ALLOCATABLE :: inacc(:)
  
@@ -85,6 +85,7 @@ SUBROUTINE read_vfld
  !
 
  i = 0
+ hh = ctime/10000
 
  TIME_LOOP : DO
 
@@ -102,7 +103,7 @@ SUBROUTINE read_vfld
     ! If not, skip this forecast length
     !
 
-    WRITE(cwrk(1:10),'(I8,I2.2)')cdate,ctime/10000
+    WRITE(cwrk(1:10),'(I8,I2.2)')cdate,hh
     IF ( fclen(j) > 99 ) THEN
       WRITE(cfclen,'(I3.3)')fclen(j)
     ELSE
@@ -117,13 +118,13 @@ SUBROUTINE read_vfld
 
        IF ( use_analysis(ll) .AND. fclen(j) == 0 ) THEN
          fname = TRIM(path)//'vfld'//TRIM(fexpname(ll))//cwrk
-       ELSEIF ( exp_offset(ll) /= 0 ) THEN
-         CALL adddtg(cdate,ctime,-exp_offset(ll)*3600,cdateo,ctimeo)
+       ELSEIF ( exp_offset(ll,hh) /= 0 ) THEN
+         CALL adddtg(cdate,ctime,-exp_offset(ll,hh)*3600,cdateo,ctimeo)
          WRITE(cwrko(1:10),'(I8,I2.2)')cdateo,ctimeo/10000
-         IF ( ( fclen(j) + exp_offset(ll) ) > 99 ) THEN
-           WRITE(cfcleno,'(I3.3)')fclen(j)+exp_offset(ll)
+         IF ( ( fclen(j) + exp_offset(ll,hh) ) > 99 ) THEN
+           WRITE(cfcleno,'(I3.3)')fclen(j)+exp_offset(ll,hh)
          ELSE
-           WRITE(cfcleno,'(I2.2,1X)')fclen(j)+exp_offset(ll)
+           WRITE(cfcleno,'(I2.2,1X)')fclen(j)+exp_offset(ll,hh)
          ENDIF
          fname = TRIM(path)//'vfld'//TRIM(fexpname(ll))//cwrko//TRIM(cfcleno)
        ELSE
@@ -142,13 +143,15 @@ SUBROUTINE read_vfld
 
        path = modpath(l)
        CALL check_path(cdate,path)
-       IF ( exp_offset(l) /= 0 ) THEN
-         CALL adddtg(cdate,ctime,-exp_offset(l)*3600,cdateo,ctimeo)
+       IF ( use_analysis(l) .AND. fclen(j) == 0 ) THEN
+         fname = TRIM(path)//'vfld'//TRIM(fexpname(l))//cwrk
+       ELSEIF ( exp_offset(l,hh) /= 0 ) THEN
+         CALL adddtg(cdate,ctime,-exp_offset(l,hh)*3600,cdateo,ctimeo)
          WRITE(cwrko(1:10),'(I8,I2.2)')cdateo,ctimeo/10000
-         IF ( ( fclen(j) + exp_offset(l) ) > 99 ) THEN
-           WRITE(cfcleno,'(I3.3)')fclen(j)+exp_offset(l)
+         IF ( ( fclen(j) + exp_offset(l,hh) ) > 99 ) THEN
+           WRITE(cfcleno,'(I3.3)')fclen(j)+exp_offset(l,hh)
          ELSE
-           WRITE(cfcleno,'(I2.2,1X)')fclen(j)+exp_offset(l)
+           WRITE(cfcleno,'(I2.2,1X)')fclen(j)+exp_offset(l,hh)
          ENDIF
          fname = TRIM(path)//'vfld'//TRIM(fexpname(l))//cwrko//TRIM(cfcleno)
        ELSE
@@ -347,13 +350,13 @@ SUBROUTINE read_vfld
              ENDIF
    
              hir(stat_i)%o(i)%date = cdate
-             hir(stat_i)%o(i)%time = ctime/10000
+             hir(stat_i)%o(i)%time = hh
              hir(stat_i)%o(i)%nal  = err_ind
  
              allocated_this_time(stat_i) = .TRUE.
              found_any_time = .TRUE.
 
-             IF (print_read > 1 ) WRITE(6,*)'ALLOCATED',istnr,stat_i,cdate,ctime/10000
+             IF (print_read > 1 ) WRITE(6,*)'ALLOCATED',istnr,stat_i,cdate,hh
   
           ENDIF
 
@@ -362,7 +365,7 @@ SUBROUTINE read_vfld
           !
           ! Add data
           !
-          !IF (print_read > 1 ) WRITE(6,*)'ADD',istnr,stat_i,cdate,ctime/10000,fclen(j)
+          !IF (print_read > 1 ) WRITE(6,*)'ADD',istnr,stat_i,cdate,hh,fclen(j)
           IF (print_read > 1 ) WRITE(6,*)'ADD',istnr,val
           !IF (print_read > 1 ) WRITE(6,*)'BOUND',istnr,UBOUND( hir(stat_i)%o(i)%nal )
           IF (print_read > 1 ) WRITE(6,*)'INVAR',invar
@@ -409,9 +412,11 @@ SUBROUTINE read_vfld
              SELECT CASE(TRIM(varprop(m)%id))
               CASE('PE1','PE3','PE6','PE12','PE24')
                mm=find_var(ninvar,invar,'PE')
-               IF ( qclr(val(mm),varprop(m)%llim) .AND. &
-                    qcur(val(mm),varprop(m)%ulim) )     &
-               hir(stat_i)%o(i)%nal(l,j,m) = val(mm)
+               IF ( mm > 0 ) THEN
+                IF ( qclr(val(mm),varprop(m)%llim) .AND. &
+                     qcur(val(mm),varprop(m)%ulim) )     &
+                hir(stat_i)%o(i)%nal(l,j,m) = val(mm)
+               ENDIF 
               CASE('LA')
                hir(stat_i)%o(i)%nal(l,j,m) = hir(stat_i)%lat
               CASE('HG')
@@ -461,8 +466,9 @@ SUBROUTINE read_vfld
     wdate = cdate
     wtime = ctime
     CALL adddtg(wdate,wtime,fcint*3600,cdate,ctime)
+    hh = ctime/10000
     IF(cdate >  edate) EXIT TIME_LOOP
-    IF(cdate == edate .AND. ctime/10000 > etime) EXIT TIME_LOOP
+    IF(cdate == edate .AND. hh > etime) EXIT TIME_LOOP
 
  ENDDO TIME_LOOP
 

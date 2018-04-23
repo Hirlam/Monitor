@@ -14,7 +14,8 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
                   show_bias,show_rmse,show_stdv,show_obs,       &
                   show_var,show_skw,show_mabe,                  &
                   period_freq,period_type,                      &
-                  output_type,lprint_seasonal,err_ind,cini_hours
+                  output_type,lprint_seasonal,err_ind,          &
+                  cini_hours,exp_offset
 
  IMPLICIT NONE
 
@@ -352,7 +353,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
     IF ( show_fc_length ) THEN
 
        CALL fclen_header(( .NOT. lfcver .OR. ( nuse_fclen /= nfclengths )), &
-                         maxfclenval,uh(j,:),uf(j,:),varprop(j)%acc,wtext1)
+                         maxfclenval,uh(j,:),uf(j,:),varprop(j)%acc,MAXVAL(exp_offset),wtext1)
        WRITE(lunout,'(A,X,A)')'#HEADING_3',TRIM(wtext1)
 
     ENDIF

@@ -6,13 +6,18 @@
 # Usage: verobs2gnuplot.pl *.txt, where *.txt is the textfiles produced by verobs
 #
 
+push @INC, "$ENV{SCR}";
+
 my $searchdir = "";
 my $vertype = "SURF";
 
 # Set colors for lines
 
 @col_def_lt  = (0,1,2,3,4,5,6,8,7,9);
-eval { require $ENV{LOCALDEFS}; } if $ENV{LOCALDEFS} ;
+
+require $ENV{LOCALDEFS} if $ENV{LOCALDEFS} ;
+$xticmax = $xticmax or $xticmax=72 ;
+$xticinc = $xticinc or $xticinc= 3 ;
 
 # Line thickness
 $lw=2;
@@ -107,11 +112,13 @@ SCAN_INPUT: foreach $input_file (@FILES) {
     open FILE, "< $input_file";
 
     # Parameter dependent settings
-    # Set log scale for precipitation
-    # Set lager scatter point size for cloud cover
+    # Set log scale for various parameters
     $xscale  = "";
+    @logscales =('PE','PE12','PE1','PE3','PE6','CH','VI') ;
+    $xscale="set logscale x" if grep /\b$partag\b/, @logscales ;
+
+    # Set lager scatter point size for cloud cover
     $ps_scat = 1 ;
-    if ( $partag eq "PE" ) { $xscale="set logscale x" ; } ;
     if ( $partag eq "NN" ) { $ps_scat=2 ; } ;
 
     SCAN_FILE: while (<FILE>) {
@@ -295,7 +302,7 @@ SCAN_INPUT: foreach $input_file (@FILES) {
 sub plot_sign {
 
 print GP <<EOF;
-set xtics 0,3,72
+set xtics 0,$xticinc,$xticmax
 EOF
   
   if ( defined $minnum ) {
@@ -399,7 +406,7 @@ EOF
 sub gen_stat {
 
 print GP <<EOF;
-set xtics 0,3,72
+set xtics 0,$xticinc,$xticmax
 EOF
 
   if ( defined $minnum ) {

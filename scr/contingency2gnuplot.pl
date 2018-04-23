@@ -12,7 +12,7 @@ push @INC, "$ENV{SCR}";
 require skilldefs ;
 
 @col_def_lt  = (0,1,2,3,4,5,6,8,7);
-eval { require $ENV{LOCALDEFS}; } if $ENV{LOCALDEFS} ;
+require $ENV{LOCALDEFS} if $ENV{LOCALDEFS} ;
 
 
 SCAN_INPUT: foreach $input_file (@ARGV) {
@@ -36,13 +36,8 @@ SCAN_INPUT: foreach $input_file (@ARGV) {
     @tmp    = split( '_', $prefix );
     $partag = $tmp[-2];
     $xscale = "";
-    if ( $partag eq "PE12" ) { $xscale="set logscale x" ; } ;
-    if ( $partag eq "PE6" ) { $xscale="set logscale x" ; } ;
-    if ( $partag eq "PE3" ) { $xscale="set logscale x" ; } ;
-    if ( $partag eq "PE1" ) { $xscale="set logscale x" ; } ;
-    if ( $partag eq "PE" ) { $xscale="set logscale x" ; } ;
-    if ( $partag eq "CH" ) { $xscale="set logscale x" ; } ;
-    if ( $partag eq "VI" ) { $xscale="set logscale x" ; } ;
+    @logscales =('PE','PE12','PE1','PE3','PE6','CH','VI') ;
+    $xscale="set logscale x" if grep /\b$partag\b/, @logscales ;
 
     @EXT = ('','.ps','.1.png','.1.jpg','.svg') ;
 

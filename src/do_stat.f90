@@ -127,7 +127,7 @@ SUBROUTINE do_stat(per_ind,p1,p2)
        ELSE
           WRITE(lunstat,*)'Station',stat(i)%stnr,p1(i),p2(i)
        ENDIF
-       IF (nexp.GT.1) WRITE(lunstat,103)expname(1:nexp)
+       IF (nexp > 1) WRITE(lunstat,103)(expname(o),o=1,nexp)
        WRITE(lunstat,102)'TYPE ',ttype,(text,o=1,nexp)
     ENDIF
 
@@ -213,7 +213,7 @@ SUBROUTINE do_stat(per_ind,p1,p2)
        count(stat%active),' stations',minval(p1),maxval(p2)
     ENDIF
 
-    IF (nexp > 1) WRITE(lunstat,103)expname(1:nexp)
+    IF (nexp > 1) WRITE(lunstat,103)(expname(o),o=1,nexp)
     WRITE(lunstat,102)'TYPE ',ttype,(text,o=1,nexp)
 
     LOOP_NPARVER : DO j=1,nparver
@@ -339,7 +339,7 @@ SUBROUTINE write_stat(p,t,s,n)
  ! STD^2 = RMSE^2 - BIAS^2
  !
 
- IF (t.eq.999) THEN
+ IF (t == 999) THEN
 
        IF (lfcver) THEN
          cc='All'
