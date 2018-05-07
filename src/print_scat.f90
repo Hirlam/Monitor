@@ -14,7 +14,8 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
  USE data, ONLY : varprop,expname,err_ind,nexp,station_name,csi, &
                   tag,show_fc_length,output_type,output_mode,    &
                   mparver,corr_pairs,flag_pairs,exp_pairs,       &
-                  period_freq,maxfclenval,                       &
+                  period_freq,period_type,                       &
+                  maxfclenval,                                   &
                   scat_min,scat_max,scat_magn,len_lab,           &
                   lscat_yave,cini_hours,exp_offset
  USE functions
@@ -34,7 +35,7 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
  ! LOCAL
 
  INTEGER :: i,j,jj,k,kk,x,y,l,m,     &
-            nexp_plot,pp1,ierr,      &
+            nexp_plot,ierr,          &
             period,len_loop,         &
             lcorr_pairs(mparver,2),  &
             lflag_pairs(mparver,2),  &
@@ -138,25 +139,22 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
     IF (p1 == 0 ) THEN
     ELSEIF(p1 < 13) THEN
 
-       SELECT CASE(period_freq) 
+       SELECT CASE(period_freq)
        CASE(1)
         WRITE(wtext4,'(A8,A8)')'Period: ',seasonal_name2(p1)
        CASE(3)
         WRITE(wtext4,'(A8,A8)')'Period: ',seasonal_name1(p1)
-       END SELECT 
+       END SELECT
 
+    ELSEIF(p1 < 9999 .OR. (period_type == 2 .AND. period_freq == 1)) THEN
+       WRITE(wtext4,'(A8,I8)')'Period: ',p1
     ELSEIF(p1 < 999999 ) THEN
-       pp1 = monincr(p1,period_freq-1)
-       IF(p1 == pp1 ) THEN
-          WRITE(wtext4,'(A8,I8)')'Period: ',p1
-       ELSE
-          WRITE(wtext4,'(A8,I8,A2,I8)')'Period: ',        &
-          p1,' -',pp1
-       ENDIF
+       WRITE(wtext4,'(A8,I6,A1,I6)')'Period: ',        &
+       p1,'-',monincr(p1,period_freq-1)
     ELSE
-       WRITE(wtext4,'(A8,I8,A1,I8)')'Period: ',p1,'-',p2
+       WRITE(wtext4,'(A8,I8,A1,I8)')'Period: ',        &
+       p1,'-',p2
     ENDIF
-
 
     ! Find min and max
 

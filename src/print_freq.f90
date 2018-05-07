@@ -19,7 +19,8 @@ SUBROUTINE print_freq(lunout,nparver,nr,scat, &
                   ncla,classtype,pre_fcla,               &
                   mincla,maxcla,my_ymax,my_ymin,         &
                   mpre_cla,copied_mod,copied_obs,        &
-                  period_freq,output_type,len_lab,       &
+                  period_freq,period_type,               &
+                  output_type,len_lab,                   &
                   cini_hours,exp_offset
 
  IMPLICIT NONE
@@ -169,18 +170,22 @@ SUBROUTINE print_freq(lunout,nparver,nr,scat, &
     wtext = ''
     IF (p1 == 0 ) THEN
     ELSEIF(p1 < 13) THEN
-    
+
        SELECT CASE(period_freq)
        CASE(1)
         WRITE(wtext,'(A8,A8)')'Period: ',seasonal_name2(p1)
        CASE(3)
         WRITE(wtext,'(A8,A8)')'Period: ',seasonal_name1(p1)
        END SELECT
-    
-    ELSEIF(p1 < 999999 ) THEN
+
+    ELSEIF(p1 < 9999 .OR. (period_type == 2 .AND. period_freq == 1)) THEN
        WRITE(wtext,'(A8,I8)')'Period: ',p1
+    ELSEIF(p1 < 999999 ) THEN
+       WRITE(wtext,'(A8,I6,A1,I6)')'Period: ',        &
+       p1,'-',monincr(p1,period_freq-1)
     ELSE
-       WRITE(wtext,'(A8,I8,A1,I8)')'Period: ',p1,'-',p2
+       WRITE(wtext,'(A8,I8,A1,I8)')'Period: ',        &
+       p1,'-',p2
     ENDIF
  
     wtext = TRIM(varprop(j)%text)//'  '//TRIM(wtext)

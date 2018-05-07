@@ -3,6 +3,7 @@ SUBROUTINE print_cont(p1,p2,nr,par_active,    &
 
  USE constants, ONLY : seasonal_name1,seasonal_name2
  USE data
+ USE functions
  USE contingency
 
  IMPLICIT NONE
@@ -18,7 +19,7 @@ SUBROUTINE print_cont(p1,p2,nr,par_active,    &
 
  CHARACTER(LEN= 25) :: cform='(A30,XXI9,X,A1,X,I9)'
  CHARACTER(LEN= 25) :: hform='(XXXX,A)'
- CHARACTER(LEN=100) :: cwrk = '',wname=''
+ CHARACTER(LEN=100) :: cwrk = '',wtext=''
  CHARACTER(LEN=  8) :: cperiod = ''
 
  !----------------------------------------------------------------
@@ -63,33 +64,37 @@ SUBROUTINE print_cont(p1,p2,nr,par_active,    &
           cwrk=' Station: '//trim(cwrk(1:8))
        ENDIF
        IF (nr == 0) THEN
-          wname=''
-          WRITE(wname(1:5),'(I5)')par_active(j)
-          cwrk=TRIM(wname)//' stations'
+          wtext=''
+          WRITE(wtext(1:5),'(I5)')par_active(j)
+          cwrk=TRIM(wtext)//' stations'
           IF ( TRIM(tag) /= '#' ) cwrk=' Selection: '//TRIM(tag)//'  '//TRIM(cwrk)
        ENDIF
 
        WRITE(luncont,'(A)')TRIM(cwrk)
 
        ! Line 3
-       wname = ''
+       wtext = ''
        IF (p1 == 0 ) THEN
        ELSEIF(p1 < 13) THEN
    
          SELECT CASE(period_freq)
           CASE(1)
-           WRITE(wname,'(A8,A8)')'Period: ',seasonal_name2(p1)
+           WRITE(wtext,'(A8,A8)')'Period: ',seasonal_name2(p1)
           CASE(3)
-           WRITE(wname,'(A8,A8)')'Period: ',seasonal_name1(p1)
+           WRITE(wtext,'(A8,A8)')'Period: ',seasonal_name1(p1)
          END SELECT
-   
+
+       ELSEIF(p1 < 9999 .OR. (period_type == 2 .AND. period_freq == 1)) THEN
+          WRITE(wtext,'(A8,I8)')'Period: ',p1
        ELSEIF(p1 < 999999 ) THEN
-          WRITE(wname,'(A8,I8)')'Period: ',p1
+          WRITE(wtext,'(A8,I6,A1,I6)')'Period: ',        &
+          p1,'-',monincr(p1,period_freq-1)
        ELSE
-          WRITE(wname,'(A8,I8,A1,I8)')'Period: ',p1,'-',p2
+          WRITE(wtext,'(A8,I8,A1,I8)')'Period: ',        &
+          p1,'-',p2
        ENDIF
 
-       WRITE(luncont,'(A)')TRIM(wname)
+       WRITE(luncont,'(A)')TRIM(wtext)
 
        ! Line 4
        IF ( show_fc_length ) THEN

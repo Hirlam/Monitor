@@ -9,6 +9,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
  ! Modules
  USE timing
  USE constants, ONLY : seasonal_name1,seasonal_name2
+ USE functions
  USE data,     ONLY : maxstn,lfcver,        &
                       nexp,tag,output_type, &
                       output_mode,len_lab,  &
@@ -28,6 +29,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
                       station_name,csi,     &
                       maxfclenval,          &
                       period_freq,          &
+                      period_type,          &
                       cini_hours,exp_offset
 
  IMPLICIT NONE
@@ -406,18 +408,22 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
     wtext = ''
     IF (yymm == 0 ) THEN
     ELSEIF(yymm < 13) THEN
-     
-       SELECT CASE(period_freq) 
+
+       SELECT CASE(period_freq)
        CASE(1)
         WRITE(wtext,'(A8,A8)')'Period: ',seasonal_name2(yymm)
        CASE(3)
         WRITE(wtext,'(A8,A8)')'Period: ',seasonal_name1(yymm)
-       END SELECT 
-     
-    ELSEIF(yymm < 999999 ) THEN
+       END SELECT
+
+    ELSEIF(yymm < 9999 .OR. (period_type == 2 .AND. period_freq == 1)) THEN
        WRITE(wtext,'(A8,I8)')'Period: ',yymm
+    ELSEIF(yymm < 999999 ) THEN
+       WRITE(wtext,'(A8,I6,A1,I6)')'Period: ',        &
+       yymm,'-',monincr(yymm,period_freq-1)
     ELSE
-       WRITE(wtext,'(A8,I8,A1,I8)')'Period: ',yymm,'-',yymm2
+       WRITE(wtext,'(A8,I8,A1,I8)')'Period: ',        &
+       yymm,'-',yymm2
     ENDIF
 
     WRITE(lunout,'(A,X,A)')'#HEADING_2',TRIM(wtext)

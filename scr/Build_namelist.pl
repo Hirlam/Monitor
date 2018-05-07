@@ -354,10 +354,15 @@
    } ;
 
    # Set output table names
-   ${$default}{'SEAS'}{'STATNAME'}   = '\'TABLE_SEAS_'.$selection.'.html\'' ;
-   ${$default}{'GEN'}{'STATNAME'}    = '\'TABLE_LL_'.$selection.'.html\'' ;
-   ${$default}{'DAYVAR'}{'STATNAME'} = '\'TABLE_HH_'.$selection.'.html\'' ;
-   ${$default}{'VERT'}{'STATNAME'}   = '\'TABLE_VV_'.$selection.'.html\'' ;
+   if ( $ENV{PERIOD_TYPE} == 1 ) {
+     $tdate='000000';
+   } else {
+     $tdate=substr($ENV{SDATE},0,6);
+   };
+   ${$default}{'SEAS'}{'STATNAME'}   = '\'TABLE_SEAS_00'.$tdate.'_'.$selection.'.html\'' ;
+   ${$default}{'GEN'}{'STATNAME'}    = '\'TABLE_LL_00'.$tdate.'_'.$selection.'.html\'' ;
+   ${$default}{'DAYVAR'}{'STATNAME'} = '\'TABLE_HH_00'.$tdate.'_'.$selection.'.html\'' ;
+   ${$default}{'VERT'}{'STATNAME'}   = '\'TABLE_VV_00'.$tdate.'_'.$selection.'.html\'' ;
 
    # Modify scatter plot settings
    unless ( exists $plots{'SCAT'} ) { ${$default}{'scat_ver'}{'LPLOT_SCAT'   } = 'F' ; } ;

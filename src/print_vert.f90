@@ -214,8 +214,8 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
        ELSEIF(yymm < 9999 .OR. ( period_type == 2 .AND. period_freq == 1)) THEN
        WRITE(wtext1,'(A8,I6)')'Period: ',yymm
     ELSEIF(yymm < 999999 ) THEN
-       WRITE(wtext1,'(A8,I6,A2,I6)')'Period: ',        &
-       yymm,' -',monincr(yymm,period_freq-1)
+       WRITE(wtext1,'(A8,I6,A1,I6)')'Period: ',        &
+       yymm,'-',monincr(yymm,period_freq-1)
     ELSE
        WRITE(wtext1,'(A8,I8,A1,I8)')'Period: ',        &
        yymm,'-',yymm2

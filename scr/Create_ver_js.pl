@@ -43,14 +43,17 @@
  # Time handling
  $period_type = $ENV{PERIOD_TYPE}; 
  $period_freq = $ENV{PERIOD_FREQ} or $period_freq = 1 ;
+ $edate = $ENV{LDATE} or $edate = $ENV{EDATE} ;
+ $edate = substr $edate, 0 ,6;
+ $idate = substr $ENV{IDATE}, 0 ,6;
  @period_v = ('','\'00000000\'',
-              '\'gen_date\',\'00YYYYMM\',\'00'.$ENV{EDATE}.'\',\'00'.$ENV{IDATE}.'\'',
+              '\'gen_date\',\'00YYYYMM\',\'00'.$edate.'\',\'00'.$idate.'\','.$period_freq.'',
               '\'month_num\',1,'.12/$period_freq.',1,7') ;
  if ( $period_freq eq 3 ) {
-   @period_t = ('','\'00000000\'','\'gen_date\',\'YYYYMM\',\''.$ENV{EDATE}.'\',\''.$ENV{IDATE}.'\'',
+   @period_t = ('','\'00000000\'','\'gen_date\',\'YYYYMM\',\''.$edate.'\',\''.$idate.'\','.$period_freq.'',
               '\'season_txt\',1,'.12/$period_freq.',1') ;
  } else {
-   @period_t = ('','\'00000000\'','\'gen_date\',\'YYYYMM\',\''.$ENV{EDATE}.'\',\''.$ENV{IDATE}.'\'',
+   @period_t = ('','\'00000000\'','\'gen_date\',\'YYYYMM\',\''.$edate.'\',\''.$idate.'\','.$period_freq.'',
               '\'month_txt\',1,'.12/$period_freq.','.$period_freq) ;
  } 
 
@@ -628,15 +631,15 @@ sub finalize_plot {
  } ;
 
  if ( exists $plots{'GEN'} ) {
-    @xml     = ("$pdir/TABLE_LL_[3].html",@xml);
+    @xml     = ("$pdir/TABLE_LL_[1]_[3].html",@xml);
     @xml_txt = ("Stat".$_,@xml_txt);
  };
  if ( exists $plots{'SEAS'} ) {
-    @xml     = ("$pdir/TABL_SEAS_[3].html",@xml);
+    @xml     = ("$pdir/TABLE_SEAS_[3].html",@xml);
     @xml_txt = ("Seasonal".$_,@xml_txt);
  };
 
-@xml     = ("$pdir/quality.html",@xml) ;
+@xml     = ("$pdir/quality_[1].html",@xml) ;
 @xml_txt = ("Quality control",@xml_txt);
 
 if ( exists $plots{'CONT'} ) {

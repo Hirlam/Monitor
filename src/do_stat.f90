@@ -15,13 +15,18 @@ SUBROUTINE do_stat(per_ind,p1,p2)
  INTEGER :: vertime(ntimver),timing_id, &
              par_active(nparver),       &
              rar_active(nparver,ntimver), &
-             pro_active(nparver,0:ntimver)
+             pro_active(nparver,0:ntimver), &
+             minp1,maxp2
 
  TYPE (statistics) :: onestat(nexp)
  TYPE (statistics), ALLOCATABLE  :: statall(:,:,:)
 
  CHARACTER(LEN=4 ) :: ttype = 'TIME'
- CHARACTER(LEN=38) :: text  = '    BIAS    MAE     RMSE    STDV     N'
+ CHARACTER(LEN=78) :: wtext1='', wtext2='', &
+                      text  = &
+'    OBS         BIAS          MAE           RMSE          STDV           N    '
+!1234567890123456789012345678901234567890123456789012345678901234567890123456789
+!0        1         2         3         4         5         6         7
  CHARACTER(LEN=5 ) :: clev
  CHARACTER(LEN=len_lab ) :: cid
 !---------------------------------
@@ -29,10 +34,12 @@ SUBROUTINE do_stat(per_ind,p1,p2)
  timing_id = 0
  IF (ltiming) CALL acc_timing(timing_id,'do_stat')
 
+ minp1 = MINVAL(p1)
+ maxp2 = MAXVAL(p2)
  IF(lprint_do_stat) WRITE(6,*)'--DO_STAT--',p1,p2
 
-102 format(2A5,5(A31))
-103 format(5(A31))
+102 format(A5,A6,5A)
+103 format(11X,5A72)
 
  ! Determine number of levels
 
@@ -117,12 +124,12 @@ SUBROUTINE do_stat(per_ind,p1,p2)
 
     IF(leach_station) THEN
        WRITE(lunstat,*)
-       IF ( MINVAL(p1) < 13 ) THEN
+       IF ( minp1 < 13 ) THEN
           SELECT CASE(period_freq) 
           CASE(1)
-             WRITE(lunstat,*)'Station',stat(i)%stnr,'Period ',seasonal_name1(MINVAL(p1))
+             WRITE(lunstat,*)'Station',stat(i)%stnr,'Period ',seasonal_name1(minp1)
           CASE(3)
-             WRITE(lunstat,*)'Station',stat(i)%stnr,'Period ',seasonal_name2(MINVAL(p1))
+             WRITE(lunstat,*)'Station',stat(i)%stnr,'Period ',seasonal_name2(minp1)
           END SELECT
        ELSE
           WRITE(lunstat,*)'Station',stat(i)%stnr,p1(i),p2(i)
@@ -181,37 +188,46 @@ SUBROUTINE do_stat(per_ind,p1,p2)
 
  ENDDO
 
- IF ( print_bias_map ) CALL print_map(0,minval(p1),maxval(p2),0,per_ind,rar_active)
- IF ( print_rmse_map ) CALL print_map(0,minval(p1),maxval(p2),1,per_ind,rar_active)
- IF ( print_stdv_map ) CALL print_map(0,minval(p1),maxval(p2),3,per_ind,rar_active)
- IF ( print_mabe_map ) CALL print_map(0,minval(p1),maxval(p2),4,per_ind,rar_active)
+ IF ( print_bias_map ) CALL print_map(0,minp1,maxp2,0,per_ind,rar_active)
+ IF ( print_rmse_map ) CALL print_map(0,minp1,maxp2,1,per_ind,rar_active)
+ IF ( print_stdv_map ) CALL print_map(0,minp1,maxp2,3,per_ind,rar_active)
+ IF ( print_mabe_map ) CALL print_map(0,minp1,maxp2,4,per_ind,rar_active)
 
- IF ( print_obs_map  ) CALL print_map(0,minval(p1),maxval(p2),2,per_ind,rar_active)
+ IF ( print_obs_map  ) CALL print_map(0,minp1,maxp2,2,per_ind,rar_active)
 
  csi = 1
 
  IF (doing_monthvise) THEN
-    current_month = minval(p1)
+    current_month = minp1
  ELSE
     current_month = 0
  ENDIF
 
- ALLSTAT : IF (lallstat.AND.(count(stat%active).GT.0)) THEN
+ ALLSTAT : IF (lallstat.AND.(COUNT(stat%active).GT.0)) THEN
 
     WRITE(lunstat,*)
-    IF ( MINVAL(p1)< 13 ) THEN
+    WRITE(wtext1,'(A4,I5,A9)') &
+    'All ',COUNT(stat%active),' stations'
+    IF (minp1 == 0 ) THEN
+    ELSEIF ( minp1< 13 ) THEN
        SELECT CASE(period_freq) 
        CASE(1)
-          WRITE(lunstat,'(A4,I4,A19,A4)')'All ',    &
-          count(stat%active),' stations  Period :',seasonal_name1(MINVAL(p1))
+          WRITE(wtext2,'(A8,A4)') &
+          'Period: ',seasonal_name1(minp1)
        CASE(3)
-          WRITE(lunstat,'(A4,I4,A19,A4)')'All ',    &
-          count(stat%active),' stations  Period :',seasonal_name2(MINVAL(p1))
+          WRITE(wtext2,'(A8,A4)') &
+          'Period: ',seasonal_name2(minp1)
        END SELECT
+    ELSEIF(minp1 < 9999 .OR. (period_type == 2 .AND. period_freq == 1)) THEN
+       WRITE(wtext2,'(A8,I8)')'Period: ',minp1
+    ELSEIF(minp1 < 999999 ) THEN
+       WRITE(wtext2,'(A8,I6,A1,I6)')'Period: ',        &
+       minp1,'-',monincr(minp1,period_freq-1)
     ELSE
-       WRITE(lunstat,'(A4,I4,A10,2I12)')'All ',    &
-       count(stat%active),' stations',minval(p1),maxval(p2)
+       WRITE(wtext2,'(A8,I8,A1,I8)')'Period: ',        &
+       minp1,'-',maxp2
     ENDIF
+    WRITE(lunstat,*)TRIM(wtext1),' ',TRIM(wtext2)
 
     IF (nexp > 1) WRITE(lunstat,103)(expname(o),o=1,nexp)
     WRITE(lunstat,102)'TYPE ',ttype,(text,o=1,nexp)
@@ -242,7 +258,7 @@ SUBROUTINE do_stat(per_ind,p1,p2)
     IF( lprint_stat ) THEN
       IF (lprint_do_stat) WRITE(6,*)'Call print_stat'
       CALL print_stat2(lunout,nexp,nparver,ntimver,    &
-      statall,0,minval(p1),maxval(p2),par_active,      &
+      statall,0,minp1,maxp2,par_active,      &
       used_hours(:,per_ind,:),used_fclen(:,per_ind,:))
     ENDIF
 
@@ -253,7 +269,7 @@ SUBROUTINE do_stat(per_ind,p1,p2)
        !
 
        CALL print_sign_test(lunout,nexp,nparver,          &
-         0,minval(p1),maxval(p2),par_active,              &
+         0,minp1,maxp2,par_active,              &
          used_hours(:,per_ind,:),used_fclen(:,per_ind,:))
 
     ENDIF
@@ -266,7 +282,7 @@ SUBROUTINE do_stat(per_ind,p1,p2)
 
        IF ( lprint_vert )                               &
        CALL print_vert(lunout,nexp,nlev,nparver,ntimver,&
-                      statall,0,MINVAL(p1),MAXVAL(p2),  &
+                      statall,0,minp1,maxp2,  &
                       pro_active,                       &
                       used_hours(:,per_ind,:),          &
                       used_fclen(:,per_ind,:))
@@ -325,12 +341,13 @@ SUBROUTINE write_stat(p,t,s,n)
 
  INTEGER :: o
  REAL    :: rn(n)
- CHARACTER(LEN=30) :: form1='(2A6,xx(4f8.3,I7))'
- CHARACTER(LEN=30) :: form2='(A6,I5,xx(4f8.3,I7))'
+ CHARACTER(LEN=35) :: form1='(A6,A5,xx(5(1X,en13.4e2),1X,I7))'
+ CHARACTER(LEN=35) :: form2='(A6,I5,xx(5(1X,en13.4e2),1X,I7))'
+
  
 !------------------------------------------
 
- WRITE(form1(6:7),'(I2.2)')n
+ WRITE(form1(8:9),'(I2.2)')n
  WRITE(form2(8:9),'(I2.2)')n
 
  rn = 1.
@@ -348,7 +365,8 @@ SUBROUTINE write_stat(p,t,s,n)
        ENDIF
 
        WRITE(lunstat,form1)p,cc,              &
-           (      s(o)%bias/rn(o),            &
+           (      s(o)%obs/rn(o),             &
+                  s(o)%bias/rn(o),            &
                   s(o)%mabe/rn(o),            &
              sqrt(s(o)%rmse/rn(o)),           &
              sqrt(ABS(s(o)%rmse/rn(o)         &
@@ -357,7 +375,8 @@ SUBROUTINE write_stat(p,t,s,n)
        WRITE(lunstat,*)
  ELSE
        WRITE(lunstat,form2)p,t,               &
-           (      s(o)%bias/rn(o),            &
+           (      s(o)%obs/rn(o),             &
+                  s(o)%bias/rn(o),            &
                   s(o)%mabe/rn(o),            &
              sqrt(s(o)%rmse/rn(o)),           &
              sqrt(ABS(s(o)%rmse/rn(o)         &

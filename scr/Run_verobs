@@ -96,9 +96,15 @@ ls c_*.html 1>/dev/null 2>/dev/null && {
 
 # Quality control information
 if [ -s fort.48 ] ; then
- echo '<pre>'   > quality.html
- cat fort.48   >> quality.html
- echo '</pre>' >> quality.html
+ if [ $PERIOD_TYPE -eq 1 ] ; then
+  TSTAMP=00000000
+ else
+  TSTAMP=00${SDATE:0:6}
+ fi
+ QFILE=quality_${TSTAMP}.html
+ echo '<pre>'   > $QFILE
+ cat fort.48   >> $QFILE
+ echo '</pre>' >> $QFILE
 fi
 
 # Clean work files
