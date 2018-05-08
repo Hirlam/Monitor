@@ -17,6 +17,7 @@ SUBROUTINE read_vfld
                   allocate_mod,use_analysis
 
  USE constants, only : gravit,tzero,tlapse
+ USE functions
 
  IMPLICIT NONE
 
@@ -43,7 +44,7 @@ SUBROUTINE read_vfld
  
  INTEGER, ALLOCATABLE :: inacc(:)
  
- REAL :: lat,lon,hgt,rtmp,sca,sub
+ REAL :: lat,lon,hgt,rtmp,sca,sub,zdiff(1)
  REAL, ALLOCATABLE :: val(:)
 
  LOGICAL :: allocated_this_time(maxstn),&
@@ -430,6 +431,16 @@ SUBROUTINE read_vfld
                     qca(obs(stat_i)%hgt,err_ind) )     &
                hir(stat_i)%o(i)%nal(l,j,m) =           &
                val(mm) - tzero + ((hir(stat_i)%hgtmod(l)-obs(stat_i)%hgt)*tlapse)
+              CASE('SPS')
+               mm=find_var(ninvar,invar,'PSS')
+               m2=find_var(ninvar,invar,'TT')
+               ! CALC hgt adjustment
+               IF ( qca(hir(stat_i)%hgt,err_ind)   .AND. &
+                    qca(obs(stat_i)%hgt,err_ind) )       &
+                zdiff = (hir(stat_i)%hgtmod(l) - &
+                         obs(stat_i)%hgt) * gravit
+               hir(stat_i)%o(i)%nal(l,j,m) =           &
+               pmslcom(val(mm),zdiff,val(m2),1,1)
               CASE('TDD')
                mm=find_var(ninvar,invar,varprop(m)%id(1:2))
                m2=find_var(ninvar,invar,'TT')

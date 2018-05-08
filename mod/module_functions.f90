@@ -6,6 +6,96 @@ MODULE functions
 !-----------------------------------------------
 !-----------------------------------------------
 !-----------------------------------------------
+REAL FUNCTION PMSLCOM(PS,FIS,TS,NLON,NLAT)
+!
+      IMPLICIT NONE
+!
+      INTEGER NLON,NLAT
+      REAL PS(NLON*NLAT),FIS(NLON*NLAT),    &
+     &     TS(NLON*NLAT),                   &
+     &     PSL(NLON*NLAT)
+!
+!-----------------------------------------------------------------------
+!
+!
+      REAL TLAPSE,TSTAR,ALFA,TZERO,ARG,RAIR,GRAVIT
+      INTEGER KHOR,NHOR
+!
+!-----------------------------------------------------------------------
+!
+!*   1.0   INITALIZE LOCAL CONSTANTS
+!
+      RAIR   =  287.04
+      GRAVIT =  9.80665
+      TLAPSE = 0.0065
+      NHOR   = NLON*NLAT
+!
+!-----------------------------------------------------------------------
+!
+!*   2.0   START LOOP OVER ALL GRID-POINTS
+!
+      DO 2000 KHOR=1,NHOR
+!
+!*       2.1 SURFACE TEMPERATURE
+!*           AND TEMP.REDUCTION FACTOR
+!
+      TSTAR = TS(KHOR)
+!
+      IF( TSTAR .LT. 255.0 ) THEN
+!
+!*       2.2  PREVENT TOO HIGH PRESSURES
+!*            UNDER COLD TERRAIN
+!
+         TSTAR = 0.5*( TSTAR + 255. )
+         ALFA = TLAPSE*RAIR/GRAVIT
+!
+      ELSE
+!
+!*       2.3  TRIAL EXTRA-POLATION OF SEA-LEVEL
+!             TEMPERATURE
+!
+         TZERO = TSTAR + TLAPSE*FIS(KHOR)/GRAVIT
+!
+         IF( TZERO .GT. 290.5 ) THEN
+!
+!*       2.4 PREVENT TOO LOW PRESSURES UNDER
+!            HOT TERRAIN
+!
+            IF( TSTAR.LE.290.5 ) THEN
+               ALFA = RAIR*(290.5-TSTAR)/FIS(KHOR)
+            ELSE
+               ALFA = 0.
+               TSTAR = 0.5*(290.5+TSTAR)
+            ENDIF
+!
+         ELSE
+!
+!*       2.5 NORMAL TEMP.REDUCTION FACTOR
+!
+            ALFA = TLAPSE*RAIR/GRAVIT
+!
+         ENDIF
+!
+      ENDIF
+!
+!*        2.6 COMPUTE SEA-LEVEL PRESSURE
+!*            END LOOP OVER GRIDPOINTS
+!
+      ARG = FIS(KHOR)/RAIR/TSTAR
+      PSL(KHOR) = PS(KHOR)*                                             &
+     &                 EXP( ARG*( 1. - 0.5*ALFA*ARG +         &
+     &                            1./3.*(ALFA*ARG)**2 ) )
+!
+ 2000 CONTINUE
+
+      PMSLCOM=PSL(1)
+!
+!-----------------------------------------------------------------------
+!
+END FUNCTION PMSLCOM
+!-----------------------------------------------
+!-----------------------------------------------
+!-----------------------------------------------
 REAL FUNCTION tics(xmin,xmax)
 
  !

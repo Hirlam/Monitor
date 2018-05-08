@@ -338,6 +338,10 @@ SUBROUTINE read_vobs
                  obs(stat_i)%o(i)%val(m) =              &
                  FLOAT(NINT(obs(stat_i)%o(i)%val(m)))
                 ENDIF
+              CASE('SPS')
+               mm=find_var(ninvar,invar,'PSS')
+               IF ( qca(val(mm),mflag) ) &
+               obs(stat_i)%o(i)%val(m) = val(mm)
             END SELECT
 
           ENDDO PARVER_LOOP

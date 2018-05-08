@@ -46,7 +46,8 @@ INTEGER :: maxtim_obs,maxtim_mod
        ! if not we read model data first to get a smaller number of observations
        !
 
-       IF ( ANY( varlist(1:nparver) == 'TTHA' ) .OR.  &
+       IF ( ANY( varlist(1:nparver) == 'SPS'  ) .OR.  &
+            ANY( varlist(1:nparver) == 'TTHA' ) .OR.  &
             ANY( varlist(1:nparver) == 'TNHA' ) .OR.  &
             ANY( varlist(1:nparver) == 'TXHA' ) ) THEN
          CALL read_vobs

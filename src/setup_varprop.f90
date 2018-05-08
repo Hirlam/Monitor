@@ -94,6 +94,8 @@ SUBROUTINE setup_varprop
     varprop(i) = variable(v%lev,0,0,100.,100.,0.,v%id,'Relative Humidity','%',.FALSE.)
   CASE('PS')
     varprop(i) = variable(v%lev,0,0,50.,1100.,0.,v%id,'Surface Pressure','hPa',.FALSE.)
+  CASE('SPS')
+    varprop(i) = variable(v%lev,0,0,50.,1100.,0.,v%id,'Station Pressure','hPa',.FALSE.)
   CASE('NN')
     varprop(i) = variable(v%lev,0,0,10.,8.,0.,v%id,'Cloud cover','octas',.FALSE.)
   CASE('TD','TDP1','TDP2')
