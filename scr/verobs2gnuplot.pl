@@ -434,7 +434,7 @@ sub plot_vert {
 
   if ( defined $minnum ) {
     print GP <<EOF;
-set yrange [10:1000] reverse
+set yrange [1000:10]
 set x2range [$minnum:$maxnum]
 set x2label "No cases"
 set x2tics $minnum,$ticnum,$maxnum
