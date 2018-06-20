@@ -33,6 +33,12 @@ case $DIR in
  ;;
  esac
 
+# Skip if no parameters selected
+if [ -z "$PARARG" ] ; then
+ echo "No verification done for $ENTRY"
+ exit 0
+fi
+
 cd $SCR || exit
 
 

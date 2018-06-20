@@ -11,7 +11,7 @@ SUBROUTINE setup_varprop
  IMPLICIT NONE
 
  INTEGER :: i,j,k,wrk(mparver),nlev, &
-            magn
+            magn,obswrk(0:23)
 
  CHARACTER(LEN=4) :: cform = '(IX)'
  CHARACTER(LEN=9) :: clev = ' '
@@ -190,6 +190,19 @@ SUBROUTINE setup_varprop
    
  ENDDO
 
+ ! Set obstime 
+ DO i=1,nparver
+   IF ( ALL(obstime(i,:) == -1) ) THEN
+     obstime(i,:) = 1
+   ELSEIF ( ANY(obstime(i,:) /= -1) ) THEN
+     obswrk(:) = obstime(i,:)
+     obstime(i,:) = 0
+     DO k=0,23
+      IF ( obswrk(k) /= -1 ) obstime(i,obswrk(k)) = 1
+     ENDDO
+   ENDIF
+ ENDDO
+
  !
  ! Set name for multilayer variables
  !
@@ -225,6 +238,7 @@ SUBROUTINE setup_varprop
   WRITE(6,*)' ACC/ACCTYPE:',varprop(i)%acc,varprop(i)%acctype
   WRITE(6,*)' LOW/UP LIM:',varprop(i)%llim,varprop(i)%ulim
   WRITE(6,*)' ACTIVE:',varprop(i)%active
+  WRITE(6,*)' OBSTIME:',obstime(i,:)
  ENDDO
  WRITE(6,*)
 

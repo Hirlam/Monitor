@@ -17,7 +17,23 @@ fi
 [[ $WEBCALL == "" ]] && exit
 
 if [ $TARG = "TEMP" -o $TARG = "SURF" ] ; then
-   ./Create_ver_js.pl $2
+
+  case $TARG in
+   SURF)
+    PARARG=$SURFPAR
+    ;;
+   TEMP)
+    PARARG=$TEMPPAR
+    ;;
+  esac
+
+  # Skip if no parameters selected
+  if [ -z "$PARARG" ] ; then
+   exit 0
+  fi
+
+  ./Create_ver_js.pl $TARG
+
 else
    echo "Please give SURF or TEMP as argument" 
    exit

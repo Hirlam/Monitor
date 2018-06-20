@@ -22,7 +22,7 @@ MODULE data
  INTEGER, PARAMETER :: len_lab = 6
  INTEGER, PARAMETER :: maxexp  = 20     ! Max experiments
  INTEGER, PARAMETER :: mparver = 200    ! Max parameters to verify
- INTEGER, PARAMETER :: maxfclen= 48     ! Maximum number of forecast lengths
+ INTEGER, PARAMETER :: maxfclen= 100    ! Maximum number of forecast lengths
  INTEGER, PARAMETER :: maxfclenval= 240 ! Maximum forecast length value in hours
  INTEGER, PARAMETER :: max_map_interval = 7 ! Maximum number of map intervals
 
@@ -148,6 +148,7 @@ MODULE data
                                                    '#','#','#',.TRUE.)
  TYPE(variable), &
  ALLOCATABLE,TARGET          :: varprop(:) 
+ INTEGER                     :: obstime(mparver,0:23) = -1
 
  ! Graphics
  CHARACTER(LEN=50) :: graphics='GNUPLOT'
@@ -310,7 +311,7 @@ MODULE data
                  nexp,fexpname,expname,tag,             &
                  exp_offset,                            &
                  smallest_exp_ind,                      &
-                 varlist,setprop,                       &
+                 varlist,setprop,obstime,               &
                  lev_lst,                               &
                  name,statname,                         &
                  obspath,modpath,use_analysis,          &

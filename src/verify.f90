@@ -518,17 +518,16 @@ SUBROUTINE verify
              ! Loop over all variables, cycle if no observations available
              !
 
-             IF(ABS(obs(i)%o(jj)%val(k)-err_ind) <= 1.e-6) CYCLE NPARVER_LOOP
+             IF ( obstime(k,wtime) /= 1 .OR. &
+                  ABS(obs(i)%o(jj)%val(k)-err_ind) <= 1.e-6 ) CYCLE NPARVER_LOOP
 
              IF (lprint_verif) WRITE(6,*)'   DO VER ',varprop(k)%id,obs(i)%o(jj)%val(k)
 
              !
-             ! Tmax and Tmin can only be verified at 06 and 18 UTC
-             ! and for forecast lengths >= 12h
+             ! Tmax and Tmin can only be verified for forecast lengths >= 12h
              !
-
-             IF( ( varprop(k)%id == 'TN' .OR. varprop(k)%id == 'TX'   ) .AND. &
-                 ( fclen(n) < 12 .OR. ( wtime /= 6 .AND. wtime /= 18  ) ) )CYCLE NPARVER_LOOP
+             !IF( ( varprop(k)%id == 'TN' .OR. varprop(k)%id == 'TX'   ) .AND. &
+                 !( fclen(n) < 12 ) )CYCLE NPARVER_LOOP
 
              !
              ! All EXP should have data, else do not verify
@@ -604,20 +603,21 @@ SUBROUTINE verify
                    ! Take MIN/MAX over fclen(ind_pe(k,n)) - fclen(n)
                    !
 
-                   IF ( ind_pe(k,n) < 0 ) THEN
+                   IF(fclen(n) >= varprop(k)%acc) THEN
+                    IF ( ind_pe(k,n) < 0 ) THEN
                      diff_prep = hir(i)%o(j)%nal(o,n,k)
                      IF ( lprint_verif ) &
                      WRITE(6,*)fclen(n),hir(i)%o(j)%nal(o,n,k)
-                   ELSE
+                    ELSE
                      nn=MAX(1,ind_pe(k,n)+1)
                      IF ( lprint_verif ) THEN
                       WRITE(6,*)'n,nn',n,nn
                       WRITE(6,*)'Acc period:',fclen(n),fclen(nn)
                       WRITE(6,*)fclen(n),hir(i)%o(j)%nal(o,n,k)
                      ENDIF
-                    diff_prep = hir(i)%o(j)%nal(o,n,k)
-                    DO l=nn,n-1
-                     IF (ABS(hir(i)%o(j)%nal(o,l,k)-err_ind)>1.e-6) THEN
+                     diff_prep = hir(i)%o(j)%nal(o,n,k)
+                     DO l=nn,n-1
+                      IF (ABS(hir(i)%o(j)%nal(o,l,k)-err_ind)>1.e-6) THEN
                        IF ( lprint_verif ) &
                        WRITE(6,*)fclen(l),hir(i)%o(j)%nal(o,l,k)
                        IF (varprop(k)%acctype == 2 ) THEN
@@ -625,8 +625,12 @@ SUBROUTINE verify
                        ELSE 
                         diff_prep = MAX(hir(i)%o(j)%nal(o,l,k),diff_prep)
                        ENDIF
-                     ENDIF
-                    ENDDO
+                      ENDIF
+                     ENDDO
+                    ENDIF
+                   ELSE
+                    all_exp_verified = .FALSE.
+                    CYCLE EXP_LOOP
                    ENDIF
 
                   CASE DEFAULT

@@ -180,12 +180,27 @@
          } ;
 
          # Fill the setprop values
-         foreach $prop ('TEXT','UNIT') {         
+         foreach $prop ('TEXT','UNIT') {
           if ( exists $tmp{$_}{$prop} ) {
             $nameread{'read_section'}{'SETPROP('.$k.')%ID'}='\''.$_.'\'' ;
             $nameread{'read_section'}{'SETPROP('.$k.')%'.$prop}='\''.$tmp{$_}{$prop}.'\'';
-          } ;
-         } ;
+          }
+         }
+         foreach $prop ('ACCTYPE','ACC','LIM','LLIM','ULIM') {
+          if ( exists $tmp{$_}{$prop} ) {
+            $nameread{'read_section'}{'SETPROP('.$k.')%ID'}='\''.$_.'\'' ;
+            $nameread{'read_section'}{'SETPROP('.$k.')%'.$prop}=$tmp{$_}{$prop} ;
+          }
+         }
+         $prop='OBSTIME';
+         if ( exists $tmp{$_}{$prop} ) {
+           $m = scalar(split(',',$tmp{$_}{$prop})) ;
+           $nameread{'read_section'}{'OBSTIME('.$k.',1:'.$m.')'}=$tmp{$_}{$prop} ;
+         }
+         $prop='PRE_FCLA';
+         if ( exists $tmp{$_}{$prop} ) {
+           $selectionloop{'scat_ver'}{'PRE_FCLA(:,'.$k.')'}=$tmp{$_}{$prop};
+         }
 
          if ( $type =~ /TEMP/ ) {
           $nameread{'read_section'}{'SETPROP('.$k.')%LEV'}=$lev[$ilev-1];
@@ -197,18 +212,6 @@
             }
           }
          }
-
-         foreach $prop ('ACCTYPE','ACC','LIM','LLIM','ULIM') {         
-          if ( exists $tmp{$_}{$prop} ) {
-            $nameread{'read_section'}{'SETPROP('.$k.')%ID'}='\''.$_.'\'' ;
-            $nameread{'read_section'}{'SETPROP('.$k.')%'.$prop}=$tmp{$_}{$prop} ;
-          } ;
-         } ;
-
-         # Frequency plots
-         if ( exists $tmp{$_}{'PRE_FCLA'} ) {
-            $selectionloop{'scat_ver'}{'PRE_FCLA(:,'.$k.')'}=$tmp{$_}{'PRE_FCLA'};
-         } ;
 
          # Map
          if ( exists $plots{'MAP'} ) {
