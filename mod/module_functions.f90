@@ -284,4 +284,85 @@ ENDIF
 RETURN
 
 END FUNCTION check_this_file
+!-----------------------------------------------
+!-----------------------------------------------
+!-----------------------------------------------
+LOGICAL FUNCTION do_you_like_me(check_blacklist,istnr,inpar)
+
+ !
+ ! Ulf Andrae, SMHI, 2018
+ !
+ ! Function for blacklisting of observations per station and type
+ ! Expected format is
+ ! stationid1
+ ! PAR1 PAR2 .. PARN
+ ! stationid2
+ ! PAR1
+ ! ...
+ ! Use ALL to blacklist all parameters for a station
+ !
+ ! If memory becomes a problem for the lookup table we have to rewrite
+ ! the search method
+ !
+
+ IMPLICIT NONE
+
+ INTEGER, PARAMETER :: maxstnr=100000
+ INTEGER, PARAMETER :: maxparbl=10
+ INTEGER, PARAMETER :: iunit=22
+
+ LOGICAL, INTENT(IN)          :: check_blacklist
+ INTEGER, INTENT(IN)          :: istnr
+ CHARACTER(LEN=*), INTENT(IN) :: inpar
+
+ INTEGER :: ierr,stnr,ind,is,i
+
+ CHARACTER(LEN=100) cpar
+ CHARACTER(LEN=10), SAVE :: parlist(maxstnr,maxparbl)  = '#'
+
+ LOGICAL, SAVE :: init_table = .TRUE.
+
+ IF ( init_table ) THEN
+
+  ierr = 99
+  IF ( check_blacklist ) &
+  OPEN(iunit,FILE='black.list',iostat=ierr)
+
+  IF ( ierr /= 0 ) THEN
+   init_table = .FALSE.
+   RETURN
+  ENDIF
+
+  LOOP : DO
+   READ(iunit,*,iostat=ierr)stnr
+   IF ( ierr /= 0 ) EXIT LOOP
+   IF ( stnr > maxstnr ) CALL abort
+   WRITE(6,*)'Station:',stnr
+   READ(iunit,'(100A)',iostat=ierr)cpar
+   IF ( ierr /= 0 ) EXIT LOOP
+   WRITE(6,*)' blacklist:',TRIM(cpar)
+
+   is=1
+   ind = INDEX(TRIM(cpar(is:)),' ')
+   i=0
+   DO WHILE ( ind /= 0 )
+    i=i+1
+    parlist(stnr,i) = cpar(is:is+ind-2)
+    is = ind + is 
+    ind = INDEX(TRIM(cpar(is:)),' ')
+   ENDDO
+   i=i+1
+   parlist(stnr,i) = TRIM(cpar(is:))
+  ENDDO LOOP
+
+ init_table = .FALSE.
+
+ ENDIF
+
+ do_you_like_me = ( .NOT. & 
+  & ( ANY(parlist(istnr,:) == TRIM(inpar) ) .OR. &
+  &   parlist(istnr,1) == 'ALL' ) )
+
+END FUNCTION do_you_like_me
+
 END MODULE functions

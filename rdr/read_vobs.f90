@@ -40,7 +40,7 @@ SUBROUTINE read_vobs
  CHARACTER(LEN= 10) :: ndate =' '
  CHARACTER(LEN= 10), ALLOCATABLE :: invar(:)
 
- LOGICAL :: use_stnlist
+ LOGICAL :: use_stnlist,cbl
 
  ! Functions
  INTEGER :: find_var,find_varprop
@@ -54,6 +54,7 @@ SUBROUTINE read_vobs
  version_flag   = 0
  old_ninvar     = -1
  ninvar         = 0
+ INQUIRE(FILE='black.list',EXIST=cbl)
 
  use_stnlist =(  MAXVAL(stnlist) > 0 )
 
@@ -267,10 +268,12 @@ SUBROUTINE read_vobs
                    sca = 1.e3
                 END SELECT
 
-                ! Check for missing data / gross error
-                 IF ( qclr(val(n),varprop(m)%llim) .AND. &
-                      qcur(val(n),varprop(m)%ulim) )     &
-                obs(stat_i)%o(i)%val(m) = ( val(n) - sub ) * sca
+                IF ( do_you_like_me(cbl,obs(stat_i)%stnr,invar(n)) ) THEN
+                 ! Check for missing data / gross error
+                  IF ( qclr(val(n),varprop(m)%llim) .AND. &
+                       qcur(val(n),varprop(m)%ulim) )     &
+                  obs(stat_i)%o(i)%val(m) = ( val(n) - sub ) * sca
+                ENDIF
 
               ENDIF
             ENDDO INVAR_LOOP
@@ -371,5 +374,4 @@ SUBROUTINE read_vobs
  IF ( ALLOCATED(inacc) ) DEALLOCATE(inacc)
 
  RETURN
-
 END SUBROUTINE read_vobs

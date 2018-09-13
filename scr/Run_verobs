@@ -70,6 +70,7 @@ cd $WRK/${DIR}_$$ || exit
 
 ln -s $SCR/*.poly .
 ln -s $SCR/coast2.dat coast.dat
+[[ -s $SCR/black.list.$PAR ]] && ln -s $SCR/black.list.$PAR black.list
 
 # Run verobs for the different variables
 

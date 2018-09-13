@@ -28,10 +28,10 @@ SUBROUTINE read_vobs_temp
             ipr,ifi,ninvar,             &
             old_ninvar
  
- REAL :: lat,lon,hgt
+ REAL :: lat,lon,hgt,sub,sca
  REAL, ALLOCATABLE :: val(:),inacc(:)
 
- LOGICAL :: use_stnlist
+ LOGICAL :: use_stnlist,cbl
 
  CHARACTER(LEN=200) :: fname =' ',path
  CHARACTER(LEN= 10) :: ndate =' '
@@ -47,6 +47,7 @@ SUBROUTINE read_vobs_temp
  version_flag   = 0
  old_ninvar     = -1
  ninvar         = 0
+ INQUIRE(FILE='black.list',EXIST=cbl)
 
  use_stnlist =( MAXVAL(stnlist) > 0 )
 
@@ -290,18 +291,22 @@ SUBROUTINE read_vobs_temp
                 IF ( .NOT. qca(val(n),mflag) ) CYCLE PARVER_LOOP
 
                 ! Special treatment of some variabels
+                sca = 1.0
+                sub = 0.0
                 SELECT CASE(invar(n))
 
                 CASE('TT')
-                   val(n) = val(n) - tzero
+                   sub = tzero
                 CASE('QQ')
-                   val(n) = val(n) * 1.e3
+                   sca = 1.e3
                 END SELECT
 
-                ! Check for gross error
-                 IF ( qclr(val(n),varprop(m)%llim) .AND. &
-                      qcur(val(n),varprop(m)%ulim) )     &
-                obs(stat_i)%o(i)%val(m) = val(n)
+                IF ( do_you_like_me(cbl,obs(stat_i)%stnr,invar(n)) ) THEN
+                 ! Check for missing data / gross error
+                  IF ( qclr(val(n),varprop(m)%llim) .AND. &
+                       qcur(val(n),varprop(m)%ulim) )     &
+                  obs(stat_i)%o(i)%val(m) = ( val(n) - sub ) * sca
+                ENDIF
 
               ENDIF
             ENDDO INVAR_LOOP
