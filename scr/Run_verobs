@@ -31,7 +31,7 @@ case $DIR in
   echo "Unknown verification type $DIR"
   exit 1
  ;;
- esac
+esac
 
 # Skip if no parameters selected
 if [ -z "$PARARG" ] ; then
@@ -89,7 +89,7 @@ fi
 # Call gnuplot to create the graphics
 #
 
-$SCR/verobs2gnuplot.pl -d . -t ${DIR} || exit
+$SCR/verobs2gnuplot.pl -d . -t ${DIR} -c || exit
 
 ls c_*.html 1>/dev/null 2>/dev/null && {
    export SELECTOR

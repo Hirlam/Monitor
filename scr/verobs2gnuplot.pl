@@ -10,6 +10,7 @@ push @INC, "$ENV{SCR}";
 
 my $searchdir = "";
 my $vertype = "SURF";
+my $cleantxt = 0 ;
 
 # Set colors for lines
 
@@ -59,6 +60,7 @@ if ( $OUTPUT_TYPE eq 1 ) {
 while ( <@ARGV> ) {
    if ( /-d/) { $searchdir = $ARGV[$n+1] or die "Please use -d SEARCHDIR \n"; } ;
    if ( /-t/) { $vertype   = $ARGV[$n+1] or die "Please use -t VERTYPE   \n"; } ;
+   if ( /-c/) { $cleantxt  = 1 ; } ;
    $n++ ;
 }
 
@@ -292,6 +294,7 @@ SCAN_INPUT: foreach $input_file (@FILES) {
     print GP "$plot";
     close GP;
     system("gnuplot plot.gp");
+    system("rm -f ${input_file}*") if ( $cleantxt == 1 ) ; 
 
     print "Created:$output_file \n";
 
