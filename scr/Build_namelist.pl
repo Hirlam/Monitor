@@ -56,7 +56,7 @@
  @modpath = split(' ',$ENV{MODPATH}) ;
  @exp     = split(' ',$ENV{EXP}) ;
  $exp     = '\''.join('\',\'',@exp).'\'';
- @dexp     = split(' ',$ENV{DISPLAY_EXP}) ;
+ @dexp     = split(' ',$dexp) ;
  $dexp     = '\''.join('\',\'',@dexp).'\'';
  $modpath = '\''.join('\',\'',@modpath).'\'';
  $obint   = $ENV{'OBINT_'.$type};
