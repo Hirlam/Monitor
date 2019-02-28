@@ -44,7 +44,7 @@ cd $SCR || exit
 
 # Generate namelists
 
-mkdir $WRK/${DIR}_$$ || exit
+mkdir -p $WRK/${DIR}_$$ || exit
 
 if [ $ALL_AT_ONCE == "yes" ] ; then
    ./Build_namelist.pl -t ${DIR} -p "$PARARG" > $WRK/${DIR}_$$/fort.10 || exit
