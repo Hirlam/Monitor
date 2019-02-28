@@ -29,9 +29,8 @@ MKDIR   := mkdir
 RMDIR   := rmdir
 
 # Flags
-FCFLAGS := $(MYFCFLAGS) -I$(ROOTDIR)/inc -module $(ROOTDIR)/$(ARCH)/mod
-#CPPFLAGS := -I$(ROOTDIR)/inc
-CPPFLAGS := -I$(ROOTDIR)/inc -DODB_MONITOR
+FCFLAGS := $(MYFCFLAGS) -module $(ROOTDIR)/$(ARCH)/mod
+CPPFLAGS := 
 
 # depf90mod.x search extensions ( -f is default )
 MODEXTS=-E F90 -E F -E f90 -E -f 

@@ -10,20 +10,11 @@ CCFLAGS := -O3 -g  $(MACHINECPP)
 
 # Fortran
 FC := gfortran
-ifeq "$(strip $(MAKEUP))" "yes"
-  MYFCFLAGS := -O3 -fdefault-real-8 -fbacktrace -g -Wall
-else
-  MYFCFLAGS := -O3 -fbacktrace -g -Wall
-endif
+MYFCFLAGS := -O3 -fdefault-real-8 -fbacktrace -g -Wall
 
 # Modules
 MODNAME = $(shell echo $(*F) | tr "[:upper:]" "[:lower:]")
 MODEXT := mod
-
-ODB_MONITOR   := -DODB_MONITOR
-ODBLIBS_EXTRA := -lpthread
-LD_MPI_DUMMY    = $(AUXLIBS)/libmpidummyR64.a
-LD_NETCDF_DUMMY = $(AUXLIBS)/libnetcdfdummyR64.a
 
 # Link
 LD          := $(FC)
@@ -38,8 +29,8 @@ MKDIR   := mkdir
 RMDIR   := rmdir
 
 # Flags
-FCFLAGS := $(MYFCFLAGS) -I$(ROOTDIR)/inc -I$(ROOTDIR)/$(ARCH)/mod
-CPPFLAGS := -I$(ROOTDIR)/inc $(ODB_MONITOR)
+FCFLAGS := $(MYFCFLAGS) -I$(ROOTDIR)/$(ARCH)/mod
+CPPFLAGS := 
 
 # depf90mod.x search extensions ( -f is default )
 MODEXTS=-E F90 -E F -E f90 -E -f 

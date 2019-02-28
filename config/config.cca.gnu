@@ -20,11 +20,6 @@ endif
 MODNAME = $(shell echo $(*F) | tr "[:upper:]" "[:lower:]")
 MODEXT := mod
 
-ODB_MONITOR   := -DODB_MONITOR
-ODBLIBS_EXTRA := -lpthread
-LD_MPI_DUMMY    = $(AUXLIBS)/libmpi_serial.a
-LD_NETCDF_DUMMY = -L/opt/cray/netcdf/4.3.0/GNU/48/lib/ -lnetcdf -lnetcdff
-
 # Link
 LD          := $(FC)
 LDFLAGS     := -O3 -fbacktrace -g -Wall -Werror -fopenmp
@@ -38,8 +33,8 @@ MKDIR   := mkdir
 RMDIR   := rmdir
 
 # Flags
-FCFLAGS := $(MYFCFLAGS) -I$(ROOTDIR)/inc -I$(ROOTDIR)/$(ARCH)/mod
-CPPFLAGS := -I$(ROOTDIR)/inc $(ODB_MONITOR)
+FCFLAGS := $(MYFCFLAGS) -I$(ROOTDIR)/$(ARCH)/mod
+CPPFLAGS := 
 
 # depf90mod.x search extensions ( -f is default )
 MODEXTS=-E F90 -E F -E f90 -E -f 

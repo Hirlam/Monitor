@@ -16,9 +16,6 @@ MYFCFLAGS := -O3 -fbacktrace -g -Wall
 MODNAME = $(shell echo $(*F) | tr "[:upper:]" "[:lower:]")
 MODEXT := mod
 
-ODB_MONITOR   := 
-ODBLIBS_EXTRA := 
-
 # Link
 LD          := $(FC)
 LDFLAGS     := -O3 -fbacktrace -g -Wall -Werror
@@ -32,8 +29,8 @@ MKDIR   := mkdir
 RMDIR   := rmdir
 
 # Flags
-FCFLAGS := $(MYFCFLAGS) -I$(ROOTDIR)/inc -I$(ROOTDIR)/$(ARCH)/mod
-CPPFLAGS := -I$(ROOTDIR)/inc
+FCFLAGS := $(MYFCFLAGS) -I$(ROOTDIR)/$(ARCH)/mod
+CPPFLAGS := 
 
 # depf90mod.x search extensions ( -f is default )
 MODEXTS=-E F90 -E F -E f90 -E -f 
