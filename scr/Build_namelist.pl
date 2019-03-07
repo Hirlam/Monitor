@@ -51,7 +51,7 @@
  # Define experiments, obs and modelpath
  #
 
- $dexp = $ENV{EXP} unless ( $ENV{DISPLAY_EXP} ) ;
+ $dexp = $ENV{DISPLAY_EXP} or $dexp = $ENV{EXP} ;
 
  @modpath = split(' ',$ENV{MODPATH}) ;
  @exp     = split(' ',$ENV{EXP}) ;
