@@ -67,8 +67,7 @@
  $nameread{'read_section'}{'MODPATH'}=$modpath ;
  $nameread{'read_section'}{'OBINT'}=$obint;
  $nameread{'read_section'}{'FCINT'}=$ENV{'FCINT_'.$type};
- $nameread{'read_section'}{'FCLEN'}=join(',',split(' ',$ENV{'FCLEN_READ_'.$type})) or
- $nameread{'read_section'}{'FCLEN'}=join(',',split(' ',$ENV{'FCLEN_'.$type})) ;
+ $nameread{'read_section'}{'FCLEN'}=join(',',split(' ',$ENV{'FCLEN_'.$type.'_READ'})) ;
 
  #
  # Define variables
@@ -98,6 +97,7 @@
        $nameread{'read_section'}{'DATA_SOURCE'} = '\'vfld_temp\'';
     };
 
+    $selectionloop{'GEN'}{'USE_FCLEN'} = join(',',split(' ',$ENV{FCLEN_TEMP})) ;
     $selectionloop{'TIME'}{'USE_FCLEN'} = join(',',split(' ',$ENV{FCLEN_TEMP_TIME})) ;
 
  } else {
@@ -114,6 +114,7 @@
        $nameread{'read_section'}{'DATA_SOURCE'} = '\'vfld\'';
     };
 
+    $selectionloop{'GEN'}{'USE_FCLEN'} = join(',',split(' ',$ENV{FCLEN_SURF})) ;
     $selectionloop{'TIME'}{'USE_FCLEN'} = join(',',split(' ',$ENV{FCLEN_SURF_TIME})) ;
 
  };
