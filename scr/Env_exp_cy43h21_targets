@@ -1,0 +1,265 @@
+#
+# Main definition file for HARMONIE verification package
+#
+
+# Path to binaries, scripts and WebgraF page
+BASE=$( dirname $PWD )
+
+# Definition of BIN,SCR and WRK directory
+BIN=$BASE/bin
+SCR=$BASE/scr
+WRK=$BASE/wrk
+
+# Experiment names and paths,should be space separated
+DBASE=$BASE/data/
+EXP="trunk_ver"
+DISPLAY_EXP="$EXP"
+OBSPATH=$DBASE
+P1=$DBASE/
+MODPATH="$P1"
+
+# Project name, will be the name on the web page
+PROJECT="EXP_DOMAIN"
+
+# Explanation on webpage
+HELP="Observation verification comparison between \
+      <br> cy43h2.1 tgx \
+      <br> cy40h1.1.1 \
+     "
+
+
+# Date handling
+# PERIOD_TYPE 1 : SDATE - EDATE, 
+#             2 : SDATE - EDATE in monthly pieces
+#             3 : SDATE - EDATE in monthly pieces per year
+#
+# PERIOD_FREQ   : Freqency for PERIOD_TYPE=3
+#             3 : Seasonal ( DJF,MAM,JJA,SON )
+#         other : Number of months in period
+# 
+# IDATE is the very first date for PERIOD_TYPE=2 it determines the 
+# lentght of the date menu in WebgraF
+#
+PERIOD_TYPE=1
+PERIOD_FREQ=1
+
+SDATE=20171001
+EDATE=20171010
+IDATE=$SDATE
+
+#
+# Single stations can be defined with comma separated
+# station number and a text for the web page
+#
+# STNLIST_PLOT="00002574,00006348"
+# STNLIST_PLOT_TXT="NORRKOPING,CABAUW"
+#
+STNLIST_PLOT=-1
+STNLIST_PLOT_TXT=-1
+
+######################
+# Surface parameters #
+######################
+#
+# Change in the file plotdefs.pm for text and limits
+#
+# PS : Mslp
+# SPS : Station pressure
+# TT : T2m
+# TTHA : T2m, adjusted for model and observation station height differences
+# TN : Min T2m
+# TX : Max T2m
+# TD : Td2m
+# TDD : Td2m deficit ( TT - TD )
+# FF : Wind speed
+# FX : Max wind speed
+# GG : Wind gust
+# GX : Max wind gust
+# DD : Wind direction
+# QQ : Specific humidity
+# RH : Relative humidity
+# PE1 : Precipitation 1h
+# PE3 : Precipitation 3h
+# PE6 : Precipitation 6h
+# PE|PE12 : Precipitation 12h
+# PE24 : Precipitation 24h
+# NN : Total Cloud cover
+# VI : Visibility, not in vfld files yet
+#
+
+# Active parameters
+SURFPAR="PS FF GX DD TT TTHA TTP1 TN TX TD RH RHP1 QQ TDD NN PE1 PE12 VI"
+
+# Things to plot:
+# GEN    : General forcast length statistics
+# TIME   : Timeserie statistics
+# SCAT   : Scatterplot
+# MAP    : Bias maps
+# FREQ   : Frequency plots
+# DAYVAR : Daily variation
+# XML    : Station statistics in xml format
+# CONT   : Contingency tables
+# VERT   : Vertical profiles only available for TEMP data
+# SEAS   : Seasonal cycle
+# 
+SURFPLOT="GEN TIME MAP FREQ SCAT CONT XML DAYVAR"
+
+# Select skill scores to be plotted if CONT is activated in SURFPLOT
+# Frequency     : Frequency
+# Frequencybias : Frequency bias
+# POD           : Probability of detection ( hit rate )
+# PODC          : Probability of detection ( hit rate ), compilmentary class
+# FAR           : False alarm ratio
+# FARC          : False alarm ratio, complimentary class
+# FA            : False alarm rate
+# TS            : Threath score
+# WILSON        : Wilson diagram, a combination of POD, TS, FAR and frequency bias
+# KSS           : Hansen-Kupiers skill score
+# AI            : Area index
+# EDS           : Extreme Dependency Score
+# SEDS          : Symmetric Extreme Dependency Score
+# EDI           : Extremal Dependency Index
+# SEDI          : Symmetric Extremal Dependency Index
+# ETS           : Equitable threat score
+# HEI           : Heidke skill score or Doolittle second score
+# COR           : Correlation or square root of Doolittle first score
+
+SCORELIST="Frequency Frequencybias POD PODC FAR FARC FA TS WILSON KSS AI EDS SEDS SEDI ETS HEI COR"
+
+# Select whether skill scores are based on classes and/or thresholds (CONT must be activated)
+SCORETYPES="classes thresholds"
+
+# Selection for surface verification as defined in selection.pm
+# Note that XML statistics will be defined for the
+# first selection only
+#
+# In addition to ALL please include a few sub areas, e.g. based on altitude intervals
+#SURFSELECTION="ALL masl_0-200m masl_200-600m masl_600-1000m"
+SURFSELECTION="ALL"
+
+# Interval in hours between observations
+OBINT_SURF=01
+
+# Assimilation cycle interval
+FCINT_SURF=12
+
+# List of initial times, use ALL or specific times
+SURFINI_HOURS="ALL"
+
+# Forecast lengths to read from vfld files
+FCLEN_SURF_READ="00 01 02 03 04 05 06 07 08 09 \
+                 10 11 12 13 14 15 16 17 18 19 \
+                 20 21 22 23 24 25 26 27 28 29 \
+                 30 31 32 33 34 35 36 37 38 39 \
+                 40 41 42 43 44 45 46 47 48"
+
+# Use analysis at +00h, set per experiment
+USE_ANALYSIS=".TRUE.,.TRUE.,.TRUE.,.TRUE.,.TRUE."
+
+# Forecast lengths used for GEN verification
+# Use every hour in the begnning and every 3rd hour after that
+FCLEN_SURF="00 01 02 03 06 09 12 15 18 21 24 30 36 42 48"
+
+# Forecast lengths used in daily variation calculations
+# Avoid any spinup after analysis by looking at the interval 24-36 hours
+FCLEN_DAYVAR="24 25 26 27 28 29 30 31 32 33 34 35 36"
+
+# Forecast lengths used in scatter/frequency plots
+# and contingency tables. Keep the number of used forecast
+# lengths reasonable
+# Avoid any spinup after analysis by looking at the interval 24-36 hours
+FCLEN_SCAT="24 25 26 27 28 29 30 31 32 33 34 35 36"
+
+# Forecast lengths used in timeserie plots
+# Avoid first 2 hours after analysis and then look at interval 3-14 hours
+FCLEN_SURF_TIME="03 04 05 06 07 08 09 10 11 12 13 14"
+
+# Forecast lengths used in maps
+# Avoid any spinup after analysis by looking at the interval 24-36 hours
+FCLEN_MAP="24 25 26 27 28 29 30 31 32 33 34 35 36"
+
+########################
+# Upper air parameters #
+########################
+#
+# Change in the file plotdefs.pm for text and limits
+#
+# TT : Temperature
+# TD : Dew point temperature
+# FF : Wind speed
+# DD : Wind direction
+# QQ : Specific humidity
+# RH : Relative humidity
+# FI : Geopotential
+#
+
+TEMPPAR="TT TD FF DD FI RH QQ"
+
+TEMPPLOT="GEN TIME VERT"
+
+# Interval in hours between observations
+OBINT_TEMP=12
+# Assimilation cycle interval
+FCINT_TEMP=12
+
+# List of initial times, use ALL or specific times
+TEMPINI_HOURS="ALL 00 12"
+
+# Forecast lengths used for verification
+FCLEN_TEMP="00 06 12 18 24 36 42 48"
+
+# Forecast lengths used for vertical profiles
+FCLEN_TEMP_VERT="06 12 18 24 36 42 48"
+
+# Forecast lengths used in timeserie plots
+FCLEN_TEMP_TIME="24"
+
+# TEMP levels to be verified
+LEV_LST="925 850 700 500 300 200 150 100 50"
+# TEMP levels for TD and RH are limited to lower ones
+LEV_LST_TD="925 850 700 500 300 "
+LEV_LST_RH="925 850 700 500 300 "
+
+
+# Selection for TEMP verification
+# Note that XML statistics will be defined for the
+# first selection only
+TEMPSELECTION="ALL"
+
+# Select output_type
+# 1  Postscript + PNG
+# 2  PNG
+# 3  JPEG
+# 4  SVG
+OUTPUT_TYPE=2
+
+# Run all parameters in one go
+# Impossible if you have a long period/large number of stations
+# or several parameters
+ALL_AT_ONCE=yes
+# Number of parameters in each block if ALL_AT_ONCE=no
+# The default value is half of the surface variables
+PAR_PER_BLOCK=$(( $( echo $SURFPAR | wc | awk '{print $2}' ) / 2 + 1 ))
+
+
+# WebgraF call, set WEBCALL empty if not used
+WEBGRAF_BASE=$BASE/WebgraF
+WEBCALL="$BASE/WebgraF/bin/WebgraF -p $PROJECT"
+
+# Export all variables
+export PROJECT WEBCALL WEBGRAF_BASE BASE BIN IDATE SDATE EDATE HELP SCR WRK
+export OUTPUT_TYPE PERIOD_TYPE PERIOD_FREQ
+export LEV_LST LEV_LST_RH LEV_LST_TD SURFPAR TEMPPAR 
+export OBINT_SURF FCINT_SURF 
+export FCLEN_SURF FCLEN_DAYVAR FCLEN_SCAT FCLEN_SURF_TIME
+export OBINT_TEMP FCINT_TEMP FCLEN_TEMP FCLEN_TEMP_VERT FCLEN_TEMP_TIME
+export SURFPLOT TEMPPLOT
+export STNLIST_PLOT STNLIST_PLOT_TXT
+export ALL_AT_ONCE
+export SCORELIST SCORETYPES
+export SURFINI_HOURS TEMPINI_HOURS PAR_PER_BLOCK
+export EXP DISPLAY_EXP USE_ANALYSIS
+
+###########################
+# End of definitions
+###########################
