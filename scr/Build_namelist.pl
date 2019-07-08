@@ -67,7 +67,8 @@
  $nameread{'read_section'}{'MODPATH'}=$modpath ;
  $nameread{'read_section'}{'OBINT'}=$obint;
  $nameread{'read_section'}{'FCINT'}=$ENV{'FCINT_'.$type};
- $nameread{'read_section'}{'FCLEN'}=join(',',split(' ',$ENV{'FCLEN_'.$type.'_READ'})) ;
+ $nameread{'read_section'}{'FCLEN'}=join(',',split(' ',$ENV{'FCLEN_'.$type.'_READ'})) or
+ $nameread{'read_section'}{'FCLEN'}=join(',',split(' ',$ENV{'FCLEN_'.$type})) ; 
 
  #
  # Define variables
