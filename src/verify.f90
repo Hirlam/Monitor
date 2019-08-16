@@ -40,7 +40,7 @@ SUBROUTINE verify
  ! Local
  !
 
- INTEGER :: i,j,k,l,n,nn,o,oo,ii,                       &
+ INTEGER :: i,j,k,l,n,nn,nu,o,oo,ii,                    &
             jj,jjstart,jjcheck(nfclengths),             &
             tim_ind,                                    &
             mindate(maxstn),maxdate(maxstn),            &
@@ -388,10 +388,13 @@ SUBROUTINE verify
      ! Cycle if this init hour should not be used
      IF ( .NOT. ANY( ini_hours == hir(i)%o(j)%time ) ) CYCLE J_CYCLE
 
+     nu = 0
      FC_CYCLE : DO n=1,nfclengths
 
+       IF ( .NOT. ANY(use_fclen == fclen(n)) ) CYCLE FC_CYCLE
+       nu = nu + 1
        IF (lprint_verif) THEN
-          WRITE(6,*)' FC TIME',i,j,n    
+          WRITE(6,*)' FC TIME',i,j,n,nu
           WRITE(6,*)' FC TIME',hir(i)%o(j)%date,hir(i)%o(j)%time
           WRITE(6,*)' FC TIME',fclen(n)
        ENDIF
@@ -734,7 +737,7 @@ SUBROUTINE verify
                    ! Accumulate significance statistics
                    !
 
-                   CALL add_sign_stat(hir(i)%o(j)%date,hir(i)%o(j)%time,n,k,nexp,tmpdiff)
+                   CALL add_sign_stat(hir(i)%o(j)%date,hir(i)%o(j)%time,nu,k,nexp,tmpdiff)
 
                 ENDIF
 
