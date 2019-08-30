@@ -427,6 +427,7 @@ if ( $TRANSPORT =~ /true/) {
       $XPORT=$CALLDIR."/".$PROJECT."___".$ENTRY."___transport.tar" ;
       system("tar cf $XPORT *") ;
    } ;
+   print " Your verification results are stored in $XPORT\n\n";
    exit ;
 } ;
 

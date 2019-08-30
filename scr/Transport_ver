@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ $# -eq 1 ] ; then
+if [ $# -ge 1 ] ; then
    ENV_EXP=$1
 else
    echo "Please give an Env_exp file"
@@ -11,13 +11,16 @@ fi
 . $ENV_EXP  || { echo "Could not source $ENV_EXP" ; exit 1 ; }
 [[ $WEBCALL == "" ]] && exit 1
 
-$WEBCALL -x
+webargs=""
+for arg in $*; do
+  case $arg in
+   "-x"|"-t")
+    webargs="$webargs $arg"
+  esac
+done;
 
-echo
-echo "Your verification results are stored in $PWD/${PROJECT}_export.tar"
-echo "Copy to your local machine, untar and open ${PROJECT}_export/index.html in your browser"
+[[ $webargs == "" ]] && webargs="-x -t"
 
-$WEBCALL -t
-
-echo
-echo "Your verification results are stored in $PWD/${PROJECT}___transport.tar"
+for arg in $webargs ; do
+ $WEBCALL $arg
+done 

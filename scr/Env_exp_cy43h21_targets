@@ -88,7 +88,7 @@ STNLIST_PLOT_TXT=-1
 #
 
 # Active parameters
-SURFPAR="PS FF GX DD TT TTHA TTP1 TN TX TD RH RHP1 QQ TDD NN PE1 PE12 VI"
+SURFPAR="PS FF GX DD TT TTHA TN TX TD RH QQ TDD NN PE1 PE12 VI"
 
 # Things to plot:
 # GEN    : General forcast length statistics
@@ -102,7 +102,7 @@ SURFPAR="PS FF GX DD TT TTHA TTP1 TN TX TD RH RHP1 QQ TDD NN PE1 PE12 VI"
 # VERT   : Vertical profiles only available for TEMP data
 # SEAS   : Seasonal cycle
 # 
-SURFPLOT="GEN TIME MAP FREQ SCAT CONT XML DAYVAR"
+SURFPLOT="GEN TIME MAP SCAT CONT XML DAYVAR"
 
 # Select skill scores to be plotted if CONT is activated in SURFPLOT
 # Frequency     : Frequency
@@ -162,21 +162,21 @@ FCLEN_SURF="00 01 02 03 06 09 12 15 18 21 24 30 36 42 48"
 
 # Forecast lengths used in daily variation calculations
 # Avoid any spinup after analysis by looking at the interval 24-36 hours
-FCLEN_DAYVAR="24 25 26 27 28 29 30 31 32 33 34 35 36"
+FCLEN_DAYVAR="25 26 27 28 29 30 31 32 33 34 35 36"
 
 # Forecast lengths used in scatter/frequency plots
 # and contingency tables. Keep the number of used forecast
 # lengths reasonable
 # Avoid any spinup after analysis by looking at the interval 24-36 hours
-FCLEN_SCAT="24 25 26 27 28 29 30 31 32 33 34 35 36"
+FCLEN_SCAT="25 26 27 28 29 30 31 32 33 34 35 36"
 
 # Forecast lengths used in timeserie plots
 # Avoid first 2 hours after analysis and then look at interval 3-14 hours
-FCLEN_SURF_TIME="03 04 05 06 07 08 09 10 11 12 13 14"
+FCLEN_SURF_TIME="07 08 09 10 11 12 13 14 15 16 17 18"
 
 # Forecast lengths used in maps
 # Avoid any spinup after analysis by looking at the interval 24-36 hours
-FCLEN_MAP="24 25 26 27 28 29 30 31 32 33 34 35 36"
+FCLEN_MAP="25 26 27 28 29 30 31 32 33 34 35 36"
 
 ########################
 # Upper air parameters #

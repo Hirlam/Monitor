@@ -138,7 +138,7 @@ if [ `echo $TEMPPLOT | grep -c VERT` -gt 0 -a $DIR = "TEMP" ] ; then
       echo "Convert postscript to png..."
       for F in $( ls -1 *.ps ) ; do
          FF=$( basename $F .ps )
-         convert -resize 100% rotate -90 $FF.ps $FF.png
+         convert -resize 100% -rotate 90 -flatten $FF.ps $FF.png 
       done
    fi 
    $WEBCALL -e ${ENTRY}_prof -fm $PWD/
@@ -156,7 +156,7 @@ if [ $OUTPUT_TYPE -eq 1 ] ; then
    echo "Convert postscript to png..."
    for F in $( $SCR/Create_file_list.pl .ps ) ; do
       FF=$( basename $F .ps )
-      convert -resize 100% -rotate 90 $FF.ps $FF.png
+      convert -resize 100% -rotate 90 -flatten $FF.ps $FF.png
    done
 fi
 
