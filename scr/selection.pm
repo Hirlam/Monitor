@@ -377,6 +377,14 @@
   'Greenland' => {
    'STNLIST'=> '4208,4214,4220,4242,4250,4253,4260,4266,4272,4285,4320,4351,4373',
    },
+  'Ireland' => {
+
+   'CBOX%ACTIVE' => 'T',
+   'CBOX%SLAT' => '51',
+   'CBOX%WLON' => '-11.',
+   'CBOX%NLAT' => '55.5',
+   'CBOX%ELON' => '-5',
+   },
   'IrelandEngland' => {
    'CBOX%ACTIVE' => 'T',
    'CBOX%SLAT' => '50.',
