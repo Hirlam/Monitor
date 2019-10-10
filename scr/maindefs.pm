@@ -1,3 +1,13 @@
+sub Env_or {
+    my($var,$default) = @_;
+    if (exists $ENV{$var}) {
+        return $ENV{$var} . ',';
+    } else {
+        $default = '0' unless $default;
+        return "$default" . ',';
+    }
+}
+
 
 %nameread=(
  'read_section' => {
@@ -29,6 +39,7 @@
   'def' => {
      'LVERIFY'=>'T',
      'LSIGN_TEST'=>'F',
+     'LSIGN_TEST_JOINT'=>'F',
      'LPLOT_VERT'=>'F',
      'LPLOT_FREQ'=>'F',
      'LPLOT_SCAT'=>'F',
@@ -65,6 +76,7 @@
  # Fclen plots
  'LSTAT_GEN'  => 'T',
  'LSIGN_TEST' => 'T',
+ 'LSIGN_TEST_JOINT' =>  &Env_or('SIGN_TEST_JOINT','F'),
  'CONFINT'    => '90.',
  'SIGN_TIME_DIFF' => '-1',
  'LPLOT_STAT' => 'T',

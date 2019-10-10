@@ -138,6 +138,7 @@ SCAN_INPUT: foreach $input_file (@FILES) {
         if ( $_ =~ /#XMAX/   ) { @tmp = split (' ',$_ ) ; $xmax   = $tmp[1]; next SCAN_FILE; }
         if ( $_ =~ /#YMIN/   ) { @tmp = split (' ',$_ ) ; $ymin   = $tmp[1]; next SCAN_FILE; }
         if ( $_ =~ /#YMAX/   ) { @tmp = split (' ',$_ ) ; $ymax   = $tmp[1]; next SCAN_FILE; }
+        if ( $_ =~ /#EXPNAMES/ ) { @expnames = split (' ',$_ ) ; shift @expnames ;}
 
         if ( $_ =~ /#HEADING/ ) {
             $heading = substr( $_, 11 );
@@ -252,7 +253,7 @@ SCAN_INPUT: foreach $input_file (@FILES) {
 
     PLOT_TYPES: {
 
-        if ( $prefix =~ /sign/ ) {
+        if ( $prefix =~ /sign/ || $prefix =~ /jsign/ ) {
             &plot_sign;
             last PLOT_TYPES;
         }
@@ -304,6 +305,7 @@ SCAN_INPUT: foreach $input_file (@FILES) {
 #################################################################
 sub plot_sign {
 
+ $sign_test_joint = $ENV{SIGN_TEST_JOINT} or $sign_test_joint = 'F';
 print GP <<EOF;
 set xtics 0,$xticinc,$xticmax
 EOF
@@ -322,9 +324,25 @@ set y2tics 0,1000
 EOF
   } ;
 
-   $plot = "plot '$input_file' notitle with errorbars lw 4, ";
-   $plot = $plot . "'$input_file' using 1:2 notitle with linespoints lw $lw, ";
-   $plot = $plot . "'${input_file}n' using 1:2 axes x1y2 title 'Cases' with linespoints lt 0 lw $lw ";
+ if ( $sign_test_joint eq 'T' ) {
+  $plot = "plot " ;
+  $i = 0;
+  foreach $exp (@expnames) {
+ 
+   $file = 'sub_'.$input_file.'_'.$exp ;
+   $i++;
+
+   $plot = $plot . "'$file' using 1:2:3 title '$exp' with errorbars lt $col_def_lt[$i] lw $lw, ";
+   $plot = $plot . "'$file' using 1:2 notitle  with lines lt $col_def_lt[$i] lw $lw, ";
+
+  }
+  $plot = $plot . "'${file}' using 1:4 axes x1y2 title 'Cases' with linespoints lt 0 lw $lw ";
+
+ } else {
+  $plot = "plot '$input_file' notitle with errorbars lw $lw, ";
+  $plot = $plot . "'$input_file' using 1:2 notitle with linespoints lw $lw, ";
+  $plot = $plot . "'${input_file}n' using 1:2 axes x1y2 title 'Cases' with linespoints lt 0 lw $lw ";
+ }
 
 }
 #################################################################

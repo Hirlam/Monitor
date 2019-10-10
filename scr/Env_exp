@@ -100,6 +100,9 @@ SURFPAR="PS FF GX DD TT TTHA TN TX TD TDD RH QQ NN PE1 PE3 PE6 PE12 VI"
 # 
 SURFPLOT="GEN TIME MAP SCAT CONT XML DAYVAR"
 
+# Plot all significance tests in the same plot (new) or separate (old)
+SIGN_TEST_JOINT=T
+
 # Select skill scores to be plotted if CONT is activated in SURFPLOT
 # Frequency     : Frequency
 # Frequencybias : Frequency bias
@@ -247,6 +250,7 @@ export ALL_AT_ONCE
 export SCORELIST SCORETYPES
 export SURFINI_HOURS TEMPINI_HOURS PAR_PER_BLOCK
 export EXP DISPLAY_EXP USE_ANALYSIS
+export SIGN_TEST_JOINT
 
 ###########################
 # End of definitions

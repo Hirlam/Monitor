@@ -292,6 +292,7 @@ MODULE data
  !
 
  LOGICAL :: lsign_test       = .FALSE.        ! Perform student-t test
+ LOGICAL :: lsign_test_joint = .FALSE.        ! Put all experiments in one plot
  INTEGER :: control_exp_nr   = 1              ! Which experiment is the control
  INTEGER :: sign_time_diff   = -1             ! Min time difference in days for sign test. -1 implies fcint
  REAL    :: confint          = 90.            ! Confidence interval for significance test
@@ -374,7 +375,8 @@ MODULE data
                  cont_param,                            &
                  cond_param,cond,                       &
                  graphics,                              &
-                 lsign_test,control_exp_nr,             &
+                 lsign_test,lsign_test_joint,           &
+                 control_exp_nr,                        &
                  sign_time_diff,confint,                &
                  lstn_hgt_check,hgt_llim,hgt_ulim
 

@@ -568,6 +568,59 @@ system($web);
 ##################################
 ##################################
 ##################################
+sub jsign {
+#
+# Significance test definition file
+#
+
+open INPUT, "> input.js" ;
+
+print INPUT "
+
+title = '$type significance test'
+
+framec='OliveDrab'
+
+v[0] = ['jsign']
+t[0] = ['Significance']
+v[1] = [$period_v[$period_type]]
+t[1] = [$period_t[$period_type]]
+v[2] = [$stations]
+t[2] = [$stations_txt]
+v[3] = [$selections] ;
+t[3] = v[3] ;
+v[4] = [$partext]
+t[4] = [$text]
+v[5] = [$lev_lst]
+v[5] = v[5].reverse()
+t[5] = v[5]
+v[6] = [$ini_hours] ;
+t[6] = v[6] ;
+
+mname = ['Type','Period','Station','Selection','Parameter','Level','Initial time']
+loc = ['l','l','t','t','l','l','l']
+spec_name =[0,1,2,3,6,4,5]
+$download
+pdir ='$type/'
+ext='$EXT'
+help = '$ENV{HELP}'; hide_help = false ;
+do_send = true ;
+do_show_remember = true ;
+do_remember = true ;
+$xml_txt
+$xml
+" ;
+
+close INPUT ;
+
+$web="$WEBCALL -e ${type}_sign -f input.js";
+print "$web\n";
+system($web);
+
+} ;
+##################################
+##################################
+##################################
 sub finalize_plot {
 
  # Create text for general page (Surface/Temp)
@@ -672,9 +725,16 @@ if ( exists $plots{'MAP'}  ) { &map ;     };
 if ( exists $plots{'CONT'} ) { &cont ;    }; 
 
 if ( exists $selectionloop{'GEN'}{'LSIGN_TEST'} ) {
+   $sign_test_joint = $ENV{SIGN_TEST_JOINT} or $sign_test_joint = 'F';
    if ( exists $plots{'GEN'} && 
         $nexp gt 1           &&  
-        $selectionloop{'GEN'}{'LSIGN_TEST'} eq 'T' ) { &sign ; } ;
+        $selectionloop{'GEN'}{'LSIGN_TEST'} eq 'T' ) { 
+     if ( $sign_test_joint eq 'T' ) {
+       &jsign ; 
+     } else {
+       &sign ; 
+     } ;
+   } ;
 }
 
 # Vertical profiles
