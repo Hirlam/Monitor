@@ -8,6 +8,8 @@
 
 push @INC, "$ENV{SCR}";
 
+require maindefs ;
+
 my $searchdir = "";
 my $vertype = "SURF";
 my $cleantxt = 0 ;
@@ -253,33 +255,33 @@ SCAN_INPUT: foreach $input_file (@FILES) {
 
     PLOT_TYPES: {
 
-        if ( $prefix =~ /sign/ || $prefix =~ /jsign/ ) {
+        if ( $prefix =~ /^($plot_prefix[12]|$plot_prefix[13])\b/ ) {
             &plot_sign;
             last PLOT_TYPES;
         }
-        if ( $prefix =~ /ps/ || $prefix =~ /PS/ ) {
+        if ( $prefix =~ /^($plot_prefix[2]|$plot_prefix[3])\b/ ) {
             &timeserie;
             last PLOT_TYPES;
         }
-        if ( $prefix =~ /v/ || $prefix =~ /V/ || $prefix =~ /y/ || $prefix =~ /Y/ ) {
+        if ( $prefix =~ /^($plot_prefix[0]|$plot_prefix[1]|$plot_prefix[11])\b/ ) {
             &gen_stat;
             last PLOT_TYPES;
         }
-        if ( $prefix =~ /l/ || $prefix =~ /L/ ) {
+        if ( $prefix =~ /^($plot_prefix[4]|$plot_prefix[5])\b/ ) {
             &plot_vert;
             last PLOT_TYPES;
         }
-        if ( $prefix =~ /f/ || $prefix =~ /F/ ) {
+        if ( $prefix =~ /^$plot_prefix[8]\b/ ) {
             &plot_freq;
             last PLOT_TYPES;
         }
-        if ( $prefix =~ /s/ || $prefix =~ /S/ || $prefix =~ /x/ || $prefix =~ /X/ ) {
+        if ( $prefix =~ /^($plot_prefix[9]|$plot_prefix[10])\b/ ) {
             $xrange="[$xmin:$xmax]";
             $yrange="[$ymin:$ymax]";
             &plot_scat;
             last PLOT_TYPES;
         }
-        if ( $prefix =~ /m/ || $prefix =~ /M/ ) {
+        if ( $prefix =~ /^($plot_prefix[6]|$plot_prefix[7])\b/ ) {
             &plot_map;
             last PLOT_TYPES;
         }
@@ -514,7 +516,9 @@ EOF
         };
     }
 
-    if ( $prefix =~ /s/ || $prefix =~ /S/ ) { $plot = $plot . ", x notitle with lines lt -1"; } ;
+    if ( $prefix =~ /^($plot_prefix[9]|$plot_prefix[10])\b/ ) {
+       $plot = $plot . ", x notitle with lines lt -1"; 
+    }
 
 }
 #################################################################

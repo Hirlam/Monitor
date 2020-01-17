@@ -15,6 +15,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
                   show_var,show_skw,show_mabe,                  &
                   period_freq,period_type,                      &
                   output_type,lprint_seasonal,err_ind,          &
+                  plot_prefix,                                  &
                   cini_hours,exp_offset
 
  IMPLICIT NONE
@@ -63,7 +64,7 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
  CHARACTER(LEN=100) :: wtext1=' '
  CHARACTER(LEN=100) :: fname=' '
  CHARACTER(LEN= 30) :: wname=' '
- CHARACTER(LEN= 10) :: prefix = ' '
+ CHARACTER(LEN=20)  :: prefix = ' '
  CHARACTER(LEN=  6) :: ctype(4) = ' '
  CHARACTER(LEN=30 ) :: cform='   '
 
@@ -284,12 +285,12 @@ SUBROUTINE print_stat2(lunout,nexp,nparver,ntimver,   &
 
     IF (lfcver) THEN
        IF ( lprint_seasonal ) THEN
-          prefix = 'Y'
+          prefix = TRIM(plot_prefix(12))
        ELSE
-          prefix = 'V'
+          prefix = TRIM(plot_prefix(1))
        ENDIF
     ELSE
-       prefix = 'v'
+       prefix = TRIM(plot_prefix(2))
     ENDIF
 
     SELECT CASE(TRIM(ctype(n)))

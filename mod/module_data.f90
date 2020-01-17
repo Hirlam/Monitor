@@ -297,6 +297,26 @@ MODULE data
  INTEGER :: sign_time_diff   = -1             ! Min time difference in days for sign test. -1 implies fcint
  REAL    :: confint          = 90.            ! Confidence interval for significance test
 
+ ! Plot prefix
+
+ INTEGER, PARAMETER :: prefix_len = 5
+ CHARACTER(LEN=prefix_len) :: plot_prefix(14) = &
+                                       (/'V    ', &
+                                         'v    ', &
+                                         'ps   ', &
+                                         'PS   ', &
+                                         'L    ', &
+                                         'l    ', &
+                                         'm    ', &
+                                         'M    ', &
+                                         'f    ', &
+                                         's    ', &
+                                         'x    ', &
+                                         'v    ', &
+                                         'sign ', &
+                                         'jsign'/)
+
+
  !
  ! Namelist 
  !
@@ -378,6 +398,7 @@ MODULE data
                  lsign_test,lsign_test_joint,           &
                  control_exp_nr,                        &
                  sign_time_diff,confint,                &
+                 plot_prefix,                           &
                  lstn_hgt_check,hgt_llim,hgt_ulim
 
 

@@ -128,9 +128,10 @@ if [ `echo $TEMPPLOT | grep -c VERT` -gt 0 -a $DIR = "TEMP" ] ; then
    #
    # Vertical profiles
    #
+   ppp=$( cat $SCR/ppp )
 
    mkdir vert 
-   mv l*.ps l*.png l*.jpg l*.svg vert/.
+   mv ${ppp}*.ps ${ppp}*.png ${ppp}*.jpg ${ppp}*.svg vert/.
    cp *.html *.xml *.xsl vert/.
 
    cd vert

@@ -69,6 +69,12 @@
  $nameread{'read_section'}{'FCINT'}=$ENV{'FCINT_'.$type};
  $nameread{'read_section'}{'FCLEN'}=join(',',split(' ',$ENV{'FCLEN_'.$type.'_READ'})) or
  $nameread{'read_section'}{'FCLEN'}=join(',',split(' ',$ENV{'FCLEN_'.$type})) ; 
+ $nameread{'read_section'}{'PLOT_PREFIX'}= '\''.join('\',\'',@plot_prefix).'\'';
+
+ # Print the plot prefix for profile used by Run_verobs
+ open PPP, ">ppp" ;
+ print PPP "$plot_prefix[5]\n";
+ close PPP;
 
  #
  # Define variables

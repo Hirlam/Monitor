@@ -21,7 +21,7 @@ SUBROUTINE print_freq(lunout,nparver,nr,scat, &
                   mpre_cla,copied_mod,copied_obs,        &
                   period_freq,period_type,               &
                   output_type,len_lab,                   &
-                  cini_hours,exp_offset
+                  cini_hours,exp_offset,plot_prefix
 
  IMPLICIT NONE
 
@@ -77,7 +77,7 @@ SUBROUTINE print_freq(lunout,nparver,nr,scat, &
 
     IF ( output_mode == 2 ) THEN
        wtext = TRIM(tag)//TRIM(cini_hours)
-       CALL make_fname('f',period,nr,wtext,         &
+       CALL make_fname(plot_prefix(9),period,nr,wtext,         &
                        varprop(j)%id,varprop(j)%lev,&
                        output_mode,output_type,     &
                        fname)

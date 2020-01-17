@@ -14,7 +14,7 @@ SUBROUTINE print_joint_sign_test(lunout,nexp,nparver,   &
                   period_freq,period_type,                      &
                   output_type,lprint_seasonal,                  &
                   control_exp_nr,sign_time_diff,err_ind,confint,&
-                  cini_hours,exp_offset
+                  cini_hours,exp_offset,plot_prefix
 
  IMPLICIT NONE
 
@@ -98,9 +98,9 @@ SUBROUTINE print_joint_sign_test(lunout,nexp,nparver,   &
 
       wname = ''
       IF ( i /= control_exp_nr ) THEN
-         prefix = 'sub_jsign'
+         prefix = 'sub_'//TRIM(plot_prefix(14))
       ELSE
-         prefix = 'jsign'
+         prefix = TRIM(plot_prefix(14))
       ENDIF
       IF ( TRIM(tag) /= '#' ) &
       wname = TRIM(tag)//TRIM(cini_hours)

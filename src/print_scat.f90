@@ -17,7 +17,7 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
                   period_freq,period_type,                       &
                   maxfclenval,                                   &
                   scat_min,scat_max,scat_magn,len_lab,           &
-                  lscat_yave,cini_hours,exp_offset
+                  lscat_yave,cini_hours,exp_offset,plot_prefix
  USE functions
 
  IMPLICIT NONE
@@ -50,7 +50,7 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
                        wtext3   =' ', &
                        wtext4   =' ', &
                        titln    =' '
- CHARACTER(LEN=  1) :: prefix   =' '
+ CHARACTER(LEN=  5) :: prefix   =' '
  CHARACTER(LEN= 80) :: title    =' '
 
  CHARACTER(LEN=100), ALLOCATABLE :: axist(:,:)
@@ -70,7 +70,7 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
  !
 
  IF ( full_scatter ) THEN
-    prefix ='s'
+    prefix = TRIM(plot_prefix(10))
     titln = 'Scatterplot'
     lcorr_pairs = 0 
     lflag_pairs = 1
@@ -81,7 +81,7 @@ SUBROUTINE print_scat(lunout,nparver,nr,             &
     ENDDO
     len_loop = nparver
  ELSE
-    prefix ='x'
+    prefix = TRIM(plot_prefix(11))
     titln = 'Xcrossplot'
     lcorr_pairs = corr_pairs
     lflag_pairs = flag_pairs

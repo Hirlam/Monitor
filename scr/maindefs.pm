@@ -139,3 +139,48 @@ sub Env_or {
  },
 
 );
+
+@default_plot_prefix = (
+
+ 'V',       # 1  Lead time
+ 'v',       # 2  Daily cycle
+ 'ps',      # 3  Timeserie
+ 'PS',      # 4  Timeserie diff
+ 'L',       # 5  Profile by lead time
+ 'l',       # 6  Profile by valid hour
+ 'm',       # 7  Maps by valid hour
+ 'M',       # 8  Maps by lead time
+ 'f',       # 9  Frequency
+ 's',       # 10 Scatter
+ 'x',       # 11 Scatter diff
+ 'Y',       # 12 Seasonal
+ 'sign',    # 13 Significance
+ 'jsign'    # 14 Significance joint plots
+
+);
+@custom_plot_prefix = (
+
+ 'a',       # 1  Lead time
+ 'b',       # 2  Daily cycle
+ 'c',       # 3  Timeserie
+ 'd',       # 4  Timeserie diff
+ 'e',       # 5  Profile by lead time
+ 'f',       # 6  Profile by valid hour
+ 'g',       # 7  Maps by valid hour
+ 'h',       # 8  Maps by lead time
+ 'i',       # 9  Frequency
+ 'j',       # 10 Scatter
+ 'k',       # 11 Scatter diff
+ 'l',       # 12 Seasonal
+ 'm',       # 13 Significance
+ 'n'        # 14 Significance joint plots
+
+);
+
+if ( $ENV{CUSTOM_PLOT_PREFIX} ) {
+  @plot_prefix = @custom_plot_prefix ;
+ } else {
+  @plot_prefif = @default_plot_prefix ;
+};
+
+;

@@ -175,7 +175,7 @@ print INPUT "
 title = 'Vertical profiles'
 framec='Tomato'
 
-v[0] = ['l']
+v[0] = ['$plot_prefix[5]']
 t[0] = ['diff']
 v[1] = [$period_v[$period_type]]
 t[1] = [$period_t[$period_type]]
@@ -264,10 +264,10 @@ sub map {
  $mpt ='\''.join('\',\'',@mpt).'\'';
 
  if ( $selectionloop{'MAP'}{'LFCVER'} eq 'T' ) {
-    $map_prefix ='\'M\'' ;
+    $map_prefix ='\''.$plot_prefix[7].'\'' ;
     $map_hour_title ='\'Fclen\'' ;
  } else {
-    $map_prefix ='\'m\'' ;
+    $map_prefix ='\''.$plot_prefix[6].'\'' ;
     $map_hour_title ='\'Hour\'' ;
  } ;
 
@@ -463,7 +463,7 @@ title = '$type scatterplots'
 
 framec='lightcoral'
 
-v[0] = ['s']
+v[0] = ['$plot_prefix[9]']
 t[0] = ['Full scatter']
 v[1] = [$period_v[$period_type]]
 t[1] = [$period_t[$period_type]]
@@ -526,7 +526,7 @@ title = '$type significance test'
 
 framec='OliveDrab'
 
-v[0] = ['sign']
+v[0] = ['$plot_prefix[12]']
 t[0] = ['Significance']
 v[1] = [$period_v[$period_type]]
 t[1] = [$period_t[$period_type]]
@@ -581,7 +581,7 @@ title = '$type significance test'
 
 framec='OliveDrab'
 
-v[0] = ['jsign']
+v[0] = ['$plot_prefix[13]']
 t[0] = ['Significance']
 v[1] = [$period_v[$period_type]]
 t[1] = [$period_t[$period_type]]
@@ -631,18 +631,18 @@ sub finalize_plot {
 
  if ( exists $plots{'GEN'} ) {
 
-   @plottype     = (@plottype,'V');
+   @plottype     = (@plottype,$plot_prefix[0]);
    @plottype_txt = (@plottype_txt,'Fc length ver') ; 
  
    if ( exists $selectionloop{'GEN'}{'SHOW_VAR'} ) {
       if ( $selectionloop{'GEN'}{'SHOW_VAR'} eq 'T' ) {
-	 @plottype     = (@plottype,'V_VAR',);
+	 @plottype     = (@plottype,@plot_prefix[0].'_VAR',);
 	 @plottype_txt = (@plottype_txt,'Fc length var') ; 
      };
    } ;
    if ( exists $selectionloop{'GEN'}{'SHOW_SKW'} ) {
       if ( $selectionloop{'GEN'}{'SHOW_SKW'} eq 'T' ) {
-	 @plottype     = (@plottype,'V_SKW');
+	 @plottype     = (@plottype,@plot_prefix[0].'_SKW');
 	 @plottype_txt = (@plottype_txt,'Fc length skw') ; 
      };
    } ;
@@ -650,27 +650,27 @@ sub finalize_plot {
  } ;
 
  if ( exists $plots{'SEAS'} ) {
-	 @plottype     = (@plottype,'Y');
+	 @plottype     = (@plottype,$plot_prefix[11]);
 	 @plottype_txt = (@plottype_txt,'Seasonal') ; } ;
  if ( exists $plots{'TIME'} ) { 
-	 @plottype     = (@plottype,'PS','ps');
+	 @plottype     = (@plottype,$plot_prefix[3],$plot_prefix[2]);
 	 @plottype_txt = (@plottype_txt,'Timeserie stat','Timeserie'); } ;
  if ( exists $plots{'FREQ'} ) { 
-	 @plottype     = (@plottype,'f') ;
+	 @plottype     = (@plottype,$plot_prefix[8]) ;
 	 @plottype_txt = (@plottype_txt,'Freq dist.') ; } ;
  if ( exists $plots{'DAYVAR'} ) {
-	 @plottype     = (@plottype,'v') ;
+	 @plottype     = (@plottype,$plot_prefix[1]) ;
 	 @plottype_txt = (@plottype_txt,'Dayvar') ;
 
    if ( exists $selectionloop{'DAYVAR'}{'SHOW_VAR'} ) {
       if ( $selectionloop{'DAYVAR'}{'SHOW_VAR'} eq 'T' ) {
-	 @plottype     = (@plottype,'v_VAR',);
+	 @plottype     = (@plottype,$plot_prefix[1].'_VAR',);
 	 @plottype_txt = (@plottype_txt,'Dayvar var') ; 
      };
    } ;
    if ( exists $selectionloop{'DAYVAR'}{'SHOW_SKW'} ) {
       if ( $selectionloop{'DAYVAR'}{'SHOW_SKW'} eq 'T' ) {
-	 @plottype     = (@plottype,'v_SKW');
+	 @plottype     = (@plottype,$plot_prefix[1].'_SKW');
 	 @plottype_txt = (@plottype_txt,'Dayvar skw') ; 
      };
    } ;

@@ -30,6 +30,8 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
                       maxfclenval,          &
                       period_freq,          &
                       period_type,          &
+                      prefix_len,           &
+                      plot_prefix,          &
                       cini_hours,exp_offset
 
  IMPLICIT NONE
@@ -70,7 +72,7 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
  CHARACTER(LEN=30)  :: wname    = ' '
  CHARACTER(LEN=30)  :: mtext    = ' '
  CHARACTER(LEN=50)  :: carea = ' '
- CHARACTER(LEN=3) :: prefix = ' '
+ CHARACTER(LEN=prefix_len) :: prefix = ' '
 
 !-----------------------------------------------------------
 
@@ -83,30 +85,30 @@ SUBROUTINE print_map(stnr,yymm,yymm2,ptype,per_ind,rar_active)
  ! 4 : mabe
  !
 
+ IF (lfcver) THEN
+  prefix = plot_prefix(8)
+ ELSE
+  prefix = plot_prefix(7)
+ ENDIF
  SELECT CASE(ptype)
  CASE(0)
-    prefix = 'm_b'
-    IF (lfcver) prefix = 'M_b'
+    prefix = TRIM(prefix)//'_b'
     mtext = 'bias'
     nexp_plot = nexp
  CASE(1)
-    prefix = 'm_r'
-    IF (lfcver) prefix = 'M_r'
+    prefix = TRIM(prefix)//'_r'
     mtext = 'rmse'
     nexp_plot = nexp
  CASE(3)
-    prefix = 'm_s'
-    IF (lfcver) prefix = 'M_s'
+    prefix = TRIM(prefix)//'_s'
     mtext = 'stdv'
     nexp_plot = nexp
  CASE(2)
-    prefix = 'm_o'
-    IF (lfcver) prefix = 'M_o'
+    prefix = TRIM(prefix)//'_o'
     mtext = ' '
     nexp_plot = nexp + 1
  CASE(4)
-    prefix = 'm_a'
-    IF (lfcver) prefix = 'M_a'
+    prefix = TRIM(prefix)//'_a'
     mtext = 'mae'
     nexp_plot = nexp
  CASE DEFAULT

@@ -41,7 +41,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
                   show_var,show_skw,show_mabe,           &
                   ltemp,lev_lst,window_pos,output_type,  &
                   output_mode,len_lab,cini_hours,        &
-                  exp_offset
+                  exp_offset,prefix_len,plot_prefix
 
  USE functions
 
@@ -91,7 +91,7 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
  REAL    :: zobs,zfc,zslask2
  CHARACTER(LEN=30 ) :: cform='   '
  CHARACTER(LEN=20 ) :: ytitle=''
- CHARACTER(LEN=2  ) :: prefix=' '
+ CHARACTER(LEN=prefix_len) :: prefix=''
  CHARACTER(LEN=100) :: fname=' '
  CHARACTER(LEN=120) :: wtext,wname,wtext1
 
@@ -125,8 +125,11 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
  ENDIF
 
  ! Create filename
- prefix ='ps'
- IF ( ldiff ) prefix='PS'
+ IF ( ldiff ) THEN
+   prefix = plot_prefix(3)
+ ELSE
+   prefix = plot_prefix(4)
+ ENDIF
 
  ytitle = ' '
 

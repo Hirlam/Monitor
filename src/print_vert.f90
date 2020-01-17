@@ -21,7 +21,8 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
                   len_lab,period_freq,period_type,              &
                   output_type,output_mode,                      &
                   show_times,use_fclen,timdiff,time_shift,      &
-                  len_lab,err_ind,cini_hours,exp_offset
+                  len_lab,err_ind,cini_hours,exp_offset,        &
+                  prefix_len,plot_prefix
 
 
  IMPLICIT NONE
@@ -58,7 +59,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
 
  CHARACTER(LEN=100      ) :: wtext =' ',wtext1=' ',my_tag
  CHARACTER(LEN=100      ) :: fname =' '
- CHARACTER(LEN=1  ) :: prefix    = ' '
+ CHARACTER(LEN=prefix_len) :: prefix    = ' '
  CHARACTER(LEN=10 ) :: chour    = ' '
  CHARACTER(LEN=30 ) :: cform='   '
 
@@ -100,8 +101,12 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
  ! Set output filename
  !
 
- prefix = 'l'
- IF (lfcver) prefix = 'L'
+ IF ( lfcver) THEN
+   prefix = plot_prefix(5)
+ ELSE
+   prefix = plot_prefix(6)
+ ENDIF
+ 
  IF (yymm < 999999 ) THEN
     period = yymm
  ELSE

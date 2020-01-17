@@ -14,6 +14,7 @@ SUBROUTINE print_sign_test(lunout,nexp,nparver,         &
                   period_freq,period_type,                      &
                   output_type,lprint_seasonal,                  &
                   control_exp_nr,sign_time_diff,err_ind,confint,&
+                  prefix_len,plot_prefix,                       &
                   cini_hours,exp_offset
 
  IMPLICIT NONE
@@ -36,7 +37,7 @@ SUBROUTINE print_sign_test(lunout,nexp,nparver,         &
  CHARACTER(LEN=100) :: wtext1=' '
  CHARACTER(LEN=100) :: fname=' '
  CHARACTER(LEN= 60) :: wname=' '
- CHARACTER(LEN= 10) :: prefix = ' '
+ CHARACTER(LEN=prefix_len) :: prefix = ' '
 
 !------------------------------------------
 
@@ -89,7 +90,7 @@ SUBROUTINE print_sign_test(lunout,nexp,nparver,         &
 
       ! Set output filename
 
-      prefix = 'sign'
+      prefix = plot_prefix(13)
       wname  = TRIM(expname(control_exp_nr))//'_'//TRIM(expname(i))
       IF ( TRIM(tag) /= '#' ) &
       wname  = TRIM(tag)//TRIM(cini_hours)//'_'//TRIM(wname)
