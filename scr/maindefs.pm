@@ -180,7 +180,7 @@ sub Env_or {
 if ( $ENV{CUSTOM_PLOT_PREFIX} ) {
   @plot_prefix = @custom_plot_prefix ;
  } else {
-  @plot_prefif = @default_plot_prefix ;
+  @plot_prefix = @default_plot_prefix ;
 };
 
 ;
