@@ -23,7 +23,7 @@ sub Env_or {
     'STNLIST'          => 0,
     'STNLIST_PLOT'     => $ENV{STNLIST_PLOT},
     'LVERIFY'          => 'F',
-    'PRINT_READ'       => 1,
+    'PRINT_READ'       => ("$ENV{MONITOR_DEBUG}" or '0'),
     'PERIOD_TYPE'      => $ENV{PERIOD_TYPE},
     'PERIOD_FREQ'      => $ENV{PERIOD_FREQ},
     'OUTPUT_TYPE'      => $ENV{OUTPUT_TYPE},
@@ -180,7 +180,7 @@ sub Env_or {
 if ( $ENV{CUSTOM_PLOT_PREFIX} ) {
   @plot_prefix = @custom_plot_prefix ;
  } else {
-  @plot_prefif = @default_plot_prefix ;
+  @plot_prefix = @default_plot_prefix ;
 };
 
 ;

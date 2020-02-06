@@ -13,11 +13,17 @@ require skilldefs ;
 
 @col_def_lt  = (0,1,2,3,4,5,6,8,7);
 require $ENV{LOCALDEFS} if $ENV{LOCALDEFS} ;
+if ($ENV{LOCAL_DEFS_PATH}) {
+   push @INC, "$ENV{LOCAL_DEFS_PATH}"; 
+   require local_defs ;
+} ;
 
+
+my $debug = $ENV{MONITOR_DEBUG} or $debug = 0 ;
 
 SCAN_INPUT: foreach $input_file (@ARGV) {
 
-    print "Process:$input_file \n";
+    print "Process:$input_file \n" if ( $debug > 0 ) ;
 
     @heading    = ();
     @workfiles  = ();
@@ -428,7 +434,7 @@ next SCAN_INPUT;}
 sub plot {
    # plot the files
    system("gnuplot plot1.gp");
-   print "Created:$output_file \n";
+   print "Created:$output_file \n" if ( $debug > 0 ) ;
 }
 #################################################################
 #################################################################

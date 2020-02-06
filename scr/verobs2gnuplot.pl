@@ -7,12 +7,14 @@
 #
 
 push @INC, "$ENV{SCR}";
-
+eval { push @INC, "$ENV{LOCAL_DEFS_PATH}"; } ;
 require maindefs ;
+eval { require local_defs ; } ;
 
 my $searchdir = "";
 my $vertype = "SURF";
 my $cleantxt = 0 ;
+my $debug = $ENV{MONITOR_DEBUG} or $debug = 0 ;
 
 # Set colors for lines
 
@@ -89,7 +91,7 @@ if ( $vertype eq "SURF" ) {
 
 SCAN_INPUT: foreach $input_file (@FILES) {
 
-    print "Process:$input_file \n";
+    print "Process:$input_file \n" if ( $debug > 0 ) ;
 
     @col_def   = ();
     @heading   = ();
@@ -299,7 +301,7 @@ SCAN_INPUT: foreach $input_file (@FILES) {
     system("gnuplot plot.gp");
     system("rm -f ${input_file}*") if ( $cleantxt == 1 ) ; 
 
-    print "Created:$output_file \n";
+    print "Created:$output_file \n" if ( $debug > 0 ) ;
 
 }
 #################################################################

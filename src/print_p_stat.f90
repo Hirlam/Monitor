@@ -126,9 +126,9 @@ SUBROUTINE print_p_stat_diff(lunout,ntim,npar,stnr,     &
 
  ! Create filename
  IF ( ldiff ) THEN
-   prefix = plot_prefix(3)
- ELSE
    prefix = plot_prefix(4)
+ ELSE
+   prefix = plot_prefix(3)
  ENDIF
 
  ytitle = ' '
