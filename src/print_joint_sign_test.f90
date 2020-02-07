@@ -77,6 +77,7 @@ SUBROUTINE print_joint_sign_test(lunout,nexp,nparver,   &
 
  ! Printing
  j=0
+ expnames=''
  DO i=1,nexp
    IF ( i == control_exp_nr ) CYCLE
    expnames = TRIM(expnames)//' '//TRIM(expname(i))

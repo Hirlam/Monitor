@@ -12,6 +12,11 @@
 
  # Add local deviations 
  require $ENV{LOCALDEFS} if $ENV{LOCALDEFS} ;
+ if ($ENV{LOCAL_DEFS_PATH}) {
+   push @INC, "$ENV{LOCAL_DEFS_PATH}"; 
+   require local_defs ;
+ } ;
+
 
  $WEBCALL=$ENV{WEBCALL} ;
 

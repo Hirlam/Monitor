@@ -80,7 +80,7 @@ STNLIST_PLOT_TXT=-1
 # PE|PE12 : Precipitation 12h
 # PE24 : Precipitation 24h
 # NN : Total Cloud cover
-# VI : Visibility, not in vfld files yet
+# VI : Visibility
 #
 
 # Active parameters

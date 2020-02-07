@@ -25,6 +25,12 @@
  # Add local deviations 
  require $ENV{LOCALDEFS} if $ENV{LOCALDEFS} ;
 
+ if ($ENV{LOCAL_DEFS_PATH}) {
+   push @INC, "$ENV{LOCAL_DEFS_PATH}"; 
+   require local_defs ;
+ } ;
+
+
  unless ( @ARGV ) { die "Please give SURF or TEMP as argument \n" ; } ;
 
  $n=0;
