@@ -34,7 +34,7 @@ HELP="Observation verification comparison"
 #         other : Number of months in period
 # 
 # IDATE is the very first date for PERIOD_TYPE=2 it determines the 
-# lentght of the date menu in WebgraF
+# length of the date menu in WebgraF
 #
 PERIOD_TYPE=1
 PERIOD_FREQ=1
@@ -81,6 +81,9 @@ STNLIST_PLOT_TXT=-1
 # PE24 : Precipitation 24h
 # NN : Total Cloud cover
 # VI : Visibility
+# CH : Cloud base
+# LC : Amount of low clouds
+# ISS : Ice super saturation level
 #
 
 # Active parameters

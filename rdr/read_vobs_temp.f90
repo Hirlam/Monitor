@@ -10,7 +10,7 @@ SUBROUTINE read_vobs_temp
  REAL, PARAMETER :: mflag = -99.
 
  INTEGER :: i,ii,k,kk,kkk,kk_lev,       &
-            m,n,                        &
+            m,n,mm,m2,                  &
             ierr = 0,                   &
             cdate = 999999,             &
             ctime = 999999,             &
@@ -310,6 +310,23 @@ SUBROUTINE read_vobs_temp
 
               ENDIF
             ENDDO INVAR_LOOP
+
+            ! Static pseudo variables
+            SELECT CASE(varprop(m)%id)
+             CASE('ISS')
+               mm=find_var(ninvar,invar,'RH',val(ipr),varprop(m)%lev)
+               m2=find_var(ninvar,invar,'TT',val(ipr),varprop(m)%lev)
+               IF ( qca(val(mm),mflag)             .AND. &
+                    qca(val(m2),mflag)             .AND. &
+                    qclr(val(mm),varprop(mm)%llim) .AND. &
+                    qcur(val(mm),varprop(mm)%ulim) .AND. &
+                    qclr(val(m2),varprop(m2)%llim) .AND. &
+                    qcur(val(m2),varprop(m2)%ulim) ) THEN
+                 obs(stat_i)%o(i)%val(m) = &
+                 get_iss(val(mm),val(m2))
+               ENDIF
+            END SELECT
+
           ENDDO PARVER_LOOP
 
        ENDDO READ_LEV_OBS

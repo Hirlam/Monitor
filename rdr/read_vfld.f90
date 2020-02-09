@@ -56,9 +56,6 @@ SUBROUTINE read_vfld
  CHARACTER(LEN= 03) :: cfclen,cfcleno
  CHARACTER(LEN= 10), ALLOCATABLE :: invar(:) 
 
- ! Functions
- INTEGER :: find_var,find_varprop
-
 !----------------------------------------------------------
 
  ! Init 
@@ -144,6 +141,7 @@ SUBROUTINE read_vfld
 
        path = modpath(l)
        CALL check_path(cdate,path)
+
        IF ( use_analysis(l) .AND. fclen(j) == 0 ) THEN
          fname = TRIM(path)//'vfld'//TRIM(fexpname(l))//cwrk
        ELSEIF ( exp_offset(l,hh) /= 0 ) THEN
@@ -441,6 +439,12 @@ SUBROUTINE read_vfld
                          obs(stat_i)%hgt) * gravit
                hir(stat_i)%o(i)%nal(l,j,m) =           &
                pmslcom(val(mm),zdiff,val(m2),1,1)
+              CASE('ISS')
+               mm=find_var(ninvar,invar,'RH')
+               m2=find_var(ninvar,invar,'TT')
+               IF ( mm > 0 .AND. m2 > 0 )              &
+               hir(stat_i)%o(i)%nal(l,j,m) =           &
+               get_iss(val(mm),val(m2))
               CASE('TDD')
                mm=find_var(ninvar,invar,varprop(m)%id(1:2))
                m2=find_var(ninvar,invar,'TT')
@@ -497,41 +501,3 @@ SUBROUTINE read_vfld
  RETURN
 
 END SUBROUTINE read_vfld
-
-INTEGER function find_var(ninvar,invar,cvar)
-
- IMPLICIT NONE
-
- INTEGER, INTENT(IN) :: ninvar
- CHARACTER(LEN=*), INTENT(IN) :: invar(ninvar),cvar
- 
- INTEGER :: i
- 
- find_var = 0
- DO i=1,ninvar
-    IF ( TRIM(cvar) == invar(i) ) THEN
-       find_var = i
-       EXIT
-    ENDIF
- ENDDO
- 
-END function find_var
-INTEGER function find_varprop(cvar)
-
- USE data, ONLY : varprop,nparver
-
- IMPLICIT NONE
-
- CHARACTER(LEN=*), INTENT(IN) :: cvar
- 
- INTEGER :: i
- 
- find_varprop = 0
- DO i=1,nparver
-    IF ( TRIM(cvar) == TRIM(varprop(i)%id) ) THEN
-       find_varprop = i
-       EXIT
-    ENDIF
- ENDDO
- 
-END function find_varprop

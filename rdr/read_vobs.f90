@@ -42,9 +42,6 @@ SUBROUTINE read_vobs
 
  LOGICAL :: use_stnlist,cbl
 
- ! Functions
- INTEGER :: find_var,find_varprop
-
 !----------------------------------------------------------
 
  ! Init 
@@ -345,6 +342,18 @@ SUBROUTINE read_vobs
                mm=find_var(ninvar,invar,'PSS')
                IF ( qca(val(mm),mflag) ) &
                obs(stat_i)%o(i)%val(m) = val(mm)
+             CASE('ISS')
+               mm=find_var(ninvar,invar,'RH')
+               m2=find_var(ninvar,invar,'TT')
+               IF ( qca(val(mm),mflag)             .AND. &
+                    qca(val(m2),mflag)             .AND. &
+                    qclr(val(mm),varprop(mm)%llim) .AND. &
+                    qcur(val(mm),varprop(mm)%ulim) .AND. &
+                    qclr(val(m2),varprop(m2)%llim) .AND. &
+                    qcur(val(m2),varprop(m2)%ulim) ) THEN
+                 obs(stat_i)%o(i)%val(m) = &
+                 get_iss(val(mm),val(m2))
+               ENDIF
             END SELECT
 
           ENDDO PARVER_LOOP

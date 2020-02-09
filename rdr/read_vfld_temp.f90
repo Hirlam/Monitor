@@ -17,7 +17,7 @@ SUBROUTINE read_vfld_temp
  REAL, PARAMETER :: mflag = -99.
 
  INTEGER :: i,ii,j,k,kk,kkk,l,ll,       &
-            kk_lev,m,n,                 &
+            kk_lev,m,n,mm,m2,           &
             ierr = 0,aerr=0,            &
             cdate = 999999,             &
             ctime = 999999,             &
@@ -155,9 +155,11 @@ SUBROUTINE read_vfld_temp
        ENDIF
 
        OPEN(lunin,file=fname,status='old',iostat=ierr)
-       IF (ierr /= 0 .AND. print_read > 0 ) WRITE(6,*)'COULD NOT READ ',fname
-       IF (ierr /= 0) CYCLE EXP_LOOP
-       IF (print_read > 0 ) WRITE(6,*)'READ ',TRIM(fname)
+       IF (ierr /= 0) THEN
+          IF (print_read > 0 ) WRITE(6,'(2A)')'Could not open ',TRIM(fname)
+          CYCLE EXP_LOOP
+       ENDIF
+       IF (print_read > 0 ) WRITE(6,'(2A)')'READ ',TRIM(fname)
 
        version_flag = 0
 
@@ -393,9 +395,33 @@ SUBROUTINE read_vfld_temp
 
               ENDIF
             ENDDO INVAR_LOOP
-            IF (print_read>1) WRITE(6,*)varprop(m)%id,hir(stat_i)%o(i)%nal(l,j,m)
-          ENDDO PARVER_LOOP
 
+            mm=find_var(ninvar,invar,varprop(m)%id,val(ipr),varprop(m)%lev)
+            IF ( mm == 0 ) THEN
+
+             !
+             ! Set derived pseudo variables if not 
+             ! already in the input data
+             !
+
+             SELECT CASE(TRIM(varprop(m)%id))
+              CASE('ISS')
+               mm=find_var(ninvar,invar,'RH',val(ipr),varprop(m)%lev)
+               m2=find_var(ninvar,invar,'TT',val(ipr),varprop(m)%lev)
+               IF ( mm > 0 .AND. m2 > 0 ) THEN
+                 hir(stat_i)%o(i)%nal(l,j,m) =           &
+                 get_iss(val(mm),val(m2))
+               ENDIF
+             END SELECT
+
+            ENDIF
+
+            IF ( print_read > 0 ) &
+              WRITE(6,*)hir(stat_i)%stnr,varprop(m)%id,varprop(m)%lev, &
+                        hir(stat_i)%o(i)%nal(l,j,m)
+
+          ENDDO PARVER_LOOP
+          
        ENDDO READ_LEV_MOD
 
        ENDDO READ_STATION_MOD

@@ -155,7 +155,7 @@ SUBROUTINE setup_varprop
   CASE('WH')
     varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Energy','kWh',.FALSE.)
   CASE DEFAULT
-    varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,v%id,v%id)
+    varprop(i) = variable(v%lev,0,0,err_ind,-err_ind,err_ind,v%id,v%id,v%id)
   END SELECT
  ENDDO
 

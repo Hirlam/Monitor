@@ -200,6 +200,11 @@
    'MAP_BIAS_INTERVAL'=> '-1000.,-500.,-250.,0.,250.,500.,1000.',
  }, 
 
+ 'ISS'=>{
+   'TEXT'        => 'Ice super saturation',
+   'UNIT'        => '%',
+ }, 
+
  'N75'=>{
    'TEXT'        => 'clouds <7500m',
    'UNIT'        => 'octas',

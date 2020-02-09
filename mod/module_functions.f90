@@ -6,6 +6,30 @@ MODULE functions
 !-----------------------------------------------
 !-----------------------------------------------
 !-----------------------------------------------
+REAL FUNCTION GET_ISS(RH,T)
+
+ IMPLICIT NONE
+
+ REAL, PARAMETER :: XALPW  = 60.2227554       
+ REAL, PARAMETER :: XBETAW = 6822.40088       
+ REAL, PARAMETER :: XGAMW  = 5.13926744
+ REAL, PARAMETER :: XALPI  = 32.6211815
+ REAL, PARAMETER :: XBETAI = 6295.42188
+ REAL, PARAMETER :: XGAMI  = 0.563133478
+
+ REAL, INTENT(IN) :: RH,T
+ REAL :: RHI
+
+ RHI = RH * &
+       EXP( (XALPW-XALPI) - (XBETAW-XBETAI)/T -  &
+            (XGAMW-XGAMI)*ALOG(T))    
+
+ GET_ISS = RHI - 1. 
+
+END FUNCTION GET_ISS
+!-----------------------------------------------
+!-----------------------------------------------
+!-----------------------------------------------
 REAL FUNCTION PMSLCOM(PS,FIS,TS,NLON,NLAT)
 !
       IMPLICIT NONE
@@ -364,5 +388,71 @@ LOGICAL FUNCTION do_you_like_me(check_blacklist,istnr,inpar)
   &   parlist(istnr,1) == 'ALL' ) )
 
 END FUNCTION do_you_like_me
+!-----------------------------------------------
+!-----------------------------------------------
+!-----------------------------------------------
+INTEGER function find_var(ninvar,invar,cvar,inlev,level)
 
+ IMPLICIT NONE
+
+ INTEGER, INTENT(IN) :: ninvar
+ CHARACTER(LEN=*), INTENT(IN) :: invar(ninvar),cvar
+ REAL,    INTENT(IN), OPTIONAL :: inlev
+ INTEGER, INTENT(IN), OPTIONAL :: level
+ 
+ INTEGER :: i
+
+ find_var = 0
+
+ IF (PRESENT(level)) THEN
+  IF ( ABS(level - inlev) > 1.e-6  )  THEN
+    RETURN 
+  ENDIF
+ ENDIF
+ 
+ DO i=1,ninvar
+    IF ( TRIM(cvar) == invar(i) ) THEN
+       find_var = i
+       EXIT
+    ENDIF
+ ENDDO
+ 
+END function find_var
+!-----------------------------------------------
+!-----------------------------------------------
+!-----------------------------------------------
+INTEGER function find_varprop(cvar,level)
+
+ USE data, ONLY : varprop,nparver
+
+ IMPLICIT NONE
+
+ CHARACTER(LEN=*), INTENT(IN) :: cvar
+ REAL, INTENT(IN), OPTIONAL :: level
+ 
+ INTEGER :: i
+ 
+ IF ( PRESENT(level)) THEN
+   find_varprop = 0
+   DO i=1,nparver
+    IF ( TRIM(cvar) == TRIM(varprop(i)%id) .AND. &
+         ABS(level - varprop(i)%lev) < 1.e-6  )  THEN
+       find_varprop = i
+       EXIT
+    ENDIF
+   ENDDO
+ ELSE
+   find_varprop = 0
+   DO i=1,nparver
+    IF ( TRIM(cvar) == TRIM(varprop(i)%id) ) THEN
+       find_varprop = i
+       EXIT
+    ENDIF
+   ENDDO
+ ENDIF
+ 
+END function find_varprop
+!-----------------------------------------------
+!-----------------------------------------------
+!-----------------------------------------------
 END MODULE functions
