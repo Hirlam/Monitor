@@ -13,8 +13,8 @@ SUBROUTINE read_vfld
                   modpath,stime,etime,  &
                   stnlist,sdate,edate,nfclengths, &
                   nexp,err_ind,print_read,maxstn, &
-                  fcint,lunin,nparver,qca,qclr,qcur, &
-                  allocate_mod,use_analysis
+                  fcint,lunin,nparver, &
+                  use_analysis
 
  USE constants, only : gravit,tzero,tlapse
  USE functions

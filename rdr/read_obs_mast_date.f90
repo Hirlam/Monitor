@@ -10,6 +10,7 @@ SUBROUTINE read_obs_mast_date
  
  USE data
  USE mast_data
+ USE functions
 
  IMPLICIT NONE
 

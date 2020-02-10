@@ -2,6 +2,9 @@
 
   IMPLICIT NONE
 
+  REAL, PARAMETER :: err_ind = -999.e6 ! Error flag
+  REAL, PARAMETER :: eps     = 1.e-6   ! Real equality comparison limit
+
   REAL, PARAMETER :: gravit    = 9.80665                ! Constant of gravity
   REAL, PARAMETER :: pi        = 3.141593
   REAL, PARAMETER :: rearth    = 6.37e6

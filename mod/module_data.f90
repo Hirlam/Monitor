@@ -1,15 +1,15 @@
 MODULE data
 
  USE types
- USE functions
+ USE constants, ONLY : err_ind
 
  IMPLICIT NONE
 
  SAVE
 
 ! Constants
- REAL, PARAMETER :: err_ind = -999.e6 ! Error flag
- REAL, PARAMETER :: eps     = 1.e-6   ! Real equality comparison limit
+ !REAL, PARAMETER :: err_ind = -999.e6 ! Error flag
+ !REAL, PARAMETER :: eps     = 1.e-6   ! Real equality comparison limit
 
 ! I/O
  INTEGER, PARAMETER :: lunnam  = 10    ! Namelist unit
@@ -401,160 +401,4 @@ MODULE data
                  plot_prefix,                           &
                  lstn_hgt_check,hgt_llim,hgt_ulim
 
-
-CONTAINS
-
-!-----------------------------------------------
-!-----------------------------------------------
-!-----------------------------------------------
-LOGICAL FUNCTION qca(a,b)
-
- IMPLICIT NONE
-
- REAL, INTENT(IN) :: a,b
-
- qca = (ABS(a-b) > eps )
-
-END FUNCTION qca
-!-----------------------------------------------
-!-----------------------------------------------
-!-----------------------------------------------
-LOGICAL FUNCTION qcur(diff,lim)
-
- IMPLICIT NONE
-
- REAL    :: diff,lim
-
-!----------------------------
-
- IF ( ABS(lim-err_ind) < eps ) THEN
-   qcur = .TRUE.
- ELSE
-   qcur = (diff <= lim)
- ENDIF
-
-END FUNCTION qcur
-!-----------------------------------------------
-!-----------------------------------------------
-!-----------------------------------------------
-LOGICAL FUNCTION qclr(diff,lim)
-
- IMPLICIT NONE
-
- REAL    :: diff,lim
-
-!----------------------------
-
- IF ( ABS(lim-err_ind) < eps ) THEN
-   qclr = .TRUE.
- ELSE
-   qclr = (diff >= lim)
- ENDIF
-
-END FUNCTION qclr
-!-----------------------------------------------
-!-----------------------------------------------
-!-----------------------------------------------
- SUBROUTINE allocate_mod
-
- !
- ! Allocated model station array
- !
-
- IMPLICIT NONE
-
- INTEGER :: k
-
- IF (ANY(hir%obs_is_allocated)) THEN
-    WRITE(6,*)'Warning, some model stations are allocated'
-    WRITE(6,*)'Stupid programmer, abort'
-    CALL abort
- ENDIF
-
- IF ( maxtim == 0 )  maxtim=get_maxtim(sdate,edate,fcint)
-
- WRITE(6,*)'Maxtim for model data is ',maxtim
-
- !
- ! If model array is not allocated 
- ! do so and init arrays
- !
-
- DO k = 1,maxstn
-    ALLOCATE(hir(k)%o(maxtim),&
-             hir(k)%hgtmod(nexp))
-    NULLIFY(hir(k)%pos)
-    hir(k)%hgtmod = err_ind
- ENDDO
-   
- hir%ntim       = 0
- hir%stnr       = 0
- hir%nexp       = nexp
- hir%nparver    = nparver
- hir%nfclengths = nfclengths
- hir%lat        = err_ind
- hir%lon        = err_ind
- hir%active     = .FALSE.
-
- hir%obs_is_allocated = .TRUE.
-
- RETURN
-
-END SUBROUTINE allocate_mod
-SUBROUTINE allocate_obs
-
- !
- ! Allocated observation station array
- !
-
- IMPLICIT NONE
-
- INTEGER :: k,si,ei
-
- IF (ANY(obs%obs_is_allocated)) THEN
-    WRITE(6,*)'Warning, some obs stations are allocated'
-    WRITE(6,*)'Stupid programmer, abort'
-    CALL abort
- ENDIF
-
- ! Estimate maxtim if not given by user
- IF ( edate_obs == 0 ) edate_obs = edate
- IF (maxtim == 0) maxtim=get_maxtim(sdate,edate_obs,obint)
-
- WRITE(6,*)'Maxtim for observations is ',maxtim
- !
- ! If model array is not allocated 
- ! do so and init arrays
- !
-
- si = sdate     * 100 + stime
- ei = edate_obs * 100 + etime_obs
-
- DO k = 1,maxstn
-    ALLOCATE(obs(k)%o(maxtim))
-    IF ( use_pos ) THEN
-       ALLOCATE(obs(k)%pos(si:ei))
-       obs(k)%pos = 0
-    ELSE
-       NULLIFY(obs(k)%pos)
-    ENDIF
- ENDDO
-   
- obs%ntim       = 0
- obs%nexp       = nexp
- obs%stnr       = 0
- obs%nparver    = nparver
- obs%nfclengths = nfclengths
-
- obs%lat        = err_ind
- obs%lon        = err_ind
- obs%hgt        = err_ind
-
- obs%active     = .FALSE.
-
- obs%obs_is_allocated = .TRUE.
-
- RETURN
-
-END SUBROUTINE allocate_obs
 END MODULE data
