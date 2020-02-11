@@ -10,7 +10,7 @@ SUBROUTINE read_vobs_temp
  REAL, PARAMETER :: mflag = -99.
 
  INTEGER :: i,ii,k,kk,kkk,kk_lev,       &
-            m,n,mm,m2,                  &
+            m,n,mm,m2,mmp,m2p,          &
             ierr = 0,                   &
             cdate = 999999,             &
             ctime = 999999,             &
@@ -293,7 +293,7 @@ SUBROUTINE read_vobs_temp
                 ! Special treatment of some variabels
                 sca = 1.0
                 sub = 0.0
-                SELECT CASE(invar(n))
+                SELECT CASE(invar(n)(1:2))
 
                 CASE('TT')
                    sub = tzero
@@ -316,16 +316,28 @@ SUBROUTINE read_vobs_temp
              CASE('ISS')
                mm=find_var(ninvar,invar,'RH',val(ipr),varprop(m)%lev)
                m2=find_var(ninvar,invar,'TT',val(ipr),varprop(m)%lev)
-               IF ( qca(val(mm),mflag)             .AND. &
-                    qca(val(m2),mflag)             .AND. &
-                    qclr(val(mm),varprop(mm)%llim) .AND. &
-                    qcur(val(mm),varprop(mm)%ulim) .AND. &
-                    qclr(val(m2),varprop(m2)%llim) .AND. &
-                    qcur(val(m2),varprop(m2)%ulim) ) THEN
+               mmp=find_varprop('RH',val(ipr))
+               m2p=find_varprop('TT',val(ipr))
+
+               IF ( mm > 0 .AND. mmp > 0 .AND. &
+                    m2 > 0 .AND. m2p > 0 ) THEN
+
+                IF ( qca(val(mm),mflag)             .AND. &
+                     qca(val(m2),mflag)             .AND. &
+                     qclr(val(mm),varprop(mmp)%llim) .AND. &
+                     qcur(val(mm),varprop(mmp)%ulim) .AND. &
+                     qclr(val(m2),varprop(m2p)%llim) .AND. &
+                     qcur(val(m2),varprop(m2p)%ulim) ) THEN
                  obs(stat_i)%o(i)%val(m) = &
                  get_iss(val(mm),val(m2))
+                ENDIF
+
                ENDIF
             END SELECT
+
+          IF ( print_read > 0 ) &
+              WRITE(6,*)obs(stat_i)%stnr,varprop(m)%id,varprop(m)%lev, &
+                        obs(stat_i)%o(i)%val(m)
 
           ENDDO PARVER_LOOP
 

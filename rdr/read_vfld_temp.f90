@@ -36,7 +36,7 @@ SUBROUTINE read_vfld_temp
             ipr,ifi,ninvar,             &
             old_ninvar,nvars,hh
  
- REAL :: lat,lon,hgt
+ REAL :: lat,lon,hgt,sca,sub
  REAL, ALLOCATABLE :: val(:),inacc(:)
 
  LOGICAL :: allocated_this_time(maxstn),&
@@ -380,18 +380,22 @@ SUBROUTINE read_vfld_temp
                 IF ( .NOT. qca(val(n),mflag) ) CYCLE PARVER_LOOP
 
                 ! Special treatment of some variabels
+                sub = 0.0
+                sca = 1.0
+
                 SELECT CASE(invar(n))
 
                 CASE('TT')
-                   val(n) = val(n) - tzero
+                   sub = tzero
                 CASE('QQ')
-                   val(n) = val(n) * 1.e3
+                   sca = 1.e3
                 END SELECT
 
                 ! Check for gross error
-                 IF ( qclr(val(n),varprop(m)%llim) .AND. &
-                      qcur(val(n),varprop(m)%ulim) )     &
-                hir(stat_i)%o(i)%nal(l,j,m) = val(n)
+                ! Check for missing data / gross error
+                IF ( qclr(val(n),varprop(m)%llim) .AND. &
+                     qcur(val(n),varprop(m)%ulim) )     &
+                hir(stat_i)%o(i)%nal(l,j,m) = ( val(n) - sub ) * sca
 
               ENDIF
             ENDDO INVAR_LOOP

@@ -201,7 +201,7 @@
  }, 
 
  'ISS'=>{
-   'TEXT'        => 'Ice super saturation',
+   'TEXT'        => 'Relative humidity over ice',
    'UNIT'        => '%',
  }, 
 

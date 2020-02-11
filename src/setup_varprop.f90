@@ -91,7 +91,7 @@ SUBROUTINE setup_varprop
   CASE('FI')
     varprop(i) = variable(v%lev,0,0,500.,1.e9,0.,v%id,'Height','m',.FALSE.)
   CASE('RH')
-    varprop(i) = variable(v%lev,0,0,100.,100.,0.,v%id,'Relative Humidity','%',.FALSE.)
+    varprop(i) = variable(v%lev,0,0,100.,120.,0.,v%id,'Relative Humidity','%',.FALSE.)
   CASE('PS')
     varprop(i) = variable(v%lev,0,0,50.,1100.,0.,v%id,'Surface Pressure','hPa',.FALSE.)
   CASE('SPS')

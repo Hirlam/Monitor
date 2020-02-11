@@ -21,13 +21,10 @@ REAL FUNCTION GET_ISS(RH,T)
  REAL, PARAMETER :: XGAMI  = 0.563133478
 
  REAL, INTENT(IN) :: RH,T
- REAL :: RHI
 
- RHI = RH * &
+ GET_ISS = RH * &
        EXP( (XALPW-XALPI) - (XBETAW-XBETAI)/T -  &
             (XGAMW-XGAMI)*ALOG(T))    
-
- GET_ISS = RHI - 1. 
 
 END FUNCTION GET_ISS
 !-----------------------------------------------

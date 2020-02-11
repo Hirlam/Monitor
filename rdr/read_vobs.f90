@@ -345,14 +345,19 @@ SUBROUTINE read_vobs
              CASE('ISS')
                mm=find_var(ninvar,invar,'RH')
                m2=find_var(ninvar,invar,'TT')
-               IF ( qca(val(mm),mflag)             .AND. &
+               mmp=find_varprop('RH')
+               m2p=find_varprop('TT')
+               IF ( mm  > 0 .AND. m2  > 0 .AND. &
+                    mmp > 0 .AND. m2p > 0 ) THEN
+                IF ( qca(val(mm),mflag)             .AND. &
                     qca(val(m2),mflag)             .AND. &
-                    qclr(val(mm),varprop(mm)%llim) .AND. &
-                    qcur(val(mm),varprop(mm)%ulim) .AND. &
-                    qclr(val(m2),varprop(m2)%llim) .AND. &
-                    qcur(val(m2),varprop(m2)%ulim) ) THEN
-                 obs(stat_i)%o(i)%val(m) = &
-                 get_iss(val(mm),val(m2))
+                     qclr(val(mm),varprop(mmp)%llim) .AND. &
+                     qcur(val(mm),varprop(mmp)%ulim) .AND. &
+                     qclr(val(m2),varprop(m2p)%llim) .AND. &
+                     qcur(val(m2),varprop(m2p)%ulim) ) THEN
+                  obs(stat_i)%o(i)%val(m) = &
+                  get_iss(val(mm),val(m2))
+                ENDIF
                ENDIF
             END SELECT
 
