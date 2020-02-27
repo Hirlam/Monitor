@@ -420,7 +420,7 @@ SUBROUTINE read_vfld_temp
 
             ENDIF
 
-            IF ( print_read > 0 ) &
+            IF ( print_read > 1 ) &
               WRITE(6,*)hir(stat_i)%stnr,varprop(m)%id,varprop(m)%lev, &
                         hir(stat_i)%o(i)%nal(l,j,m)
 

@@ -335,7 +335,7 @@ SUBROUTINE read_vobs_temp
                ENDIF
             END SELECT
 
-          IF ( print_read > 0 ) &
+          IF ( print_read > 1 ) &
               WRITE(6,*)obs(stat_i)%stnr,varprop(m)%id,varprop(m)%lev, &
                         obs(stat_i)%o(i)%val(m)
 

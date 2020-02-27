@@ -168,6 +168,7 @@ sub profile {
 
 if ( exists $selectionloop{'VERT'}{'SHOW_TIMES'} ) {
  $prof_hours ='\''.join('\',\'',split(',',$selectionloop{'VERT'}{'SHOW_TIMES'})).'\'';
+ $prof_hours =~ s/\-1/ALL/ ;
 } else {
  $prof_hours = '\'ALL\'';
 }; 
