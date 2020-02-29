@@ -1,7 +1,7 @@
-using Documenter, Domains
+using Documenter
 
-makedocs(sitename="Domains")
+makedocs(sitename="Monitor")
 
 deploydocs(
-    repo = "github.com/Hirlam/Domains.jl.git",
+    repo = "github.com/Hirlam/Monitor.git",
 )
