@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Monitor · Monitor</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="assets/documenter.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">Monitor</span></div><form class="docs-search" action="search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li class="is-active"><a class="tocitem" href>Monitor</a><ul class="internal"><li class="toplevel"><a class="tocitem" href="#Getting-and-compiling-the-code-1"><span>Getting and compiling the code</span></a></li><li class="toplevel"><a class="tocitem" href="#The-verification-step-by-step-1"><span>The verification step by step</span></a></li><li class="toplevel"><a class="tocitem" href="#HARMONIE-user-interface-1"><span>HARMONIE user interface</span></a></li><li><a class="tocitem" href="#The-main-configuration-file-1"><span>The main configuration file</span></a></li></ul></li><li><a class="tocitem" href="webgraf/">WebgraF</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Monitor</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Monitor</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/Hirlam/Monitor/blob/master/docs/src/index.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Monitor-1"><a class="docs-heading-anchor" href="#Monitor-1">Monitor</a><a class="docs-heading-anchor-permalink" href="#Monitor-1" title="Permalink"></a></h1><p><img src="monitor_example.png" alt/></p><p>The verification package in HARMONIE is designed to be a self contained stand alone package dealing with pre-extracted model and observational data. The package calculates several standard verification scores such as:</p><ul><li>Error as function of forecast lead time summarises the bias and rms­ error and their growth rate over a set of forecasts</li><li>Time sequences and vertical profiles show how your data or error characteristic is distributed in time or in the vertical</li><li>Error charts and tables show how some error is distributed in space, and station­wise linear correlation</li><li>Scatter plots show the correspondence between forecast and observed values</li><li>Mean diurnal cycles show how your mean error changes in the course of the day</li><li>Histograms show the correspondence between the distributions of forecast and observed values</li><li>Student t-test to show how reliable differences between different experiments are</li></ul><p>In addition there are a number of scores based on contingency tables like:</p><table><tr><th style="text-align: left">score</th><th style="text-align: left">description</th><th style="text-align: right">Range</th><th style="text-align: right">Perfect Score</th></tr><tr><td style="text-align: left">Frequency bias (bias score)</td><td style="text-align: left">(h+fa)/(h+m); Compares the frequency of predicted events to the frequency of observed events</td><td style="text-align: right">[ 0 , ∞)</td><td style="text-align: right">1</td></tr><tr><td style="text-align: left">Hit rate (probability of detection)</td><td style="text-align: left">h/(h+m); What fraction of the observed events were correctly forecast</td><td style="text-align: right">[0, 1]</td><td style="text-align: right">1</td></tr><tr><td style="text-align: left">False alarm ratio</td><td style="text-align: left">fa/(h+fa); What fraction of the predicted events did not occur</td><td style="text-align: right">0 - 1</td><td style="text-align: right">0</td></tr><tr><td style="text-align: left">False alarm rate</td><td style="text-align: left">fa/((cn+fa); What fraction of the observed &quot;no&quot; events were incorrectly forecast as &quot;yes&quot;</td><td style="text-align: right">[0, 1]</td><td style="text-align: right">0</td></tr><tr><td style="text-align: left">Threat score</td><td style="text-align: left">h/(h+m+fa); How well did the forecast &quot;yes&quot; events correspond to the observed &quot;yes&quot; events.</td><td style="text-align: right">[0, 1]</td><td style="text-align: right">1</td></tr><tr><td style="text-align: left">The Equitable threat score</td><td style="text-align: left">takes into account the number of random hits (R) and is less sensitive to climatology: ETS=(h­R)/(h+m+fa­R),  R=(h+m)(h+fa)/(h+m+fa+cn). Often used in verification of precipitation.</td><td style="text-align: right">[-1/3, 1], 0 = no skill</td><td style="text-align: right">1</td></tr><tr><td style="text-align: left">Hansen­Kuipers score</td><td style="text-align: left">(h/(h+m) ­ fa/(fa+cn)), How well did the forecast separate events from non­events.</td><td style="text-align: right">[-1, 1],  0 = no skill</td><td style="text-align: right">1</td></tr><tr><td style="text-align: left">Extreme Dependency Scores</td><td style="text-align: left">What is the association between forecast and observed rare events?</td><td style="text-align: right">[-1, 0] 0 = no skill</td><td style="text-align: right">1</td></tr></table><p>A more detailed explanation about verification can found at <a href="http://www.cawcr.gov.au/projects/verification/">here</a></p><p>The scores can be presented per station for the whole data set or filtered through different selection criteria based on e.g. a geographical domain or properties of the data itself. One key feature missing in earlier HIRLAM verification packages is that the comparison is done over exactly the same set of data ( in time and space ) when comparing different experiments or models. The scores are finally presented with a portable web interface, [#WebgraF WebgraF], that allows you to easily share the information with others. Since the verification is station based it is less suitable for moving platforms or fields.</p><p>Other examples on how products from the verification package looks like today can be found here:</p><ul><li><a href="https://hirlam.org/portal/smhi/WebgraF_test_data/">The monitor test data set</a></li><li><a href="http://fminwp.fmi.fi/WebgraF/FMI-HARMONIE/">FMI</a></li><li><a href="http://fminwp.fmi.fi/mastverif_stats/SODA_2012_JJA_export/">Mast verification</a></li><li><a href="https://hirlam.org/portal/oprint/WebgraF/ObsVer/HAAA/">HIRLAM verification portal</a> </li></ul><p>In the following we describe the different parts of the verification package. For preparation of verification data read more <a href="https://hirlam.org/trac/wiki/HarmonieSystemDocumentation/PostPP/Extract4verification">here</a>.</p><h1 id="Getting-and-compiling-the-code-1"><a class="docs-heading-anchor" href="#Getting-and-compiling-the-code-1">Getting and compiling the code</a><a class="docs-heading-anchor-permalink" href="#Getting-and-compiling-the-code-1" title="Permalink"></a></h1><p>The verification code can be fetched from the hirlam code repository by</p><pre><code class="language-bash">git clone https://git.hirlam.org/monitor
+cd monitor
+git checkout v1.1</code></pre><p>It contains all the history from the old subversion repository. For specific old tagged versions please us monitor from a harmonie version like</p><pre><code class="language-bash">svn co https://svn.hirlam.org/tags/harmonie-40h1.1.1/util/monitor</code></pre><p>The checkout gives you the following directories:</p><table><tr><th style="text-align: left">Directory</th><th style="text-align: left">Description</th></tr><tr><td style="text-align: left"><code>cmastat</code></td><td style="text-align: left">for assimilation monitoring, not covered here</td></tr><tr><td style="text-align: left"><code>config</code></td><td style="text-align: left">configuration files for different platforms</td></tr><tr><td style="text-align: left"><code>doc</code></td><td style="text-align: left">README files</td></tr><tr><td style="text-align: left"><code>mod</code></td><td style="text-align: left">Different modules. <code>module_data.f90</code> contains all namelist variables</td></tr><tr><td style="text-align: left"><code>prg</code></td><td style="text-align: left">Main programs</td></tr><tr><td style="text-align: left"><code>rdr</code></td><td style="text-align: left">Routines for reading data</td></tr><tr><td style="text-align: left"><code>scr</code></td><td style="text-align: left">Scripts</td></tr><tr><td style="text-align: left"><code>src</code></td><td style="text-align: left">The hard core verification routines</td></tr><tr><td style="text-align: left"><code>tools</code></td><td style="text-align: left">Compilation tools</td></tr><tr><td style="text-align: left"><code>WebgraF</code></td><td style="text-align: left">The web interface</td></tr></table><p>You compile by finding the appropriate configuration file for your platform and type</p><pre><code class="language-bash">gmake ARCH=YOUR_ARCH</code></pre><p>The package has no external dependencies but relies on gnuplot for generation of the graphics.</p><h1 id="The-verification-step-by-step-1"><a class="docs-heading-anchor" href="#The-verification-step-by-step-1">The verification step by step</a><a class="docs-heading-anchor-permalink" href="#The-verification-step-by-step-1" title="Permalink"></a></h1><p>The strategy in the verification is to separate the data input from the calculations of the different scores. This allows as to go through the data several times using different filtering criteria. Of course keeping everything in memory sets a limit on how much data one can handle at the same time. In the way it&#39;s used in HARMONIE a typical sequence is:</p><ul><li><p>Read namelist</p></li><li><p>Call my_choices</p><ul><li>Read observations</li><li>Read model data</li><li>Perform quality control</li></ul></li><li><p>Loop over all namelists</p><ul><li>Selection of data </li><li>Calculate the scores and write data</li><li>Check for new namelist</li></ul></li></ul><h3 id="Reading-the-data-1"><a class="docs-heading-anchor" href="#Reading-the-data-1">Reading the data</a><a class="docs-heading-anchor-permalink" href="#Reading-the-data-1" title="Permalink"></a></h3><p>The program can handle several data sources. Which one you use is depending on the value of <code>DATA_SOURCE</code> and is controlled in the routine <a href="../../src/my_choices.f90"><code>my_choices.f90</code></a>. At namelist level we also control which experiments we should read, the period (<code>SDATE</code>,<code>EDATE</code>), interval between cycles (<code>FCINT</code>), which forecasts (<code>FCLEN</code>) and the interval of the observations (<code>OBINT</code>). We can also already at this point select which stations to use by specifying a station list (<code>STNLIST</code>). </p><p>The HARMONIE tools to extract data for verifiation are described in <a href="https://hirlam.org/trac/wiki/HarmonieSystemDocumentation/PostPP/Extract4verification">here</a>.</p><h3 id="A-general-input-format-1"><a class="docs-heading-anchor" href="#A-general-input-format-1">A general input format</a><a class="docs-heading-anchor-permalink" href="#A-general-input-format-1" title="Permalink"></a></h3><p>For the every day verification the model and observation data are read with the routines </p><ul><li><a href="../../rdr/read_vfld.f90"><code>read_vfld.f90</code></a></li><li><a href="../../rdr/read_vobs.f90"><code>read_vobs.f90</code></a></li><li><a href="../../rdr/read_vfld_temp.f90"><code>read_vfld_temp.f90</code></a></li><li><a href="../../rdr/read_vobs_temp.f90"><code>read_vobs_temp.f90</code></a></li></ul><p>Where the two first are for surface data and are used when <code>DATA_SOURCE=vfld</code> and the two latter for temp data and are used when <code>DATA_SOURCE=vfld_temp</code>. During the evolution of the verification package the format of the input data has changed and we are now at version four. The new format allows an arbitrary number of different types of point data to be included in the model vfld- or observation vobs- files.</p><p>The generalized input format is defined as </p><pre><code class="language-bash">nstation_synop nstation_temp version_flag  # written in fortran format &#39;(1x,3I6)&#39; )
+# where version_flag == 4
+# If ( nstation_synop &gt; 0 ) we read the variables in the file, their descriptors and
+# their accumulation time
+#
+nvar_synop
+DESC_1 ACC_TIME_1
+...
+DESC_nvar_synop ACC_TIME_nvar_synop
+# Station information and data N=nstation_synop times
+stid_1 lat lon hgt val(1:nvar_synop)
+...
+stid_N lat lon hgt val(1:nvar_synop)
+
+# If ( nstation_temp &gt; 0 )
+nlev_temp
+nvar_temp
+DESC_1 ACC_TIME_1
+..
+DESC_nvar_temp ACC_TIME_nvar_temp
+# Station information and data nstation_temp times
+# and station data nlev_temp times for each station
+stid_1 lat lon hgt
+pressure(1) val(1:nvar_temp)
+...
+pressure(nlev_temp) val(1:nvar_temp)
+stid_2 lat lon hgt
+...</code></pre><p>The accumulation time allows us to e.g. easily include different precipitation accumulation intervals. Any variable can be included in the file and verified without any code changes. Once you have defined a variable in your data you have to describe its properties in the <a href="../../scr/plotdefs.pm"><code>plotdefs.pm</code></a> described in the [#Settingsfordifferentmeteorologicalparameters parameter setting section].</p><h3 id="Quality-control-1"><a class="docs-heading-anchor" href="#Quality-control-1">Quality control</a><a class="docs-heading-anchor-permalink" href="#Quality-control-1" title="Permalink"></a></h3><p>The quality control is activated by the namelist flag <code>LQUALITY_CONTROL</code>. It is mainly there as a gross error check to remove the unrealistic observations. The check has the following features:</p><ul><li>The forecast lengths used for quality control can be set by namelist variable <code>QC_FCLEN</code>. If <code>QC_FCLEN</code> is not set The forecasts &lt; <code>FORECAST_INTERVAL</code> will be used.</li><li>An observation is accepted if <code>ABS(mod - exp) &lt; err_limit</code> for ANY experiment used in the verification. </li><li>The quality control limits can be set explicitly in namelist by <code>VARPROP%LIM</code> for any variable or by <code>QC_LIM</code> for all variables. See the section about [ #Settingsfordifferentmeteorologicalparameters parmeter settings] for further instructions.</li><li>By setting <code>ESTIMATE_QC_LIMIT</code> the <code>QC_LIM</code> will be set as <code>SCALE_QC_LIM * STDV</code> for the forecasts in <code>QC_FCLEN</code>.</li></ul><p>QC diagnostic information output may be controlled by <code>PRINT_QC={0,1,2}</code>. It is also possible to blacklist stations through the <code>STNLIST_BL</code> parameter.</p><p>In the HARMONIE implementation all quality control levels are estimated on the fly with a limit where the standard deviation is scaled by 5.</p><h3 id="The-selection-process-1"><a class="docs-heading-anchor" href="#The-selection-process-1">The selection process</a><a class="docs-heading-anchor-permalink" href="#The-selection-process-1" title="Permalink"></a></h3><p>Before we run through the actual comparison of data we can select a subset of the data depending on different criteria.</p><ul><li>Initial time of the forecast (<code>INI_HOURS</code>)</li><li>Select data that are valid at a certain hour (<code>SHOW_TIMES</code>) </li><li>Pick only some of the forecast lengths in memory (<code>USE_FCLEN</code>)</li><li>Selection using a station list (<code>STNLIST</code>)</li><li>Select to produce statistics for some selected stations in addition to the overall statistics (<code>STNLIST_PLOT</code>)</li><li>Define a geographical box through the definition of the corners (<code>CBOX%ACTIVE,CBOX%S,CBOX%W,CBOX%N,CBOX%E</code>).</li><li>Use an area defined by a polygon (<code>LPOLY,POLYFILE</code>)</li><li>Select by station height (<code>HGT_LLIM,HGT_ULIM</code>)</li><li>Conditions given by the data (described later)</li><li>Reverse all selections but the conditional (<code>REVERSE_SELECTION</code>)</li></ul><p>Of course all the selections can be combined.</p><h3 id="The-verification-loop-1"><a class="docs-heading-anchor" href="#The-verification-loop-1">The verification loop</a><a class="docs-heading-anchor-permalink" href="#The-verification-loop-1" title="Permalink"></a></h3><p>For each station we loop over all selected stations, initial times, forecast lengths for the given period and accumulate the statistics. Data is stored by:</p><ul><li>Statistic by forecast length or time of day, for each station and accumulated for all stations and is used to generate error maps(<code>MAP</code>), vertical profiles(<code>VERT</code>), standard forecast length verification(GEN) and daily variation scores (<code>DAYVAR</code>)</li><li>Time serie arrays for each station and accumulated for all stations (<code>TIME</code>)</li><li>One array containing all the selected data used for scatter plots (<code>SCAT</code>) and contingency table calculations (<code>CONT</code>). From the contingency table we can calculate several different scores described later.</li></ul><h3 id="Output-format-1"><a class="docs-heading-anchor" href="#Output-format-1">Output format</a><a class="docs-heading-anchor-permalink" href="#Output-format-1" title="Permalink"></a></h3><p>Early versions of the package was based on the ECMWF graphics package MAGICS. Due to the poor portability of MAGICS the package now a days produces text files that are parsed through a <a href="../../scr/verobs2gnuplot.pl">script</a> that produces plots using gnuplot. It may not be the most elegant graphics package, but it is available almost everywhere. Some verification are also produced in form of tables. The contingency tables are parsed through <a href="../../scr/contingency2gnuplot.pl"><code>contingency2gnuplot.pl</code></a> to produce skill scores.</p><h1 id="HARMONIE-user-interface-1"><a class="docs-heading-anchor" href="#HARMONIE-user-interface-1">HARMONIE user interface</a><a class="docs-heading-anchor-permalink" href="#HARMONIE-user-interface-1" title="Permalink"></a></h1><p>In HARMONIE a set of scripts is build around the code for generation of plots and building the web page. </p><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p><code>Run_verobs_surface</code> <code>Run_verobs_temp</code>  do not exist</p></div></div><p>There are two main scripts  Run<em>verobs</em>surface](../../scr/Run<em>verobs</em>surface)  for verification of surface variables and Run<em>verobs</em>temp](../../scr/Run<em>verobs</em>temp)  for verification of radio sonde data. Both of them need a configuration file, <code>Env_exp</code>, as input:</p><pre><code class="language-bash">./Run_verobs_surface MY_ENV_EXP
+./Run_verobs_temp MY_ENV_EXP</code></pre><p>There is also a master script <a href="../../scr/Run_verobs_all"><code>Run_verobs_all</code></a> which cleans the webpage, runs through both types of verification and creates a tar file suitable to add to an existing WebgraF page. It is used in the same way like:</p><pre><code class="language-bash">./Run_verobs_all MY_ENV_EXP</code></pre><h2 id="The-main-configuration-file-1"><a class="docs-heading-anchor" href="#The-main-configuration-file-1">The main configuration file</a><a class="docs-heading-anchor-permalink" href="#The-main-configuration-file-1" title="Permalink"></a></h2><p>For most of the cases you can configure your verification by just editing the configuration file, <a href="../../scr/Env_exp"><code>Env_exp</code></a>. The above mentioned script can take files with any name so it&#39;s a good idea to have different files for different sets of experiments. First you have to identify your experiments and their location. </p><pre><code class="language-bash"># Experiment names and paths,should be space separated
+DBASE=/scratch/ms/dk/nhz/oprint
+EXP=&quot;RCR C22&quot;
+DISPLAY_EXP=&quot;$EXP&quot;
+OBSPATH=$DBASE/OBS2/
+P1=$DBASE/RCR/
+P2=$DBASE/C22/
+MODPATH=&quot;$P1 $P2&quot;</code></pre><p>The experiment name should of course match the name on the vfld files. At the moment there is an upper limit of ten experiments, but already at five the plots starts to get pretty messy. It is possible to disply more meaningful names by setting DISPLAY_EXP to something different.</p><p>From <code>harmonie-40h1.1.1.rc1</code> the output from the verification for the initial setup has changed so that </p><ul><li><code>vfldEXPYYYYMMDDHH</code> represents analysis data</li><li><code>vfldEXPYYYYMMDDHHLL</code> represents output from the forecast model at +00</li></ul><p>To handle this <code>USE_ANALYSIS</code> has been introduced to allow different choices and combination of the new and old convention.</p><pre><code class="language-bash"># Use analysis at +00h, set per experiment
+USE_ANALYSIS=&quot;.FALSE.,.TRUE.,.FALSE.,.TRUE.,.TRUE.&quot;</code></pre><p>We should now defined the name on the WebgraF page and write some text ( in simple html syntax ) describing the experiments.</p><pre><code class="language-bash"># Project name, will be the name on the web page
+PROJECT=monitor
+
+# Explanation on webpage
+HELP=&quot;Observation verification comparison between \
+      &lt;br&gt; FMI(RCR) \
+      &lt;br&gt; SMHI(C22) \
+     &quot;</code></pre><p>By having several configuration files with different <code>PROJECT</code> names you can gather all your verification plots under one web page. In next section we define the verification period. We can also say if we would like to verify the full period in one go or in monthly pieces by setting <code>PERIOD_TYPE</code>.</p><pre><code class="language-bash"># Date handling
+# PERIOD_TYPE 1 : SDATE - EDATE,
+#             2 : SDATE - EDATE in monthly pieces
+#
+# IDATE is the very first date for PERIOD_TYPE=2 it determines the
+# lentgh of the date menu in WebgraF
+#
+PERIOD_TYPE=1
+
+SDATE=20080901
+EDATE=20080905
+IDATE=$SDATE</code></pre><p>For operational runs it might be useful to set <code>PERIOD_TYPE=2</code> like <a href="http://fminwp.fmi.fi/WebgraF/FMI-HARMONIE/">FMI</a> has done.</p><p>If you would like to monitor some special stations you can list them by station number.</p><pre><code class="language-bash">#
+# Single stations can be defined with comma separated
+# station number and a text for the web page
+#
+# STNLIST_PLOT=&quot;00002574,00006348&quot;
+# STNLIST_PLOT_TXT=&quot;NORRKOPING,CABAUW&quot;
+#
+STNLIST_PLOT=-1
+STNLIST_PLOT_TXT=-1</code></pre><p>Note that the zeros in the name matters since the plots are created with station id as eight digit numbers. A list of parameters to be verified are selected through <code>SURFPAR</code> and <code>TEMPPAR</code> respectively. </p><pre><code class="language-bash">######################
+# Surface parameters #
+######################
+#
+# Change in the file plotdefs.pm for text and limits
+#
+# PS : Mslp
+# TT : T2m
+# TTHA : T2m, adjusted for model and observation station height differences
+# TN : Min T2m
+# TX : Max T2m
+# TD : Td2m
+# FF : Wind speed
+# FX : Max wind speed
+# GG : Wind gust
+# GX : Max wind gust
+# DD : Wind direction
+# QQ : Specific humidity
+# RH : Relative humidity
+# PE : Precipitation
+# NN : Total Cloud cover
+# VI : Visibility, not in vfld files yet
+#
+
+# Active parameters
+SURFPAR=&quot;PS FF FX GG GX DD TT TN TX TD RH QQ NN PE&quot;</code></pre><p>Note that not all parameters are available in the vfld files for HARMONIE yet. The number of levels to be used for <code>TEMP</code> is set in <code>LEV_LST</code>.</p><p>Comment in the code <code>fldextr_pp.f</code> explains <code>TTHA</code>, the moist adiabatic adjustment:</p><pre><code class="language-none">c adiabatic height correction of station values
+c T2M_corr=T2M+[(STATION_HEIGHT-MODEL_HEIGHT)*ADIABATIC_LAPSE_RATE]
+c ex: STATION_HEIGHT = 400 masl; MODEL_HEIGHT = 500 masl T2M = 10
+c     T2M_corr=10+(400-500)*(-0.0065)=10+0.6=10.6</code></pre><p>By setting <code>SURFPLOT</code> and <code>TEMPPLOT</code> we choose what kind of statistics we would like to produce. </p><pre><code class="language-bash"># Things to plot:
+# GEN    : General forcast length statistics
+# TIME   : Timeserie statistics
+# SCAT   : Scatterplot
+# MAP    : Bias maps
+# FREQ   : Frequency plots
+# DAYVAR : Daily variation
+# XML    : Station statistics in xml format
+# CONT   : Contingency tables
+# VERT   : Vertical profiles only available for TEMP data
+# SEAS   : Seasonal cycle
+#
+SURFPLOT=&quot;GEN TIME MAP FREQ SCAT CONT XML DAYVAR&quot;</code></pre><p>From the contingency tables we are also able to produce a number of skill scores either defined by their classes or thresholds.</p><pre><code class="language-bash"># Select skill scores to be plotted if CONT is activated in SURFPLOT
+# Frequency     : Frequency
+# Frequencybias : Frequency bias
+# POD           : Probability of detection ( hit rate )
+# FAR           : False alarm ratio
+# FA            : False alarm rate
+# TS            : Threath score
+# WILSON        : Wilson diagram, a combination of POD, TS, FAR and frequency bias
+# KSS           : Hansen-Kupiers skill score
+# AI            : Area index
+# EDS           : Extreme Dependency Score
+# SEDS          : Symmetric Extreme Dependency Score
+# EDI           : Extremal Dependency Index
+# SEDI          : Symmetric Extremal Dependency Index
+# ETS           : Equitable threat score
+
+SCORELIST=&quot;WILSON KSS Frequency&quot;
+
+# Select whether skill scores are based on classes and/or thresholds (CONT must be activated)
+SCORETYPES=&quot;classes thresholds&quot;</code></pre><p>The meaning of the different abbreviations will be given in next section.</p><p>A selection of data is done by <code>SURFSELECTION</code> and <code>TEMPSELECTION</code>. The name in these list refers to definitions in <a href="../../scr/selection.pm"><code>selection.pm</code></a>. We also select time and forecast interval by the <code>OBINT</code>, <code>FCINT</code> and <code>FCLEN</code> parameters.</p><p>At the end you would possibly like to change the graphics format of the output files.</p><pre><code class="language-bash">#####################
+# GRAPHICS and misc #
+#####################
+
+# Select output_type
+# 1  Postscript + PNG
+# 2  PNG
+# 3  JPEG
+# 4  SVG
+OUTPUT_TYPE=2</code></pre><p>The difference between the first <code>OUTPUT_TYPE</code> and the others is that in the first case gnuplot will produce postscript files that will be converted to PNG files and both files will be available on the web page. The SVG format (Scalable Vector Graphics) should allow plots with zoom functionality, but this does not yet work in the web interface. </p><h3 id="Setting-parameters-for-different-types-of-plots-1"><a class="docs-heading-anchor" href="#Setting-parameters-for-different-types-of-plots-1">Setting parameters for different types of plots</a><a class="docs-heading-anchor-permalink" href="#Setting-parameters-for-different-types-of-plots-1" title="Permalink"></a></h3><p>If the settings in the main configuration file does not cover your needs you go to next level of the definition files. The namelists defining your verification run is build by <a href="../../scr/Build_namelist.pl">Build_namelist.pl</a> by using your configuration file and three perl modules defining different parts. The logics behind the <code>GEN</code>, <code>MAP</code>, <code>TIME</code> switches are hidden in <a href="../../scr/maindefs.pm"><code>maindefs.pm</code></a>. The first part defines the reading part:</p><pre><code class="language-perl">%nameread=(
+ &#39;read_section&#39; =&gt; {
+    &#39;SDATE&#39;   =&gt; $ENV{SDATE},
+    &#39;EDATE&#39;   =&gt; $ENV{EDATE},
+    &#39;NEXP&#39;    =&gt; $nexp,
+    &#39;EXPNAME&#39; =&gt; $exp,
+    &#39;MODPATH&#39; =&gt; $modpath,
+    &#39;OBSPATH&#39; =&gt; &#39;\&#39;&#39;.$ENV{OBSPATH}.&#39;\&#39;&#39;,
+    &#39;LQUALITY_CONTROL&#39; =&gt; &#39;T&#39;,
+    &#39;ESTIMATE_QC_LIMIT&#39;=&gt; &#39;T&#39;,
+    &#39;MAXSTN&#39;           =&gt; 5000,
+    &#39;STNLIST&#39;          =&gt; 0,
+    &#39;STNLIST_PLOT&#39;     =&gt; $ENV{STNLIST_PLOT},
+    &#39;LVERIFY&#39;          =&gt; &#39;F&#39;,
+    &#39;PRINT_READ&#39;       =&gt; 1,
+    &#39;PERIOD_TYPE&#39;      =&gt; $ENV{PERIOD_TYPE},
+    &#39;OUTPUT_TYPE&#39;      =&gt; $ENV{OUTPUT_TYPE},
+    &#39;OUTPUT_MODE&#39;      =&gt; 2,
+ },
+) ;</code></pre><p>Any new variable added here will also be set in the reading part of the namelist. The next part, def, defines values that are reset every time we loop through the verification and reads a new namelist. In the selectionloop part  we find the magic switches for the different <code>SURFPLOT</code>/<code>TEMPPLOT</code> keywords. The first one <code>SEAS</code> is only interesting if you run with a few parameters over several seasons. In the normal case several years of data doesn&#39;t fit in the memory so this is left for the experienced user.</p><p>The next one is <code>GEN</code>:</p><pre><code class="language-perl"> &#39;GEN&#39; =&gt; {
+ # Fclen plots
+ &#39;LSTAT_GEN&#39;  =&gt; &#39;T&#39;,
+ &#39;LSIGN_TEST&#39; =&gt; &#39;T&#39;,
+ &#39;SIGN_TIME_DIFF&#39; =&gt; &#39;-1&#39;,
+ &#39;LPLOT_STAT&#39; =&gt; &#39;T&#39;,
+ &#39;SHOW_BIAS&#39; =&gt; &#39;T&#39;,
+ &#39;SHOW_RMSE&#39; =&gt; &#39;T&#39;,
+ &#39;SHOW_VAR&#39;  =&gt; &#39;T&#39;,
+ },</code></pre><p>Here we set things for standard forecast length verification. We can choose to show bias, rmse and stdv by the <code>SHOW_*</code> variable. If <code>SHOW_VAR</code> is set plots comparing the model variability to the observed one will be produced. The significance of the difference between different experiments can be shown by setting <code>LSIGN_TEST</code>.</p><p>The next section handles the production of bias maps</p><pre><code class="language-perl"> &#39;MAP&#39; =&gt; {
+ # Map plots
+ &#39;PLOT_BIAS_MAP&#39; =&gt; &#39;T&#39;,
+ &#39;PLOT_RMSE_MAP&#39; =&gt; &#39;T&#39;,
+ &#39;LSTAT_GEN&#39;     =&gt; &#39;T&#39;,
+ &#39;LPLOT_STAT&#39;    =&gt; &#39;F&#39;,
+ &#39;LFCVER&#39;        =&gt; &#39;F&#39;,
+ &#39;SHOW_TIMES&#39;    =&gt; &#39;00,12&#39;,
+ &#39;USE_FCLEN&#39; =&gt; join(&#39;,&#39;,split(&#39; &#39;,$ENV{FCLEN_MAP})),
+ },</code></pre><p>Here we can show decide to show any of bias,rmse and stdv maps. The bias intervals for a given parameter are defined in <a href="../../scr/plotdefs.pm"><code>plotdefs.pm</code></a> discussed later. Here we have chosen to show only the 00 and 12 UTC maps.</p><p>Time serie statistics of the observed values and departures are produced by the <code>TIME</code> section.</p><pre><code class="language-perl"> &#39;TIME&#39; =&gt; {
+  # Timeseries
+  &#39;LTIMESERIE_STAT&#39;=&gt; &#39;T&#39;,
+  &#39;USE_FCLEN&#39; =&gt; join(&#39;,&#39;,split(&#39; &#39;,$ENV{FCLEN_TIME})),
+ },</code></pre><p>Note that we explicitly set the forecast lengths we use. As for the <code>GEN</code> part the activation of bias, rmse and stdv plots are controlled by the <code>SHOW_*</code> parameters. The averaging period for time series are controlled per variable through the <code>TWIND_SURF</code> and <code>TWIND_TEMP</code> parameters in <a href="../../scr/plotdefs.pm"><code>plotdefs.pm</code></a>.</p><p>Scatter plots and contingency tables are set in</p><pre><code class="language-perl"> &#39;scat_ver&#39; =&gt; {
+  # Scatterplots and freq,
+  &#39;LPREP_XML&#39; =&gt; &#39;T&#39;,
+  &#39;LPLOT_FREQ&#39;=&gt; &#39;T&#39;,
+  &#39;LPLOT_SCAT&#39;=&gt; &#39;T&#39;,
+  &#39;USE_FCLEN&#39; =&gt; join(&#39;,&#39;,split(&#39; &#39;,$ENV{FCLEN_SCAT})),
+ },</code></pre><p>By setting <code>LPREP_XML</code> we will get a list of stations sorted by decreasing rmse on the web page. This allows you to find the worst stations for different variables. The contingency part of this is defined in <a href="../../scr/plotdefs.pm"><code>plotdefs.pm</code></a>. It is possible to create cross variable scatter plots where we compare different model parameters against each other or the observations. This is however not a part of the script system but be defined on the low level. Read more in <a href="README_verobs#L250">here</a>.</p><p>In some cases it&#39;s interesting to see how the model handles the daily cycle. In <code>DAYVAR</code> we define the flags to get this. The <code>LFCVER</code> tell the program that we should organize the statistics by time of day rather than by forecast length. We have also chosen to allow for a special set of forecast length here through the environment variable <code>FCLEN_DAYVAR</code> set in your configuration file</p><pre><code class="language-perl"> &#39;DAYVAR&#39; =&gt; {
+  # Daily variation
+  &#39;LPLOT_STAT&#39; =&gt; &#39;T&#39;,
+  &#39;LSTAT_GEN&#39;  =&gt; &#39;T&#39;,
+  &#39;LFCVER&#39;     =&gt; &#39;F&#39;,
+  &#39;USE_FCLEN&#39;  =&gt; join(&#39;,&#39;,split(&#39; &#39;,$ENV{FCLEN_DAYVAR})),
+  &#39;SHOW_OBS&#39;   =&gt; &#39;T&#39;,
+  &#39;SHOW_VAR&#39;   =&gt; &#39;F&#39;,
+ },</code></pre><p>The final part of <a href="../../scr/maindefs.pm"><code>maindefs.pm</code></a> deals with the vertical profiles. <code>LPLOT_VERT</code> is the flag telling us that we are doing a vertical profile. The major difference between this and <code>GEN</code> is that here we have chosen to split between night and daytime soundings by setting <code>SHOW_TIMES</code>.</p><p>Any valid namelist variable added to these sections will be picked up and used in the verification. </p><h3 id="Settings-for-different-meteorological-parameters-1"><a class="docs-heading-anchor" href="#Settings-for-different-meteorological-parameters-1">Settings for different meteorological parameters</a><a class="docs-heading-anchor-permalink" href="#Settings-for-different-meteorological-parameters-1" title="Permalink"></a></h3><p>The different treatment of the different meteorological variables are done in <a href="../../scr/plotdefs.pm"><code>plotdefs.pm</code></a>. In the first section we define the default values for all variables.</p><pre><code class="language-perl"> &#39;def&#39;=&gt;{
+   &#39;TWIND_SURF&#39; =&gt; 06,
+   &#39;TWIND_TEMP&#39; =&gt; 12,
+   &#39;QC_LIM_SCALE&#39; =&gt; 5.,
+   &#39;MAP_BIAS_INTERVAL&#39;=&gt; &#39;7*-1&#39;,
+ },</code></pre><p>The <code>TWIND_*</code> parameter sets the time averaging window for time series for surface data and temp respectively. <code>QC_LIM_SCALE</code> is the scaling factor for the stdv used in the quality control. The <code>TEXT</code> variables sets the text for the title in the plots and the web page. For e.g. the cloud cover we have defined the classes for the contingency tables by setting <code>CONT_CLASS</code> and <code>CONT_LIM</code>. <code>MAP_BIAS_INTERVAL</code> set, as the name indicates, the intervals for the bias maps.</p><pre><code class="language-perl">&#39;NN&#39;=&gt;{
+   &#39;TEXT&#39;        =&gt; &#39;Cloud cover&#39;,
+   &#39;CONT_CLASS&#39;  =&gt; 7,
+   &#39;CONT_LIM&#39;    =&gt; &#39;1.,2.,3.,4.,5.,6.,7.&#39;,
+   &#39;PRE_FCLA&#39;    =&gt; &#39;1.,2.,3.,4.,5.,6.,7.&#39;,
+   &#39;MAP_BIAS_INTERVAL&#39;=&gt; &#39;-6.,-4.,-2.,0.,2.,4.,6.&#39;,
+ },</code></pre><p>It is also possible to set the time window for timeseries separately for each variables like it is done for e.g. precipitation (<code>PE</code>). For accumulated and max/min parameters we also need to set the accumulation period. E.g. the maximum temperature for the past 12 hours is defined as</p><pre><code class="language-perl"> &#39;TX&#39;=&gt;{
+   &#39;TWIND_SURF&#39;  =&gt; 12,
+   &#39;TEXT&#39;        =&gt; &#39;Max T2m&#39;,
+   &#39;MAP_BIAS_INTERVAL&#39;=&gt; &#39;-6.,-4.,-2.,0.,2.,4.,6.&#39;,
+   &#39;ACC&#39;         =&gt; 12,
+   &#39;ACCTYPE&#39;     =&gt; 3,
+ },</code></pre><p>Where <code>ACCTYPE</code> defines if it&#39;s an accumulated (1), minimum (2) or maximum (3)  parameter.</p><h3 id="Defining-a-new-verification-parameter-1"><a class="docs-heading-anchor" href="#Defining-a-new-verification-parameter-1">Defining a new verification parameter</a><a class="docs-heading-anchor-permalink" href="#Defining-a-new-verification-parameter-1" title="Permalink"></a></h3><p>As described in the [#Ageneralinputformat input format] section you can add any variable to the verification. Let&#39;s say you would like to verify precipiation accunulated over three hours and that you have called it <code>PE3H</code> in your data files.</p><pre><code class="language-perl"> &#39;PE3H&#39;=&gt;{
+   &#39;TEXT&#39; =&gt; &#39;Precipitation 3h&#39;,
+   &#39;ACC&#39;  =&gt; 3,
+   &#39;UNIT&#39; =&gt; &#39;mm/3h&#39;,
+ },</code></pre><p>Where <code>TEXT</code> is the description to be displayed on the plot and the webpage, <code>ACC</code> is the accumulation period in hours and <code>UNIT</code> is the unit to be written to the plot. Of course the above mentioned properties can be set as well. Remember to add <code>PE3H</code> to the <code>SURFPAR</code> list in your definition file.</p><h3 id="Selection-options-1"><a class="docs-heading-anchor" href="#Selection-options-1">Selection options</a><a class="docs-heading-anchor-permalink" href="#Selection-options-1" title="Permalink"></a></h3><p>It easy to select a subset of your data for verification and we have already discussed how it can be done by setting a list of stations or select different forecast lengths. In <a href="../../scr/selection.pm"><code>selection.pm</code></a> a number of different kind of selections have been defined. Several of them are just a list of stations like e.g. the well known (but perhaps not so well defined) <code>EWGLAM</code> list. An example of how a box can be defined is found for the Netherlands.</p><pre><code class="language-perl"> &#39;Netherland&#39; =&gt; {
+   &#39;CBOX%ACTIVE&#39; =&gt; &#39;T&#39;,
+   &#39;CBOX%SLAT&#39; =&gt; &#39;51.&#39;,
+   &#39;CBOX%WLON&#39; =&gt; &#39;1.5&#39;,
+   &#39;CBOX%NLAT&#39; =&gt; &#39;54.5&#39;,
+   &#39;CBOX%ELON&#39; =&gt; &#39;9.&#39;,
+   }</code></pre><p>We may also define our area of selection through a polygon.</p><pre><code class="language-perl"> &#39;BalticSea&#39; =&gt; {
+   &#39;STNLIST&#39;=&gt; 0,
+   &#39;LPOLY&#39;               =&gt; &#39;T&#39;,
+   &#39;POLYFILE&#39;            =&gt; &#39;\&#39;Baltic_sea.poly\&#39;&#39;,
+   },</code></pre><p>A more specialized case is the selection of stations by station height where the upper and lower limits are given.</p><pre><code class="language-perl">  &#39;masl_300m&#39; =&gt; {
+   &#39;STNLIST&#39;=&gt; 0,
+   &#39;LSTN_HGT_CHECK&#39;=&gt;&#39;.T.&#39;,
+   &#39;HGT_ULIM&#39;=&gt;1.e6,
+   &#39;HGT_LLIM&#39;=&gt;300.,
+   },</code></pre><p>Finally we can also do the selection based on meteorological criteria. In the example below we are interested in cases with low temperatures and weak winds.</p><pre><code class="language-perl">  &#39;temp_and_wind_limit&#39; =&gt; {
+    &#39;COND%IND&#39; =&gt; &#39;FF,TT&#39;,
+    &#39;COND%ULIM&#39; =&gt; &#39; 5.,-10.&#39;,
+    &#39;COND%LLIM&#39; =&gt; &#39;-1.,-55.&#39;,
+    &#39;COND%LOBS&#39; =&gt; &#39;T,F&#39;,
+    &#39;COND%ALL_MOD&#39; =&gt; &#39;T,F&#39;,
+  },</code></pre><p><img src="conditional_example2.png" alt/></p><h3 id="Example-of-conditional-selection-1"><a class="docs-heading-anchor" href="#Example-of-conditional-selection-1">Example of conditional selection</a><a class="docs-heading-anchor-permalink" href="#Example-of-conditional-selection-1" title="Permalink"></a></h3><ul><li><code>COND%IND</code> sets the parameters</li><li><code>COND%LLIM</code> sets the lower limits</li><li><code>COND%ULIM</code> sets the upper limits</li><li><code>COND%LOBS</code> <code>T</code> means apply condition on observations, <code>F</code> applies condition on model data</li><li><code>COND%ALL_MOD</code>, <code>T</code> means condition is required for ALL models, <code>F</code> for ANY model</li></ul><p>All the above mentioned selections can of course be combined in any way you can imagine.</p></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="webgraf/">WebgraF »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Saturday 29 February 2020 14:09">Saturday 29 February 2020</span>. Using Julia version 1.3.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

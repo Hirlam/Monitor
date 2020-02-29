@@ -1,0 +1,33 @@
+# Instructions on how to install verobs and WebgraF
+# For usage read on in the readme files
+#
+# Ulf Andrae, SMHI, 2006
+#
+
+# Install WebgraF
+
+ - Set your WebgraF main directory by 
+ export WEBGRAF_BASE $SOME_PATH/WebgraF
+
+ - Add $SOME_PATH/WebgraF/bin/WebgraF to you path
+
+ Open $SOME_PATH/WebgraF/index.html in you browser
+
+ Read on in the README_WebgraF for further usage
+
+
+# Install verobs
+
+Verobs can be compiled with GNUPLOT or MAGICS as graphical output.
+
+External libraries needed without magics: none
+External libraries needed with magics: magics emoslib
+
+At ecgate
+Make sure ARCH=ecgate in the monitor/Makefile 
+
+For other machines a new config file has to be introduced
+
+Compile by ; cd $SRCDIR ; gmake
+
+Read on in the README_verobs for further usage
