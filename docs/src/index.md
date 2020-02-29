@@ -16,18 +16,18 @@ In addition there are a number of scores based on contingency tables like:
 
 | score | description | Range | Perfect Score | 
 | :---- | :---------- | ----- | ------------- | 
-|Frequency bias (bias score) | (h+fa)/(h+m); Compares the frequency of predicted events to the frequency of observed events | [ 0 , ∞) |  1 |
-| Hit rate (probability of detection) |  h/(h+m); What fraction of the observed events were correctly forecast |  [0, 1] |   1 |  
-| False alarm ratio | fa/(h+fa); What fraction of the predicted events did not occur |  0 - 1 |  0 |
-| False alarm rate | fa/((cn+fa); What fraction of the observed "no" events were incorrectly forecast as "yes" | [0, 1] |  0 |
-| Threat score | h/(h+m+fa); How well did the forecast "yes" events correspond to the observed "yes" events. | [0, 1] |  1 |
-|The Equitable threat score | takes into account the number of random hits (R) and is less sensitive to climatology: ETS=(h­R)/(h+m+fa­R),  R=(h+m)(h+fa)/(h+m+fa+cn). Often used in verification of precipitation. |[-1/3, 1], 0 = no skill    | 1 | 
-|Hansen­Kuipers score | (h/(h+m) ­ fa/(fa+cn)), How well did the forecast separate events from non­events. | [-1, 1],  0 = no skill | 1 |
-|Extreme Dependency Scores | What is the association between forecast and observed rare events? | [-1, 0] 0 = no skill |  1|
+|Frequency bias (bias score) | ``(h+fa)/(h+m)``; Compares the frequency of predicted events to the frequency of observed events | ``[ 0 , ∞)`` |  ``1`` |
+| Hit rate (probability of detection) |  ``h/(h+m)``; What fraction of the observed events were correctly forecast |  ``[0, 1]`` |   ``1`` |  
+| False alarm ratio | ``fa/(h+fa)``; What fraction of the predicted events did not occur |  ``[0, 1]`` |  ``0`` |
+| False alarm rate | ``fa/((cn+fa)``; What fraction of the observed "no" events were incorrectly forecast as "yes" | ``[0, 1]`` |  ``0`` |
+| Threat score | ``h/(h+m+fa)``; How well did the forecast "yes" events correspond to the observed "yes" events. | ``[0, 1]`` |  ``1`` |
+|The Equitable threat score | takes into account the number of random hits (``R``) and is less sensitive to climatology: ``ETS=(h­R)/(h+m+fa­R)``,  ``R=(h+m)(h+fa)/(h+m+fa+cn)``. Often used in verification of precipitation. |``[-⅓, 1]``  | ``1``, 0=no skill | 
+|Hansen­Kuipers score | (``h/(h+m)`` ­``fa/(fa+cn)``), How well did the forecast separate events from non­events. | ``[-1, 1]`` | ``1`,` 0 = no skill |
+|Extreme Dependency Scores | What is the association between forecast and observed rare events? | ``[-1, 1]``  |  ``1``, 0 = no skill|
 
-A more detailed explanation about verification can found at [here](http://www.cawcr.gov.au/projects/verification/)
+A more detailed explanation about verification can found [here](http://www.cawcr.gov.au/projects/verification/)
 
-The scores can be presented per station for the whole data set or filtered through different selection criteria based on e.g. a geographical domain or properties of the data itself. One key feature missing in earlier HIRLAM verification packages is that the comparison is done over exactly the same set of data ( in time and space ) when comparing different experiments or models. The scores are finally presented with a portable web interface, [#WebgraF WebgraF], that allows you to easily share the information with others. Since the verification is station based it is less suitable for moving platforms or fields.
+The scores can be presented per station for the whole data set or filtered through different selection criteria based on e.g. a geographical domain or properties of the data itself. One key feature missing in earlier HIRLAM verification packages is that the comparison is done over exactly the same set of data ( in time and space ) when comparing different experiments or models. The scores are finally presented with a portable web interface, [WebgraF](./webgraf.md), that allows you to easily share the information with others. Since the verification is station based it is less suitable for moving platforms or fields.
 
 Other examples on how products from the verification package looks like today can be found here:
  * [The monitor test data set](https://hirlam.org/portal/smhi/WebgraF_test_data/)
@@ -42,7 +42,7 @@ In the following we describe the different parts of the verification package. Fo
 The verification code can be fetched from the hirlam code repository by
 
 ```bash
-git clone https://git.hirlam.org/monitor
+git clone https://github.com/Hirlam/monitor
 cd monitor
 git checkout v1.1
 ```
@@ -165,7 +165,7 @@ Before we run through the actual comparison of data we can select a subset of th
  * Pick only some of the forecast lengths in memory (`USE_FCLEN`)
  * Selection using a station list (`STNLIST`)
  * Select to produce statistics for some selected stations in addition to the overall statistics (`STNLIST_PLOT`)
- * Define a geographical box through the definition of the corners (`CBOX%ACTIVE,CBOX%S,CBOX%W,CBOX%N,CBOX%E`).
+ * Define a geographical box through the definition of the corners (`CBOX%ACTIVE`,`CBOX%S`,`CBOX%W`,`CBOX%N`,`CBOX%E`).
  * Use an area defined by a polygon (`LPOLY,POLYFILE`)
  * Select by station height (`HGT_LLIM,HGT_ULIM`)
  * Conditions given by the data (described later)
@@ -177,7 +177,7 @@ Of course all the selections can be combined.
 
 For each station we loop over all selected stations, initial times, forecast lengths for the given period and accumulate the statistics.
 Data is stored by:
-  * Statistic by forecast length or time of day, for each station and accumulated for all stations and is used to generate error maps(`MAP`), vertical profiles(`VERT`), standard forecast length verification(GEN) and daily variation scores (`DAYVAR`)
+  * Statistic by forecast length or time of day, for each station and accumulated for all stations and is used to generate error maps(`MAP`), vertical profiles(`VERT`), standard forecast length verification(`GEN`) and daily variation scores (`DAYVAR`)
   * Time serie arrays for each station and accumulated for all stations (`TIME`)
   * One array containing all the selected data used for scatter plots (`SCAT`) and contingency table calculations (`CONT`). From the contingency table we can calculate several different scores described later.
 
@@ -194,7 +194,7 @@ In HARMONIE a set of scripts is build around the code for generation of plots an
     `Run_verobs_surface` `Run_verobs_temp`  do not exist
     
 
-There are two main scripts  Run_verobs_surface](../../scr/Run_verobs_surface)  for verification of surface variables and Run_verobs_temp](../../scr/Run_verobs_temp)  for verification of radio sonde data. Both of them need a configuration file, `Env_exp`, as input:
+There are two main scripts  `Run_verobs_surface`](../../scr/Run_verobs_surface)  for verification of surface variables and `Run_verobs_temp`](../../scr/Run_verobs_temp)  for verification of radio sonde data. Both of them need a configuration file, `Env_exp`, as input:
 
 ```bash
 ./Run_verobs_surface MY_ENV_EXP
