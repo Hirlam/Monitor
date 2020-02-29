@@ -93,7 +93,7 @@ The strategy in the verification is to separate the data input from the calculat
 
 ### Reading the data 
 
-The program can handle several data sources. Which one you use is depending on the value of `DATA_SOURCE` and is controlled in the routine [`my_choices.f90`](../../src/my_choices.f90). At namelist level we also control which experiments we should read, the period (`SDATE`,`EDATE`), interval between cycles (`FCINT`), which forecasts (`FCLEN`) and the interval of the observations (`OBINT`). We can also already at this point select which stations to use by specifying a station list (`STNLIST`). 
+The program can handle several data sources. Which one you use is depending on the value of `DATA_SOURCE` and is controlled in the routine [`my_choices.f90`](https://github.com/Hirlam/Monitor/tree/master/src/my_choices.f90). At namelist level we also control which experiments we should read, the period (`SDATE`,`EDATE`), interval between cycles (`FCINT`), which forecasts (`FCLEN`) and the interval of the observations (`OBINT`). We can also already at this point select which stations to use by specifying a station list (`STNLIST`). 
 
 The HARMONIE tools to extract data for verifiation are described in [here](https://hirlam.org/trac/wiki/HarmonieSystemDocumentation/PostPP/Extract4verification).
 
@@ -101,10 +101,10 @@ The HARMONIE tools to extract data for verifiation are described in [here](https
 
 For the every day verification the model and observation data are read with the routines 
 
-  - [`read_vfld.f90`](../../rdr/read_vfld.f90)
-  - [`read_vobs.f90`](../../rdr/read_vobs.f90)
-  - [`read_vfld_temp.f90`](../../rdr/read_vfld_temp.f90)
-  - [`read_vobs_temp.f90`](../../rdr/read_vobs_temp.f90)
+  - [`read_vfld.f90`](https://github.com/Hirlam/Monitor/tree/master/rdr/read_vfld.f90)
+  - [`read_vobs.f90`](https://github.com/Hirlam/Monitor/tree/master/rdr/read_vobs.f90)
+  - [`read_vfld_temp.f90`](https://github.com/Hirlam/Monitor/tree/master/rdr/read_vfld_temp.f90)
+  - [`read_vobs_temp.f90`](https://github.com/Hirlam/Monitor/tree/master/rdr/read_vobs_temp.f90)
 
 Where the two first are for surface data and are used when `DATA_SOURCE=vfld` and the two latter for temp data and are used when `DATA_SOURCE=vfld_temp`. During the evolution of the verification package the format of the input data has changed and we are now at version four. The new format allows an arbitrary number of different types of point data to be included in the model vfld- or observation vobs- files.
 
@@ -141,7 +141,7 @@ stid_2 lat lon hgt
 ...
 ```
 
-The accumulation time allows us to e.g. easily include different precipitation accumulation intervals. Any variable can be included in the file and verified without any code changes. Once you have defined a variable in your data you have to describe its properties in the [`plotdefs.pm`](../../scr/plotdefs.pm) described in the [#Settingsfordifferentmeteorologicalparameters parameter setting section].
+The accumulation time allows us to e.g. easily include different precipitation accumulation intervals. Any variable can be included in the file and verified without any code changes. Once you have defined a variable in your data you have to describe its properties in the [`plotdefs.pm`](https://github.com/Hirlam/Monitor/tree/master/scr/plotdefs.pm) described in the [#Settingsfordifferentmeteorologicalparameters parameter setting section].
 
 ### Quality control 
 
@@ -183,7 +183,7 @@ Data is stored by:
 
 ### Output format 
 
- Early versions of the package was based on the ECMWF graphics package MAGICS. Due to the poor portability of MAGICS the package now a days produces text files that are parsed through a [script](../../scr/verobs2gnuplot.pl) that produces plots using gnuplot. It may not be the most elegant graphics package, but it is available almost everywhere. Some verification are also produced in form of tables. The contingency tables are parsed through [`contingency2gnuplot.pl`](../../scr/contingency2gnuplot.pl) to produce skill scores.
+ Early versions of the package was based on the ECMWF graphics package MAGICS. Due to the poor portability of MAGICS the package now a days produces text files that are parsed through a [script](https://github.com/Hirlam/Monitor/tree/master/scr/verobs2gnuplot.pl) that produces plots using gnuplot. It may not be the most elegant graphics package, but it is available almost everywhere. Some verification are also produced in form of tables. The contingency tables are parsed through [`contingency2gnuplot.pl`](https://github.com/Hirlam/Monitor/tree/master/scr/contingency2gnuplot.pl) to produce skill scores.
 
 # HARMONIE user interface
 
@@ -194,14 +194,14 @@ In HARMONIE a set of scripts is build around the code for generation of plots an
     `Run_verobs_surface` `Run_verobs_temp`  do not exist
     
 
-There are two main scripts  `Run_verobs_surface`](../../scr/Run_verobs_surface)  for verification of surface variables and `Run_verobs_temp`](../../scr/Run_verobs_temp)  for verification of radio sonde data. Both of them need a configuration file, `Env_exp`, as input:
+There are two main scripts  `Run_verobs_surface`](https://github.com/Hirlam/Monitor/tree/master/scr/Run_verobs_surface)  for verification of surface variables and `Run_verobs_temp`](https://github.com/Hirlam/Monitor/tree/master/scr/Run_verobs_temp)  for verification of radio sonde data. Both of them need a configuration file, `Env_exp`, as input:
 
 ```bash
 ./Run_verobs_surface MY_ENV_EXP
 ./Run_verobs_temp MY_ENV_EXP
 ```
 
-There is also a master script [`Run_verobs_all`](../../scr/Run_verobs_all) which cleans the webpage, runs through both types of verification and creates a tar file suitable to add to an existing WebgraF page. It is used in the same way like:
+There is also a master script [`Run_verobs_all`](https://github.com/Hirlam/Monitor/tree/master/scr/Run_verobs_all) which cleans the webpage, runs through both types of verification and creates a tar file suitable to add to an existing WebgraF page. It is used in the same way like:
 
 ```bash
 ./Run_verobs_all MY_ENV_EXP
@@ -210,7 +210,7 @@ There is also a master script [`Run_verobs_all`](../../scr/Run_verobs_all) which
 
 ## The main configuration file 
 
-For most of the cases you can configure your verification by just editing the configuration file, [`Env_exp`](../../scr/Env_exp). The above mentioned script can take files with any name so it's a good idea to have different files for different sets of experiments. First you have to identify your experiments and their location. 
+For most of the cases you can configure your verification by just editing the configuration file, [`Env_exp`](https://github.com/Hirlam/Monitor/tree/master/scr/Env_exp). The above mentioned script can take files with any name so it's a good idea to have different files for different sets of experiments. First you have to identify your experiments and their location. 
 
 ```bash
 # Experiment names and paths,should be space separated
@@ -370,7 +370,7 @@ SCORETYPES="classes thresholds"
 
 The meaning of the different abbreviations will be given in next section.
 
-A selection of data is done by `SURFSELECTION` and `TEMPSELECTION`. The name in these list refers to definitions in [`selection.pm`](../../scr/selection.pm). We also select time and forecast interval by the `OBINT`, `FCINT` and `FCLEN` parameters.
+A selection of data is done by `SURFSELECTION` and `TEMPSELECTION`. The name in these list refers to definitions in [`selection.pm`](https://github.com/Hirlam/Monitor/tree/master/scr/selection.pm). We also select time and forecast interval by the `OBINT`, `FCINT` and `FCLEN` parameters.
 
 At the end you would possibly like to change the graphics format of the output files.
 
@@ -391,7 +391,7 @@ The difference between the first `OUTPUT_TYPE` and the others is that in the fir
 
 ### Setting parameters for different types of plots 
 
-If the settings in the main configuration file does not cover your needs you go to next level of the definition files. The namelists defining your verification run is build by [Build_namelist.pl](../../scr/Build_namelist.pl) by using your configuration file and three perl modules defining different parts. The logics behind the `GEN`, `MAP`, `TIME` switches are hidden in [`maindefs.pm`](../../scr/maindefs.pm). The first part defines the reading part:
+If the settings in the main configuration file does not cover your needs you go to next level of the definition files. The namelists defining your verification run is build by [Build_namelist.pl](https://github.com/Hirlam/Monitor/tree/master/scr/Build_namelist.pl) by using your configuration file and three perl modules defining different parts. The logics behind the `GEN`, `MAP`, `TIME` switches are hidden in [`maindefs.pm`](https://github.com/Hirlam/Monitor/tree/master/scr/maindefs.pm). The first part defines the reading part:
 
 ```perl
 %nameread=(
@@ -450,7 +450,7 @@ The next section handles the production of bias maps
  },
 ```
 
-Here we can show decide to show any of bias,rmse and stdv maps. The bias intervals for a given parameter are defined in [`plotdefs.pm`](../../scr/plotdefs.pm) discussed later. Here we have chosen to show only the 00 and 12 UTC maps.
+Here we can show decide to show any of bias,rmse and stdv maps. The bias intervals for a given parameter are defined in [`plotdefs.pm`](https://github.com/Hirlam/Monitor/tree/master/scr/plotdefs.pm) discussed later. Here we have chosen to show only the 00 and 12 UTC maps.
 
 Time serie statistics of the observed values and departures are produced by the `TIME` section.
 
@@ -462,7 +462,7 @@ Time serie statistics of the observed values and departures are produced by the 
  },
 ```
 
-Note that we explicitly set the forecast lengths we use. As for the `GEN` part the activation of bias, rmse and stdv plots are controlled by the `SHOW_*` parameters. The averaging period for time series are controlled per variable through the `TWIND_SURF` and `TWIND_TEMP` parameters in [`plotdefs.pm`](../../scr/plotdefs.pm).
+Note that we explicitly set the forecast lengths we use. As for the `GEN` part the activation of bias, rmse and stdv plots are controlled by the `SHOW_*` parameters. The averaging period for time series are controlled per variable through the `TWIND_SURF` and `TWIND_TEMP` parameters in [`plotdefs.pm`](https://github.com/Hirlam/Monitor/tree/master/scr/plotdefs.pm).
 
 Scatter plots and contingency tables are set in
 
@@ -476,7 +476,7 @@ Scatter plots and contingency tables are set in
  },
 ```
 
-By setting `LPREP_XML` we will get a list of stations sorted by decreasing rmse on the web page. This allows you to find the worst stations for different variables. The contingency part of this is defined in [`plotdefs.pm`](../../scr/plotdefs.pm). It is possible to create cross variable scatter plots where we compare different model parameters against each other or the observations. This is however not a part of the script system but be defined on the low level. Read more in [here](README_verobs#L250).
+By setting `LPREP_XML` we will get a list of stations sorted by decreasing rmse on the web page. This allows you to find the worst stations for different variables. The contingency part of this is defined in [`plotdefs.pm`](https://github.com/Hirlam/Monitor/tree/master/scr/plotdefs.pm). It is possible to create cross variable scatter plots where we compare different model parameters against each other or the observations. This is however not a part of the script system but be defined on the low level. Read more in [here](README_verobs#L250).
 
 In some cases it's interesting to see how the model handles the daily cycle. In `DAYVAR` we define the flags to get this. The `LFCVER` tell the program that we should organize the statistics by time of day rather than by forecast length. We have also chosen to allow for a special set of forecast length here through the environment variable `FCLEN_DAYVAR` set in your configuration file
 
@@ -492,13 +492,13 @@ In some cases it's interesting to see how the model handles the daily cycle. In 
  },
 ```
 
-The final part of [`maindefs.pm`](../../scr/maindefs.pm) deals with the vertical profiles. `LPLOT_VERT` is the flag telling us that we are doing a vertical profile. The major difference between this and `GEN` is that here we have chosen to split between night and daytime soundings by setting `SHOW_TIMES`.
+The final part of [`maindefs.pm`](https://github.com/Hirlam/Monitor/tree/master/scr/maindefs.pm) deals with the vertical profiles. `LPLOT_VERT` is the flag telling us that we are doing a vertical profile. The major difference between this and `GEN` is that here we have chosen to split between night and daytime soundings by setting `SHOW_TIMES`.
 
 Any valid namelist variable added to these sections will be picked up and used in the verification. 
  
 ### Settings for different meteorological parameters
 
- The different treatment of the different meteorological variables are done in [`plotdefs.pm`](../../scr/plotdefs.pm). In the first section we define the default values for all variables.
+ The different treatment of the different meteorological variables are done in [`plotdefs.pm`](https://github.com/Hirlam/Monitor/tree/master/scr/plotdefs.pm). In the first section we define the default values for all variables.
 
 ```perl
  'def'=>{
@@ -551,7 +551,7 @@ Where `TEXT` is the description to be displayed on the plot and the webpage, `AC
 
 ### Selection options 
  
-It easy to select a subset of your data for verification and we have already discussed how it can be done by setting a list of stations or select different forecast lengths. In [`selection.pm`](../../scr/selection.pm) a number of different kind of selections have been defined. Several of them are just a list of stations like e.g. the well known (but perhaps not so well defined) `EWGLAM` list. An example of how a box can be defined is found for the Netherlands.
+It easy to select a subset of your data for verification and we have already discussed how it can be done by setting a list of stations or select different forecast lengths. In [`selection.pm`](https://github.com/Hirlam/Monitor/tree/master/scr/selection.pm) a number of different kind of selections have been defined. Several of them are just a list of stations like e.g. the well known (but perhaps not so well defined) `EWGLAM` list. An example of how a box can be defined is found for the Netherlands.
 
 ```perl
  'Netherland' => {
