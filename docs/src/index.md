@@ -22,7 +22,7 @@ In addition there are a number of scores based on contingency tables like:
 | False alarm rate | ``fa/((cn+fa)``; What fraction of the observed "no" events were incorrectly forecast as "yes" | ``[0, 1]`` |  ``0`` |
 | Threat score | ``h/(h+m+fa)``; How well did the forecast "yes" events correspond to the observed "yes" events. | ``[0, 1]`` |  ``1`` |
 |The Equitable threat score | takes into account the number of random hits (``R``) and is less sensitive to climatology: ``ETS=(h­R)/(h+m+fa­R)``,  ``R=(h+m)(h+fa)/(h+m+fa+cn)``. Often used in verification of precipitation. |``[-⅓, 1]``  | ``1``, 0=no skill | 
-|Hansen­Kuipers score | (``h/(h+m)`` ­``fa/(fa+cn)``), How well did the forecast separate events from non­events. | ``[-1, 1]`` | ``1`,` 0 = no skill |
+|Hansen­Kuipers score | (``h/(h+m)`` ­``fa/(fa+cn)``), How well did the forecast separate events from non­events. | ``[-1, 1]`` | ``1`, 0 = no skill |
 |Extreme Dependency Scores | What is the association between forecast and observed rare events? | ``[-1, 1]``  |  ``1``, 0 = no skill|
 
 A more detailed explanation about verification can found [here](http://www.cawcr.gov.au/projects/verification/)
