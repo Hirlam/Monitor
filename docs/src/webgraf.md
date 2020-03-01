@@ -5,13 +5,13 @@ Examples :
  * [Daily maps](https://hirlam.org/portal/oprint/Charts/CHARTS/1_RCR_area/) [Definition file](https://hirlam.org/portal/oprint/Charts/CHARTS/1_RCR_area/Surface.js)
 
 
-At the end of both of the scripts Run_verobs_surface/Run_verobs_temp there is a call to [Create_ver_js.pl](../../scr/Create_ver_js.pl) that builds the webpage depending on your configuration file. It is also possible to (re)generate the webpage directly by running:
+At the end of both of the scripts Run_verobs_surface/Run_verobs_temp there is a call to [`Create_ver_js.pl`](https://github.com/Hirlam/Monitor/tree/master/scr/Create_ver_js.pl) that builds the webpage depending on your configuration file. It is also possible to (re)generate the webpage directly by running:
 
 ```bash
 Create_ver_js YOUR_CONFIG_FILE
 ```
 
-The WebgraF page is controlled by the [WebgraF script](../../WebgraF/bin/WebgraF). It has commands to e.g. list, add, remove the content of a page. To start mastering your own page you first have to let the script know the location of the page by setting the environment variable `WEBGRAF_BASE` 
+The WebgraF page is controlled by the [`WebgraF` script](https://github.com/Hirlam/Monitor/tree/master/WebgraF/bin/WebgraF). It has commands to e.g. list, add, remove the content of a page. To start mastering your own page you first have to let the script know the location of the page by setting the environment variable `WEBGRAF_BASE` 
 
 ```bash
 # in bash
@@ -26,14 +26,14 @@ Now you can list the content of you page by
 WebgraF/bin/WebgraF -l 
 ```
 
-A more comprehensive list of commands can be found in the [README file](README_WebgraF). The rules and functions available for your definition file is found [here](../../WebgraF/src/input.html).
+A more comprehensive list of commands can be found in the [README file](README_WebgraF). The rules and functions available for your definition file is found [here](https://github.com/Hirlam/Monitor/tree/master/WebgraF/src/input.html).
 
 Two useful tools is the export and transport commands. Both creates an portable extraction of your verification page but in two different ways.
 
  * The `export.tar` file is a stand alone web page that you can untar anywhere and open in your browser.
  * The `transport.tar` file is suitable to add to an already existing WebgraF page by  `WebgraF -a TARFILE`
 
-Both are accessible through the script [Transport_ver](../../scr/Transport_ver) which is used like
+Both are accessible through the script [`Transport_ver`](https://github.com/Hirlam/Monitor/tree/master/scr/Transport_ver) which is used like
 
 ```bash
 Transport_ver YOUR_CONFIG_FILE
