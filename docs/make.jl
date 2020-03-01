@@ -1,14 +1,13 @@
 using Documenter
 
-const PAGES = [ "Monitor" => "index.md",
-                "WebgraF" => "webgraf.md"
-              ]
-
-
-makedocs(sitename="Monitor",
-         pages=PAGES)
-
-
+makedocs(
+    sitename = "Monitor",
+    format = Documenter.HTML(prettyurls = get(ENV, "CI", nothing) == "true"),
+    pages = [ 
+        "Monitor" => "index.md",
+        "WebgraF" => "webgraf.md"
+    ],
+)
 
 deploydocs(
     repo = "github.com/Hirlam/Monitor.git",
