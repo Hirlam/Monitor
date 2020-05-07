@@ -31,7 +31,7 @@ SUBROUTINE read_vobs_temp
  REAL :: lat,lon,hgt,sub,sca
  REAL, ALLOCATABLE :: val(:),inacc(:)
 
- LOGICAL :: use_stnlist,cbl
+ LOGICAL :: use_stnlist,cbl,read_error
 
  CHARACTER(LEN=200) :: fname =' ',path
  CHARACTER(LEN= 10) :: ndate =' '
@@ -56,7 +56,7 @@ SUBROUTINE read_vobs_temp
  ! Copy time
 
  cdate = sdate
- ctime = stime * 10000
+ ctime = stime*10000
 
  wrk = 0
  WHERE ( lev_lst > 0 ) wrk = 1
@@ -66,14 +66,21 @@ SUBROUTINE read_vobs_temp
  ! Loop over all times
  !
 
- i = 0
+ ! Take a step back before we start
+ wdate = cdate
+ wtime = ctime
+ CALL adddtg(wdate,wtime,-3600*obint,cdate,ctime)
 
  TIME_LOOP : DO
 
- i = i + 1
+ wdate = cdate
+ wtime = ctime
+ CALL adddtg(wdate,wtime,3600*obint,cdate,ctime)
+ IF(cdate >  edate_obs) EXIT TIME_LOOP
+ IF(cdate >= edate_obs .AND. ctime/10000 > etime_obs) EXIT TIME_LOOP
 
- IF (print_read>1) WRITE(6,*)'TIME:',cdate,ctime/10000
- WRITE(ndate,'(I8.8,I2.2)')cdate,ctime/10000
+ IF (print_read > 1) WRITE(6,*)'TIME:',cdate,ctime/10000
+ WRITE(ndate(1:10),'(I8.8,I2.2)')cdate,ctime/10000
  path = obspath
  CALL check_path(cdate,path)
  fname = TRIM(path)//'vobs'//ndate
@@ -82,53 +89,41 @@ SUBROUTINE read_vobs_temp
  ! Read obs data
  !
 
-       OPEN(lunin,file=fname,status='old',iostat=ierr)
+       OPEN(lunin,file=fname,status='old',IOSTAT=ierr)
 
        IF (ierr /= 0) THEN
-  
-          IF( print_read > 0 ) WRITE(6,'(2A)')'MISS ',TRIM(fname)
-
-          wdate = cdate
-          wtime = ctime
-          CALL adddtg(wdate,wtime,obint*3600,cdate,ctime)
-          IF(cdate >  edate_obs) EXIT TIME_LOOP
-          IF(cdate >= edate_obs .AND. ctime/10000 > etime_obs) EXIT TIME_LOOP
-
-          i = i - 1
+          IF( print_read > 0 )WRITE(6,'(2A)')'MISS ',TRIM(fname)
           CYCLE TIME_LOOP
-
        ENDIF
 
        IF (print_read > 0 ) WRITE(6,'(2A)')'READ ',TRIM(fname)
 
        version_flag = 0
 
-       READ(lunin,'(1x,3I6)',IOSTAT=ierr)num_stat,num_temp,version_flag
+       READ(lunin,'(1X,3I6)',IOSTAT=ierr)num_stat,num_temp,version_flag
        IF ( ierr /= 0 ) THEN
-         WRITE(6,*)'Error reading first line of vobs file',ierr
-         CALL abort
+          WRITE(6,*)'Error reading first line of vobs file:',TRIM(fname)
+          CLOSE(lunin)
+          CYCLE TIME_LOOP
        ENDIF
 
        IF (num_temp == 0 ) THEN
           IF(print_read>1) WRITE(6,*)'SKIP',cdate,ctime
-          i = i - 1
           CLOSE(lunin)
-          wdate = cdate
-          wtime = ctime
-          CALL adddtg(wdate,wtime,obint*3600,cdate,ctime)
-          IF(cdate > edate_obs) EXIT TIME_LOOP
           CYCLE TIME_LOOP
        ENDIF
 
       ! Skip the synop stations
-      SELECT CASE (version_flag)
+      SELECT CASE(version_flag)
        CASE(0:3)
           READ(lunin,*)num_temp_lev
+          read_error = ( read_error .OR. ierr /= 0 )
           DO k=1,num_stat
             READ(lunin,*)
           ENDDO
        CASE(4)
           READ(lunin,*)ninvar
+          read_error = ( read_error .OR. ierr /= 0 )
           DO k=1,ninvar
             READ(lunin,*)
           ENDDO
@@ -157,8 +152,10 @@ SUBROUTINE read_vobs_temp
         CASE(4)
          ipr = -1 
          ifi = -1 
-         READ(lunin,*)num_temp_lev
-         READ(lunin,*)ninvar
+         READ(lunin,*,IOSTAT=ierr)num_temp_lev
+         read_error = ( read_error .OR. ierr /= 0 )
+         READ(lunin,*,IOSTAT=ierr)ninvar
+         read_error = ( read_error .OR. ierr /= 0 )
           IF ( ninvar /= old_ninvar ) THEN
             IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
             ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
@@ -185,21 +182,23 @@ SUBROUTINE read_vobs_temp
           SELECT CASE(version_flag)
           CASE(0)
              READ(lunin,*,iostat=ierr)istnr,lat,lon
+             read_error = ( read_error .OR. ierr /= 0 )
              hgt = mflag
           CASE(1:2,4)
              READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt
+             read_error = ( read_error .OR. ierr /= 0 )
           CASE DEFAULT
              WRITE(6,*)'Cannot handle this vobs-file version',version_flag
              CALL abort
           END SELECT 
 
-          IF(print_read>1) WRITE(6,*)istnr,lat,lon,hgt,ierr
-
           IF (ierr /= 0) THEN
              WRITE(6,*)'Problem in ',TRIM(fname)
              WRITE(6,*)'Error in reading the header of the TEMP observation ',istnr,lat,lon,hgt,ierr
-             CALL abort
+             CYCLE READ_STATION_OBS
           ENDIF
+
+          IF(print_read>1) WRITE(6,*)istnr,lat,lon,hgt,ierr
 
           IF (istnr == 0) CYCLE READ_STATION_OBS
           IF (( ABS(lat - mflag) < 1.e-4 ) ) CYCLE READ_STATION_OBS
@@ -247,12 +246,12 @@ SUBROUTINE read_vobs_temp
 
           stat_i = stations(istnr)
 
-          i = obs(stat_i)%ntim + 1 
+          i = obs(stat_i)%ntim + 1
          
           ALLOCATE(obs(stat_i)%o(i)%date)
           ALLOCATE(obs(stat_i)%o(i)%time)
           ALLOCATE(obs(stat_i)%o(i)%val(nparver))
-   
+
           obs(stat_i)%ntim      = i
           obs(stat_i)%o(i)%date = cdate
           obs(stat_i)%o(i)%time = ctime/10000
@@ -333,6 +332,20 @@ SUBROUTINE read_vobs_temp
                 ENDIF
 
                ENDIF
+             CASE('TDD')
+               mm=find_var(ninvar,invar,varprop(m)%id(1:2),val(ipr),varprop(m)%lev)
+               m2=find_var(ninvar,invar,'TT',val(ipr),varprop(m)%lev)
+               mmp=find_varprop(varprop(m)%id(1:2),val(ipr))
+               m2p=find_varprop('TT',val(ipr))
+               IF ( mm > 0 .AND. mmp > 0 .AND. &
+                    m2 > 0 .AND. m2p > 0 ) THEN
+                IF ( qclr(val(mm),varprop(mmp)%llim) .AND. &
+                     qcur(val(mm),varprop(mmp)%ulim) .AND. &
+                     qclr(val(m2),varprop(m2p)%llim) .AND. &
+                     qcur(val(m2),varprop(m2p)%ulim) )     &
+                  obs(stat_i)%o(i)%val(m) =                &
+                  val(m2) - val(mm)
+               ENDIF
             END SELECT
 
           IF ( print_read > 1 ) &
@@ -349,19 +362,13 @@ SUBROUTINE read_vobs_temp
 
        CLOSE(lunin)
 
-    wdate = cdate
-    wtime = ctime
-    CALL adddtg(wdate,wtime,obint*3600,cdate,ctime)
-    IF(cdate >  edate_obs) EXIT TIME_LOOP
-    IF(cdate >= edate_obs .AND. ctime/10000 > etime_obs) EXIT TIME_LOOP
-
  ENDDO TIME_LOOP
-
- WRITE(6,*) 'FOUND TIMES OBS',MAXVAL(obs(:)%ntim)
 
  DO i=1,maxstn
     obs(i)%active = ( obs(i)%ntim > 0 )
  ENDDO
+
+ WRITE(6,*) 'FOUND TIMES OBS',MAXVAL(obs(:)%ntim)
 
  ! Clear memory
 

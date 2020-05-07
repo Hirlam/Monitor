@@ -18,6 +18,7 @@ SUBROUTINE read_vfld_temp
 
  INTEGER :: i,ii,j,k,kk,kkk,l,ll,       &
             kk_lev,m,n,mm,m2,           &
+            m2p,mmp,                    &
             ierr = 0,aerr=0,            &
             cdate = 999999,             &
             ctime = 999999,             &
@@ -40,7 +41,8 @@ SUBROUTINE read_vfld_temp
  REAL, ALLOCATABLE :: val(:),inacc(:)
 
  LOGICAL :: allocated_this_time(maxstn),&
-            found_any_time,use_stnlist,lfound
+            found_any_time,use_stnlist,lfound,&
+            read_error
 
  CHARACTER(LEN=299) :: fname = ' ',path
  CHARACTER(LEN= 10) :: cwrk  ='yyyymmddhh',cwrko
@@ -157,7 +159,7 @@ SUBROUTINE read_vfld_temp
        OPEN(lunin,file=fname,status='old',iostat=ierr)
        IF (ierr /= 0) THEN
           IF (print_read > 0 ) WRITE(6,'(2A)')'Could not open ',TRIM(fname)
-          CYCLE EXP_LOOP
+          CYCLE LL_LOOP
        ENDIF
        IF (print_read > 0 ) WRITE(6,'(2A)')'READ ',TRIM(fname)
 
@@ -165,36 +167,46 @@ SUBROUTINE read_vfld_temp
 
        READ(lunin,'(1X,3I6)',IOSTAT=ierr)num_stat,num_temp,version_flag
        IF ( ierr /= 0 ) THEN
-         WRITE(6,*)'Error reading first line of vfld file',ierr
-         CALL abort
+         WRITE(6,*)'Error reading first line of vfld file:',TRIM(fname)
+         CLOSE(lunin)
+         CYCLE LL_LOOP
        ENDIF
        IF (print_read > 1 ) WRITE(6,*)'NUM_STAT,NUM_TEMP,VERSION_FLAG',&
        num_stat,num_temp,version_flag
 
        IF ( num_temp == 0 ) THEN
           CLOSE(lunin)
-          CYCLE EXP_LOOP
+          CYCLE LL_LOOP
        ENDIF
 
+       read_error = .FALSE.
        SELECT CASE (version_flag)
         CASE(0:3)
-          READ(lunin,*)num_temp_lev
-
+          READ(lunin,*,IOSTAT=ierr)num_temp_lev
+          read_error = ( read_error .OR. ierr /= 0 )
           DO k=1,num_stat
-            READ(lunin,*)
+            READ(lunin,*,IOSTAT=ierr)
           ENDDO
         CASE(4)
-          READ(lunin,*)nvars
+          READ(lunin,*,IOSTAT=ierr)nvars
+          read_error = ( read_error .OR. ierr /= 0 )
           DO k=1,nvars
-            READ(lunin,*)
+            READ(lunin,*,IOSTAT=ierr)
           ENDDO
           DO k=1,num_stat
-            READ(lunin,*)
+            READ(lunin,*,IOSTAT=ierr)
           ENDDO
         CASE DEFAULT
           WRITE(6,*)'Cannot handle this version flag',version_flag
-       END SELECT 
+       END SELECT
 
+       IF (read_error) THEN
+         WRITE(6,*)'Error reading vfld header:',TRIM(fname)
+         CLOSE(lunin)
+         CYCLE LL_LOOP
+       ENDIF
+
+       read_error=.FALSE.
        SELECT CASE(version_flag)
         CASE(0)
           ninvar=7
@@ -213,8 +225,10 @@ SUBROUTINE read_vfld_temp
         CASE(4)
           ipr = -1 
           ifi = -1 
-          READ(lunin,*)num_temp_lev
-          READ(lunin,*)ninvar
+          READ(lunin,*,IOSTAT=ierr)num_temp_lev
+          read_error = ( read_error .OR. ierr /= 0 )
+          READ(lunin,*,IOSTAT=ierr)ninvar
+          read_error = ( read_error .OR. ierr /= 0 )
           IF (print_read>1)WRITE(6,*)'NUM_TEMP_LEV,NINVAR',&
           num_temp_lev,ninvar
           IF ( ninvar /= old_ninvar ) THEN
@@ -222,7 +236,8 @@ SUBROUTINE read_vfld_temp
             ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
           ENDIF
           DO i=1,ninvar
-            READ(lunin,*)invar(i),inacc(i)
+            READ(lunin,*,IOSTAT=ierr)invar(i),inacc(i)
+           read_error = ( read_error .OR. ierr /= 0 )
             IF ( invar(i) == 'PR' ) ipr = i
             IF ( invar(i) == 'PP' ) ipr = i
             IF ( invar(i) == 'FI' ) ifi = i
@@ -235,6 +250,12 @@ SUBROUTINE read_vfld_temp
           WRITE(6,*)'Cannot handle this vfld-file version',version_flag
           CALL abort
        END SELECT
+
+       IF (read_error) THEN
+         WRITE(6,*)'Error reading vfld header:',TRIM(fname)
+         CLOSE(lunin)
+         CYCLE LL_LOOP
+       ENDIF
 
        old_ninvar = ninvar
 
@@ -415,6 +436,20 @@ SUBROUTINE read_vfld_temp
                IF ( mm > 0 .AND. m2 > 0 ) THEN
                  hir(stat_i)%o(i)%nal(l,j,m) =           &
                  get_iss(val(mm),val(m2))
+               ENDIF
+              CASE('TDD')
+               mm=find_var(ninvar,invar,varprop(m)%id(1:2),val(ipr),varprop(m)%lev)
+               m2=find_var(ninvar,invar,'TT',val(ipr),varprop(m)%lev)
+               mmp=find_varprop(varprop(m)%id(1:2),val(ipr))
+               m2p=find_varprop('TT',val(ipr))
+               IF ( mm > 0 .AND. mmp > 0 .AND. &
+                    m2 > 0 .AND. m2p > 0 ) THEN
+                IF ( qclr(val(mm),varprop(mmp)%llim) .AND. &
+                     qcur(val(mm),varprop(mmp)%ulim) .AND. &
+                     qclr(val(m2),varprop(m2p)%llim) .AND. &
+                     qcur(val(m2),varprop(m2p)%ulim) )     &
+                  hir(stat_i)%o(i)%nal(l,j,m) =          &
+                  val(m2) - val(mm)
                ENDIF
              END SELECT
 

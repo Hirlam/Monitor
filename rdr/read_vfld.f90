@@ -49,7 +49,7 @@ SUBROUTINE read_vfld
 
  LOGICAL :: allocated_this_time(maxstn),&
             found_any_time,use_stnlist,lfound,&
-            check_lim
+            check_lim,read_error
 
  CHARACTER(LEN=299) :: path,fname = ' '
  CHARACTER(LEN= 10) :: cwrk  ='yyyymmddhh',cwrko
@@ -82,7 +82,6 @@ SUBROUTINE read_vfld
  ! Loop over all times
  !
 
- i = 0
  hh = ctime/10000
 
  TIME_LOOP : DO
@@ -160,7 +159,7 @@ SUBROUTINE read_vfld
        OPEN(lunin,file=fname,status='old',iostat=ierr)
        IF (ierr /= 0) THEN
           IF (print_read > 0 ) WRITE(6,'(2A)')'Could not open ',TRIM(fname)
-          CYCLE EXP_LOOP
+          CYCLE LL_LOOP
        ENDIF
        IF (print_read > 0 ) WRITE(6,'(2A)')'READ ',TRIM(fname)
 
@@ -168,9 +167,12 @@ SUBROUTINE read_vfld
 
        READ(lunin,'(1X,3I6)',IOSTAT=ierr)num_stat,num_temp,version_flag
        IF ( ierr /= 0 ) THEN
-         WRITE(6,*)'Error reading first line of vfld file',ierr
-         CALL abort
+         WRITE(6,*)'Error reading first line of vfld file:',TRIM(fname)
+         CLOSE(lunin)
+         CYCLE LL_LOOP
        ENDIF
+
+       IF ( print_read > 1 ) WRITE(6,*)'FILE version',version_flag,old_version_flag
 
        IF ( version_flag /= old_version_flag ) THEN
            SELECT CASE(version_flag)
@@ -201,21 +203,31 @@ SUBROUTINE read_vfld
 
        old_version_flag = version_flag
 
+       read_error=.FALSE.
        SELECT CASE(version_flag)
        CASE(0:3)
-         READ(lunin,*)num_temp_lev
+         READ(lunin,*,IOSTAT=ierr)num_temp_lev
+         read_error = ( read_error .OR. ierr /= 0 )
        CASE(4)
          ifi = -1 
          READ(lunin,*,IOSTAT=ierr)ninvar
+         read_error = ( read_error .OR. ierr /= 0 )
          IF ( ninvar /= old_ninvar ) THEN
            IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
            ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
          ENDIF
          DO i=1,ninvar
            READ(lunin,*,IOSTAT=ierr)invar(i),inacc(i)
+           read_error = ( read_error .OR. ierr /= 0 )
            IF ( invar(i) == 'FI' ) ifi = i
          ENDDO
        END SELECT
+
+       IF (read_error) THEN
+         WRITE(6,*)'Error reading vfld header:',TRIM(fname)
+         CLOSE(lunin)
+         CYCLE LL_LOOP
+       ENDIF
 
        old_ninvar = ninvar
 
