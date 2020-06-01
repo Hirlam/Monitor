@@ -407,7 +407,7 @@
    'CBOX%NLAT' => '67.',
    'CBOX%ELON' => '-12.',
    },
-  'Netherland' => {
+  'Netherlands' => {
    'CBOX%ACTIVE' => 'T',
    'CBOX%SLAT' => '51.',
    'CBOX%WLON' => '1.5',
@@ -932,5 +932,12 @@
    'CBOX%WLON' => '61.',
    'CBOX%NLAT' => '37.6',
    'CBOX%ELON' => '72.',
+   },
+  'GermanyForest' => {
+   'CBOX%ACTIVE' => 'T',
+   'CBOX%SLAT' => '49.',
+   'CBOX%WLON' => '8.5',
+   'CBOX%NLAT' => '51.5',
+   'CBOX%ELON' => '12.',
    },
  );
