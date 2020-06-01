@@ -34,6 +34,7 @@ SUBROUTINE reconstruct_pe()
 
   IF ( .NOT. obs(i)%active ) CYCLE 
 
+  IF ( print_read > 1 ) &
   WRITE(6,*)'Scan station',obs(i)%stnr,obs(i)%ntim
 
   j = 1
@@ -57,9 +58,9 @@ SUBROUTINE reconstruct_pe()
    time_last = obs(i)%o(j)%time 
    
    ! Reconstruct 3h from 1h
-   k = hh_index(21)
-   l = hh_index(20)
-   IF ( ALL((/k,l/) /= -1 ) ) == 0 ) THEN
+   k = hh_index(23)
+   l = hh_index(22)
+   IF ( ALL((/k,l/) /= -1 ) ) THEN
 
     IF ( obs(i)%o(j)%val(pe03_id) <= err_ind .AND. &
          obs(i)%o(j)%val(pe01_id) >  err_ind .AND. &
@@ -68,10 +69,12 @@ SUBROUTINE reconstruct_pe()
          obs(i)%o(j)%val(pe03_id) = obs(i)%o(j)%val(pe01_id) + &
                                     obs(i)%o(k)%val(pe01_id) + &
                                     obs(i)%o(l)%val(pe01_id)
+        IF ( print_read > 1 ) THEN
          WRITE(6,*)'Reconstruct 24h from 06h'
          WRITE(6,*)j,obs(i)%o(j)%date,obs(i)%o(j)%time,obs(i)%o(j)%val(pe01_id),obs(i)%o(j)%val(pe03_id)
          WRITE(6,*)k,obs(i)%o(k)%date,obs(i)%o(k)%time,obs(i)%o(k)%val(pe01_id)
          WRITE(6,*)l,obs(i)%o(l)%date,obs(i)%o(l)%time,obs(i)%o(k)%val(pe01_id)
+        ENDIF
     ENDIF
 
    ENDIF
@@ -85,9 +88,11 @@ SUBROUTINE reconstruct_pe()
          obs(i)%o(k)%val(pe06_id) >  err_ind ) THEN
          obs(i)%o(j)%val(pe06_id) = obs(i)%o(j)%val(pe12_id) - &
                                     obs(i)%o(k)%val(pe06_id)
+        IF ( print_read > 1 ) THEN
          WRITE(6,*)'Reconstruct 6h from 6 and 12h'
          WRITE(6,*)j,obs(i)%o(j)%date,obs(i)%o(j)%time,obs(i)%o(j)%val(pe12_id),obs(i)%o(j)%val(pe06_id)
          WRITE(6,*)k,obs(i)%o(k)%date,obs(i)%o(k)%time,obs(i)%o(k)%val(pe06_id)
+        ENDIF
     ENDIF
 
     ! Reconstruct 12h from 6h
@@ -96,9 +101,11 @@ SUBROUTINE reconstruct_pe()
          obs(i)%o(k)%val(pe06_id) >  err_ind ) THEN
          obs(i)%o(j)%val(pe12_id) = obs(i)%o(j)%val(pe06_id) + &
                                     obs(i)%o(k)%val(pe06_id)
+        IF ( print_read > 1 ) THEN
          WRITE(6,*)'Reconstruct 12h from 6h'
          WRITE(6,*)j,obs(i)%o(j)%date,obs(i)%o(j)%time,obs(i)%o(j)%val(pe06_id),obs(i)%o(j)%val(pe12_id)
          WRITE(6,*)k,obs(i)%o(k)%date,obs(i)%o(k)%time,obs(i)%o(k)%val(pe06_id)
+        ENDIF
     ENDIF
 
    ENDIF
@@ -111,9 +118,11 @@ SUBROUTINE reconstruct_pe()
          obs(i)%o(k)%val(pe03_id) >  err_ind ) THEN
          obs(i)%o(j)%val(pe03_id) = obs(i)%o(j)%val(pe06_id) - &
                                     obs(i)%o(k)%val(pe03_id)
+        IF ( print_read > 1 ) THEN
          WRITE(6,*)'Reconstruct 3h from 3 and 6h'
          WRITE(6,*)j,obs(i)%o(j)%date,obs(i)%o(j)%time,obs(i)%o(j)%val(pe06_id),obs(i)%o(j)%val(pe03_id)
          WRITE(6,*)k,obs(i)%o(k)%date,obs(i)%o(k)%time,obs(i)%o(k)%val(pe03_id)
+        ENDIF
     ENDIF
     ! Reconstruct 6h from 3h
     IF ( obs(i)%o(j)%val(pe06_id) <= err_ind .AND. &
@@ -121,9 +130,11 @@ SUBROUTINE reconstruct_pe()
          obs(i)%o(k)%val(pe03_id) >  err_ind ) THEN
          obs(i)%o(j)%val(pe06_id) = obs(i)%o(j)%val(pe03_id) + &
                                     obs(i)%o(k)%val(pe03_id)
+        IF ( print_read > 1 ) THEN
          WRITE(6,*)'Reconstruct 6h from 3h'
          WRITE(6,*)j,obs(i)%o(j)%date,obs(i)%o(j)%time,obs(i)%o(j)%val(pe03_id),obs(i)%o(j)%val(pe06_id)
          WRITE(6,*)k,obs(i)%o(k)%date,obs(i)%o(k)%time,obs(i)%o(k)%val(pe03_id)
+        ENDIF
     ENDIF
 
    ENDIF
@@ -138,9 +149,11 @@ SUBROUTINE reconstruct_pe()
          obs(i)%o(k)%val(pe12_id) >  err_ind ) THEN
          obs(i)%o(j)%val(pe24_id) = obs(i)%o(j)%val(pe12_id) + &
                                     obs(i)%o(k)%val(pe12_id)
+        IF ( print_read > 1 ) THEN
          WRITE(6,*)'Reconstruct 24h from 12h'
          WRITE(6,*)j,obs(i)%o(j)%date,obs(i)%o(j)%time,obs(i)%o(j)%val(pe12_id),obs(i)%o(j)%val(pe24_id)
          WRITE(6,*)k,obs(i)%o(k)%date,obs(i)%o(k)%time,obs(i)%o(k)%val(pe12_id)
+        ENDIF
     ENDIF
 
    ENDIF
@@ -160,11 +173,13 @@ SUBROUTINE reconstruct_pe()
                                     obs(i)%o(k)%val(pe06_id) + &
                                     obs(i)%o(l)%val(pe06_id) + &
                                     obs(i)%o(m)%val(pe06_id)
+        IF ( print_read > 1 ) THEN
          WRITE(6,*)'Reconstruct 24h from 06h'
          WRITE(6,*)j,obs(i)%o(j)%date,obs(i)%o(j)%time,obs(i)%o(j)%val(pe06_id),obs(i)%o(j)%val(pe24_id)
          WRITE(6,*)k,obs(i)%o(k)%date,obs(i)%o(k)%time,obs(i)%o(k)%val(pe06_id)
          WRITE(6,*)l,obs(i)%o(l)%date,obs(i)%o(l)%time,obs(i)%o(k)%val(pe06_id)
          WRITE(6,*)m,obs(i)%o(m)%date,obs(i)%o(m)%time,obs(i)%o(k)%val(pe06_id)
+        ENDIF
     ENDIF
 
    ENDIF
@@ -184,11 +199,13 @@ SUBROUTINE reconstruct_pe()
                                     obs(i)%o(k)%val(pe03_id) + &
                                     obs(i)%o(l)%val(pe03_id) + &
                                     obs(i)%o(m)%val(pe03_id)
+        IF ( print_read > 1 ) THEN
          WRITE(6,*)'Reconstruct 12h from 03h'
          WRITE(6,*)j,obs(i)%o(j)%date,obs(i)%o(j)%time,obs(i)%o(j)%val(pe03_id),obs(i)%o(j)%val(pe12_id)
          WRITE(6,*)k,obs(i)%o(k)%date,obs(i)%o(k)%time,obs(i)%o(k)%val(pe03_id)
          WRITE(6,*)l,obs(i)%o(l)%date,obs(i)%o(l)%time,obs(i)%o(k)%val(pe03_id)
          WRITE(6,*)m,obs(i)%o(m)%date,obs(i)%o(m)%time,obs(i)%o(k)%val(pe03_id)
+        ENDIF
     ENDIF
 
    ENDIF
