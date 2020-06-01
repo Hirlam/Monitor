@@ -15,6 +15,7 @@ SUBROUTINE setup_varprop
 
  CHARACTER(LEN=4) :: cform = '(IX)'
  CHARACTER(LEN=9) :: clev = ' '
+ CHARACTER(LEN=4) :: pe_vars(5) 
 
 
  TYPE(variable), POINTER :: v
@@ -30,11 +31,28 @@ SUBROUTINE setup_varprop
     nlev = 1
  ENDIF
 
+ 
  ! Find the total number of variables
  i = 1
  DO WHILE ( varlist(i) /= '#' ) 
    i = i + 1
  ENDDO
+
+ ! Add PE to be able to reconstruct if requested
+ IF ( lreconstruct_pe ) THEN
+  nparver_org = i - 1
+  pe_vars(1:3) = (/'PE1','PE3','PE6'/)
+  pe_vars(4:5) = (/'PE12','PE24'/)
+  DO k=1,5
+   IF ( ALL(varlist /= pe_vars(k)) ) THEN
+      varlist(i) = pe_vars(k)
+      obstime(i,:) = 0
+      WRITE(6,*)'ADDED:',pe_vars(k)
+      i=i+1
+   ENDIF
+  ENDDO
+ ENDIF
+ 
  nparver = ( i - 1 ) * nlev
 
 
@@ -91,7 +109,7 @@ SUBROUTINE setup_varprop
   CASE('FI')
     varprop(i) = variable(v%lev,0,0,500.,1.e9,0.,v%id,'Height','m',.FALSE.)
   CASE('RH')
-    varprop(i) = variable(v%lev,0,0,100.,120.,0.,v%id,'Relative Humidity','%',.FALSE.)
+    varprop(i) = variable(v%lev,0,0,100.,200.,0.,v%id,'Relative Humidity','%',.FALSE.)
   CASE('PS')
     varprop(i) = variable(v%lev,0,0,50.,1100.,0.,v%id,'Surface Pressure','hPa',.FALSE.)
   CASE('SPS')
@@ -138,10 +156,16 @@ SUBROUTINE setup_varprop
     varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Residual ground heat flux','W/m^2',.FALSE.)
   CASE('HB')
     varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Surface heat budget residual','W/m^2',.FALSE.)
-  CASE('PE')
-    varprop(i) = variable(v%lev,12,0,50.,500.,0.,v%id,'Precipitation','mm',.FALSE.)
-  CASE('PD')
-    varprop(i) = variable(v%lev,24,0,50.,500.,0.,v%id,'Precipitation','mm',.FALSE.)
+  CASE('PE1')
+    varprop(i) = variable(v%lev,1,0,50.,500.,0.,v%id,'Precipitation 1h','mm',.FALSE.)
+  CASE('PE3')
+    varprop(i) = variable(v%lev,3,0,50.,500.,0.,v%id,'Precipitation 3h','mm',.FALSE.)
+  CASE('PE6')
+    varprop(i) = variable(v%lev,6,0,50.,500.,0.,v%id,'Precipitation 6h','mm',.FALSE.)
+  CASE('PE','PE12')
+    varprop(i) = variable(v%lev,12,0,50.,500.,0.,v%id,'Precipitation 12h','mm',.FALSE.)
+  CASE('PD','PE24')
+    varprop(i) = variable(v%lev,24,0,50.,500.,0.,v%id,'Precipitation 24h','mm',.FALSE.)
   CASE('RF')
     varprop(i) = variable(v%lev,0,0,err_ind,err_ind,err_ind,v%id,'Runoff','mm/day',.FALSE.)
   CASE('TU')

@@ -134,6 +134,7 @@
    'UNIT'        => 'mm/1h',
    'LLIM'        => '0.',
    'ULIM'        => '500.',
+   'QC_LIM_SCALE' => 10.,
  },
 
  'PE3'=>{
@@ -147,7 +148,7 @@
    'UNIT'        => 'mm/3h',
    'LLIM'        => '0.',
    'ULIM'        => '500.',
-   'OBSTIME'     => '3,9,15,21',
+   'QC_LIM_SCALE' => 10.,
  },
 
  'PE6'=>{
@@ -160,7 +161,7 @@
    'UNIT'        => 'mm/6h',
    'LLIM'        => '0.',
    'ULIM'        => '500.',
-   'OBSTIME'     => '0,12',
+   'QC_LIM_SCALE' => 10.,
  },
 
  'PE12'=>{
@@ -173,6 +174,7 @@
    'UNIT'        => 'mm/12h',
    'LLIM'        => '0.',
    'ULIM'        => '500.',
+   'QC_LIM_SCALE' => 10.,
  },
 
  'PE' => $plotdefs{PE12},
@@ -187,7 +189,7 @@
    'UNIT'        => 'mm/24h',
    'LLIM'        => '0.',
    'ULIM'        => '1000.',
-   'OBSTIME'     => '6',
+   'QC_LIM_SCALE' => 10.,
  },
 
  'CH'=>{

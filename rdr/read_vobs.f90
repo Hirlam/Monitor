@@ -381,6 +381,8 @@ SUBROUTINE read_vobs
     obs(i)%active = ( obs(i)%ntim > 0 )
  ENDDO
 
+ IF (lreconstruct_pe) CALL reconstruct_pe
+
  WRITE(6,*) 'FOUND TIMES OBS',MAXVAL(obs(:)%ntim)
 
  ! Clear memory

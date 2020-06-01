@@ -19,6 +19,7 @@ sub Env_or {
     'OBSPATH' => '\''.$ENV{OBSPATH}.'\'',
     'LQUALITY_CONTROL' => 'T',
     'ESTIMATE_QC_LIMIT'=> 'T',
+    'LRECONSTRUCT_PE'=> 'T',
     'MAXSTN'           => 20000,
     'STNLIST'          => 0,
     'STNLIST_PLOT'     => $ENV{STNLIST_PLOT},

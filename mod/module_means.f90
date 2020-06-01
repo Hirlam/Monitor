@@ -186,49 +186,6 @@ MODULE means
  !-----------------------------------------
  !-----------------------------------------
  !-----------------------------------------
- SUBROUTINE sumup(data,ntim,npar,win,  &
-                  dsta,dsto,dste,dlen)
-
-  IMPLICIT NONE
-
-  ! Input/output
-  INTEGER, INTENT(IN ) :: ntim,npar,win
-  INTEGER, INTENT(OUT) :: dsta,dsto,dste,dlen
-  REAL, INTENT(INOUT) :: data(ntim,npar)
-
-  ! Local
-  INTEGER :: i,j,k
-  REAL    :: r_win
-
- !---------------------------
-
-   ALLOCATE(mwork(ntim,npar))
-
-   r_win = 1./float(win)
-
-   DO j=1,npar
-      k = 0
-      DO i=1,ntim,win
-        IF (i+win-1.GT.ntim) EXIT 
-         k = k + 1
-         mwork(k,j) = SUM(data(i:i+win-1,j))
-      ENDDO
-   ENDDO
-   dsta = 1
-   dsto = k
-   dste = win
-   dlen = k
-
-   data(dsta:dsto,:) = mwork(dsta:dsto,:) * r_win
-
-   DEALLOCATE(mwork)
-
-   RETURN
-
- END SUBROUTINE sumup
- !-----------------------------------------
- !-----------------------------------------
- !-----------------------------------------
  SUBROUTINE running_mean(data,ntim,npar,win,  &
                          dsta,dsto,dste,dlen)
 
