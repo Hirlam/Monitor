@@ -4,9 +4,9 @@
 
 The verification package in HARMONIE is designed to be a self contained stand alone package dealing with pre-extracted model and observational data. The package calculates several standard verification scores such as:
 
-* Error as function of forecast lead time summarises the bias and rms­ error and their growth rate over a set of forecasts
+* Error as function of forecast lead time summarises the bias and rms error and their growth rate over a set of forecasts
 * Time sequences and vertical profiles show how your data or error characteristic is distributed in time or in the vertical
-* Error charts and tables show how some error is distributed in space, and station­wise linear correlation
+* Error charts and tables show how some error is distributed in space, and station wise linear correlation
 * Scatter plots show the correspondence between forecast and observed values
 * Mean diurnal cycles show how your mean error changes in the course of the day
 * Histograms show the correspondence between the distributions of forecast and observed values
@@ -189,10 +189,6 @@ Data is stored by:
 
 In HARMONIE a set of scripts is build around the code for generation of plots and building the web page. 
 
-!!! note
-
-    `Run_verobs_surface` `Run_verobs_temp`  do not exist
-    
 
 There are two main scripts  `Run_verobs_surface`](https://github.com/Hirlam/Monitor/tree/master/scr/Run_verobs_surface)  for verification of surface variables and `Run_verobs_temp`](https://github.com/Hirlam/Monitor/tree/master/scr/Run_verobs_temp)  for verification of radio sonde data. Both of them need a configuration file, `Env_exp`, as input:
 
