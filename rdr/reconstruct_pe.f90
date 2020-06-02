@@ -7,6 +7,9 @@ SUBROUTINE reconstruct_pe()
  INTEGER :: hh_index(0:24) = -1
  INTEGER :: difdtg,dh,date_last,time_last,i,j,k,l,m
  INTEGER :: pe24_id,pe12_id,pe06_id,pe03_id,pe01_id
+ INTEGER :: counter(5)
+
+ !----------------------------------------------------------------------
 
  pe24_id = -1
  pe12_id = -1
@@ -29,6 +32,8 @@ SUBROUTINE reconstruct_pe()
   END SELECT
 
  ENDDO
+
+ counter(:) = 0
 
  STATION_CYCLE : DO i=1,maxstn
 
@@ -75,6 +80,7 @@ SUBROUTINE reconstruct_pe()
          WRITE(6,*)k,obs(i)%o(k)%date,obs(i)%o(k)%time,obs(i)%o(k)%val(pe01_id)
          WRITE(6,*)l,obs(i)%o(l)%date,obs(i)%o(l)%time,obs(i)%o(k)%val(pe01_id)
         ENDIF
+        counter(2) = counter(2)+1
     ENDIF
 
    ENDIF
@@ -93,6 +99,7 @@ SUBROUTINE reconstruct_pe()
          WRITE(6,*)j,obs(i)%o(j)%date,obs(i)%o(j)%time,obs(i)%o(j)%val(pe12_id),obs(i)%o(j)%val(pe06_id)
          WRITE(6,*)k,obs(i)%o(k)%date,obs(i)%o(k)%time,obs(i)%o(k)%val(pe06_id)
         ENDIF
+        counter(3) = counter(3)+1
     ENDIF
 
     ! Reconstruct 12h from 6h
@@ -106,6 +113,7 @@ SUBROUTINE reconstruct_pe()
          WRITE(6,*)j,obs(i)%o(j)%date,obs(i)%o(j)%time,obs(i)%o(j)%val(pe06_id),obs(i)%o(j)%val(pe12_id)
          WRITE(6,*)k,obs(i)%o(k)%date,obs(i)%o(k)%time,obs(i)%o(k)%val(pe06_id)
         ENDIF
+        counter(4) = counter(4)+1
     ENDIF
 
    ENDIF
@@ -123,6 +131,7 @@ SUBROUTINE reconstruct_pe()
          WRITE(6,*)j,obs(i)%o(j)%date,obs(i)%o(j)%time,obs(i)%o(j)%val(pe06_id),obs(i)%o(j)%val(pe03_id)
          WRITE(6,*)k,obs(i)%o(k)%date,obs(i)%o(k)%time,obs(i)%o(k)%val(pe03_id)
         ENDIF
+        counter(2) = counter(2)+1
     ENDIF
     ! Reconstruct 6h from 3h
     IF ( obs(i)%o(j)%val(pe06_id) <= err_ind .AND. &
@@ -135,6 +144,7 @@ SUBROUTINE reconstruct_pe()
          WRITE(6,*)j,obs(i)%o(j)%date,obs(i)%o(j)%time,obs(i)%o(j)%val(pe03_id),obs(i)%o(j)%val(pe06_id)
          WRITE(6,*)k,obs(i)%o(k)%date,obs(i)%o(k)%time,obs(i)%o(k)%val(pe03_id)
         ENDIF
+        counter(3) = counter(3)+1
     ENDIF
 
    ENDIF
@@ -154,6 +164,7 @@ SUBROUTINE reconstruct_pe()
          WRITE(6,*)j,obs(i)%o(j)%date,obs(i)%o(j)%time,obs(i)%o(j)%val(pe12_id),obs(i)%o(j)%val(pe24_id)
          WRITE(6,*)k,obs(i)%o(k)%date,obs(i)%o(k)%time,obs(i)%o(k)%val(pe12_id)
         ENDIF
+        counter(5) = counter(5)+1
     ENDIF
 
    ENDIF
@@ -180,6 +191,7 @@ SUBROUTINE reconstruct_pe()
          WRITE(6,*)l,obs(i)%o(l)%date,obs(i)%o(l)%time,obs(i)%o(k)%val(pe06_id)
          WRITE(6,*)m,obs(i)%o(m)%date,obs(i)%o(m)%time,obs(i)%o(k)%val(pe06_id)
         ENDIF
+        counter(5) = counter(5)+1
     ENDIF
 
    ENDIF
@@ -206,6 +218,30 @@ SUBROUTINE reconstruct_pe()
          WRITE(6,*)l,obs(i)%o(l)%date,obs(i)%o(l)%time,obs(i)%o(k)%val(pe03_id)
          WRITE(6,*)m,obs(i)%o(m)%date,obs(i)%o(m)%time,obs(i)%o(k)%val(pe03_id)
         ENDIF
+        counter(4) = counter(4)+1
+    ENDIF
+
+   ENDIF
+
+   ! Reconstruct 1h from 1h and 3h
+   k = hh_index(23)
+   l = hh_index(22)
+   IF ( ALL((/k,l/) /= -1 ) ) THEN
+
+    IF ( obs(i)%o(j)%val(pe01_id) <= err_ind .AND. &
+         obs(i)%o(j)%val(pe03_id) >  err_ind .AND. &
+         obs(i)%o(k)%val(pe01_id) >  err_ind .AND. &
+         obs(i)%o(l)%val(pe01_id) >  err_ind ) THEN
+         obs(i)%o(j)%val(pe01_id) = obs(i)%o(j)%val(pe03_id) - &
+                                    obs(i)%o(k)%val(pe01_id) - &
+                                    obs(i)%o(l)%val(pe01_id)
+        IF ( print_read > 1 ) THEN
+         WRITE(6,*)'Reconstruct 1h from 1h and 3h'
+         WRITE(6,*)j,obs(i)%o(j)%date,obs(i)%o(j)%time,obs(i)%o(j)%val(pe03_id),obs(i)%o(j)%val(pe01_id)
+         WRITE(6,*)k,obs(i)%o(k)%date,obs(i)%o(k)%time,obs(i)%o(k)%val(pe01_id)
+         WRITE(6,*)l,obs(i)%o(l)%date,obs(i)%o(l)%time,obs(i)%o(k)%val(pe01_id)
+        ENDIF
+        counter(1) = counter(1)+1
     ENDIF
 
    ENDIF
@@ -216,6 +252,10 @@ SUBROUTINE reconstruct_pe()
 
  ! Reset nparver
  nparver = nparver_org
+
+ WRITE(6,*)'Precipication reconstructed ',SUM(counter),' observations'
+ WRITE(6,*)' 1/3/6/12/24h:',counter
+ WRITE(6,*)
 
 
 END SUBROUTINE reconstruct_pe
