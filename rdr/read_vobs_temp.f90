@@ -113,15 +113,16 @@ SUBROUTINE read_vobs_temp
           CYCLE TIME_LOOP
        ENDIF
 
-      ! Skip the synop stations
-      SELECT CASE(version_flag)
-       CASE(0:3)
+       read_error = .FALSE.
+       ! Skip the synop stations
+       SELECT CASE(version_flag)
+        CASE(0:3)
           READ(lunin,*)num_temp_lev
           read_error = ( read_error .OR. ierr /= 0 )
           DO k=1,num_stat
             READ(lunin,*)
           ENDDO
-       CASE(4)
+        CASE(4)
           READ(lunin,*)ninvar
           read_error = ( read_error .OR. ierr /= 0 )
           DO k=1,ninvar
@@ -130,9 +131,9 @@ SUBROUTINE read_vobs_temp
           DO k=1,num_stat
             READ(lunin,*)
           ENDDO
-       CASE DEFAULT
+        CASE DEFAULT
           WRITE(6,*)'Cannot handle this version flag',version_flag
-       END SELECT
+        END SELECT
 
        SELECT CASE(version_flag)
         CASE(0)
@@ -192,17 +193,21 @@ SUBROUTINE read_vobs_temp
              CALL abort
           END SELECT 
 
-          IF (ierr /= 0) THEN
-             WRITE(6,*)'Problem in ',TRIM(fname)
-             WRITE(6,*)'Error in reading the header of the TEMP observation ',istnr,lat,lon,hgt,ierr
-             CYCLE READ_STATION_OBS
+          read_error = ( read_error .OR. (istnr == 0) )
+          read_error = ( read_error .OR. ( ABS(lat - mflag) < 1.e-4 ) )
+          read_error = ( read_error .OR. ( ABS(lon - mflag) < 1.e-4 ) )
+
+          IF (read_error) THEN
+            WRITE(6,*)'Problem in ',TRIM(fname)
+            WRITE(6,*)'Error in reading the header of the TEMP observation ',istnr,lat,lon,hgt,ierr
+            DO kk=1,num_temp_lev
+              READ(lunin,*)
+            ENDDO
+            read_error = .FALSE.
+            CYCLE READ_STATION_OBS
           ENDIF
 
           IF(print_read>1) WRITE(6,*)istnr,lat,lon,hgt,ierr
-
-          IF (istnr == 0) CYCLE READ_STATION_OBS
-          IF (( ABS(lat - mflag) < 1.e-4 ) ) CYCLE READ_STATION_OBS
-          IF (( ABS(lon - mflag) < 1.e-4 ) ) CYCLE READ_STATION_OBS
 
           !
           ! Find station index
