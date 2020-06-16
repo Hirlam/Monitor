@@ -133,6 +133,9 @@ sub Env_or {
  'VERT' => {
   # Vertical profile
   'LPLOT_VERT' => 'T',
+  'SHOW_BIAS'  => 'T',
+  'SHOW_STDV'  => 'T',
+  'SHOW_RMSE'  => 'F',
   'LSTAT_GEN'  => 'T',
   'LFCVER'     => 'F',
   'USE_FCLEN'  => join(',',split(' ',$ENV{FCLEN_TEMP_VERT})),
