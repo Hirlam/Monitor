@@ -139,7 +139,7 @@ sub Env_or {
   'LSTAT_GEN'  => 'T',
   'LFCVER'     => 'F',
   'USE_FCLEN'  => join(',',split(' ',$ENV{FCLEN_TEMP_VERT})),
-  'SHOW_TIMES'    => '00,12',
+  'SHOW_TIMES'    => '99,00,12',
  },
 
 );

@@ -36,7 +36,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
 
 ! Local
 
- INTEGER :: i,j,l,jj,j_ind,k,kk,kkk,        &
+ INTEGER :: i,j,l,m,jj,j_ind,k,kk,kkk,      &
             ntimver_out,hour(ntimver),      &
             num(nexp,nlev),                 &
             period,jl(1),npp
@@ -81,7 +81,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
  IF ( ALL(show_times == -1) ) THEN
    ntimver_out = 1
  ELSE
-   ntimver_out = ntimver
+   ntimver_out = TRANSFER(MINLOC(show_times),ntimver_out) - 1
  ENDIF
 
  !
@@ -116,11 +116,15 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
  ! Plotting
 
  DO j=nlev,nparver,nlev
-  DO kk=1,ntimver_out
+  DO m=1,ntimver_out
 
     luh = uh(j,:)
 
-    IF ( ntimver_out /= 1 .AND. .NOT. ANY( show_times == hour(kk) )) CYCLE
+    kk=0
+    DO l=1,SIZE(hour) 
+     IF ( show_times(m) == hour(l) ) kk=l
+    ENDDO
+    IF ( ntimver_out /= 1 .AND. kk==0 .AND. show_times(m) /= 99 ) CYCLE
 
      num = 0
     rnum = 0.
@@ -132,7 +136,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
     DO i = 1,nexp
     DO jj= 1,nlev
        j_ind = (j/nlev-1)*nlev + jj
-       IF ( ntimver_out == 1 ) THEN
+       IF ( ntimver_out == 1 .OR. show_times(m)==99 ) THEN
         DO k = 1,ntimver
            num(i,jj) =  num(i,jj) +       s(i,j_ind,k)%n
           rnum(i,jj) = rnum(i,jj) + FLOAT(s(i,j_ind,k)%n)
@@ -164,7 +168,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
     ENDIF
     rmse = SQRT(rmse/rnum)
 
-    IF ( ntimver_out == 1 ) THEN
+    IF ( ntimver_out == 1 .OR. show_times(m)==99 ) THEN
           my_tag = TRIM(tag)//TRIM(cini_hours)//'_ALL'
     ELSE
           chour = ' '
@@ -194,7 +198,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
     IF (stnr == 0) THEN
        wtext='Statistics for      stations'
        j_ind = (j/nlev-1)*nlev + 1
-       IF ( ntimver_out == 1 ) THEN
+       IF ( ntimver_out == 1 .OR. show_times(m)==99 ) THEN
           jj = MAXVAL(rar_active(j_ind:j_ind+nlev-1,:))
        ELSE
           jj = MAXVAL(rar_active(j_ind:j_ind+nlev-1,kk))
@@ -234,7 +238,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
     ! First find correct index for fclenth usage
 
     j_ind = (j/nlev-1)*nlev + 1
-    IF ( ntimver_out == 1 ) THEN
+    IF ( ntimver_out == 1 .OR. show_times(m)==99 ) THEN
        jl = 0
        DO kkk=1,ntimver
           jl = MAX(jl,MAXLOC(rar_active(j_ind:j_ind+nlev-1,kkk)) + j_ind - 1)
@@ -243,7 +247,7 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
           jl = MAXLOC(rar_active(j_ind:j_ind+nlev-1,kk)) + j_ind - 1
     ENDIF
 
-    IF ( ntimver_out == 1 ) THEN
+    IF ( ntimver_out == 1 .OR. show_times(m)==99 ) THEN
        CALL fclen_header(.TRUE.,maxfclenval,luh,uf(jl,:),varprop(jl)%acc, &
                          MAXVAL(exp_offset),wtext)
     ELSE
