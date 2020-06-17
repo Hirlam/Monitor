@@ -258,7 +258,7 @@ SUBROUTINE read_vobs
               IF ( varprop(m)%id == invar(n) ) THEN
 
                 ! Check for missing data flag
-                IF ( .NOT. qca(val(n),mflag) ) CYCLE PARVER_LOOP
+                IF ( .NOT. qca(val(n),mflag) ) EXIT INVAR_LOOP
 
                 ! Special treatment of some variabels
                 sca = 1.0
@@ -278,6 +278,7 @@ SUBROUTINE read_vobs
                   obs(stat_i)%o(i)%val(m) = ( val(n) - sub ) * sca
                 ENDIF
 
+                EXIT INVAR_LOOP
               ENDIF
             ENDDO INVAR_LOOP
 
@@ -344,6 +345,17 @@ SUBROUTINE read_vobs
                  obs(stat_i)%o(i)%val(m) =              &
                  FLOAT(NINT(obs(stat_i)%o(i)%val(m)))
                 ENDIF
+              CASE('CH')
+               mm=find_var(ninvar,invar,'NN')
+               mmp=find_varprop('NN')
+               m2=find_var(ninvar,invar,'CH')
+               m2p=find_varprop('CH')
+               IF ( ALL((/mm,mmp,m2,m2p/) > 0 ) .AND. max_cb > 0.) THEN
+                IF (       qca(val(mm),mflag) .AND. &
+                      NINT(val(mm)) == 0 ) THEN
+                 obs(stat_i)%o(i)%val(m) = max_cb
+                ENDIF
+               ENDIF
               CASE('SPS')
                mm=find_var(ninvar,invar,'PSS')
                IF ( qca(val(mm),mflag) ) &

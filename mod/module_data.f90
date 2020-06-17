@@ -289,6 +289,8 @@ MODULE data
  INTEGER :: cont_class(mparver) = 0
  REAL    :: cont_lim(mpre_cla,mparver) = 0.0 !
 
+ REAL    :: max_cb = -1.
+
  !
  ! Significance test settings
  !
@@ -401,6 +403,7 @@ MODULE data
                  control_exp_nr,                        &
                  sign_time_diff,confint,                &
                  plot_prefix,                           &
-                 lstn_hgt_check,hgt_llim,hgt_ulim
+                 lstn_hgt_check,hgt_llim,hgt_ulim,      &
+                 max_cb
 
 END MODULE data

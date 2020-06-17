@@ -19,7 +19,7 @@ sub Env_or {
     'OBSPATH' => '\''.$ENV{OBSPATH}.'\'',
     'LQUALITY_CONTROL' => 'T',
     'ESTIMATE_QC_LIMIT'=> 'T',
-    'LRECONSTRUCT_PE'=> 'T',
+    'LRECONSTRUCT_PE'  => 'T',
     'MAXSTN'           => 20000,
     'STNLIST'          => 0,
     'STNLIST_PLOT'     => $ENV{STNLIST_PLOT},
@@ -29,8 +29,8 @@ sub Env_or {
     'PERIOD_FREQ'      => $ENV{PERIOD_FREQ},
     'OUTPUT_TYPE'      => $ENV{OUTPUT_TYPE},
     'OUTPUT_MODE'      => 2,
+    'MAX_CB'           => '-1.',
     'USE_ANALYSIS'     => ("$ENV{USE_ANALYSIS}" or '20*F'),
-
  },
 ) ;
 
