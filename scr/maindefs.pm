@@ -1,10 +1,10 @@
 sub Env_or {
     my($var,$default) = @_;
     if (exists $ENV{$var}) {
-        return $ENV{$var} . ',';
+        return $ENV{$var} ;
     } else {
         $default = '0' unless $default;
-        return "$default" . ',';
+        return "$default" ;
     }
 }
 
