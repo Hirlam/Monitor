@@ -30,6 +30,12 @@ SUBROUTINE do_stat(per_ind,p1,p2)
 !0        1         2         3         4         5         6         7
  CHARACTER(LEN=5 ) :: clev
  CHARACTER(LEN=len_lab ) :: cid
+
+ INTERFACE acc_stat
+    PROCEDURE acc_stat0
+    PROCEDURE acc_stat3
+ END INTERFACE acc_stat
+
 !---------------------------------
 
  timing_id = 0
@@ -149,7 +155,7 @@ SUBROUTINE do_stat(per_ind,p1,p2)
           IF (leach_station) &
           CALL write_stat(cid,vertime(k),stat(i)%s(:,j,k),nexp)
           DO o=1,nexp
-             CALL acc_stat(onestat(o),stat(i)%s(o,j,k),1,1,1)
+             CALL acc_stat(onestat(o),stat(i)%s(o,j,k))
           ENDDO
 
        ENDDO
@@ -243,7 +249,7 @@ SUBROUTINE do_stat(per_ind,p1,p2)
           CALL write_stat(cid,vertime(k),statall(:,j,k),nexp)
 
           DO o=1,nexp
-             CALL acc_stat(onestat(o),statall(o,j,k),1,1,1)
+             CALL acc_stat(onestat(o),statall(o,j,k))
           ENDDO
 
        ENDDO
@@ -303,11 +309,10 @@ SUBROUTINE do_stat(per_ind,p1,p2)
  IF (ltiming) CALL acc_timing(timing_id,'do_stat')
 
  RETURN
-END SUBROUTINE do_stat
+
+ CONTAINS 
 !---------------------------
-!---------------------------
-!---------------------------
-SUBROUTINE acc_stat(s,p,i,j,k)
+SUBROUTINE acc_stat3(s,p,i,j,k)
 
  USE types
 
@@ -328,7 +333,31 @@ SUBROUTINE acc_stat(s,p,i,j,k)
    s%mabe = s%mabe + p%mabe
 
  RETURN
-END SUBROUTINE acc_stat
+END SUBROUTINE acc_stat3
+!---------------------------
+!---------------------------
+!---------------------------
+SUBROUTINE acc_stat0(s,p)
+
+ USE types
+
+ IMPLICIT NONE
+
+ TYPE (statistics) :: s,p
+
+   s%r    = s%r    + p%r
+   s%n    = s%n    + p%n
+   s%bias = s%bias + p%bias
+   s%rmse = s%rmse + p%rmse
+   s%obs  = s%obs  + p%obs
+   s%obs2 = s%obs2 + p%obs2
+   s%obs3 = s%obs3 + p%obs3
+   s%s2   = s%s2   + p%s2
+   s%s3   = s%s3   + p%s3
+   s%mabe = s%mabe + p%mabe
+
+ RETURN
+END SUBROUTINE acc_stat0
 !---------------------------
 !---------------------------
 !---------------------------
@@ -350,7 +379,6 @@ SUBROUTINE write_stat(p,t,s,n)
  REAL    :: rn(n)
  CHARACTER(LEN=35) :: form1='(A6,A5,xx(5(1X,en13.4e2),1X,I7))'
  CHARACTER(LEN=35) :: form2='(A6,I5,xx(5(1X,en13.4e2),1X,I7))'
-
  
 !------------------------------------------
 
@@ -392,7 +420,12 @@ SUBROUTINE write_stat(p,t,s,n)
  ENDIF
 
  RETURN
+
 END SUBROUTINE write_stat
+!--------------------------------------------------
+END SUBROUTINE do_stat
+!--------------------------------------------------
+!--------------------------------------------------
 !--------------------------------------------------
 CHARACTER(LEN=5) FUNCTION clev(lev)
  IMPLICIT NONE

@@ -248,8 +248,8 @@ SUBROUTINE print_vert(lunout,nexp,nlev,nparver,ntimver,     &
     ENDIF
 
     IF ( ntimver_out == 1 .OR. show_times(m)==99 ) THEN
-       CALL fclen_header(.TRUE.,maxfclenval,luh,uf(jl,:),varprop(jl)%acc, &
-                         MAXVAL(exp_offset),wtext)
+       CALL fclen_header(.TRUE.,maxfclenval,luh,uf(jl(1),:), &
+                         varprop(jl(1))%acc,MAXVAL(exp_offset),wtext)
     ELSE
        IF (lfcver) THEN
           ALLOCATE(ldum(0:hour(kk)))
