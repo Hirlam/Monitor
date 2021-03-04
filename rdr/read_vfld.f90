@@ -430,6 +430,8 @@ SUBROUTINE read_vfld
                ENDIF 
               CASE('LA')
                hir(stat_i)%o(i)%nal(l,j,m) = hir(stat_i)%lat
+              CASE('FFH')
+               hir(stat_i)%o(i)%nal(l,j,m) = 10.
               CASE('HG')
                hir(stat_i)%o(i)%nal(l,j,m) = hgt
               CASE('TTHA','TNHA','TXHA','TTP1HA')

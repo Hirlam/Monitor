@@ -1,6 +1,5 @@
 SUBROUTINE bin_cont(xval,yval,nobs,  &
-                    bin_min_yx,      &
-                    bin_max_yx,      &
+                    minax,maxax,     &
                     nlevels,level,   &
                     levcheck,        &
                     nbin,sbin)
@@ -18,8 +17,7 @@ SUBROUTINE bin_cont(xval,yval,nobs,  &
  INTEGER,INTENT(IN) :: nlevels,nobs,nbin
 
  REAL,    INTENT(IN) :: xval(nobs),yval(nobs),  &
-                        bin_min_yx(2),          &
-                        bin_max_yx(2)
+                        minax(2),maxax(2)
 
  REAL, INTENT(INOUT) :: level(nlevels)
 
@@ -37,11 +35,16 @@ SUBROUTINE bin_cont(xval,yval,nobs,  &
     fac,maxobs,                         &
     sumy,sumx,sumyy,sumxx,sumxy,sumxy2, &
     xhelp,yhelp,xpt,xptd,rv,sid,        &
+    bin_min_yx(2),bin_max_yx(2),        &
     XMEAN, YMEAN, STDEVX, STDEVY, BIAS, RMSE, STDEVD, CORR
 
   REAL, POINTER :: biny(:),binx(:),array(:,:)
 
 !---------------------------------------------------------------------
+  bin_min_yx(1) = minax(2)
+  bin_min_yx(2) = minax(1)
+  bin_max_yx(1) = maxax(2)
+  bin_max_yx(2) = maxax(1)
 
   level = 1.
   ! Set bin increments
