@@ -354,6 +354,7 @@ LOGICAL FUNCTION do_you_like_me(check_blacklist,istnr,inpar)
 
   IF ( ierr /= 0 ) THEN
    init_table = .FALSE.
+   do_you_like_me = .TRUE.
    RETURN
   ENDIF
 

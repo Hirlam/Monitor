@@ -36,15 +36,14 @@ SUBROUTINE read_vobs
  REAL :: lat,lon,hgt,sub,sca,rtmp
  REAL, ALLOCATABLE :: val(:)
 
- CHARACTER(LEN=200) :: path,fname =' '
- CHARACTER(LEN= 10) :: ndate =' '
+ CHARACTER(LEN=299) :: fname =' '
  CHARACTER(LEN= 10), ALLOCATABLE :: invar(:)
 
- LOGICAL :: use_stnlist,cbl
+ LOGICAL :: use_stnlist,cbl,read_error
 
 !----------------------------------------------------------
 
- ! Init 
+ ! Init
  stations       = 0
  max_found_stat = 0
  old_version_flag = -1
@@ -53,7 +52,7 @@ SUBROUTINE read_vobs
  ninvar         = 0
  INQUIRE(FILE='black.list',EXIST=cbl)
 
- use_stnlist =(  MAXVAL(stnlist) > 0 )
+ use_stnlist =( MAXVAL(stnlist) > 0 )
 
  CALL allocate_obs
 
@@ -61,53 +60,46 @@ SUBROUTINE read_vobs
 
  cdate = sdate
  ctime = stime*10000
- wdate = cdate
- wtime = ctime
- 
+
  !
  ! Loop over all times
  !
 
- i = 0
+ ! Take a step back before we start
+ wdate = cdate
+ wtime = ctime
+ CALL adddtg(wdate,wtime,-3600*obint,cdate,ctime)
 
  TIME_LOOP : DO
 
- IF (print_read > 1) WRITE(6,*)'TIME:',cdate,ctime/10000
- WRITE(ndate(1:10),'(I8.8,I2.2)')cdate,ctime/10000
- path = obspath
- CALL check_path(cdate,path)
- fname = TRIM(path)//'vobs'//ndate
+   wdate = cdate
+   wtime = ctime
+   CALL adddtg(wdate,wtime,3600*obint,cdate,ctime)
+   IF(cdate >  edate_obs) EXIT TIME_LOOP
+   IF(cdate >= edate_obs .AND. ctime/10000 > etime_obs) EXIT TIME_LOOP
 
- i = i + 1
+   CALL check_path(.TRUE.,cdate,ctime,-1,'#',obspath,.FALSE.,fname)
 
- !
- ! Read obs data
- !
+   !
+   ! Read obs data
+   !
 
-       OPEN(lunin,file=fname,status='old',iostat=ierr)
+       OPEN(lunin,file=fname,status='old',IOSTAT=ierr)
 
        IF (ierr /= 0) THEN
-  
           IF( print_read > 0 )WRITE(6,'(2A)')'MISS ',TRIM(fname)
-
-          wdate = cdate
-          wtime = ctime
-          CALL adddtg(wdate,wtime,3600*obint,cdate,ctime)
-          IF(cdate.gt.edate_obs) EXIT TIME_LOOP
-
-          i = i - 1
           CYCLE TIME_LOOP
-
        ENDIF
 
        IF (print_read > 0 ) WRITE(6,'(2A)')'READ ',TRIM(fname)
 
        version_flag = 0
 
-       READ(lunin,'(1x,3I6)',IOSTAT=ierr)num_stat,num_temp,version_flag
+       READ(lunin,'(1X,3I6)',IOSTAT=ierr)num_stat,num_temp,version_flag
        IF ( ierr /= 0 ) THEN
-          WRITE(6,*)'Error reading first line of vobs file',ierr
-          CALL abort
+          WRITE(6,*)'Error reading first line of vobs file:',TRIM(fname)
+          CLOSE(lunin)
+          CYCLE TIME_LOOP
        ENDIF
 
        IF ( print_read > 1 ) WRITE(6,*)'FILE version',version_flag,old_version_flag
@@ -141,23 +133,32 @@ SUBROUTINE read_vobs
 
        old_version_flag = version_flag
 
+       read_error=.FALSE.
        SELECT CASE(version_flag)
        CASE(0:3)
-       READ(lunin,*)num_temp_lev
+         READ(lunin,*,IOSTAT=ierr)num_temp_lev
+         read_error = ( read_error .OR. ierr /= 0 )
        CASE(4)
-          READ(lunin,*)ninvar
+          READ(lunin,*,IOSTAT=ierr)ninvar
+         read_error = ( read_error .OR. ierr /= 0 )
           IF ( ninvar /= old_ninvar ) THEN
             IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
             ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
           ENDIF
           DO i=1,ninvar
-            READ(lunin,*)invar(i),inacc(i)
+            READ(lunin,*,IOSTAT=ierr)invar(i),inacc(i)
+            read_error = ( read_error .OR. ierr /= 0 )
             IF ( invar(i)(1:2) == 'TM' ) &
             invar(i)(1:2) = 'TN'
           ENDDO
        END SELECT
        old_ninvar = ninvar
-
+       IF (read_error) THEN 
+         WRITE(6,*)'Error reading vobs header:',TRIM(fname)
+         CLOSE(lunin)
+         CYCLE TIME_LOOP
+       ENDIF
+ 
        !
        ! Read, identify and store station data
        !
@@ -167,17 +168,17 @@ SUBROUTINE read_vobs
           val = mflag
           SELECT CASE(version_flag)
            CASE(0)
-             READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val(1:8)
+             READ(lunin,*,IOSTAT=ierr)istnr,lat,lon,hgt,val(1:8)
            CASE(1)
-             READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val(1:10)
+             READ(lunin,*,IOSTAT=ierr)istnr,lat,lon,hgt,val(1:10)
            CASE(2,4)
-             READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val
+             READ(lunin,*,IOSTAT=ierr)istnr,lat,lon,hgt,val
            CASE DEFAULT
              WRITE(6,*)'Cannot handle this vobs-file version',version_flag
              CALL abort
           END SELECT
 
-          IF (ierr  /= 0 .OR. istnr == 0 ) CYCLE READ_STATION_OBS
+          IF (ierr /= 0 .OR. istnr == 0 ) CYCLE READ_STATION_OBS
 
           !
           ! Find station index
@@ -252,7 +253,7 @@ SUBROUTINE read_vobs
               IF ( varprop(m)%id == invar(n) ) THEN
 
                 ! Check for missing data flag
-                IF ( .NOT. qca(val(n),mflag) ) CYCLE PARVER_LOOP
+                IF ( .NOT. qca(val(n),mflag) ) EXIT INVAR_LOOP
 
                 ! Special treatment of some variabels
                 sca = 1.0
@@ -272,6 +273,7 @@ SUBROUTINE read_vobs
                   obs(stat_i)%o(i)%val(m) = ( val(n) - sub ) * sca
                 ENDIF
 
+                EXIT INVAR_LOOP
               ENDIF
             ENDDO INVAR_LOOP
 
@@ -338,6 +340,17 @@ SUBROUTINE read_vobs
                  obs(stat_i)%o(i)%val(m) =              &
                  FLOAT(NINT(obs(stat_i)%o(i)%val(m)))
                 ENDIF
+              CASE('CH')
+               mm=find_var(ninvar,invar,'NN')
+               mmp=find_varprop('NN')
+               m2=find_var(ninvar,invar,'CH')
+               m2p=find_varprop('CH')
+               IF ( ALL((/mm,mmp,m2,m2p/) > 0 ) .AND. max_cb > 0.) THEN
+                IF (       qca(val(mm),mflag) .AND. &
+                      NINT(val(mm)) == 0 ) THEN
+                 obs(stat_i)%o(i)%val(m) = max_cb
+                ENDIF
+               ENDIF
               CASE('SPS')
                mm=find_var(ninvar,invar,'PSS')
                IF ( qca(val(mm),mflag) ) &
@@ -369,16 +382,13 @@ SUBROUTINE read_vobs
 
        CLOSE(lunin)
 
-    wdate = cdate
-    wtime = ctime
-    CALL adddtg(wdate,wtime,3600*obint,cdate,ctime)
-    IF(cdate > edate_obs) EXIT TIME_LOOP
-
  ENDDO TIME_LOOP
 
  DO i=1,maxstn
     obs(i)%active = ( obs(i)%ntim > 0 )
  ENDDO
+
+ IF (lreconstruct_pe) CALL reconstruct_pe
 
  WRITE(6,*) 'FOUND TIMES OBS',MAXVAL(obs(:)%ntim)
 

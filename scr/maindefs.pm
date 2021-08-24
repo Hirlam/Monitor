@@ -1,10 +1,10 @@
 sub Env_or {
     my($var,$default) = @_;
     if (exists $ENV{$var}) {
-        return $ENV{$var} . ',';
+        return $ENV{$var} ;
     } else {
         $default = '0' unless $default;
-        return "$default" . ',';
+        return "$default" ;
     }
 }
 
@@ -19,6 +19,7 @@ sub Env_or {
     'OBSPATH' => '\''.$ENV{OBSPATH}.'\'',
     'LQUALITY_CONTROL' => 'T',
     'ESTIMATE_QC_LIMIT'=> 'T',
+    'LRECONSTRUCT_PE'  => 'T',
     'MAXSTN'           => 20000,
     'STNLIST'          => 0,
     'STNLIST_PLOT'     => $ENV{STNLIST_PLOT},
@@ -28,8 +29,8 @@ sub Env_or {
     'PERIOD_FREQ'      => $ENV{PERIOD_FREQ},
     'OUTPUT_TYPE'      => $ENV{OUTPUT_TYPE},
     'OUTPUT_MODE'      => 2,
+    'MAX_CB'           => '-1.',
     'USE_ANALYSIS'     => ("$ENV{USE_ANALYSIS}" or '20*F'),
-
  },
 ) ;
 
@@ -132,10 +133,13 @@ sub Env_or {
  'VERT' => {
   # Vertical profile
   'LPLOT_VERT' => 'T',
+  'SHOW_BIAS'  => 'T',
+  'SHOW_STDV'  => 'T',
+  'SHOW_RMSE'  => 'F',
   'LSTAT_GEN'  => 'T',
   'LFCVER'     => 'F',
   'USE_FCLEN'  => join(',',split(' ',$ENV{FCLEN_TEMP_VERT})),
-  'SHOW_TIMES'    => '00,12',
+  'SHOW_TIMES'    => '99,00,12',
  },
 
 );

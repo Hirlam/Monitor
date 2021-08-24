@@ -155,6 +155,7 @@ MODULE data
 
  ! Parameters to verify
  INTEGER :: nparver = mparver
+ INTEGER :: nparver_org = 0
  REAL    :: lev_lst(mparver) = 0. ! List of vertical levels
                                   ! if lev_lst(n) < lev_lst(n+1) height is assumed
                                   ! if lev_lst(n) > lev_lst(n+1) pressure is assumed
@@ -172,6 +173,7 @@ MODULE data
  LOGICAL :: leach_station    = .FALSE.  ! Verify each station separately
  LOGICAL :: lallstat         = .TRUE.   ! Show statistics for all stations
  LOGICAL :: lfindplot        = .FALSE.  ! Call findplot obsolete at the moment
+ LOGICAL :: lreconstruct_pe  = .FALSE.  ! Reconstruct precipiation observations
  LOGICAL :: lplot_seasonal   = .FALSE.  ! Create seasonal plots
  LOGICAL :: lprint_seasonal  = .FALSE.  ! Create seasonal plots
  LOGICAL :: ltimeserie       = .FALSE.  ! Plot timeseries for all stations
@@ -287,6 +289,8 @@ MODULE data
  INTEGER :: cont_class(mparver) = 0
  REAL    :: cont_lim(mpre_cla,mparver) = 0.0 !
 
+ REAL    :: max_cb = -1.
+
  !
  ! Significance test settings
  !
@@ -339,7 +343,7 @@ MODULE data
                  lfcver,leach_station,ltiming,          &
                  lallstat,                              &
                  lplot_seasonal,lprint_seasonal,        &
-                 lfindplot,                             &
+                 lfindplot,lreconstruct_pe,             &
                  lstat_gen,lverify,                     & 
                  lprint_stat,lplot_stat,                &
                  lprint_vert,lplot_vert,                &
@@ -399,6 +403,7 @@ MODULE data
                  control_exp_nr,                        &
                  sign_time_diff,confint,                &
                  plot_prefix,                           &
-                 lstn_hgt_check,hgt_llim,hgt_ulim
+                 lstn_hgt_check,hgt_llim,hgt_ulim,      &
+                 max_cb
 
 END MODULE data

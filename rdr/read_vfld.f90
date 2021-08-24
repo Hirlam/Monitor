@@ -23,7 +23,7 @@ SUBROUTINE read_vfld
 
  REAL, PARAMETER :: mflag = -99.
 
- INTEGER :: i,ii,j,k,l,ll,m,mm,n,m2,    &
+ INTEGER :: i,ii,j,k,l,m,mm,n,m2,       &
             mmp,m2p,                    &
             ierr = 0,                   &
             cdate = 999999,             &
@@ -33,7 +33,7 @@ SUBROUTINE read_vfld
             wdate = 999999,             &
             wtime = 999999,             &
             istnr = 0,                  &
-            stat_i,                     &
+            stat_i,fcleno,              &
             ninvar,old_ninvar,          &
             num_temp,num_stat,          &
             num_temp_lev,               &
@@ -49,12 +49,10 @@ SUBROUTINE read_vfld
 
  LOGICAL :: allocated_this_time(maxstn),&
             found_any_time,use_stnlist,lfound,&
-            check_lim
+            check_lim,read_error
 
- CHARACTER(LEN=299) :: path,fname = ' '
- CHARACTER(LEN= 10) :: cwrk  ='yyyymmddhh',cwrko
- CHARACTER(LEN= 03) :: cfclen,cfcleno
- CHARACTER(LEN= 10), ALLOCATABLE :: invar(:) 
+ CHARACTER(LEN=299), ALLOCATABLE :: fname(:) 
+ CHARACTER(LEN= 10), ALLOCATABLE :: invar(:)
 
 !----------------------------------------------------------
 
@@ -75,24 +73,23 @@ SUBROUTINE read_vfld
 
  cdate = sdate
  ctime = stime*10000
- wdate = cdate
- wtime = ctime
 
  !
  ! Loop over all times
  !
 
- i = 0
  hh = ctime/10000
+
+ ALLOCATE(fname(nexp))
 
  TIME_LOOP : DO
 
- allocated_this_time = .FALSE.
- found_any_time      = .FALSE.
+    allocated_this_time = .FALSE.
+    found_any_time      = .FALSE.
 
- !
- ! Read model data
- !
+    !
+    ! Read model data
+    !
 
     LL_LOOP  : DO j=1,nfclengths
 
@@ -101,76 +98,48 @@ SUBROUTINE read_vfld
     ! If not, skip this forecast length
     !
 
-    WRITE(cwrk(1:10),'(I8,I2.2)')cdate,hh
-    IF ( fclen(j) > 99 ) THEN
-      WRITE(cfclen,'(I3.3)')fclen(j)
-    ELSE
-      WRITE(cfclen,'(I2.2,1X)')fclen(j)
-    ENDIF
+    SUB_EXP_LOOP : DO l=1,nexp
 
-    SUB_EXP_LOOP : DO ll=1,nexp
-
-       IF ( fexpname(ll) == '#' ) fexpname(ll) = expname(ll)
-       path = modpath(ll)
-       CALL check_path(cdate,path)
-
-       IF ( use_analysis(ll) .AND. fclen(j) == 0 ) THEN
-         fname = TRIM(path)//'vfld'//TRIM(fexpname(ll))//cwrk
-       ELSEIF ( exp_offset(ll,hh) /= 0 ) THEN
-         CALL adddtg(cdate,ctime,-exp_offset(ll,hh)*3600,cdateo,ctimeo)
-         WRITE(cwrko(1:10),'(I8,I2.2)')cdateo,ctimeo/10000
-         IF ( ( fclen(j) + exp_offset(ll,hh) ) > 99 ) THEN
-           WRITE(cfcleno,'(I3.3)')fclen(j)+exp_offset(ll,hh)
-         ELSE
-           WRITE(cfcleno,'(I2.2,1X)')fclen(j)+exp_offset(ll,hh)
-         ENDIF
-         fname = TRIM(path)//'vfld'//TRIM(fexpname(ll))//cwrko//TRIM(cfcleno)
+       IF ( fexpname(l) == '#' ) fexpname(l) = expname(l)
+       IF ( exp_offset(l,hh) /= 0 ) THEN
+         CALL adddtg(cdate,ctime,-exp_offset(l,hh)*60,cdateo,ctimeo)
+         fcleno=fclen(j)*60 + exp_offset(l,hh)
        ELSE
-         fname = TRIM(path)//'vfld'//TRIM(fexpname(ll))//cwrk//TRIM(cfclen)
+         cdateo=cdate
+         ctimeo=ctime
+         fcleno=fclen(j)*60
        ENDIF
+       
+       CALL check_path(.FALSE.,cdateo,ctimeo,fcleno,fexpname(l), &
+                       modpath(l),use_analysis(l),fname(l))
 
-       INQUIRE(FILE=fname,EXIST=lfound)
+       INQUIRE(FILE=fname(l),EXIST=lfound)
        IF ( .NOT. lfound ) THEN
           IF (print_read > 0 ) &
-          WRITE(6,'(2A)')'MISS ',TRIM(fname)
+          WRITE(6,'(2A)')'MISS ',TRIM(fname(l))
           CYCLE LL_LOOP 
        ENDIF
     ENDDO SUB_EXP_LOOP
 
     EXP_LOOP : DO l=1,nexp
 
-       path = modpath(l)
-       CALL check_path(cdate,path)
-
-       IF ( use_analysis(l) .AND. fclen(j) == 0 ) THEN
-         fname = TRIM(path)//'vfld'//TRIM(fexpname(l))//cwrk
-       ELSEIF ( exp_offset(l,hh) /= 0 ) THEN
-         CALL adddtg(cdate,ctime,-exp_offset(l,hh)*3600,cdateo,ctimeo)
-         WRITE(cwrko(1:10),'(I8,I2.2)')cdateo,ctimeo/10000
-         IF ( ( fclen(j) + exp_offset(l,hh) ) > 99 ) THEN
-           WRITE(cfcleno,'(I3.3)')fclen(j)+exp_offset(l,hh)
-         ELSE
-           WRITE(cfcleno,'(I2.2,1X)')fclen(j)+exp_offset(l,hh)
-         ENDIF
-         fname = TRIM(path)//'vfld'//TRIM(fexpname(l))//cwrko//TRIM(cfcleno)
-       ELSE
-         fname = TRIM(path)//'vfld'//TRIM(fexpname(l))//cwrk//TRIM(cfclen)
-       ENDIF
-
-       OPEN(lunin,file=fname,status='old',iostat=ierr)
+       OPEN(lunin,file=fname(l),status='old',iostat=ierr)
        IF (ierr /= 0) THEN
-          IF (print_read > 0 ) WRITE(6,'(2A)')'Could not open ',TRIM(fname)
-          CYCLE EXP_LOOP
+          IF (print_read > 0 ) WRITE(6,'(2A)')'Could not open ',TRIM(fname(l))
+          CYCLE LL_LOOP
        ENDIF
-       IF (print_read > 0 ) WRITE(6,'(2A)')'READ ',TRIM(fname)
+       IF (print_read > 0 ) WRITE(6,'(2A)')'READ ',TRIM(fname(l))
 
        version_flag = 0
 
        READ(lunin,'(1X,3I6)',IOSTAT=ierr)num_stat,num_temp,version_flag
        IF ( ierr /= 0 ) THEN
-         WRITE(6,*)'Error reading first line of vfld file',ierr
-         CALL abort
+         WRITE(6,*)'Error reading first line of vfld file:',TRIM(fname(l))
+         CLOSE(lunin)
+         CYCLE LL_LOOP
        ENDIF
+
+       IF ( print_read > 1 ) WRITE(6,*)'FILE version',version_flag,old_version_flag
 
        IF ( version_flag /= old_version_flag ) THEN
            SELECT CASE(version_flag)
@@ -191,31 +160,42 @@ SUBROUTINE read_vfld
              invar = (/'NN','DD','FF','TT','RH', &
                        'PS','PE','QQ','VI','TD', &
                        'TX','TN','GG','GX','FX'/)
-          CASE(4)
+          CASE(4,5)
 
           CASE DEFAULT
              WRITE(6,*)'Cannot handle this vfld-file version',version_flag
+             WRITE(6,*)'FILE:',TRIM(fname(l))
              CALL abort
           END SELECT
        ENDIF 
 
        old_version_flag = version_flag
 
+       read_error=.FALSE.
        SELECT CASE(version_flag)
        CASE(0:3)
-         READ(lunin,*)num_temp_lev
-       CASE(4)
+         READ(lunin,*,IOSTAT=ierr)num_temp_lev
+         read_error = ( read_error .OR. ierr /= 0 )
+       CASE(4,5)
          ifi = -1 
          READ(lunin,*,IOSTAT=ierr)ninvar
+         read_error = ( read_error .OR. ierr /= 0 )
          IF ( ninvar /= old_ninvar ) THEN
            IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val,inacc)
            ALLOCATE(invar(ninvar),val(ninvar),inacc(ninvar))
          ENDIF
          DO i=1,ninvar
            READ(lunin,*,IOSTAT=ierr)invar(i),inacc(i)
+           read_error = ( read_error .OR. ierr /= 0 )
            IF ( invar(i) == 'FI' ) ifi = i
          ENDDO
        END SELECT
+
+       IF (read_error) THEN
+         WRITE(6,*)'Error reading vfld header:',TRIM(fname(l))
+         CLOSE(lunin)
+         CYCLE LL_LOOP
+       ENDIF
 
        old_ninvar = ninvar
 
@@ -252,7 +232,7 @@ SUBROUTINE read_vfld
 
           CASE(3)
              READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt,val
-          CASE(4)
+          CASE(4,5)
              IF ( ifi /= -1 ) THEN
                READ(lunin,*,iostat=ierr)istnr,lat,lon,val
                hgt = val(ifi)
@@ -322,7 +302,7 @@ SUBROUTINE read_vfld
           stat_i = stations(istnr)
 
           ! Store experiment specific station height
-          hir(stat_i)%hgtmod(l)    = hgt 
+          hir(stat_i)%hgtmod(l) = hgt
 
           !
           ! Station found! Allocate data array if 
@@ -418,6 +398,8 @@ SUBROUTINE read_vfld
                ENDIF 
               CASE('LA')
                hir(stat_i)%o(i)%nal(l,j,m) = hir(stat_i)%lat
+              CASE('FFH')
+               hir(stat_i)%o(i)%nal(l,j,m) = 10.
               CASE('HG')
                hir(stat_i)%o(i)%nal(l,j,m) = hgt
               CASE('TTHA','TNHA','TXHA','TTP1HA')
@@ -481,8 +463,8 @@ SUBROUTINE read_vfld
     wdate = cdate
     wtime = ctime
     CALL adddtg(wdate,wtime,fcint*3600,cdate,ctime)
-    hh = ctime/10000
-    IF(cdate >  edate) EXIT TIME_LOOP
+    hh = ctime / 10000
+    IF(cdate > edate) EXIT TIME_LOOP
     IF(cdate == edate .AND. hh > etime) EXIT TIME_LOOP
 
  ENDDO TIME_LOOP
@@ -497,6 +479,7 @@ SUBROUTINE read_vfld
 
  IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val)
  IF ( ALLOCATED(inacc) ) DEALLOCATE(inacc)
+ DEALLOCATE(fname)
 
  RETURN
 

@@ -17,6 +17,8 @@ fi
 
 . $ENV_EXP  || { echo "Could not source $ENV_EXP" ; exit 1 ; }
 
+export PERL5LIB=$SCR
+
 MONITOR_DEBUG=${MONITOR_DEBUG:-0}
 
 case $DIR in

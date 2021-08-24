@@ -104,6 +104,7 @@
     $nlev = scalar(@lev);
     $nameread{'read_section'}{'LEV_LST'} = join(',',@lev);
     $nameread{'read_section'}{'LTEMP'} = 'T';
+    $nameread{'read_section'}{'LRECONSTRUCT_PE'} = 'F';
     if ( $ENV{DATA_SOURCE} ) {
        $nameread{'read_section'}{'DATA_SOURCE'} = '\''.$ENV{DATA_SOURCE}.'\''; 
     } else {
