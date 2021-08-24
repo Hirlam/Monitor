@@ -33,8 +33,7 @@ SUBROUTINE read_vobs_temp
 
  LOGICAL :: use_stnlist,cbl,read_error
 
- CHARACTER(LEN=200) :: fname =' ',path
- CHARACTER(LEN= 10) :: ndate =' '
+ CHARACTER(LEN=299) :: fname =' '
  CHARACTER(LEN= 10), ALLOCATABLE :: invar(:)
 
 !----------------------------------------------------------
@@ -73,21 +72,17 @@ SUBROUTINE read_vobs_temp
 
  TIME_LOOP : DO
 
- wdate = cdate
- wtime = ctime
- CALL adddtg(wdate,wtime,3600*obint,cdate,ctime)
- IF(cdate >  edate_obs) EXIT TIME_LOOP
- IF(cdate >= edate_obs .AND. ctime/10000 > etime_obs) EXIT TIME_LOOP
+   wdate = cdate
+   wtime = ctime
+   CALL adddtg(wdate,wtime,3600*obint,cdate,ctime)
+   IF(cdate >  edate_obs) EXIT TIME_LOOP
+   IF(cdate >= edate_obs .AND. ctime/10000 > etime_obs) EXIT TIME_LOOP
 
- IF (print_read > 1) WRITE(6,*)'TIME:',cdate,ctime/10000
- WRITE(ndate(1:10),'(I8.8,I2.2)')cdate,ctime/10000
- path = obspath
- CALL check_path(cdate,path)
- fname = TRIM(path)//'vobs'//ndate
+   CALL check_path(.TRUE.,cdate,ctime,-1,'#',obspath,.FALSE.,fname)
 
- !
- ! Read obs data
- !
+   !
+   ! Read obs data
+   !
 
        OPEN(lunin,file=fname,status='old',IOSTAT=ierr)
 

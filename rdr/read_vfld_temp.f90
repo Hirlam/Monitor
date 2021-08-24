@@ -16,7 +16,7 @@ SUBROUTINE read_vfld_temp
 
  REAL, PARAMETER :: mflag = -99.
 
- INTEGER :: i,ii,j,k,kk,kkk,l,ll,       &
+ INTEGER :: i,ii,j,k,kk,kkk,l,          &
             kk_lev,m,n,mm,m2,           &
             m2p,mmp,                    &
             ierr = 0,aerr=0,            &
@@ -27,7 +27,7 @@ SUBROUTINE read_vfld_temp
             wdate = 999999,             &
             wtime = 999999,             &
             istnr = 0,                  &
-            stat_i,                     &
+            stat_i,fcleno,              &
             num_temp,num_stat,          &
             num_temp_lev,my_temp_lev,   &
             stations(10000000),         &
@@ -44,9 +44,7 @@ SUBROUTINE read_vfld_temp
             found_any_time,use_stnlist,lfound,&
             read_error
 
- CHARACTER(LEN=299) :: fname = ' ',path
- CHARACTER(LEN= 10) :: cwrk  ='yyyymmddhh',cwrko
- CHARACTER(LEN= 03) :: cfclen  ='  ',cfcleno
+ CHARACTER(LEN=299), ALLOCATABLE :: fname(:) 
  CHARACTER(LEN= 10), ALLOCATABLE :: invar(:)
 
 
@@ -84,6 +82,8 @@ SUBROUTINE read_vfld_temp
  i = 0
  hh = ctime/10000
 
+ ALLOCATE(fname(nexp))
+
  TIME_LOOP : DO
 
     allocated_this_time = .FALSE.
@@ -100,74 +100,43 @@ SUBROUTINE read_vfld_temp
     ! If not, skip this forecast length
     !
 
-    WRITE(cwrk(1:10),'(I8,I2.2)')cdate,hh
-    IF ( fclen(j) > 99 ) THEN
-      WRITE(cfclen,'(I3.3)')fclen(j)
-    ELSE
-      WRITE(cfclen,'(I2.2,1X)')fclen(j)
-    ENDIF
+    SUB_EXP_LOOP : DO l=1,nexp
 
-    SUB_EXP_LOOP : DO ll=1,nexp
-
-       IF ( fexpname(ll) == '#' ) fexpname(ll) = expname(ll)
-       path = modpath(ll)
-       CALL check_path(cdate,path)
-
-       IF ( use_analysis(ll) .AND. fclen(j) == 0 ) THEN
-         fname = TRIM(path)//'vfld'//TRIM(fexpname(ll))//cwrk
-       ELSEIF ( exp_offset(ll,hh) /= 0 ) THEN
-         CALL adddtg(cdate,ctime,-exp_offset(ll,hh)*3600,cdateo,ctimeo)
-         WRITE(cwrko(1:10),'(I8,I2.2)')cdateo,ctimeo/10000
-         IF ( ( fclen(j) + exp_offset(ll,hh) ) > 99 ) THEN
-           WRITE(cfcleno,'(I3.3)')fclen(j)+exp_offset(ll,hh)
-         ELSE
-           WRITE(cfcleno,'(I2.2,1X)')fclen(j)+exp_offset(ll,hh)
-         ENDIF
-         fname = TRIM(path)//'vfld'//TRIM(fexpname(ll))//cwrko//TRIM(cfcleno)
+       IF ( fexpname(l) == '#' ) fexpname(l) = expname(l)
+       IF ( exp_offset(l,hh) /= 0 ) THEN
+         CALL adddtg(cdate,ctime,-exp_offset(l,hh)*60,cdateo,ctimeo)
+         fcleno=fclen(j)*60 + exp_offset(l,hh)
        ELSE
-         fname = TRIM(path)//'vfld'//TRIM(fexpname(ll))//cwrk//TRIM(cfclen)
+         cdateo=cdate
+         ctimeo=ctime
+         fcleno=fclen(j)*60
        ENDIF
+       
+       CALL check_path(.FALSE.,cdateo,ctimeo,fcleno,fexpname(l), &
+                       modpath(l),use_analysis(l),fname(l))
 
-       INQUIRE(FILE=fname,EXIST=lfound)
+       INQUIRE(FILE=fname(l),EXIST=lfound)
        IF ( .NOT. lfound ) THEN
           IF (print_read > 0 ) &
-          WRITE(6,'(2A)')'MISS ',TRIM(fname)
+          WRITE(6,'(2A)')'MISS ',TRIM(fname(l))
           CYCLE LL_LOOP 
        ENDIF
     ENDDO SUB_EXP_LOOP
 
     EXP_LOOP : DO l=1,nexp
 
-       path = modpath(l)
-       CALL check_path(cdate,path)
-
-       IF ( use_analysis(l) .AND. fclen(j) == 0 ) THEN
-         fname = TRIM(path)//'vfld'//TRIM(fexpname(l))//cwrk
-       ELSEIF ( exp_offset(l,hh) /= 0 ) THEN
-         CALL adddtg(cdate,ctime,-exp_offset(l,hh)*3600,cdateo,ctimeo)
-         WRITE(cwrko(1:10),'(I8,I2.2)')cdateo,ctimeo/10000
-         IF ( ( fclen(j) + exp_offset(l,hh) ) > 99 ) THEN
-           WRITE(cfcleno,'(I3.3)')fclen(j)+exp_offset(l,hh)
-         ELSE
-           WRITE(cfcleno,'(I2.2,1X)')fclen(j)+exp_offset(l,hh)
-         ENDIF
-         fname = TRIM(path)//'vfld'//TRIM(fexpname(l))//cwrko//TRIM(cfcleno)
-       ELSE
-         fname = TRIM(path)//'vfld'//TRIM(fexpname(l))//cwrk//TRIM(cfclen)
-       ENDIF
-
-       OPEN(lunin,file=fname,status='old',iostat=ierr)
+       OPEN(lunin,file=fname(l),status='old',iostat=ierr)
        IF (ierr /= 0) THEN
-          IF (print_read > 0 ) WRITE(6,'(2A)')'Could not open ',TRIM(fname)
+          IF (print_read > 0 ) WRITE(6,'(2A)')'Could not open ',TRIM(fname(l))
           CYCLE LL_LOOP
        ENDIF
-       IF (print_read > 0 ) WRITE(6,'(2A)')'READ ',TRIM(fname)
+       IF (print_read > 0 ) WRITE(6,'(2A)')'READ ',TRIM(fname(l))
 
        version_flag = 0
 
        READ(lunin,'(1X,3I6)',IOSTAT=ierr)num_stat,num_temp,version_flag
        IF ( ierr /= 0 ) THEN
-         WRITE(6,*)'Error reading first line of vfld file:',TRIM(fname)
+         WRITE(6,*)'Error reading first line of vfld file:',TRIM(fname(l))
          CLOSE(lunin)
          CYCLE LL_LOOP
        ENDIF
@@ -187,7 +156,7 @@ SUBROUTINE read_vfld_temp
           DO k=1,num_stat
             READ(lunin,*,IOSTAT=ierr)
           ENDDO
-        CASE(4)
+        CASE(4,5)
           READ(lunin,*,IOSTAT=ierr)nvars
           read_error = ( read_error .OR. ierr /= 0 )
           DO k=1,nvars
@@ -198,10 +167,12 @@ SUBROUTINE read_vfld_temp
           ENDDO
         CASE DEFAULT
           WRITE(6,*)'Cannot handle this version flag',version_flag
+          WRITE(6,*)'FILE:',TRIM(fname(l))
+          CALL abort
        END SELECT
 
        IF (read_error) THEN
-         WRITE(6,*)'Error reading vfld header:',TRIM(fname)
+         WRITE(6,*)'Error reading vfld header:',TRIM(fname(l))
          CLOSE(lunin)
          CYCLE LL_LOOP
        ENDIF
@@ -222,7 +193,7 @@ SUBROUTINE read_vfld_temp
           invar = (/'PR','FI','TT','RH','DD','FF','QQ','TD'/)
           ipr = 1
           ifi = 2
-        CASE(4)
+        CASE(4,5)
           ipr = -1 
           ifi = -1 
           READ(lunin,*,IOSTAT=ierr)num_temp_lev
@@ -252,7 +223,7 @@ SUBROUTINE read_vfld_temp
        END SELECT
 
        IF (read_error) THEN
-         WRITE(6,*)'Error reading vfld header:',TRIM(fname)
+         WRITE(6,*)'Error reading vfld header:',TRIM(fname(l))
          CLOSE(lunin)
          CYCLE LL_LOOP
        ENDIF
@@ -265,7 +236,7 @@ SUBROUTINE read_vfld_temp
           CASE(0)
              READ(lunin,*,iostat=ierr)istnr,lat,lon
              hgt = err_ind
-          CASE(1:4)
+          CASE(1:5)
              READ(lunin,*,iostat=ierr)istnr,lat,lon,hgt
           CASE DEFAULT
              WRITE(6,*)'Cannot handle this vfld-file version',version_flag
@@ -470,6 +441,10 @@ SUBROUTINE read_vfld_temp
     ENDDO EXP_LOOP
     ENDDO LL_LOOP
 
+    !
+    ! Step time
+    !
+
     wdate = cdate
     wtime = ctime
     CALL adddtg(wdate,wtime,fcint*3600,cdate,ctime)
@@ -478,13 +453,19 @@ SUBROUTINE read_vfld_temp
     IF(cdate == edate .AND. hh > etime) EXIT TIME_LOOP
 
  ENDDO TIME_LOOP
- 
- WRITE(6,*) 'FOUND TIMES MODEL',MAXVAL(hir(:)%ntim)
 
  DO i=1,maxstn
     hir(i)%active = ( hir(i)%ntim > 0 )
  ENDDO
 
+ WRITE(6,*) 'FOUND TIMES MODEL',MAXVAL(hir(:)%ntim)
+
+ ! Clear memory
+
+ IF ( ALLOCATED(invar) ) DEALLOCATE(invar,val)
+ IF ( ALLOCATED(inacc) ) DEALLOCATE(inacc)
+ DEALLOCATE(fname)
+
  RETURN
 
-END
+END SUBROUTINE read_vfld_temp
