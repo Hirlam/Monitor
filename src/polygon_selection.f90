@@ -2,6 +2,7 @@ SUBROUTINE polygon_selection
 
 !
 !  Station selection by polygon area
+!  Ulf Andrae, SMHI, 2002-2021
 !
 
  USE data
@@ -10,46 +11,83 @@ SUBROUTINE polygon_selection
 
  ! Parameters
  INTEGER, PARAMETER :: LUNPOL = 13 ! Unit for polygon area
- INTEGER :: i,ierr,npol
+ INTEGER :: i,j,k,ierr
 
- REAL, DIMENSION(:,:), ALLOCATABLE :: pol
+ TYPE poltype
+   REAL, DIMENSION(:,:), ALLOCATABLE :: pot
+   INTEGER :: npol
+ END TYPE poltype
 
- LOGICAL :: inside
+ TYPE(poltype), ALLOCATABLE, TARGET :: pol(:)
+
+ LOGICAL :: inside,ldum
+
+ INTEGER, POINTER :: npol => NULL()
 
  !-----------------------------------------------------------------
- ! Read polygon file
 
- OPEN(lunpol,FILE=polyfile,IOSTAT=ierr,STATUS='OLD') 
-
- IF (ierr /= 0) THEN
-    WRITE(6,*)' No polygon found, no selection performed'
-    RETURN
- ENDIF
-
- READ(lunpol,*) npol
-
- ALLOCATE(pol(2,npol+1))
- pol = 0.
-
- DO i=1,npol
-    READ(lunpol,*)pol(:,i)
+ ! Check how many files
+ k = 0
+ DO j=1,SIZE(polyfile)
+   IF ( TRIM(polyfile(j)) == '#' ) CYCLE
+   k = k + 1
  ENDDO
 
- CLOSE(lunpol)
+ ALLOCATE(pol(k))
 
- !
- ! Make first and last point equal
- !
+ ! Read polygon files
+ k=0
+ DO j=1,SIZE(polyfile)
+   IF ( TRIM(polyfile(j)) == '#' ) CYCLE
+   OPEN(lunpol,FILE=polyfile(j),IOSTAT=ierr,STATUS='OLD') 
 
- npol = npol + 1
- pol(:,npol) = pol(:,1)
+   IF (ierr /= 0) THEN
+      WRITE(6,*)' No polygon found, no selection performed'
+      CYCLE
+   ENDIF
+   WRITE(6,*)'Read polygon from:',TRIM(polyfile(j))
+   k=k+1
 
+   npol => pol(k)%npol
+   READ(lunpol,*) npol
+
+   ALLOCATE(pol(k)%pot(2,npol+1))
+   pol(k)%pot = 0.
+
+   DO i=1,npol
+    READ(lunpol,*)pol(k)%pot(:,i)
+   ENDDO
+
+   CLOSE(lunpol)
+
+   !
+   ! Make first and last point equal
+   !
+
+   npol = npol + 1
+   pol(k)%pot(:,npol) = pol(k)%pot(:,1)
+
+ ENDDO
+
+ ! Perform the check
  DO i=1,maxstn
-
-    IF (.NOT. hir(i)%active) CYCLE
-    hir(i)%active = inside(hir(i)%lon,hir(i)%lat,pol(2,:),pol(1,:),npol)
-
+   IF (.NOT. hir(i)%active) CYCLE
+   ldum=.FALSE.
+   DO j=1,k
+     ldum = ( ldum .OR. inside(hir(i)%lon,hir(i)%lat, &
+             pol(j)%pot(2,:),pol(j)%pot(1,:),pol(j)%npol) )
+   ENDDO
+   hir(i)%active = ldum
  ENDDO
+
+ !
+ ! Cleaning
+ !
+ DO j=1,k
+   DEALLOCATE(pol(j)%pot)
+ ENDDO
+ DEALLOCATE(pol)
+ NULLIFY(npol)
 
  RETURN
 

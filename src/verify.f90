@@ -434,6 +434,12 @@ SUBROUTINE verify
        IF(obs(i)%o(jj)%date == wdate .AND.    &
           obs(i)%o(jj)%time == wtime ) THEN
 
+          !
+          ! Cycle FC_CYCLE if this hour should not be used
+          !
+          IF (.NOT. ANY(use_hours == obs(i)%o(jj)%time).AND. &
+               ANY(use_hours /= -1) ) CYCLE FC_CYCLE
+
           found_right_time = .TRUE.
 
           IF (lprint_verif) WRITE(6,*)'  TIME VER ',wdate,wtime

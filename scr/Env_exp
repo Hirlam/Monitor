@@ -84,6 +84,7 @@ STNLIST_PLOT_TXT=-1
 # CH : Cloud base
 # LC : Amount of low clouds
 # ISS : Ice super saturation level
+# DSN : Snow depth
 #
 
 # Active parameters

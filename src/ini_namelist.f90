@@ -17,6 +17,7 @@ SUBROUTINE ini_namelist
 
  ! Clear stnlist
  stnlist = 0
+ polyfile = '#'
 
  ! Quality control
  lquality_control   = .FALSE.
@@ -24,6 +25,7 @@ SUBROUTINE ini_namelist
 
  ! Clear use_fclen
  use_fclen = -1
+ use_hours = -1
  
  ! Conditional
  lconditional = .FALSE.

@@ -84,7 +84,7 @@ MODULE data
                                           !  0 gives all 
  TYPE (box) :: cbox                       ! Area box (S,W,N,E) corners
  LOGICAL    :: lpoly = .FALSE.            ! Area selection by polygon
- CHARACTER(LEN=100 )  :: polyfile ='poly.dat'
+ CHARACTER(LEN=100 )  :: polyfile(10) ='#'
  LOGICAL    :: reverse_selection          ! Reverse your selection
 
  LOGICAL    :: lstn_hgt_check             ! Station height selection
@@ -111,6 +111,7 @@ MODULE data
  INTEGER :: show_times(maxfclen)= -1            ! Hours of days to show
  INTEGER :: nshow_times         =  0            ! number of hours of days to show
  INTEGER ::  ini_hours(24)      = -1            ! FC start hours to use
+ INTEGER ::  use_hours(24)      = -1            ! Hours to use
  INTEGER :: nini_hours          =  0            ! number of init hours to use
  INTEGER ::  use_fclen(maxfclen)= -1            ! fclengths to use (in hours)
  INTEGER :: nuse_fclen          =  0            ! number of used fclengths
@@ -330,6 +331,7 @@ MODULE data
                  nfclengths,fclen,fcint,obint,          &
                  use_fclen,nuse_fclen,                  &
                  ini_hours,nini_hours,                  &
+                 use_hours,                             &
                  show_times,nshow_times,                &
                  timeserie_wind,window_pos,             &
                  stnlist,stnlist_bl,stnlist_plot,       &

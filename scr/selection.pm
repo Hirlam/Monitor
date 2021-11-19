@@ -2,6 +2,14 @@
   'ALL' => {
    'STNLIST'=> 0,
    },
+  'SNOW_MAIN_HOURS' => {
+   'STNLIST'=> 0,
+   'USE_HOURS'=> '0,6,12,18',
+   },
+  'SNOW_ALL_HOURS' => {
+   'LPOLY'               => 'T',
+   'POLYFILE'            => '\'Latvia.poly\',\'Finland.poly\'',
+   },
   'temp_and_wind_limit' => {
     'COND%IND' => 'FF,TT',
     'COND%ULIM' => ' 5.,-20.',

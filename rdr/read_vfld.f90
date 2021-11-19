@@ -365,6 +365,8 @@ SUBROUTINE read_vfld
                 CASE('TT','TN','TX','TD','TTP1','TTP2', &
                      'TDP1','TDP2')
                    sub = tzero
+                CASE('DSN')
+                   sca = 1.e2
                 CASE('QQ','QQP1','QQP2')
                    sca = 1.e3
                 CASE('VI')

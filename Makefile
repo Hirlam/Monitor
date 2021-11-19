@@ -17,6 +17,7 @@ default: $(DEFS)
 
 clean:
 	-$(RM) -rf $(ARCH)
+	-$(RM) -rf bin
 
 GLLIBS := mod rdr src
 

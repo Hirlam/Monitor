@@ -262,6 +262,8 @@ SUBROUTINE read_vobs
 
                 CASE('TT','TN','TX','TD')
                    sub = tzero
+                CASE('DSN')
+                   sca = 1.e2
                 CASE('QQ')
                    sca = 1.e3
                 END SELECT
