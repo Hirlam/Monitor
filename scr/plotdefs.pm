@@ -288,7 +288,7 @@
 );
 
 # Insert patch info
- @patchvar = ('TT','TN','TX','DD','FF','RH','QQ','TD');
+ @patchvar = ('TT','TN','TX','DD','FF','RH','QQ','TD','DSN');
  @npatch = (1,2);
 
 foreach $patch ( @patchvar ) { 
