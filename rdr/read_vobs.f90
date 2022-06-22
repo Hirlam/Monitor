@@ -293,6 +293,12 @@ SUBROUTINE read_vobs
                 IF ( qca(val(mm),mflag)) &
                 obs(stat_i)%o(i)%val(m) = val(mm) * 1.e3
                ENDIF
+              CASE('DSNP1','DSNP2')
+               mm = find_var(ninvar,invar,varprop(m)%id(1:3))
+               IF ( mm > 0 ) THEN
+                IF ( qca(val(mm),mflag)) &
+                obs(stat_i)%o(i)%val(m) = val(mm) * 1.e2
+               ENDIF
               CASE('LA')
                obs(stat_i)%o(i)%val(m) = obs(stat_i)%lat
               CASE('HG')
