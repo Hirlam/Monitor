@@ -62,10 +62,14 @@ STNLIST_PLOT_TXT=-1
 # PS : Mslp
 # SPS : Station pressure
 # TT : T2m
+# TTP1 : T2m patch 1
+# TTP2 : T2m patch 2
 # TTHA : T2m, adjusted for model and observation station height differences
 # TN : Min T2m
 # TX : Max T2m
 # TD : Td2m
+# TDP1 : Td2m patch 1
+# TDP2 : Td2m patch 2
 # TDD : Td2m deficit ( TT - TD )
 # FF : Wind speed
 # FX : Max wind speed
@@ -73,7 +77,11 @@ STNLIST_PLOT_TXT=-1
 # GX : Max wind gust
 # DD : Wind direction
 # QQ : Specific humidity
+# QQP1 : Specific humidity patch 1
+# QQP2 : Specific humidity patch 2
 # RH : Relative humidity
+# RHP1 : Relative humidity patch 1
+# RHP2 : Relative humidity patch 2
 # PE1 : Precipitation 1h
 # PE3 : Precipitation 3h
 # PE6 : Precipitation 6h
@@ -85,6 +93,8 @@ STNLIST_PLOT_TXT=-1
 # LC : Amount of low clouds
 # ISS : Ice super saturation level
 # DSN : Snow depth
+# DSNP1 : Snow depth patch 1
+# DSNP2 : Snow depth patch 2
 #
 
 # Active parameters
