@@ -44,14 +44,14 @@ The verification code can be fetched from the hirlam code repository by
 ```bash
 git clone https://github.com/Hirlam/monitor
 cd monitor
+```
+
+Optionally checkout a specific version (for `ARCH=linuxgfortran` use the master branch instead)
+
+```
 git checkout v1.1
 ```
 
-It contains all the history from the old subversion repository. For specific old tagged versions please us monitor from a harmonie version like
-
-```bash
-svn co https://svn.hirlam.org/tags/harmonie-40h1.1.1/util/monitor
-```
 
 The checkout gives you the following directories:
 
