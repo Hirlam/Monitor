@@ -363,11 +363,11 @@ SUBROUTINE read_vfld
                 SELECT CASE(invar(n))
  
                 CASE('TT','TN','TX','TD','TTP1','TTP2', &
-                     'TDP1','TDP2')
+                     'TTP3','TDP1','TDP2','TDP3')
                    sub = tzero
-                CASE('DSN','DSNP1','DSNP2')
+                CASE('DSN','DSNP1','DSNP2','DSNP3')
                    sca = 1.e2
-                CASE('QQ','QQP1','QQP2')
+                CASE('QQ','QQP1','QQP2','QQP3')
                    sca = 1.e3
                 CASE('VI')
                    check_lim = .TRUE.

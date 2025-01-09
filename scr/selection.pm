@@ -78,6 +78,19 @@
        2219,2221,2233,2302,2303,2307,
        2308,2311,2316,2317,2319,2325'
    },
+   'SwedenOpenLandWind' => {
+    'STNLIST'=> '2019,2024,2029,2031,2036,2038,2055,2064,2072,2095,
+                 2102,2103,2149,2173,2176,2188,2209,2210,2221,2230,
+                 2231,2236,2242,2247,2265,2269,2284,2287,2297,2307,
+                 2317,2325,2331,2338,2355,2382,2407,2417,2432,2440,
+                 2450,2453,2469,2476,2486,2487,2488,2493,2498,2499,
+                 2500,2501,2505,2516,2518,2542,2548,2557,2563,2565,
+                 2567,2587,2589,2598,2605,2615,2625,2628,2632,2644,
+                 2648,2679',
+   },
+   'SwedenForest' => {
+    'STNLIST'=> '2121,2260,2308,2539,2540,2558',
+   },
   'CoastSweden' => {
    'STNLIST'=> '2191,2188,2176,2297,2287,2284,2269,2382,2368,2355,
                 2450,2488,2493,2487,2567,2563,2575,2644,2665,2628,
@@ -654,6 +667,42 @@
   'Norrland' => {
    'LPOLY'               => 'T',
    'POLYFILE'            => '\'Norrland.poly\'',
+   },
+  'GermanyNorthern' => {
+   'LPOLY'               => 'T',
+   'POLYFILE'            => '\'NorthernGermany.poly\'',
+   },
+  'PolandNorthern' => {
+   'LPOLY'               => 'T',
+   'POLYFILE'            => '\'NorthernPoland.poly\'',
+   },
+  'CanadaMainland' => {
+   'LPOLY'               => 'T',
+   'POLYFILE'            => '\'CanadaMainland.poly\'',
+   },
+  'CanadaArcticArchepelago' => {
+   'LPOLY'               => 'T',
+   'POLYFILE'            => '\'CanadaArcticArchepelago.poly\'',
+   },
+  'Alaska' => {
+   'LPOLY'               => 'T',
+   'POLYFILE'            => '\'Alaska.poly\'',
+   },
+  'RussiaWest' => {
+   'LPOLY'               => 'T',
+   'POLYFILE'            => '\'RussiaWest.poly\'',
+   },
+  'NorthernSiberia' => {
+   'LPOLY'               => 'T',
+   'POLYFILE'            => '\'NorthernSiberia.poly\'',
+   },
+  'ScandinaviaNorthernInland' => {
+   'LPOLY'               => 'T',
+   'POLYFILE'            => '\'ScandinaviaNorthernInland.poly\'',
+   },
+  'NorwayNorthCoast' => {
+   'LPOLY'               => 'T',
+   'POLYFILE'            => '\'NorwayNorthCoast.poly\'',
    },
   'EAall' => {
    'STNLIST'=> ' 50136, 50353, 50434, 50468, 50527, 50548, 50557, 50564, 50603, 50632, 50658,
