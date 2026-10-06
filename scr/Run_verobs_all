@@ -8,8 +8,75 @@ else
    echo "Please give an Env_exp file"
    exit 1
 fi
-[[ -s $ENV_EXP ]] || { echo "Please give an existing Env_exp file" ; exit 1 ; }
 
+[[ -s $ENV_EXP ]] || { echo "Please give an existing Env_exp file" ; exit 1 ; }
+. "$ENV_EXP" || { echo "Could not source $ENV_EXP" ; exit 1 ; }
+
+SCORECARDS_ENABLED=0
+case "${SCORECARDS:-F}" in
+   T|t|TRUE|true|YES|yes|1) SCORECARDS_ENABLED=1 ;;
+esac
+
+if [[ $SCORECARDS_ENABLED -eq 1 ]]; then
+   case "${SIGN_TEST_JOINT:-F}" in
+      T|t|TRUE|true|YES|yes|1) ;;
+      *) echo "SCORECARDS is enabled, but SIGN_TEST_JOINT is not enabled" >&2; exit 1 ;;
+   esac
+
+   read -r -a EXPERIMENTS <<< "${EXP:-}"
+   read -r -a DISPLAY_NAMES <<< "${DISPLAY_EXP:-${EXP:-}}"
+   if [[ ${#EXPERIMENTS[@]} -lt 2 ]]; then
+      echo "SCORECARDS requires at least two experiments in EXP" >&2
+      exit 1
+   fi
+   if [[ ${#DISPLAY_NAMES[@]} -ne ${#EXPERIMENTS[@]} ]]; then
+      echo "DISPLAY_EXP and EXP must contain the same number of names" >&2
+      exit 1
+   fi
+   declare -A seen_display_names=()
+   for display_name in "${DISPLAY_NAMES[@]}"; do
+      if [[ -n ${seen_display_names[$display_name]:-} ]]; then
+         echo "SCORECARDS requires unique DISPLAY_EXP names; duplicate: $display_name" >&2
+         exit 1
+      fi
+      seen_display_names[$display_name]=1
+   done
+
+   scorecard_domains=0
+   if [[ -n ${SURFPAR:-} ]]; then
+      if [[ " ${SURFPLOT:-} " != *" GEN "* ]]; then
+         echo "SCORECARDS requires GEN in SURFPLOT when SURFPAR is selected" >&2
+         exit 1
+      fi
+      scorecard_domains=$((scorecard_domains + 1))
+   fi
+   if [[ -n ${TEMPPAR:-} ]]; then
+      if [[ " ${TEMPPLOT:-} " != *" GEN "* ]]; then
+         echo "SCORECARDS requires GEN in TEMPPLOT when TEMPPAR is selected" >&2
+         exit 1
+      fi
+      scorecard_domains=$((scorecard_domains + 1))
+   fi
+   if [[ $scorecard_domains -eq 0 ]]; then
+      echo "SCORECARDS is enabled, but neither SURFPAR nor TEMPPAR is selected" >&2
+      exit 1
+   fi
+
+   SCORECARD_PY=${SCORECARD_PYTHON:-python3}
+   if ! "$SCORECARD_PY" -c 'import matplotlib' >/dev/null 2>&1; then
+      echo "SCORECARDS is enabled, but Matplotlib is unavailable for $SCORECARD_PY" >&2
+      echo "Install src/python/requirements-scorecards.txt or set SCORECARD_PYTHON" >&2
+      exit 1
+   fi
+
+   SCORECARD_STAGE="$WRK/scorecards_${PROJECT}_$$"
+   mkdir -p "$WRK" || exit 1
+   mkdir "$SCORECARD_STAGE" || exit 1
+   export SCORECARD_STAGE
+else
+   unset SCORECARD_STAGE
+   echo "Scorecards disabled; set SCORECARDS=T to generate them."
+fi
 LOGFILE=$( echo $( basename $ENV_EXP ) | sed "s/Env_exp_//" ).log
 
 echo
@@ -21,8 +88,28 @@ set -x
 ./Run_verobs         $ENV_EXP SURF >> $LOGFILE 2>&1 || exit
 ./Run_verobs         $ENV_EXP TEMP >> $LOGFILE 2>&1 || exit
 
+if [[ $SCORECARDS_ENABLED -eq 1 ]]; then
+   "$SCORECARD_PY" "$BASE/src/python/build_monitor_scorecards.py" \
+     --stage "$SCORECARD_STAGE" \
+     --outdir "$SCORECARD_STAGE/entry" \
+     --experiments "$EXP" \
+     --display-names "${DISPLAY_EXP:-$EXP}" \
+     --surface-parameters "${SURFPAR:-}" \
+     --upper-air-parameters "${TEMPPAR:-}" \
+     --levels "${SCORECARD_LEVELS:-300,500,700,850}" \
+     --period-type "${PERIOD_TYPE:-1}" || exit 1
+
+   if [ -f "$SCORECARD_STAGE/entry/input.js" ]; then
+      $WEBCALL -e Scorecards -fm "$SCORECARD_STAGE/entry/" || exit 1
+   fi
+fi
+
 ./Link2file          $ENV_EXP || exit
 ./Transport_ver      $ENV_EXP || exit
+
+if [[ $SCORECARDS_ENABLED -eq 1 ]]; then
+   rm -rf "$SCORECARD_STAGE"
+fi
 
 set +x
 

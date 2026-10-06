@@ -143,7 +143,7 @@ if ( $LIST =~ /true/ ||  ! grep(/[a-z,A-Z]/,@ARGV) ||  $n <= 2 && $BASE !~ /$WEB
 	foreach ( @PROJECTS ) {
 		s/ //g;
 		chdir $_ ;
-		@ENTRYS = &get_dir ;
+		@ENTRYS = &get_entry_dirs ;
 		print "   IN $_:  @ENTRYS \n";
 		chdir ".." ;
 	};
@@ -201,7 +201,7 @@ if ( $EXPORT =~ /true/ ) {
 
    if ( $ENTRY   =~ /WebgraF_ENTRY/    ) { 
 	print " Export $PROJECT \n" ;
-        @ENTRYS = &get_dir ;
+        @ENTRYS = &get_entry_dirs ;
    } else {
 	print "Export $ENTRY @ $PROJECT \n" ;
 	$ENTRY =~ s/ //g ;
@@ -313,7 +313,7 @@ if ( $ADDFILE =~ /true/ ) {
 	print "Update $PROJECT \n";
       };
 
-      @ENTRYS = &get_dir ;
+      @ENTRYS = &get_entry_dirs ;
       $WRK = $ENTRY ;
       $WRK =~ s/ //g ;
       if ( ! grep /$ENTRY/, @ENTRYS ) { mkdir $WRK ; @ENTRYS = (@ENTRYS,$ENTRY) ; } ;
@@ -464,7 +464,7 @@ if ( $RENAME =~ /true/ ) {
 	symlink "$NEWNAME/input.js","$NEWNAME.js";
 	print "Moved  $WRK to $NEWNAME \n"; 
 	print "Remember to update pdir in $NEWNAME \n"; 
-	&update_input_list(&get_dir) ;
+	&update_input_list(&get_entry_dirs) ;
 	chdir ".." ;
    } ;
    &make_index() ;
@@ -488,7 +488,7 @@ if ( $DELETE =~ /true/ ) {
 		$WRK =~ s/ //g ;
 		system("rm -rf $WRK $WRK.js") ;
 		print " Removed entry $WRK \n" ;
-		&update_input_list(&get_dir) ;
+		&update_input_list(&get_entry_dirs) ;
 		chdir ".." ;
 	   }else{
    	      if ( $GETINFO =~ /true/ && $ENTRY =~ /WebgraF_ENTRY/) {
@@ -632,7 +632,7 @@ if ( ! grep /$PROJECT/, @PROJECTS ) {
 # Add/update an entry
 #
 
-@ENTRYS = &get_dir ;
+@ENTRYS = &get_entry_dirs ;
 print "ENTRYS: @ENTRYS \n" ;
 
 if ( ! grep /$ENTRY/, @ENTRYS ) {
@@ -693,6 +693,7 @@ $OLDFILE="$WRK"."/input.js" ;
 $NEWFILE="$WRK".".js" ;
 unlink($NEWFILE) ;
 symlink $OLDFILE, $NEWFILE ;
+@ENTRYS = &get_entry_dirs ;
 &update_input_list(@ENTRYS) ;
 
 chdir ".." ;
@@ -726,6 +727,12 @@ sub get_dir {
  local @F ;
  foreach ( @FILES ) { if ( -d $_ ) { @F = (@F," $_ ") ; }; };
  @F = sort @F ;
+ return @F ;
+};
+
+sub get_entry_dirs {
+ local @F = &get_dir ;
+ @F = sort { ($a =~ /^\s*Scorecards\s*$/) <=> ($b =~ /^\s*Scorecards\s*$/) || $a cmp $b } @F ;
  return @F ;
 };
 #######################
@@ -765,7 +772,7 @@ foreach ( @P ) {
 	s/ //g;
 	chdir $_ or die "Could not go to $_ \n" ;
 	$P = $_ ;
-	@E = &get_dir ;
+	@E = &get_entry_dirs ;
 
 	# Add message
         local @M = "" ;
@@ -811,4 +818,3 @@ close OFILE ;
 system("chmod 777 *") ;
 
 };
-

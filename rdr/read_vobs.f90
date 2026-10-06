@@ -26,7 +26,7 @@ SUBROUTINE read_vobs
             ninvar,old_ninvar,          &
             num_temp,num_stat,          &
             num_temp_lev,               &
-            stations(10000000),         &
+            stations(30000000),         &
             max_found_stat,             &
             version_flag,               &
             old_version_flag

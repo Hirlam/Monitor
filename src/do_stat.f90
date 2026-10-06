@@ -277,6 +277,7 @@ SUBROUTINE do_stat(per_ind,p1,p2)
 
        IF ( lsign_test_joint ) THEN
         CALL print_joint_sign_test(lunout,nexp,nparver,    &
+         MERGE('TEMP','SURF',ltemp),                       &
          0,minp1,maxp2,par_active,                         &
          used_hours(:,per_ind,:),used_fclen(:,per_ind,:))
        ELSE

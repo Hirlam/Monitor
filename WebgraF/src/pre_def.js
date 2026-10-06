@@ -71,6 +71,7 @@ var backgc              = '#ffffcc'
 var ext    	= 'gif'
 var sep    	= '_'
 var pdir   	= ''
+var show_csv_link = false
 var help   	= ""
 var info   	= ""
 var view_limit  = 50

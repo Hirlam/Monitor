@@ -29,6 +29,8 @@ A more detailed explanation about verification can found [here](http://www.cawcr
 
 The scores can be presented per station for the whole data set or filtered through different selection criteria based on e.g. a geographical domain or properties of the data itself. One key feature missing in earlier HIRLAM verification packages is that the comparison is done over exactly the same set of data ( in time and space ) when comparing different experiments or models. The scores are finally presented with a portable web interface, [WebgraF](./webgraf.md), that allows you to easily share the information with others. Since the verification is station based it is less suitable for moving platforms or fields.
 
+The joint significance results can also be presented as [Python scorecards](./scorecards.md).
+
 Other examples on how products from the verification package looks like today can be found here:
  * [The monitor test data set](https://hirlam.org/portal/smhi/WebgraF_test_data/)
  * [FMI](http://fminwp.fmi.fi/WebgraF/FMI-HARMONIE/)
@@ -604,6 +606,5 @@ Finally we can also do the selection based on meteorological criteria. In the ex
 
 
 All the above mentioned selections can of course be combined in any way you can imagine.
-
 
 
