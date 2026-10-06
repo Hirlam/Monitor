@@ -116,7 +116,7 @@ SURFPLOT="GEN TIME MAP SCAT CONT XML DAYVAR"
 
 # Plot all significance tests in the same plot (new) or separate (old)
 SIGN_TEST_JOINT=T
-SCORECARDS=T
+SCORECARDS=F
 
 # Select skill scores to be plotted if CONT is activated in SURFPLOT
 # Frequency     : Frequency
