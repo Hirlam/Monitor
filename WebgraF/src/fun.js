@@ -920,12 +920,8 @@ function dirPic(fg,action,ft,tdstyle)
    re  = /svg$/ ;
 
    if ( ! fg.match(re)) {
-      myimage = new Image()
-      myimage.src = fg
       if ( do_resize ) {
-         if (myimage.height != 0 ) {hgt = myimage.height * size_fig }
-         if (myimage.width  != 0 ) {wdt = myimage.width  * size_fig }
-         if ( wdt != 0 || hgt != 0 ){ fgs =" width="+wdt+" height="+hgt+" " }
+         fgs = " onload=\"this.width=this.naturalWidth*"+size_fig+";this.height=this.naturalHeight*"+size_fig+";\" "
       }
    }
    
@@ -936,7 +932,12 @@ function dirPic(fg,action,ft,tdstyle)
      // .svg file must be embedded
      return "<td "+tdstyle+"><a href='javascript:parent." +action+ "' a><embed src='"+fg+"'"+ fgs+" /embed></a></td>"
    } else {
-     return "<td "+tdstyle+"><a href='javascript:parent." +action+ "' a><img alt='" +tfg+ "' title='" +ft+ "' src='" +fg+ "'"+ fgs+" border='0'></a></td>"
+     var csv_link = ""
+     if (show_csv_link && fg.match(/\.png$/i)) {
+       var csv_file = fg.replace(/\.png$/i, ".csv")
+       csv_link = "<br><a href='"+csv_file+"'>Paired-case counts (CSV)</a>"
+     }
+     return "<td "+tdstyle+"><a href='javascript:parent." +action+ "' a><img alt='" +tfg+ "' title='" +ft+ "' src='" +fg+ "'"+ fgs+" border='0'></a>"+csv_link+"</td>"
    }
 
 }
